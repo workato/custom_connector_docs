@@ -33,7 +33,7 @@ function filterFunc(event) {
 function generateAdapters(){
 
   //Load JSON file
-  $.getJSON('adapters/adapters.json', function (json) {
+  $.getJSON('json/adapters.json', function (json) {
     var listCol = 5;
     var container = $('#container-apps');
 
