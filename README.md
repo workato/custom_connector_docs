@@ -44,7 +44,7 @@ An Adapter is a connector to an application. Each Adapter has one or more trigge
 
 Connectors built on the SDK are called **custom adapters**. These connectors have private scope. This means that they are only available to the connector owner.
 
-To enable global scope for this connector, the code will need to go through review by the Workato team. You can begin this process by submitting a pull request to our [repository](https://github.com/workato/connector_sdk).
+To enable global scope for this connector, the code will need to go through review by the Workato team. You can begin this process by submitting a pull request to our [repository](https://github.com/workato/custom_connector_docs).
 
 ## Requirements
 
@@ -590,7 +590,7 @@ new_alert: {
 #### type
 `type: :paging_desc` - This type should be used only if results are in descending order. A `paging_desc` trigger works by assuming a descending order and continuously poll for all unique records. If the API is unable to return records in descending order, ignore this key to use the classic trigger.
 
-A record of all event IDs (defined in `document_id` ) is recorded for each recipe. Each recipe will "remember" all event IDs that is processed through a trigger. 
+A record of all event IDs (defined in `document_id` ) is recorded for each recipe. Each recipe will "remember" all event IDs that is processed through a trigger.
 
 Based on assumption of order, the trigger can stop the polling cycle once a similar event IDs is observed. This is because further polls will return events "before" and would have already been processed by the trigger. At this point, the trigger stops polling and wait for the new poll cycle for new events. The Workato trigger framework handles deduplication in the background.
 
@@ -925,57 +925,57 @@ While the config_fields is empty, document objects will have no fields (empty ar
 # Example Adapters
 
 ## Basic Authentication Samples
-- [Harvest app connector](https://github.com/workato/connector_sdk/blob/master/basic_auth/harvest_connector.rb)
+- [Harvest app connector](https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/basic_auth/harvest_connector.rb)
 
-- [On-prem Security connector](https://github.com/workato/connector_sdk/blob/master/basic_auth/onprem_security.rb)
+- [On-prem Security connector](https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/basic_auth/onprem_security.rb)
 
-- [Freshdesk connector](https://github.com/workato/connector_sdk/blob/master/basic_auth/freshdesk_connector.rb)
+- [Freshdesk connector](https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/basic_auth/freshdesk_connector.rb)
 
-- [Clearbit connector](https://github.com/workato/connector_sdk/blob/master/basic_auth/clearbit_connector.rb)
+- [Clearbit connector](https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/basic_auth/clearbit_connector.rb)
 
-- [Close.io connector](https://github.com/workato/connector_sdk/blob/master/basic_auth/close_io_connector.rb)
+- [Close.io connector](https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/basic_auth/close_io_connector.rb)
 
-- [Click Time connector](https://github.com/workato/connector_sdk/blob/master/basic_auth/click_time_connector.rb)
+- [Click Time connector](https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/basic_auth/click_time_connector.rb)
 
-- [Toggl connector](https://github.com/workato/connector_sdk/blob/master/basic_auth/toggl_connector.rb)
+- [Toggl connector](https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/basic_auth/toggl_connector.rb)
 
-- [Unbounce connector](https://github.com/workato/connector_sdk/blob/master/basic_auth/unbounce_connector.rb)
+- [Unbounce connector](https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/basic_auth/unbounce_connector.rb)
 
-- [Watson Tone Analyzer connector](https://github.com/workato/connector_sdk/blob/master/basic_auth/watson_tone_analyzer_connector.rb)
+- [Watson Tone Analyzer connector](https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/basic_auth/watson_tone_analyzer_connector.rb)
 
-- [Docparser connector](https://github.com/workato/connector_sdk/blob/master/basic_auth/docparser_connector.rb)
+- [Docparser connector](https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/basic_auth/docparser_connector.rb)
 
 ## OAuth2 Samples
-- [Podio connector](https://github.com/workato/connector_sdk/blob/master/oauth2/podio_connector.rb)
+- [Podio connector](https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/podio_connector.rb)
 
-- [ProductHunt connector](https://github.com/workato/connector_sdk/blob/master/oauth2/producthunt_connector.rb)
+- [ProductHunt connector](https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/producthunt_connector.rb)
 
-- [Accelo connector](https://github.com/workato/connector_sdk/blob/master/oauth2/accelo_connector.rb)
+- [Accelo connector](https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/accelo_connector.rb)
 
-- [Pushbullet connector](https://github.com/workato/connector_sdk/blob/master/oauth2/pushbullet_connector.rb)
+- [Pushbullet connector](https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/pushbullet_connector.rb)
 
-- [Wrike connector](https://github.com/workato/connector_sdk/blob/master/oauth2/wrike_connector.rb)
+- [Wrike connector](https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/wrike_connector.rb)
 
-- [Cisco Spark connector](https://github.com/workato/connector_sdk/blob/master/oauth2/cisco_spark_connector.rb)
+- [Cisco Spark connector](https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/cisco_spark_connector.rb)
 
-- [AMcards connector](https://github.com/workato/connector_sdk/blob/master/oauth2/amcards_connector.rb)
+- [AMcards connector](https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/amcards_connector.rb)
 
-- [Wachete connector](https://github.com/workato/connector_sdk/blob/master/oauth2/wachete_connector.rb)
+- [Wachete connector](https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/wachete_connector.rb)
 
 ## API Key Authentication Samples
-- [Gender API connector](https://github.com/workato/connector_sdk/blob/master/api_key_auth/gender_api_connector.rb)
+- [Gender API connector](https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/gender_api_connector.rb)
 
-- [Hipchat connector](https://github.com/workato/connector_sdk/blob/master/custom_auth/hipchat_connector.rb)
+- [Hipchat connector](https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/custom_auth/hipchat_connector.rb)
 
-- [Codeship connector](https://github.com/workato/connector_sdk/blob/master/api_key_auth/codeship_connector.rb)
+- [Codeship connector](https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/codeship_connector.rb)
 
 ## Custom Authentication Samples
-- [LoJack app connector](https://github.com/workato/connector_sdk/blob/master/custom_auth/lo_jack_connector.rb)
+- [LoJack app connector](https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/custom_auth/lo_jack_connector.rb)
 
-- [SafetyCulture app connector](https://github.com/workato/connector_sdk/blob/master/custom_auth/safetyculture_connector.rb)
+- [SafetyCulture app connector](https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/custom_auth/safetyculture_connector.rb)
 
-- [Knack HQ connector](https://github.com/workato/connector_sdk/blob/master/custom_auth/knack_hq_connector.rb)
+- [Knack HQ connector](https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/custom_auth/knack_hq_connector.rb)
 
-- [Neto connector](https://github.com/workato/connector_sdk/blob/master/custom_auth/neto_connector.rb)
+- [Neto connector](https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/custom_auth/neto_connector.rb)
 
-- [TSheets connector](https://github.com/workato/connector_sdk/blob/master/custom_auth/tsheets_connector.rb)
+- [TSheets connector](https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/custom_auth/tsheets_connector.rb)
