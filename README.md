@@ -50,7 +50,7 @@ To enable global scope for this connector, the code will need to go through revi
 
 ### Format
 
-Presently, we support the following types
+Presently, we support the following types:
   - JSON
   - XML
 
