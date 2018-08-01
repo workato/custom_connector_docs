@@ -48,10 +48,6 @@ To enable global scope for this connector, the code will need to go through revi
 
 ## Requirements
 
-### REST Architecture
-
-Presently, only RESTful APIs are supported by the Connector SDK.
-
 ### Format
 
 Presently, we support the following types
