@@ -1,0 +1,176 @@
+{
+  title: 'Setmore',
+
+  connection: {
+    fields: [{
+        name: 'username',
+        optional: false,
+        label: 'Setmore Email id',
+        hint: 'Your setmore email id'
+      },
+      {
+        name: 'password',
+        optional: false,
+        control_type: 'password',
+        label: 'Password'
+      }
+    ],
+
+    authorization: {
+      type: 'basic_auth',
+      credentials: -> (connection) {
+        user(connection["username"])
+        password(connection["password"])
+      }
+    }
+
+  },
+
+  test: -> (connection) {
+    post("https://my.setmore.com/integrationUserAuthentication").payload(username: connection['username'], password: connection['password'])
+  },
+
+  object_definitions: {
+
+    contact: {
+      fields: -> () {
+        [{
+            name: 'first_name'
+          },
+          {
+            name: 'last_name'
+          },
+          {
+            name: 'phone'
+          },
+          {
+            name: 'email'
+          }
+        ]
+      }
+    },
+
+    triggerData: {
+      fields: -> () {
+        [{
+            name: "first_name"
+          },
+          {
+            name: "last_name"
+          },
+          {
+            name: "mobile_number"
+          },
+          {
+            name: "id"
+          },
+          {
+            name: "login_id",
+            label: "Email"
+          },
+          {
+            name: "address",
+            type:	:object,
+            properties: [{
+                name: "zip"
+              },
+              {
+                name: "state"
+              },
+              {
+                name: "line1"
+              },
+              {
+                name: "country"
+              },
+              {
+                name: "city"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+
+  actions: {
+
+    create_contact: {
+
+      input_fields: -> (object_definitions) {
+        [{
+            name: 'first_name',
+            optional: :false
+          },
+          {
+            name: 'last_name'
+          },
+          {
+            name: 'phone',
+            control_type: :phone
+          },
+          {
+            name: 'email',
+            control_type: :email
+          }
+        ]
+      },
+
+      execute: -> (connection, input) {
+        {
+          contacts: post('https://my.setmore.com/contacts/getContact').payload(username: connection['username'], password: connection['password'], contact: {
+            first_name: input["first_name"],
+            last_name: "#{input["last_name"]}",
+            phone: "#{input["phone"]}",
+            email: "#{input["email"]}"
+          })
+        }
+      },
+
+      output_fields: -> (object_definitions) {
+        object_definitions["contact"]
+      }
+    },
+  },
+
+  triggers: {
+    new_contact: {
+      type: "paging_desc",
+
+      webhook_subscribe: -> (webhook_url, connection, input, recipe_id) {
+        {
+          subscribe: post("https://my.setmore.com/subscription/workato").payload(
+            id: "#{recipe_id}",
+            webhookUrl: webhook_url,
+            modelType: 'contacts',
+            userId: connection['username'],
+            status: 'true'),
+          webhookUrl: webhook_url,
+          id: "#{recipe_id}"
+        }
+      },
+
+      webhook_unsubscribe: -> (webhook, connection) {
+        delete("https://my.setmore.com/unsubscription/workato",
+          id: webhook['id'],
+          webhookUrl: webhook['webhookUrl'],
+          userId: connection['username'],
+          modelType: 'contacts',
+          status: 'false'
+        )
+      },
+
+      webhook_notification: -> (input, payload) {
+        payload
+      },
+
+      dedup: -> (contact) {
+        contact['id']
+      },
+
+      output_fields: -> (object_definitions) {
+        object_definitions["triggerData"]
+      }
+    }
+  },
+}
