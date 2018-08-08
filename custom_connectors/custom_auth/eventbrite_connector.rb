@@ -12,7 +12,7 @@
     ],
 
     authorization: {
-      type: 'custom_auth',
+      type: "custom_auth",
 
       apply: lambda do |connection|
         headers("Authorization": "Bearer #{connection["personal_token"]}")
