@@ -6,7 +6,7 @@
       {
         name: "personal_token",
         control_type: "password",
-        hint: "Find your personal token here: https://www.eventbrite.com/myaccount/apps/"
+        hint: "Find your personal token here: https://www.eventbrite.com/myaccount/apps/",
         optional: false
       }
     ],
@@ -59,118 +59,43 @@
     sales_report: {
       fields: lambda do
         [
-          {
-            "control_type": "text",
-            "label": "Timezone",
-            "type": "string",
-            "name": "timezone"
-          },
+          { "name": "timezone" },
           {
             "name": "event_ids",
             "type": "array",
             "of": "string",
-            "control_type": "text",
-            "label": "Event ids"
+            "label": "Event IDs"
           },
           {
             "name": "data",
             "type": "array",
             "of": "object",
-            "label": "Data",
             "properties": [
+              { "name": "date", "type": "date_time" },
+              { "name": "date_localized","type": "date_time" },
               {
-                "control_type": "text",
-                "label": "Date",
-                "render_input": "date_time_conversion",
-                "parse_output": "date_time_conversion",
-                "type": "date_time",
-                "name": "date"
-              },
-              {
-                "control_type": "text",
-                "label": "Date localized",
-                "render_input": "date_time_conversion",
-                "parse_output": "date_time_conversion",
-                "type": "date_time",
-                "name": "date_localized"
-              },
-              {
-                "properties": [
-                  {
-                    "control_type": "text",
-                    "label": "Currency",
-                    "type": "string",
-                    "name": "currency"
-                  },
-                  {
-                    "control_type": "text",
-                    "label": "Gross",
-                    "type": "string",
-                    "name": "gross"
-                  },
-                  {
-                    "control_type": "text",
-                    "label": "Net",
-                    "type": "string",
-                    "name": "net"
-                  },
-                  {
-                    "control_type": "number",
-                    "label": "Quantity",
-                    "parse_output": "float_conversion",
-                    "type": "number",
-                    "name": "quantity"
-                  },
-                  {
-                    "control_type": "text",
-                    "label": "Fees",
-                    "type": "string",
-                    "name": "fees"
-                  }
-                ],
-                "label": "Totals",
+                "name": "totals",
                 "type": "object",
-                "name": "totals"
+                "properties": [
+                  { "name": "currency" },
+                  { "name": "gross" },
+                  { "name": "net" },
+                  { "type": "number", "name": "quantity" },
+                  { "name": "fees" }
+                ],
               }
             ]
           },
           {
-            "properties": [
-              {
-                "control_type": "text",
-                "label": "Currency",
-                "type": "string",
-                "name": "currency"
-              },
-              {
-                "control_type": "text",
-                "label": "Gross",
-                "type": "string",
-                "name": "gross"
-              },
-              {
-                "control_type": "text",
-                "label": "Net",
-                "type": "string",
-                "name": "net"
-              },
-              {
-                "control_type": "number",
-                "label": "Quantity",
-                "parse_output": "float_conversion",
-                "type": "number",
-                "name": "quantity"
-              },
-              {
-                "control_type": "text",
-                "label": "Fees",
-                "type": "string",
-                "name": "fees"
-              }
-            ],
-            "label": "Totals",
+            "name": "totals",
             "type": "object",
-            "name": "totals"
+            "properties": [
+              { "name": "currency" },
+              { "name": "gross" },
+              { "name": "net" },
+              { "name": "quantity", "type": "number" },
+              { "name": "fees" }
+            ]
           }
         ]
       end
