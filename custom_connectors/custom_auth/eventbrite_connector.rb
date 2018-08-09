@@ -31,7 +31,7 @@
       # Perform the API request for this action
       execute: lambda do |_connection, input|
         get("https://www.eventbriteapi.com/v3/reports/sales").
-          params(event_status: input["event_status"], period: 1, date_facet: "day")
+          params(event_status: input["event_status"], period: 1, date_facet: "day")["totals"]
       end,
 
       input_fields: lambda do
@@ -47,24 +47,11 @@
 
       output_fields: lambda do
         [
-          { "name": "timezone" },
-          {
-            "name": "event_ids",
-            "type": "array",
-            "of": "string",
-            "label": "Event IDs"
-          },
-          {
-            "name": "totals",
-            "type": "object",
-            "properties": [
-              { "name": "currency" },
-              { "name": "gross" },
-              { "name": "net" },
-              { "name": "quantity", "type": "number" },
-              { "name": "fees" }
-            ]
-          }
+          { "name": "currency" },
+          { "name": "gross" },
+          { "name": "net" },
+          { "name": "quantity" },
+          { "name": "fees" }
         ]
       end
     }
