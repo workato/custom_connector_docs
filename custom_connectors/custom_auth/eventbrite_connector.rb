@@ -29,7 +29,7 @@
   actions: {
     get_daily_sales_report: {
       # Perform the API request for this action
-      execute: lambda do |connection, input|
+      execute: lambda do |_connection, input|
         get("https://www.eventbriteapi.com/v3/reports/sales").
           params(event_status: input["event_status"], period: 1, date_facet: "day")
       end,
