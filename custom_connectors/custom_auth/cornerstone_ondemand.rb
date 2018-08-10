@@ -62,7 +62,7 @@
       # How to apply authorization to regular requests:
       # https://docs.workato.com/developing-connectors/sdk/authentication/custom-authentication.html#apply
       apply: lambda do |connection|
-        path = current_url.gsub("https://#{connection['corp_name'].csod.com", '').gsub(/\?.*$/, '')
+        path = current_url.gsub("https://#{connection['corp_name']}.csod.com", '').gsub(/\?.*$/, '')
         if connection['session_token'].present? && connection['session_secret'].present?
           timestamp = Time.now.utc.strftime('%Y-%m-%dT%H:%M:%S.%3N')
           msg = [
