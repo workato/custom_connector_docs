@@ -1,27 +1,27 @@
 {
-  title: 'Cornerstone OnDemand',
+  title: "Cornerstone OnDemand",
 
   connection: {
     fields: [
       {
-        name: 'corp_name',
+        name: "corp_name",
         optional: false
       },
       {
-        name: 'api_key',
+        name: "api_key",
         optional: false
       },
       {
-        name: 'api_secret',
+        name: "api_secret",
         optional: false,
-        control_type: 'password'
+        control_type: "password"
       },
       {
-        name: 'user_name',
+        name: "user_name",
         optional: false
       },
       {
-        name: 'alias',
+        name: "alias",
         optional: false
       }
     ],
@@ -32,27 +32,29 @@
       # How to acquire the token:
       # https://docs.workato.com/developing-connectors/sdk/authentication/custom-authentication.html#acquire
       acquire: lambda do |connection|
-        timestamp = Time.now.utc.strftime('%Y-%m-%dT%H:%M:%S.%3N')
+        # calculate signature
+        timestamp = Time.now.utc.strftime("%Y-%m-%dT%H:%M:%S.%3N")
         msg = [
-          'POST',
+          "POST",
           "x-csod-api-key:#{connection['api_key']}",
           "x-csod-date:#{timestamp}",
-          '/services/api/sts/session'
+          "/services/api/sts/session"
         ].join("\n")
-        signature = msg.hmac_sha512(connection['api_secret'].decode_base64).encode_base64
-        session = post("https://#{connection['corp_name']}.csod.com/services/api/sts/session").
-                    params(
-                      'userName': connection['user_name'],
-                      'alias': connection['alias']
-                    ).
-                    headers(
-                      'x-csod-api-key': connection['api_key'],
-                      'x-csod-date': timestamp,
-                      'x-csod-signature': signature
-                    )
+        signature = msg.hmac_sha512(connection["api_secret"].decode_base64).encode_base64
+
+        reply = post("https://#{connection['corp_name']}.csod.com/services/api/sts/session").
+                  params(
+                    "userName": connection["user_name"],
+                    "alias": connection["alias"]
+                  ).
+                  headers(
+                    "x-csod-api-key": connection["api_key"],
+                    "x-csod-date": timestamp,
+                    "x-csod-signature": signature
+                  )
         {
-          'session_token': session.dig('cornerstoneApi', 'data', 'Session', 'Token'),
-          'session_secret': session.dig('cornerstoneApi', 'data', 'Session', 'Secret')
+          "session_token": reply.dig("cornerstoneApi", "data", "Session", "Token"),
+          "session_secret": reply.dig("cornerstoneApi", "data", "Session", "Secret")
         }
       end,
 
@@ -63,22 +65,25 @@
       # How to apply authorization to regular requests:
       # https://docs.workato.com/developing-connectors/sdk/authentication/custom-authentication.html#apply
       apply: lambda do |connection|
-        path = current_url.gsub("https://#{connection['corp_name']}.csod.com", '').gsub(/\?.*$/, '')
-        if connection['session_token'].present? && connection['session_secret'].present?
-          timestamp = Time.now.utc.strftime('%Y-%m-%dT%H:%M:%S.%3N')
-          msg = [
-            current_verb.to_s.upcase,
-            "x-csod-date:#{timestamp}",
-            "x-csod-session-token:#{connection['session_token']}",
-            path
-          ].join("\n")
-          signature = msg.hmac_sha512(connection['session_secret'].decode_base64).encode_base64
-          headers(
-            'x-csod-date': timestamp,
-            'x-csod-session-token': connection['session_token'],
-            'x-csod-signature': signature
-          )
-        end
+        return if connection["session_token"].blank? || connection["session_secret"].blank?
+
+        # calculate the signature
+        path = current_url.gsub("https://#{connection['corp_name']}.csod.com", "").gsub(/\?.*$/, "")
+        timestamp = Time.now.utc.strftime("%Y-%m-%dT%H:%M:%S.%3N")
+        msg = [
+          current_verb.to_s.upcase,
+          "x-csod-date:#{timestamp}",
+          "x-csod-session-token:#{connection['session_token']}",
+          path
+        ].join("\n")
+        signature = msg.hmac_sha512(connection["session_secret"].decode_base64).encode_base64
+
+        # now update the headers
+        headers(
+          "x-csod-date": timestamp,
+          "x-csod-session-token": connection["session_token"],
+          "x-csod-signature": signature
+        )
       end
     }
   },
