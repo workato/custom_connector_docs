@@ -4,7 +4,7 @@
   connection: {
     fields: [
       {
-        name: 'corpname',
+        name: 'corp_name',
         optional: false
       },
       {
@@ -32,33 +32,37 @@
       # How to acquire the token:
       # https://docs.workato.com/developing-connectors/sdk/authentication/custom-authentication.html#acquire
       acquire: lambda do |connection|
-        request = call(
-          :signed_request,
-          connection['api_secret'],
+        timestamp = Time.now.utc.strftime('%Y-%m-%dT%H:%M:%S.%3N')
+        msg = [
           'POST',
-          connection['corpname'],
-          '/services/api/sts/session',
-          { 'x-csod-api-key': connection['api_key'] },
-          { userName: connection['user_name'], alias: connection['alias'] },
-          ''
-        )
-        
-        api_token = request.
-          format_xml(nil, strip_response_namespaces: true).
-          # Request lazy-executed here.
-          # XPath-like walk of the API response
-          dig('cornerstoneApi', 0, 'data', 0, 'Session', 0, 'Token', 0, 'content!')
-
-        # Result is added to the connection hash
-        { api_token: api_token }
-      end,
+          "x-csod-api-key:#{connection['api_key']}",
+          "x-csod-date:#{timestamp}",
+          '/services/api/sts/session'
+        ].join("\n")
+        session = post("https://#{connection['corp_name']}.csod.com/services/api/sts/session").
+                    params(
+                      'userName': connection['user_name'],
+                      'alias': connection['alias']
+                    ).
+                    headers(
+                      'x-csod-api-key': connection['api_key'],
+                      'x-csod-date': timestamp,
+                      'x-csod-signature': msg.hmac_sha512(connection['api_secret'].decode_base64)
+                    )
+        {
+          'session_token': session.dig('cornerstoneApi', 'data', 'Session', 'Token'),
+          'session_secret': session.dig('cornerstoneApi', 'data', 'Session', 'Secret')
+        }
+      end
 
       # How to know when to re-acquire the token.  Short-hand version of:
       # https://docs.workato.com/developing-connectors/sdk/authentication/custom-authentication.html#refreshon
       refresh_on: 401,
 
+      # How to apply authorization to regular requests:
+      # https://docs.workato.com/developing-connectors/sdk/authentication/custom-authentication.html#apply
       apply: lambda do |connection|
-        path = current_url.gsub("https://#{connection['corpname'].csod.com", '').gsub(/\?.*$/, '')
+        path = current_url.gsub("https://#{connection['corp_name'].csod.com", '').gsub(/\?.*$/, '')
         if connection['session_token'].present? && connection['session_secret'].present?
           timestamp = Time.now.utc.strftime('%Y-%m-%dT%H:%M:%S.%3N')
           msg = [
@@ -77,62 +81,14 @@
     }
   },
 
-  # https://docs.workato.com/developing-connectors/sdk/reusable-methods.html
-  methods: {
-    # Auth mixed in here instead.
-    signed_request: lambda do |hmac_secret, verb, corpname, path, headers, url_params, payload|
-      timestamp = Time.now.utc.strftime('%Y-%m-%dT%H:%M:%S.%3N')
-
-      msg = verb.to_s.upcase + "\n" +
-        headers.
-        merge('x-csod-date': timestamp).
-        sort.
-        map { |name, value| "#{name.downcase}:#{value}" }.
-        join("\n") + "\n" +
-        path
-
-      signature = msg.hmac_sha512(hmac_secret).encode_base64
-
-      if verb.to_s.downcase == 'get'
-        get("https://#{corpname}.csod.com#{path}").
-          params(url_params).
-          headers(headers.merge('x-csod-signature': signature))
-      elsif verb.to_s.downcase == 'post'
-        post("https://#{corpname}.csod.com#{path}").
-          params(url_params).
-          headers(headers.merge('x-csod-signature': signature))
-      else
-        error("Unsupported request verb #{verb}")
-      end
-    end,
-  },
-
   test: lambda do |connection|
-    call(
-      :signed_request,
-      connection['api_token'],
-      'GET',
-      connection['corpname'],
-      '/services/api/OrgUnits/OU',
-      { 'x-csod-api-key': connection['api_key'] },
-      {},
-      ''
-    )
+    get("https://#{connection['corp_name']}.csod.com//services/api/OrgUnits/OU")
   end,
 
   actions: {
     get_ous: {
       execute: lambda do |connection, _input|
-        call(
-          :signed_request,
-          connection['api_token'],
-          'GET',
-          connection['corpname'],
-          '/services/api/OrgUnits/OU',
-          { 'x-csod-api-key': connection['api_key'] },
-          {},
-          ''
-        )
+        get("https://#{connection['corp_name']}.csod.com//services/api/OrgUnits/OU")
       end
     }
   }
