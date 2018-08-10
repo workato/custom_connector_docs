@@ -57,8 +57,20 @@
       # https://docs.workato.com/developing-connectors/sdk/authentication/custom-authentication.html#refreshon
       refresh_on: 401,
 
-      apply: lambda do
-        # Nothing, we do the auth mix-in in a method because it's not strictly "additive" in this API.
+      apply: lambda do |connection|
+        path = current_url.gsub("https://#{connection['corpname'].csod.com", '').gsub(/\?.*$/, '')
+        timestamp = Time.now.utc.strftime('%Y-%m-%dT%H:%M:%S.%3N')
+        msg = [
+          current_verb.to_s.upcase,
+          "x-csod-date:#{timestamp}",
+          "x-csod-session-token:#{connection['session_token']}",
+          path
+        ].join("\n")
+        headers(
+          'x-csod-date': timestamp,
+          'x-csod-session-token': connection['session_token'],
+          'x-csod-signature': msg.hmac_sha512(connection['session_secret'].decode_base64)
+        )
       end
     }
   },
