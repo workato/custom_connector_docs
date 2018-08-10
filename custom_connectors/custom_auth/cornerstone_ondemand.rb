@@ -65,25 +65,25 @@
       # How to apply authorization to regular requests:
       # https://docs.workato.com/developing-connectors/sdk/authentication/custom-authentication.html#apply
       apply: lambda do |connection|
-        return if connection["session_token"].blank? || connection["session_secret"].blank?
+        if connection["session_token"].present? && connection["session_secret"].present?
+          # calculate the signature
+          path = current_url.gsub("https://#{connection['corp_name']}.csod.com", "").gsub(/\?.*$/, "")
+          timestamp = Time.now.utc.strftime("%Y-%m-%dT%H:%M:%S.%3N")
+          msg = [
+            current_verb.to_s.upcase,
+            "x-csod-date:#{timestamp}",
+            "x-csod-session-token:#{connection['session_token']}",
+            path
+          ].join("\n")
+          signature = msg.hmac_sha512(connection["session_secret"].decode_base64).encode_base64
 
-        # calculate the signature
-        path = current_url.gsub("https://#{connection['corp_name']}.csod.com", "").gsub(/\?.*$/, "")
-        timestamp = Time.now.utc.strftime("%Y-%m-%dT%H:%M:%S.%3N")
-        msg = [
-          current_verb.to_s.upcase,
-          "x-csod-date:#{timestamp}",
-          "x-csod-session-token:#{connection['session_token']}",
-          path
-        ].join("\n")
-        signature = msg.hmac_sha512(connection["session_secret"].decode_base64).encode_base64
-
-        # now update the headers
-        headers(
-          "x-csod-date": timestamp,
-          "x-csod-session-token": connection["session_token"],
-          "x-csod-signature": signature
-        )
+          # now update the headers
+          headers(
+            "x-csod-date": timestamp,
+            "x-csod-session-token": connection["session_token"],
+            "x-csod-signature": signature
+          )
+        end
       end
     }
   },
