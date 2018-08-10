@@ -3,11 +3,27 @@
 
   connection: {
     fields: [
-      { name: 'corpname', optional: false },
-      { name: 'api_key', optional: false },
-      { name: 'api_secret', optional: false, control_type: 'password' },
-      { name: 'user_name', optional: false },
-      { name: 'alias', optional: false }
+      {
+        name: 'corpname',
+        optional: false
+      },
+      {
+        name: 'api_key',
+        optional: false
+      },
+      {
+        name: 'api_secret',
+        optional: false,
+        control_type: 'password'
+      },
+      {
+        name: 'user_name',
+        optional: false
+      },
+      {
+        name: 'alias',
+        optional: false
+      }
     ],
 
     # We use a custom authorization scheme:
@@ -52,12 +68,10 @@
     # Auth mixed in here instead.
     signed_request: lambda do |hmac_secret, verb, corpname, path, headers, url_params, payload|
       timestamp = Time.now.utc.strftime('%Y-%m-%dT%H:%M:%S.%3N')
-      headers.merge('x-csod-date': timestamp)
-      msg = [
-      verb.to_s.upcase,
-      "x-csod-date:#{timestamp}",
-      
-      
+
+      msg = verb.to_s.upcase + "\n" +
+        headers.
+        merge('x-csod-date': timestamp).
         sort.
         map { |name, value| "#{name.downcase}:#{value}" }.
         join("\n") + "\n" +
