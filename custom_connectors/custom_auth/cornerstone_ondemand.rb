@@ -47,7 +47,7 @@
                     headers(
                       'x-csod-api-key': connection['api_key'],
                       'x-csod-date': timestamp,
-                      'x-csod-signature': msg.hmac_sha512(connection['api_secret'].decode_base64)
+                      'x-csod-signature': msg.hmac_sha512(connection['api_secret'].decode_base64).encode_base64
                     )
         {
           'session_token': session.dig('cornerstoneApi', 'data', 'Session', 'Token'),
@@ -74,7 +74,7 @@
           headers(
             'x-csod-date': timestamp,
             'x-csod-session-token': connection['session_token'],
-            'x-csod-signature': msg.hmac_sha512(connection['session_secret'].decode_base64)
+            'x-csod-signature': msg.hmac_sha512(connection['session_secret'].decode_base64).encode_base64
           )
         end
       end
