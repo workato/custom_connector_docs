@@ -59,18 +59,20 @@
 
       apply: lambda do |connection|
         path = current_url.gsub("https://#{connection['corpname'].csod.com", '').gsub(/\?.*$/, '')
-        timestamp = Time.now.utc.strftime('%Y-%m-%dT%H:%M:%S.%3N')
-        msg = [
-          current_verb.to_s.upcase,
-          "x-csod-date:#{timestamp}",
-          "x-csod-session-token:#{connection['session_token']}",
-          path
-        ].join("\n")
-        headers(
-          'x-csod-date': timestamp,
-          'x-csod-session-token': connection['session_token'],
-          'x-csod-signature': msg.hmac_sha512(connection['session_secret'].decode_base64)
-        )
+        if connection['session_token'].present? && connection['session_secret'].present?
+          timestamp = Time.now.utc.strftime('%Y-%m-%dT%H:%M:%S.%3N')
+          msg = [
+            current_verb.to_s.upcase,
+            "x-csod-date:#{timestamp}",
+            "x-csod-session-token:#{connection['session_token']}",
+            path
+          ].join("\n")
+          headers(
+            'x-csod-date': timestamp,
+            'x-csod-session-token': connection['session_token'],
+            'x-csod-signature': msg.hmac_sha512(connection['session_secret'].decode_base64)
+          )
+        end
       end
     }
   },
