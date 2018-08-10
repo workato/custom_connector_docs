@@ -53,7 +53,7 @@
           'session_token': session.dig('cornerstoneApi', 'data', 'Session', 'Token'),
           'session_secret': session.dig('cornerstoneApi', 'data', 'Session', 'Secret')
         }
-      end
+      end,
 
       # How to know when to re-acquire the token.  Short-hand version of:
       # https://docs.workato.com/developing-connectors/sdk/authentication/custom-authentication.html#refreshon
