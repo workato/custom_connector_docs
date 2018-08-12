@@ -5,12 +5,16 @@
     fields: [
       {
         name: "client_id",
-        optional: false
+        optional: false,
+        hint: "Find your client ID <a href='https://console.developers." \
+          "google.com/' target='_blank'>here</a>"
       },
       {
         name: "client_secret",
         control_type: "password",
-        optional: false
+        optional: false,
+        hint: "Find your client secret <a href='https://console.developers." \
+          "google.com/' target='_blank'>here</a>"
       }
     ],
 
@@ -21,7 +25,6 @@
         scopes = ["https://www.googleapis.com/auth/analytics.readonly",
                   "https://www.googleapis.com/auth/analytics.edit",
                   "https://www.googleapis.com/auth/analytics"].join(" ")
-
         "https://accounts.google.com/o/oauth2/auth?client_id="            \
          "#{connection['client_id']}&response_type=code&scope=#{scopes}" \
          "&access_type=offline&include_granted_scopes=true&prompt=consent"
