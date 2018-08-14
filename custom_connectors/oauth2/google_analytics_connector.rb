@@ -268,25 +268,25 @@
         metric_filter_clauses =
           if(input["metric_filters"].blank?)
 						[]
-					else
+          else
             [{
               "operator" => "AND",
-              "filters"	=>	[
-                              (input["metric_filters"] || {}).
-                                map do |k, v|
-                                  if( v.present? )
-                                    {
-                                      "metricName" => "ga:#{k}",
-                                      "operator"=>"EQUAL",
-                                      "comparisonValue"=> "#{v}"
-                                    }
-                                  else
-                                    nil
-                                  end
-                                end
-                            ]
-              }]
-					end
+              "filters"	=> [
+                             (input["metric_filters"] || {}).
+                               map do |k, v|
+                                 if (v.present?)
+                                   {
+                                     "metricName" => "ga:#{k}",
+                                     "operator" => "EQUAL",
+                                     "comparisonValue" => "#{v}"
+                                   }
+                                 else
+                                   nil
+                                 end
+                               end
+                           ]
+            }]
+          end
 
         payload = {
           "reportRequests" => [
@@ -299,7 +299,7 @@
                 }
               ],
               "dimensions" => dimensions.
-                              map { |dimension| { name: dimension } },
+                                map { |dimension| { name: dimension } },
               "metrics" => metrics.map { |metric| { expression: metric } },
               "dimensionFilterClauses" => dimension_filter_clauses,
               "metricFilterClauses" => metric_filter_clauses,
@@ -313,18 +313,18 @@
         headers = response&.[]("columnHeader")
         dimension_headers = headers["dimensions"]
         metric_headers = (headers["metricHeader"]["metricHeaderEntries"] || []).
-                         map { |h| h["name"] }
+                           map { |h| h["name"] }
         data = response["data"]
         data["rows"] =
           (data&.[]("rows") || []).
           map do |row|
-           {
-             "dimensions": Hash[dimension_headers.
-                           zip(row&.[]("dimensions"))],
-             "metrics": Hash[metric_headers.
-                        zip(row&.[]("metrics")&.first&.[]("values"))]
-           }
-        end
+            {
+              "dimensions": Hash[dimension_headers.
+                                   zip(row&.[]("dimensions"))],
+              "metrics": Hash[metric_headers.
+                                zip(row&.[]("metrics")&.first&.[]("values"))]
+            }
+          end
         data
       end
     }
@@ -635,7 +635,7 @@
       [
         %w[Users ga:users],
         %w[New\ Users ga:newUsers],
-        %w[%\ New\ Sessions ga:percentNewSessions],
+        ["% New Sessions", "ga:percentNewSessions"],
         %w[1\ Day\ Active\ Users ga:1dayUsers],
         %w[7\ Day\ Active\ Users ga:7dayUsers],
         %w[14\ Day\ Active\ Users ga:14dayUsers],
