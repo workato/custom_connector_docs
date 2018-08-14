@@ -113,11 +113,11 @@
             config_fields["metric_filter_fields"].
               split("\n").
               map do |field_name|
-            {
-              name: field_name.gsub("ga:",""),
-              label: field_name.gsub("ga:","").titleize,
-              optional: false
-            }
+                {
+                  name: field_name.gsub("ga:",""),
+                  label: field_name.gsub("ga:","").titleize,
+                  optional: false
+                }
           end
 
           filters = filters.concat(
@@ -243,38 +243,38 @@
         metrics = input["metrics"].split("\n")
 
         dimension_filter_clauses =
-          if(input["dimension_filters"].blank?)
-						[]
-					else
+          if input["dimension_filters"].blank?
+            []
+          else
             [{
               "operator" => "AND",
-              "filters"	=>	[
-                              (input["dimension_filters"] || {}).
-                                map do |k, v|
-                                  if( v.present? )
-                                    {
-                                      "dimensionName" => "ga:#{k}",
-                                      "operator"=>"EXACT",
-                                      "expressions"=> ["#{v}"]
-                                    }
-                                  else
-                                    nil
-                                  end
-                                end
-                            ]
+              "filters"	=> [
+                             (input["dimension_filters"] || {}).
+                               map do |k, v|
+                                 if v.present?
+                                   {
+                                     "dimensionName" => "ga:#{k}",
+                                     "operator" => "EXACT",
+                                     "expressions" => ["#{v}"]
+                                   }
+                                 else
+                                   nil
+                                 end
+                               end
+                           ]
             }]
-					end
+          end
 
         metric_filter_clauses =
-          if(input["metric_filters"].blank?)
-						[]
+          if input["metric_filters"].blank?
+            []
           else
             [{
               "operator" => "AND",
               "filters"	=> [
                              (input["metric_filters"] || {}).
                                map do |k, v|
-                                 if (v.present?)
+                                 if v.present?
                                    {
                                      "metricName" => "ga:#{k}",
                                      "operator" => "EQUAL",
