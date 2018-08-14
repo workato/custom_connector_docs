@@ -28,7 +28,6 @@
         "https://accounts.google.com/o/oauth2/auth?client_id="            \
          "#{connection['client_id']}&response_type=code&scope=#{scopes}" \
          "&access_type=offline&include_granted_scopes=true&prompt=consent"
-
       end,
 
       acquire: lambda do |connection, auth_code, redirect_uri|
@@ -220,7 +219,15 @@
           pick_list_params: { account_id: "account", property_id: "property" },
           delimiter: "\n",
           hint: "Select a property to view list of metrics to filter by"
-        }
+        },
+		    {
+          name: "start_date", type: "date", control_type: "date",
+          hint: "Starting start to pick up events from"
+        },
+        {
+          name: "end_date", type: "date", control_type: "date",
+          hint: "Starting start to pick up events from"
+        },
       ],
 
       input_fields: lambda do |object_definitions|
@@ -287,8 +294,8 @@
               "viewId" => input["view"],
               "dateRanges" => [
                 {
-                  "startDate": (Time.now - 7.days).to_date.iso8601,
-                  "endDate": Time.now.to_date.iso8601
+                  "startDate": input["start_date"].to_date.iso8601,
+                  "endDate": input["end_date"].to_date.iso8601
                 }
               ],
               "dimensions" => dimensions.
@@ -478,7 +485,7 @@
         %w[Order\ Coupon\ Code ga:orderCouponCode],
         %w[Product\ Brand ga:productBrand],
         %w[Product\ Category\ (Enhanced\ Ecommerce) \
-          ga:productCategoryHierarchy],
+           ga:productCategoryHierarchy],
         %w[Product\ Category\ Level\ XX ga:productCategoryLevelXX],
         %w[Product\ Coupon\ Code ga:productCouponCode],
         %w[Product\ List\ Name ga:productListName],
@@ -566,7 +573,7 @@
         %w[DCM\ Placement\ (DCM\ Model) ga:dcmLastEventSitePlacement],
         %w[DCM\ Placement\ ID\ (DCM\ Model) ga:dcmLastEventSitePlacementId],
         %w[DCM\ Floodlight\ Configuration\ ID\ (DCM\ Model) \
-          ga:dcmLastEventSpotId],
+           ga:dcmLastEventSpotId],
         %w[Age ga:userAgeBracket],
         %w[Gender ga:userGender],
         %w[Other\ Category ga:interestOtherCategory],
@@ -600,7 +607,7 @@
         %w[DBM\ Exchange\ ID\ (DCM\ Model) ga:dbmLastEventExchangeId],
         %w[DBM\ Insertion\ Order\ (DCM\ Model) ga:dbmLastEventInsertionOrder],
         %w[DBM\ Insertion\ Order\ ID\ (DCM\ Model) \
-          ga:dbmLastEventInsertionOrderId],
+           ga:dbmLastEventInsertionOrderId],
         %w[DBM\ Line\ Item\ (DCM\ Model) ga:dbmLastEventLineItem],
         %w[DBM\ Line\ Item\ ID\ (DCM\ Model) ga:dbmLastEventLineItemId],
         %w[DBM\ Site\ (DCM\ Model) ga:dbmLastEventSite],
@@ -675,23 +682,23 @@
         %w[Time\ on\ Page ga:timeOnPage],
         %w[Avg.\ Time\ on\ Page ga:avgTimeOnPage],
         %w[Exits ga:exits],
-        %w[%\ Exit ga:exitRate],
+        ["% Exit", "ga:exitRate"],
         %w[Unique\ Views\ XX ga:contentGroupUniqueViewsXX],
         %w[Results\ Pageviews ga:searchResultViews],
         %w[Total\ Unique\ Searches ga:searchUniques],
         %w[Results\ Pageviews\ /\ Search ga:avgSearchResultViews],
         %w[Sessions\ with\ Search ga:searchSessions],
-        %w[%\ Sessions\ with\ Search ga:percentSessionsWithSearch],
+        ["% Sessions with Search", "ga:percentSessionsWithSearch"],
         %w[Search\ Depth ga:searchDepth],
         %w[Avg.\ Search\ Depth ga:avgSearchDepth],
         %w[Search\ Refinements ga:searchRefinements],
-        %w[%\ Search\ Refinements ga:percentSearchRefinements],
+        ["% Search Refinements", "ga:percentSearchRefinements"],
         %w[Time\ after\ Search ga:searchDuration],
         %w[Time\ after\ Search ga:avgSearchDuration],
         %w[Search\ Exits ga:searchExits],
-        %w[%\ Search\ Exits ga:searchExitRate],
+        ["% Search Exits", "ga:searchExitRate"],
         %w[Site\ Search\ Goal\ XX\ Conversion\ Rate \
-          ga:searchGoalXXConversionRate],
+           ga:searchGoalXXConversionRate],
         %w[Site\ Search\ Goal\ Conversion\ Rate ga:searchGoalConversionRateAll],
         %w[Per\ Search\ Goal\ Value ga:goalValueAllPerSearch],
         %w[Page\ Load\ Time\ (ms) ga:pageLoadTime],
@@ -712,7 +719,7 @@
         %w[Avg.\ Document\ Interactive\ Time\ (sec) ga:avgDomInteractiveTime],
         %w[Document\ Content\ Loaded\ Time\ (ms) ga:domContentLoadedTime],
         %w[Avg.\ Document\ Content\ Loaded\ Time\ (sec) \
-          ga:avgDomContentLoadedTime],
+           ga:avgDomContentLoadedTime],
         %w[SampleDOM\ Latency\ Metrics\ Sample ga:domLatencyMetrics],
         %w[Screen\ Views ga:screenviews],
         %w[Unique\ Screen\ Views ga:uniqueScreenviews],
@@ -797,7 +804,7 @@
         %w[AdSense\ eCPM ga:adsenseECPM],
         %w[AdSense\ Exits ga:adsenseExits],
         %w[AdSense\ Viewable\ Impression\ % \
-          ga:adsenseViewableImpressionPercent],
+           ga:adsenseViewableImpressionPercent],
         %w[AdSense\ Coverage ga:adsenseCoverage],
         %w[AdX\ Impressions ga:adxImpressions],
         %w[AdX\ Coverage ga:adxCoverage],
@@ -823,35 +830,35 @@
         %w[DFP\ Backfill\ Coverage ga:backfillCoverage],
         %w[DFP\ Backfill\ Monetized\ Pageviews ga:backfillMonetizedPageviews],
         %w[DFP\ Backfill\ Impressions\ /\ Session \
-          ga:backfillImpressionsPerSession],
+           ga:backfillImpressionsPerSession],
         %w[DFP\ Backfill\ Viewable\ Impressions\ % \
-          ga:backfillViewableImpressionsPercent],
+           ga:backfillViewableImpressionsPercent],
         %w[DFP\ Backfill\ Clicks ga:backfillClicks],
         %w[DFP\ Backfill\ CTR ga:backfillCTR],
         %w[DFP\ Backfill\ Revenue ga:backfillRevenue],
         %w[DFP\ Backfill\ Revenue\ /\ 1000\ Sessions \
-          ga:backfillRevenuePer1000Sessions],
+           ga:backfillRevenuePer1000Sessions],
         %w[DFP\ Backfill\ eCPM ga:backfillECPM],
         %w[Users ga:cohortActiveUsers],
         %w[Appviews\ per\ User ga:cohortAppviewsPerUser],
         %w[Appviews\ Per\ User\ (LTV) \
-          ga:cohortAppviewsPerUserWithLifetimeCriteria],
+           ga:cohortAppviewsPerUserWithLifetimeCriteria],
         %w[Goal\ Completions\ per\ User ga:cohortGoalCompletionsPerUser],
         %w[Goal\ Completions\ Per\ User\ (LTV) \
-          ga:cohortGoalCompletionsPerUserWithLifetimeCriteria],
+           ga:cohortGoalCompletionsPerUserWithLifetimeCriteria],
         %w[Pageviews\ per\ User ga:cohortPageviewsPerUser],
         %w[Pageviews\ Per\ User\ (LTV) \
-          ga:cohortPageviewsPerUserWithLifetimeCriteria],
+           ga:cohortPageviewsPerUserWithLifetimeCriteria],
         %w[User\ Retention ga:cohortRetentionRate],
         %w[Revenue\ per\ User ga:cohortRevenuePerUser],
         %w[Revenue\ Per\ User\ (LTV) \
-          ga:cohortRevenuePerUserWithLifetimeCriteria],
+           ga:cohortRevenuePerUserWithLifetimeCriteria],
         %w[Session\ Duration\ per\ User ga:cohortSessionDurationPerUser],
         %w[Session\ Duration\ Per\ User\ (LTV) \
-          ga:cohortSessionDurationPerUserWithLifetimeCriteria],
+           ga:cohortSessionDurationPerUserWithLifetimeCriteria],
         %w[Sessions\ per\ User ga:cohortSessionsPerUser],
         %w[Sessions\ Per\ User\ (LTV) \
-          ga:cohortSessionsPerUserWithLifetimeCriteria],
+           ga:cohortSessionsPerUserWithLifetimeCriteria],
         %w[Total\ Users ga:cohortTotalUsers],
         %w[Cohort\ Users ga:cohortTotalUsersWithLifetimeCriteria],
         %w[DBM\ eCPA ga:dbmCPA],
