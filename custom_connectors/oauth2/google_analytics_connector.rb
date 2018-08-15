@@ -33,10 +33,10 @@
       acquire: lambda do |connection, auth_code, redirect_uri|
         response = post("https://accounts.google.com/o/oauth2/token").
                      payload(client_id: connection["client_id"],
-                           client_secret: connection["client_secret"],
-                           grant_type: "authorization_code",
-                           code: auth_code,
-                           redirect_uri: redirect_uri).
+                             client_secret: connection["client_secret"],
+                             grant_type: "authorization_code",
+                             code: auth_code,
+                             redirect_uri: redirect_uri).
                      request_format_www_form_urlencoded
 
         [response, nil, nil]
