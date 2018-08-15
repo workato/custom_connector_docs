@@ -81,54 +81,44 @@
           { name: "source_details" },
           { name: "created_date", type: "date_time" },
           { name: "modified_date", type: "date_time" },
-          { name: "addresses", type: "array", properties:
-            [
-              { name: "address_type" },
-              { name: "city" },
-              { name: "country_code" },
-              { name: "id" },
-              { name: "line1" },
-              { name: "line2" },
-              { name: "line3" },
-              { name: "postal_code" },
-              { name: "state" },
-              { name: "state_code" },
-              { name: "sub_postal_code" }
-            ]
-          },
-          { name: "custom_fields", type: "array", properties:
-            [
-              { name: "label" },
-              { name: "name" },
-              { name: "value" }
-            ]
-          },
-          { name: "email_addresses", type: "array", properties:
-            [
-              { name: "confirm_status" },
-              { name: "email_address" },
-              { name: "id" },
-              { name: "opt_in_date", type: "date_time" },
-              { name: "opt_in_source" },
-              { name: "opt_out_date", type: "date_time" },
-              { name: "opt_out_source" },
-              { name: "status" }
-            ]
-          },
-          { name: "lists", type: "array", properties:
-            [
-              { name: "id" },
-              { name: "status" }
-            ]
-          },
-          { name: "notes", type: "array", properties:
-            [
-              { name: "id" },
-              { name: "created_date", type: "date_time" },
-              { name: "modified_date", type: "date_time" },
-              { name: "note" }
-            ]
-          }
+          { name: "addresses", type: "array", properties: [
+            { name: "address_type" },
+            { name: "city" },
+            { name: "country_code" },
+            { name: "id" },
+            { name: "line1" },
+            { name: "line2" },
+            { name: "line3" },
+            { name: "postal_code" },
+            { name: "state" },
+            { name: "state_code" },
+            { name: "sub_postal_code" }
+          ] },
+          { name: "custom_fields", type: "array", properties: [
+            { name: "label" },
+            { name: "name" },
+            { name: "value" }
+          ] },
+          { name: "email_addresses", type: "array", properties: [
+            { name: "confirm_status" },
+            { name: "email_address" },
+            { name: "id" },
+            { name: "opt_in_date", type: "date_time" },
+            { name: "opt_in_source" },
+            { name: "opt_out_date", type: "date_time" },
+            { name: "opt_out_source" },
+            { name: "status" }
+          ] },
+          { name: "lists", type: "array", properties: [
+            { name: "id" },
+            { name: "status" }
+          ] },
+          { name: "notes", type: "array", properties: [
+            { name: "id" },
+            { name: "created_date", type: "date_time" },
+            { name: "modified_date", type: "date_time" },
+            { name: "note" }
+          ] }
         ]
       end
     },
@@ -146,29 +136,23 @@
           { name: "created_date", type: "date_time" },
           { name: "modified_date", type: "date_time" },
           { name: "last_run_date", type: "date_time" },
-          { name: "tracking_summary", type: "object", properties:
-            [
-              { name: "sends", type: "integer" },
-              { name: "opens", type: "integer" },
-              { name: "clicks", type: "integer" },
-              { name: "forwards", type: "integer" },
-              { name: "unsubscribes", type: "integer" },
-              { name: "bounces", type: "integer" },
-              { name: "spam_count", type: "integer" }
-            ]
-          },
-          { name: "sent_to_contact_lists", type: "array", properties:
-            [
-              { name: "id" }
-            ]
-          },
-          { name: "click_through_details", type: "array", properties:
-            [
-              { name: "url_uid" },
-              { name: "url" },
-              { name: "click_count", type: "integer" }
-            ]
-          }
+          { name: "tracking_summary", type: "object", properties: [
+            { name: "sends", type: "integer" },
+            { name: "opens", type: "integer" },
+            { name: "clicks", type: "integer" },
+            { name: "forwards", type: "integer" },
+            { name: "unsubscribes", type: "integer" },
+            { name: "bounces", type: "integer" },
+            { name: "spam_count", type: "integer" }
+          ] },
+          { name: "sent_to_contact_lists", type: "array", properties: [
+            { name: "id" }
+          ] },
+          { name: "click_through_details", type: "array", properties: [
+            { name: "url_uid" },
+            { name: "url" },
+            { name: "click_count", type: "integer" }
+          ] }
         ]
       end
     },
@@ -242,7 +226,7 @@
             modified_since: input["modified_since"].to_time.utc.iso8601
           }
         end
-        response = get("/v2/emailmarketing/campaigns?limit=30",params)
+        response = get("/v2/emailmarketing/campaigns?limit=30", params)
         campaigns = response["results"]
         next_link = response["meta"]["pagination"]["next_link"]
         while next_link.present?
@@ -262,7 +246,7 @@
         [
           { name: "results", type: "array",
             properties: object_definitions["email_campaign"].
-                        only("id", "name", "status", "modified_date") }
+                          only("id", "name", "status", "modified_date") }
         ]
       end,
 
@@ -279,9 +263,9 @@
         [
           { name: "campaign_id", label: "Campaign", control_type: "select",
             pick_list: "campaigns",
-            hint:"Either Campaign or Campaign ID must be filled" },
+            hint: "Either Campaign or Campaign ID must be filled" },
           { name: "campaign_id_2", label: "Campaign ID",
-            hint:"Either Campaign or Campaign ID must be filled" }
+            hint: "Either Campaign or Campaign ID must be filled" }
         ]
       end,
 
@@ -303,9 +287,9 @@
         [
           { name: "campaign_id", label: "Campaign", control_type: "select",
             pick_list: "campaigns",
-            hint:"Either Campaign or Campaign ID must be filled" },
+            hint: "Either Campaign or Campaign ID must be filled" },
           { name: "campaign_id_2", label: "Campaign ID",
-            hint:"Either Campaign or Campaign ID must be filled" }
+            hint: "Either Campaign or Campaign ID must be filled" }
         ]
       end,
 
@@ -332,7 +316,7 @@
 
       execute: lambda do |_connection, input|
         if input["contact_id"].present?
-          get("/v2/contacts/#{input["contact_id"]}")
+          get("/v2/contacts/#{input['contact_id']}")
         else
           get("/v2/contacts").params("email": input["email"])["results"].first
         end
@@ -370,8 +354,8 @@
         ]
 
         list_hash = [
-          {"id" => input["list_id_1"]},
-          {"id" => input["list_id_2"]},
+          { "id" => input["list_id_1"] },
+          { "id" => input["list_id_2"] },
         ]
 
         custom_hash = [
