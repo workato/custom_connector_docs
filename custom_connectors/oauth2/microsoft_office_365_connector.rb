@@ -29,7 +29,6 @@
         "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?" \
           "response_type=code&scope=#{scopes}&prompt=login&" \
           "redirect_uri=https%3A%2F%2Fwww.workato.com%2Foauth%2Fcallback"
-
       end,
 
       acquire: lambda do |connection, auth_code, redirect_uri|
