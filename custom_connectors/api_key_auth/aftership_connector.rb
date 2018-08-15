@@ -26,9 +26,9 @@
 
   object_definitions: {
     tracking: {
-      fields: ->() {
+      fields: lambda do |_connection|
         [
-        	{ name: "tracking_number", type: :string, optional: false },
+          { name: "tracking_number", type: :string, optional: false },
           { name: "slug", type: :string },
           { name: "tracking_postal_code", type: :string },
           { name: "tracking_ship_date", type: :string },
@@ -47,10 +47,11 @@
           { name: "order_id_path", type: :string, label: "Order ID Path" },
           { name: "note", type: :string }
         ]
-      }
+      end
     },
+
     trackings: {
-      fields: ->() {
+      fields: lambda do |_connection|
         [
           { name: "id", type: :string, control_type: :text },
           { name: "created_at", type: :datetime, control_type: :timestamp },
@@ -101,57 +102,57 @@
             { name: "zip", type: :string, control_type: :text }
           ] }
         ]
-      }
+      end
     }
   },
 
-  test: ->(connection) {
+  test: lambda do |_connection|
     get("/v4/trackings")
-  },
+  end,
 
   actions: {
     create_tracking: {
       description: "Create a <span class='provider'>tracking</span> in " \
         "<span class='provider'>Aftership</span>",
 
-      input_fields: ->(object_definitions) {
+      input_fields: lambda do |object_defintions|
         object_definitions["tracking"].required("tracking_number")
-      },
+      end,
 
-    	execute: ->(_connection, input) {
-        post("/v4/trackings",  tracking: input)["tracking"]
-      },
+      execute: lambda do |_connection, input|
+        post("/v4/trackings", tracking: input)["tracking"]
+      end,
 
-      output_fields: ->(object_definitions) {
+      output_fields: lambda do |object_defintions|
         object_definitions["tracking"]
-      }
+      end
     },
 
     search_tracking: {
       description: "Search <span class='provider'>tracking</span> in " \
         "<span class='provider'>Aftership</span>",
 
-      input_fields: ->(_object_definitions) {
+      input_fields: lambda do |object_defintions|
         {
           name: "tracking_number",
           type: "string",
           optional: false,
           label: "Tracking Number"
         }
-      },
+      end,
 
-      execute: ->(_connection, input) {
+      execute: lambda do |_connection, input|
         result = get("/v4/trackings").
-                 params(keyword: input["tracking_number"]) ["data"]
+                   params(keyword: input["tracking_number"]) ["data"]
 
         {
           trackings: result["trackings"].presence || []
         }
       },
 
-      output_fields: ->(object_definitions) {
+      output_fields: lambda do |object_defintions|
         object_definitions["trackings"]
-      }
+      end
     }
   }
 }
