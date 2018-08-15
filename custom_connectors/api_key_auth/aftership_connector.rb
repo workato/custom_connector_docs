@@ -17,7 +17,7 @@
       credentials: lambda do |connection|
         headers("aftership-api-key": connection["api_key"])
       end
-  	},
+    },
 
     base_uri: lambda do
       "https://api.aftership.com"
@@ -115,7 +115,7 @@
       description: "Create a <span class='provider'>tracking</span> in " \
         "<span class='provider'>Aftership</span>",
 
-      input_fields: lambda do |object_defintions|
+      input_fields: lambda do |object_definitions|
         object_definitions["tracking"].required("tracking_number")
       end,
 
@@ -123,7 +123,7 @@
         post("/v4/trackings", tracking: input)["tracking"]
       end,
 
-      output_fields: lambda do |object_defintions|
+      output_fields: lambda do |object_definitions|
         object_definitions["tracking"]
       end
     },
@@ -132,7 +132,7 @@
       description: "Search <span class='provider'>tracking</span> in " \
         "<span class='provider'>Aftership</span>",
 
-      input_fields: lambda do |object_defintions|
+      input_fields: lambda do |object_definitions|
         {
           name: "tracking_number",
           type: "string",
@@ -150,7 +150,7 @@
         }
       end,
 
-      output_fields: lambda do |object_defintions|
+      output_fields: lambda do |object_definitions|
         object_definitions["trackings"]
       end
     }
