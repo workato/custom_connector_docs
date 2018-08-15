@@ -132,7 +132,7 @@
       description: "Search <span class='provider'>tracking</span> in " \
         "<span class='provider'>Aftership</span>",
 
-      input_fields: lambda do |object_definitions|
+      input_fields: lambda do |_object_definitions|
         {
           name: "tracking_number",
           type: "string",
