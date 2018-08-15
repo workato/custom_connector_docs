@@ -80,7 +80,8 @@
           { name: "interval_count", type: "integer", control_type: "number",
             hint: "The frequency of billing interval. Accepts integers " \
               "greater than 0. eg. 6 for a half-yearly plan." },
-          { name: "interval_unit",
+          {
+            name: "interval_unit",
             hint: "The unit of billing interval. One of day, month, or " \
               "year. eg. month for the above half-yearly plan.",
             control_type: "select",
@@ -143,7 +144,7 @@
     },
 
     invoice: {
-      fields: lambda do |object_definitions|
+      fields: lambda do |_object_definitions|
         [
           { name: "uuid", label: "Invoice UUID" },
           { name: "external_id",
