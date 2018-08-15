@@ -85,9 +85,9 @@
               "year. eg. month for the above half-yearly plan.",
             control_type: "select",
             pick_list: [
-              %W[Day day],
-              %W[Month month],
-              %W[Year year]
+              %w[Day day],
+              %w[Month month],
+              %w[Year year]
             ]
           }
         ]
@@ -180,13 +180,13 @@
             	{ name: "uuid", label: "Transaction UUID" },
           		{ name: "external_id" },
               { name: "type", control_type: "select", pick_list: [
-              	%W[Payment payment],
-                %W[Refund refund]
+                %w[Payment payment],
+                %w[Refund refund]
               ] },
               { name: "date", type: "date_time" },
               { name: "result", control_type: "select", pick_list: [
-              	%W[Successful successful],
-                %W[Failed failed]
+                %w[Successful successful],
+                %w[Failed failed]
               ] }
             ]
           }
@@ -557,10 +557,10 @@
       description: "Search <span class='provider'>plans</span> in " \
         "<span class='provider'>ChartMogul</span>",
 
-    	input_fields: lambda do |object_definitions|
+      input_fields: lambda do |object_definitions|
         object_definitions["plan"].
-        	only("external_id", "data_source_uuid").
-        	required("external_id")
+          only("external_id", "data_source_uuid").
+          required("external_id")
       end,
 
       execute: lambda do |_connection, input|
@@ -576,9 +576,9 @@
       description: "Create <span class='provider'>plan</span> in " \
         "<span class='provider'>ChartMogul</span>",
 
-    	input_fields: lambda do |object_definitions|
+      input_fields: lambda do |object_definitions|
         object_definitions["plan"].
-        	required("name","interval_count").
+          required("name", "interval_count").
           ignored("uuid").
           concat([{ name: "interval", hint: "One of day, month or year" }])
       end,
@@ -700,13 +700,13 @@
         [
           {
             name: "start_date",
-						type: "date",
+            type: "date",
             control_type: "date",
             optional: false
           },
           {
             name: "end_date",
-						type: "date",
+            type: "date",
             control_type: "date",
             optional: false
           },
@@ -775,7 +775,7 @@
         ]
       end,
 
-      execute: lambda do |connection, input|
+      execute: lambda do |_connection, input|
         get("/v1/metrics/customer-count").
           params(
             "start-date": input["start_date"].to_date.iso8601,
@@ -815,7 +815,7 @@
         ]
       end,
 
-      execute: lambda do |connection, input|
+      execute: lambda do |_connection, input|
         get("/v1/metrics/customer-churn-rate").
           params(
             "start-date": input["start_date"].to_date.iso8601,
@@ -846,17 +846,17 @@
   },
 
   pick_lists: {
-    data_sources: lambda do |connection|
+    data_sources: lambda do |_connection|
       get("/v1/import/data_sources")["data_sources"].
         pluck("name", "uuid")
     end,
 
     intervals: lambda do
       [
-        %W[Day day],
-        %W[Week week],
-        %W[Month month],
-        %W[Quarter quarter]
+        %w[Day day],
+        %w[Week week],
+        %w[Month month],
+        %w[Quarter quarter]
       ]
     end
   }
