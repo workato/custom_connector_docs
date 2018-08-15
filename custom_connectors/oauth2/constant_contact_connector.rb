@@ -237,7 +237,7 @@
       end,
 
       execute: lambda do |_connection, input|
-        if input["modified_since"].present? then
+        if input["modified_since"].present?
           params = {
             modified_since: input["modified_since"].to_time.utc.iso8601
           }
@@ -403,8 +403,8 @@
   triggers: {
     contact_clicked_campaign: {
       title: "New email campaign click by contact",
-      subtitle: "New email campaign click by contact",
-      description: "New <span class='provider'>email campaign click</span> by" \
+      subtitle: "New email campaign clicked by contact",
+      description: "New <span class='provider'>email campaign clicked</span> by" \
         " contact in <span class='provider'>Constant Contact</span>",
       help: "Retrieves a report showing each contact who clicked on a link, " \
         "for each link, in a sent email campaign.",
@@ -421,25 +421,25 @@
       end,
 
       poll: lambda do |_connection, input, next_page|
-        if input["created_since"].present? then
+        if input["created_since"].present?
           params = {
             created_since: input["created_since"].to_time.utc.iso8601
           }
         end
-        if next_page.present? then
+        if next_page.present?
           response = get(next_page)
         else
           response =
-            get("/v2/emailmarketing/campaigns/#{input["campaign_id"]}/" \
+            get("/v2/emailmarketing/campaigns/#{input['campaign_id']}/" \
               "tracking/clicks?limit=500", params)
         end
 
-      clickers = response["results"]
+        clickers = response["results"]
 
-      {
-        events: clickers,
-        next_page: response["meta"]["pagination"]["next_link"]
-      }
+        {
+          events: clickers,
+          next_page: response["meta"]["pagination"]["next_link"]
+        }
       end,
 
       document_id: lambda do |clicker|
@@ -475,16 +475,16 @@
       end,
 
       poll: lambda do |_connection, input, next_page|
-        if input["created_since"].present? then
+        if input["created_since"].present?
           params = {
             created_since: input["created_since"].to_time.utc.iso8601
           }
         end
-        if next_page.present? then
+        if next_page.present?
           response = get(next_page)
         else
           response =
-            get("/v2/emailmarketing/campaigns/#{input["campaign_id"]}/" \
+            get("/v2/emailmarketing/campaigns/#{input['campaign_id']}/" \
               "tracking/opens?limit=500", params)
         end
 
@@ -528,16 +528,16 @@
       end,
 
       poll: lambda do |_connection, input, next_page|
-        if input["created_since"].present? then
+        if input["created_since"].present?
           params = {
             created_since: input["created_since"].to_time.utc.iso8601
           }
         end
-        if next_page.present? then
+        if next_page.present?
           response = get(next_page)
         else
           response =
-            get("/v2/emailmarketing/campaigns/#{input["campaign_id"]}/" \
+            get("/v2/emailmarketing/campaigns/#{input['campaign_id']}/" \
               "tracking/bounces?limit=500", params)
         end
 
@@ -581,16 +581,16 @@
       end,
 
       poll: lambda do |_connection, input, next_page|
-        if input["created_since"].present? then
+        if input["created_since"].present?
           params = {
             created_since: input["created_since"].to_time.utc.iso8601
           }
         end
-        if next_page.present? then
+        if next_page.present?
           response = get(next_page)
         else
           response =
-            get("/v2/emailmarketing/campaigns/#{input["campaign_id"]}/" \
+            get("/v2/emailmarketing/campaigns/#{input['campaign_id']}/" \
               "tracking/unsubscribes?limit=500", params)
         end
 
@@ -632,12 +632,12 @@
       end,
 
       poll: lambda do |_connection, input, next_page|
-        if input["modified_since"].present? then
+        if input["modified_since"].present?
           params = {
             modified_since: input["modified_since"].to_time.utc.iso8601
           }
         end
-        if next_page.present? then
+        if next_page.present?
           response = get(next_page)
         else
           response =
@@ -671,7 +671,7 @@
       get("/v2/lists").pluck("name", "id")
     end,
 
-    campaigns: lambda do |connection|
+    campaigns: lambda do |_connection|
       response = get("/v2/emailmarketing/campaigns?limit=50")
       campaign_results = response["results"]
       next_link = response["meta"]["pagination"]["next_link"]
