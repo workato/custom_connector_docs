@@ -99,13 +99,14 @@
                   optional: false
                 }
               end
-          filters = filters.concat(
-                      [
-                        { name: "dimension_filters",
-                          type: :object,
-                          properties: dimension_filter_fields }
-                      ]
-                    )
+          filters =
+            filters.concat(
+              [
+                { name: "dimension_filters",
+                  type: :object,
+                  properties: dimension_filter_fields }
+              ]
+            )
         end
 
         if (!config_fields["metric_filter_fields"].blank?)
@@ -120,13 +121,14 @@
                 }
           end
 
-          filters = filters.concat(
-                      [
-                        { name: "metric_filters",
-                          type: :object,
-                          properties: metric_filter_fields }
-                      ]
-                    )
+          filters =
+            filters.concat(
+              [
+                { name: "metric_filters",
+                  type: :object,
+                  properties: metric_filter_fields }
+              ]
+            )
         end
         filters
       end
@@ -212,7 +214,7 @@
           delimiter: "\n",
           hint: "Select a property to view list of dimensions to filter by"
         },
-		    {
+        {
           name: "metric_filter_fields",
           control_type: "multiselect",
           pick_list: "metrics",
@@ -220,7 +222,7 @@
           delimiter: "\n",
           hint: "Select a property to view list of metrics to filter by"
         },
-		    {
+        {
           name: "start_date", type: "date", control_type: "date",
           hint: "Starting start to pick up events from"
         },
@@ -248,7 +250,7 @@
           else
             [{
               "operator" => "AND",
-              "filters"	=> [
+              "filters" => [
                              (input["dimension_filters"] || {}).
                                map do |k, v|
                                  if v.present?
