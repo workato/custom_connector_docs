@@ -40,9 +40,9 @@
               redirect_uri: "https%3A%2F%2Fwww.workato.com%2Foauth%2Fcallback"
             )
 
-          {
-            access_token: response["access_token"],
-          }
+        {
+          access_token: response["access_token"],
+        }
       end,
 
       apply: lambda do |connection, access_token|
@@ -388,8 +388,8 @@
     contact_clicked_campaign: {
       title: "New email campaign click by contact",
       subtitle: "New email campaign clicked by contact",
-      description: "New <span class='provider'>email campaign clicked</span> by" \
-        " contact in <span class='provider'>Constant Contact</span>",
+      description: "New <span class='provider'>email campaign clicked</span> " \
+        "by contact in <span class='provider'>Constant Contact</span>",
       help: "Retrieves a report showing each contact who clicked on a link, " \
         "for each link, in a sent email campaign.",
 
@@ -410,13 +410,14 @@
             created_since: input["created_since"].to_time.utc.iso8601
           }
         end
-        if next_page.present?
-          response = get(next_page)
-        else
-          response =
-            get("/v2/emailmarketing/campaigns/#{input['campaign_id']}/" \
-              "tracking/clicks?limit=500", params)
-        end
+        response = if next_page.present?
+                     get(next_page)
+                   else
+                     get(
+                       "/v2/emailmarketing/campaigns/#{input['campaign_id']}" \
+                       "/tracking/clicks?limit=500", params
+                     )
+                   end
 
         clickers = response["results"]
 
@@ -464,13 +465,14 @@
             created_since: input["created_since"].to_time.utc.iso8601
           }
         end
-        if next_page.present?
-          response = get(next_page)
-        else
-          response =
-            get("/v2/emailmarketing/campaigns/#{input['campaign_id']}/" \
-              "tracking/opens?limit=500", params)
-        end
+        response = if next_page.present?
+                     get(next_page)
+                   else
+                     get(
+                       "/v2/emailmarketing/campaigns/#{input['campaign_id']}/" \
+                       "tracking/opens?limit=500", params
+                     )
+                   end
 
         openers = response["results"]
         {
@@ -517,13 +519,14 @@
             created_since: input["created_since"].to_time.utc.iso8601
           }
         end
-        if next_page.present?
-          response = get(next_page)
-        else
-          response =
-            get("/v2/emailmarketing/campaigns/#{input['campaign_id']}/" \
-              "tracking/bounces?limit=500", params)
-        end
+        response = if next_page.present?
+                     get(next_page)
+                   else
+                     get(
+                       "/v2/emailmarketing/campaigns/#{input['campaign_id']}/" \
+                       "tracking/bounces?limit=500", params
+                     )
+                   end
 
         bouncers = response["results"]
         {
@@ -570,13 +573,14 @@
             created_since: input["created_since"].to_time.utc.iso8601
           }
         end
-        if next_page.present?
-          response = get(next_page)
-        else
-          response =
-            get("/v2/emailmarketing/campaigns/#{input['campaign_id']}/" \
-              "tracking/unsubscribes?limit=500", params)
-        end
+        response = if next_page.present?
+                     response = get(next_page)
+                   else
+                     get(
+                       "/v2/emailmarketing/campaigns/#{input['campaign_id']}/" \
+                       "tracking/unsubscribes?limit=500", params
+                     )
+                   end
 
         unsubs = response["results"]
         {
@@ -621,12 +625,12 @@
             modified_since: input["modified_since"].to_time.utc.iso8601
           }
         end
-        if next_page.present?
-          response = get(next_page)
-        else
-          response =
-            get("/v2/emailmarketing/campaigns?limit=50&status=SENT", params)
-        end
+        response = if next_page.present?
+                     get(next_page)
+                   else
+                     get("/v2/emailmarketing/campaigns?limit=50&status=SENT",
+                         params)
+                   end
 
         campaigns = response["results"]
         {
