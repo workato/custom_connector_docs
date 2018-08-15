@@ -155,41 +155,37 @@
           { name: "currency",
             hint: "The 3-letter currency code of the currency in which " \
               "this invoice is being billed, e.g. USD, EUR, GBP." },
-          { name: "line_items", type: "array", of: "object", properties:
-            [
-            	{ name: "uuid", label: "Item UUID" },
-          		{ name: "external_id" },
-              { name: "type" },
-              { name: "subscription_uuid" },
-              { name: "plan_uuid" },
-              { name: "prorated", type: "boolean" },
-              { name: "service_period_start", type: "date_time" },
-              { name: "service_period_end", type: "date_time" },
-              { name: "amount_in_cents", type: "integer", label: "Amount" },
-              { name: "quantity", type: "integer" },
-              { name: "discount_code" },
-              { name: "discount_amount_in_cents", type: "integer",
-                label: "Discount Amount" },
-              { name: "tax_amount_in_cents", type: "integer",
-                label: "Tax Amount" },
-              { name: "account_code" }
-            ]
-          },
-          { name: "transactions", type: "array", of: "object", properties:
-            [
-            	{ name: "uuid", label: "Transaction UUID" },
-          		{ name: "external_id" },
-              { name: "type", control_type: "select", pick_list: [
-                %w[Payment payment],
-                %w[Refund refund]
-              ] },
-              { name: "date", type: "date_time" },
-              { name: "result", control_type: "select", pick_list: [
-                %w[Successful successful],
-                %w[Failed failed]
-              ] }
-            ]
-          }
+          { name: "line_items", type: "array", of: "object", properties: [
+          	{ name: "uuid", label: "Item UUID" },
+        		{ name: "external_id" },
+            { name: "type" },
+            { name: "subscription_uuid" },
+            { name: "plan_uuid" },
+            { name: "prorated", type: "boolean" },
+            { name: "service_period_start", type: "date_time" },
+            { name: "service_period_end", type: "date_time" },
+            { name: "amount_in_cents", type: "integer", label: "Amount" },
+            { name: "quantity", type: "integer" },
+            { name: "discount_code" },
+            { name: "discount_amount_in_cents", type: "integer",
+              label: "Discount Amount" },
+            { name: "tax_amount_in_cents", type: "integer",
+              label: "Tax Amount" },
+            { name: "account_code" }
+          ] },
+          { name: "transactions", type: "array", of: "object", properties: [
+          	{ name: "uuid", label: "Transaction UUID" },
+        		{ name: "external_id" },
+            { name: "type", control_type: "select", pick_list: [
+              %w[Payment payment],
+              %w[Refund refund]
+            ] },
+            { name: "date", type: "date_time" },
+            { name: "result", control_type: "select", pick_list: [
+              %w[Successful successful],
+              %w[Failed failed]
+            ] }
+          ] }
         ]
       end
     },
@@ -254,8 +250,8 @@
 
       input_fields: lambda do |object_definitions|
         object_definitions["invoice"].
-          required("external_id","date","currency").
-          ignored("uuid","line_items","transactions").
+          required("external_id", "date", "currency").
+          ignored("uuid", "line_items", "transactions").
           concat(
             [
               {
@@ -275,7 +271,7 @@
                     label: "External ID",
                     hint: "A unique identifier specified by you for the line " \
                       "item. Typically an identifier from your internal " \
-                      "system." ,
+                      "system.",
                     sticky: true
                   },
                   {
@@ -379,24 +375,24 @@
           input["due_date"] = input["due_date"].to_time.iso8601
         end
 
-		    input["line_items"] = input["line_items"].each { |object|
+        input["line_items"] = input["line_items"].each do |object|
           object.each do |key, value|
             if key.include?("_in_cents") && value.present?
-              #Transform dollar values to cents as required by API
+              # Transform dollar values to cents as required by API
               object[key] = (value.to_f * 100).to_i
             elsif (key.include?("service_period") && value.present?) ||
               (key == "cancelled_at" && value.present?)
-              #Transform date values to ISO 8601
+              # Transform date values to ISO 8601
               object[key] = value.to_time.iso8601
             elsif key == "quantity" && value.present?
               object[key] = value.to_i
             end
           end
-        }
+        end
 
         post("/v1/import/customers/#{input['customer_uuid']}/invoices").
           payload(
-            #API requires an array of invoices
+            # API requires an array of invoices
             invoices: [input]
           )["invoices"].first
       end,
@@ -465,11 +461,13 @@
         response = get("/v1/import/customers", input)["customers"].first
         if response.present?
           response.each do |k, v|
-            if k == "mrr" || k == "arr"
+            if k == "mrr"
+              response[k] = (v.to_f / 100)
+            elsif k == "arr"
               response[k] = (v.to_f / 100)
             end
           end
-      	end
+        end
       end,
 
       output_fields: lambda do |object_definitions|
@@ -486,7 +484,7 @@
           required("external_id", "name").
           ignored("uuid", "mrr", "arr", "chartmogul_url", "status", "currency").
           concat(
-         	  [
+            [
               { name: "lead_created_at", type: "timestamp",
                 hint: "Time at which this customer was established as a " \
                   "lead." },
@@ -507,7 +505,7 @@
           end
         end
 
-       	post("/v1/import/customers", request)
+        post("/v1/import/customers", request)
       end,
 
       output_fields: lambda do |object_definitions|
@@ -524,7 +522,7 @@
           required("uuid").
           ignored("mrr", "arr", "chartmogul_url", "status", "currency").
           concat(
-         	  [
+            [
               { name: "lead_created_at", type: "timestamp",
                 hint: "Time at which this customer was established as a " \
                   "lead." },
@@ -545,7 +543,7 @@
           end
         end
 
-       	patch("/v1/import/customers/#{input['uuid']}",request)
+        patch("/v1/import/customers/#{input['uuid']}", request)
       end,
 
       output_fields: lambda do |object_definitions|
