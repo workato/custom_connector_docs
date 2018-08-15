@@ -574,7 +574,7 @@
           }
         end
         response = if next_page.present?
-                     response = get(next_page)
+                     get(next_page)
                    else
                      get(
                        "/v2/emailmarketing/campaigns/#{input['campaign_id']}/" \
