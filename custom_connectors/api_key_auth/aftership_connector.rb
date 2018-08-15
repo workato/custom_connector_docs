@@ -148,7 +148,7 @@
         {
           trackings: result["trackings"].presence || []
         }
-      },
+      end,
 
       output_fields: lambda do |object_defintions|
         object_definitions["trackings"]
