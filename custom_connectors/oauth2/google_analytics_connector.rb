@@ -94,8 +94,8 @@
               split("\n").
               map do |field_name|
                 {
-                  name: field_name.gsub("ga:",""),
-                  label: field_name.gsub("ga:","").titleize,
+                  name: field_name.gsub("ga:", ""),
+                  label: field_name.gsub("ga:", "").titleize,
                   optional: false
                 }
               end
@@ -109,17 +109,17 @@
             )
         end
 
-        if (!config_fields["metric_filter_fields"].blank?)
+        if config_fields["metric_filter_fields"].present?
           metric_filter_fields =
             config_fields["metric_filter_fields"].
               split("\n").
               map do |field_name|
                 {
-                  name: field_name.gsub("ga:",""),
-                  label: field_name.gsub("ga:","").titleize,
+                  name: field_name.gsub("ga:", ""),
+                  label: field_name.gsub("ga:", "").titleize,
                   optional: false
                 }
-          end
+              end
 
           filters =
             filters.concat(
@@ -273,7 +273,7 @@
           else
             [{
               "operator" => "AND",
-              "filters"	=> [
+              "filters" => [
                              (input["metric_filters"] || {}).
                                map do |k, v|
                                  if v.present?
@@ -319,14 +319,14 @@
         data = response["data"]
         data["rows"] =
           (data&.[]("rows") || []).
-          map do |row|
-            {
-              "dimensions": Hash[dimension_headers.
-                                   zip(row&.[]("dimensions"))],
-              "metrics": Hash[metric_headers.
-                                zip(row&.[]("metrics")&.first&.[]("values"))]
-            }
-          end
+            map do |row|
+              {
+                "dimensions": Hash[dimension_headers.
+                                     zip(row&.[]("dimensions"))],
+                "metrics": Hash[metric_headers.
+                                  zip(row&.[]("metrics")&.first&.[]("values"))]
+              }
+            end
         data
       end
     }
