@@ -156,8 +156,8 @@
             hint: "The 3-letter currency code of the currency in which " \
               "this invoice is being billed, e.g. USD, EUR, GBP." },
           { name: "line_items", type: "array", of: "object", properties: [
-          	{ name: "uuid", label: "Item UUID" },
-        		{ name: "external_id" },
+            { name: "uuid", label: "Item UUID" },
+            { name: "external_id" },
             { name: "type" },
             { name: "subscription_uuid" },
             { name: "plan_uuid" },
@@ -174,8 +174,8 @@
             { name: "account_code" }
           ] },
           { name: "transactions", type: "array", of: "object", properties: [
-          	{ name: "uuid", label: "Transaction UUID" },
-        		{ name: "external_id" },
+            { name: "uuid", label: "Transaction UUID" },
+            { name: "external_id" },
             { name: "type", control_type: "select", pick_list: [
               %w[Payment payment],
               %w[Refund refund]
