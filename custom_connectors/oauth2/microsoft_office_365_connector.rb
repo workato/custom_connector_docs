@@ -232,9 +232,9 @@
         post("/v1.0/me/drive/items/#{file}/workbook/worksheets/#{worksheet}/" \
           "range(address='#{rangeaddress}')/insert").
           headers(shift: "Right").
-          payload(values: [ input.values ])
+          payload(values: [input.values])
 
-        record = patch("/v1.0/me/drive/items/#{file}/workbook/worksheets/" \
+        patch("/v1.0/me/drive/items/#{file}/workbook/worksheets/" \
           "#{worksheet}/range(address='#{rangeaddress}')").
           payload(values: [input.values])
       end,
@@ -275,16 +275,16 @@
         }
       ],
 
-      poll: lambda do |connection, input, last_record_id|
+      poll: lambda do |_connection, input, last_record_id|
         from_record_id = last_record_id || 2
         address =
           get("/v1.0/me/drive/items/#{input['file']}/workbook/worksheets" \
             "('#{input['worksheet']}')/usedRange?$select=address,formulas," \
             "rowCount")
         output_fields = address["formulas"]&.first.
-                        map do |f|
-                          f
-                        end
+                          map do |f|
+                            f
+                          end
 
         startrow = from_record_id.to_i
         range = address["address"].split("!").last
@@ -303,27 +303,27 @@
           i = 0
           data.map do |item|
             record = { uniqueid: startrow + i }
-            (0..(output_fields.length-1)).each { |index|
+            (0..(output_fields.length - 1)).each do |index|
               record[output_fields[index]] = item[index]
-            }
+            end
             output << record
-            i = i+1
+            i = i + 1
           end
-          #set last record id
+          # set last record id
           newaddress = result["address"]
           newrange = newaddress.split("!").last unless newaddress.blank?
           last_record_id =
             newrange.split(":").last.scan(/\d+/).first unless newrange.blank?
         end
 
-        #trigger output
+        # trigger output
         output.to_a
 
         {
           events: output,
           next_poll:
             output.size > 0 ? last_record_id.to_i + 1 : last_record_id.to_i,
-          can_poll_more:  output.size ==  0 ? false : true
+          can_poll_more:  output.size == 0 ? false : true
         }
       end,
 
