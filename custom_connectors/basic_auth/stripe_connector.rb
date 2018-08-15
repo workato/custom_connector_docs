@@ -904,12 +904,12 @@
   pick_lists: {
     statuses: lambda do
       [
-        %W[All all],
-        %W[Trialing trialing],
-        %W[Active active],
-        %W[Past\ Due past_due],
-        %W[Unpaid unpaid],
-        %W[Canceled canceled]
+        %w[All all],
+        %w[Trialing trialing],
+        %w[Active active],
+        %w[Past\ Due past_due],
+        %w[Unpaid unpaid],
+        %w[Canceled canceled]
       ]
     end
   }
