@@ -41,14 +41,87 @@
           { name: "delinquent", type: "boolean" },
           { name: "description" },
           { name: "email" },
-          { name: "discount", type: "object", properties:
-            [
+          { name: "discount", type: "object", properties: [
+            { name: "customer" },
+            { name: "subscription" },
+            { name: "start", type: "integer" },
+            { name: "end", type: "integer" },
+            { name: "coupon", type: "object", properties: [
+              { name: "id" },
+              { name: "name" },
+              { name: "amount_off", type: "integer" },
+              { name: "percent_off", type: "integer" },
+              { name: "created", type: "integer" },
+              { name: "currency" },
+              { name: "duration" },
+              { name: "duration_in_months", type: "integer" },
+              { name: "max_redemptions", type: "integer" },
+              { name: "livemode", type: "boolean" },
+              { name: "redeem_by", type: "integer" },
+              { name: "times_redeemed", type: "integer" },
+              { name: "valid", type: "boolean" },
+            ] }
+          ] },
+          { name: "sources", type: "object", properties: [
+            { name: "data", type: "array", of: "object", properties: [
+              { name: "id" },
+              { name: "name" },
+              { name: "brand" },
+              { name: "last4" },
+              { name: "dynamic_last4" },
+              { name: "exp_month" },
+              { name: "exp_year" },
+              { name: "country", label: "Card Country" },
+              { name: "address_line1" },
+              { name: "address_line2" },
+              { name: "address_city" },
+              { name: "address_state" },
+              { name: "address_zip" },
+              { name: "address_country" },
+              { name: "cvc_check" },
+              { name: "address_line1_check" },
+              { name: "address_zip_check" },
+              { name: "fingerprint" },
+              { name: "funding" },
+              { name: "tokenization_method" }
+            ] }
+          ] },
+          { name: "subscriptions", type: "object", properties: [
+            { name: "data", type: "array", of: "object", properties: [
+              { name: "id" },
+              { name: "status" },
               { name: "customer" },
-              { name: "subscription" },
+              { name: "created", type: "integer" },
+              { name: "canceled_at", type: "integer" },
+              { name: "trial_start", type: "integer" },
+              { name: "trial_end", type: "integer" },
+              { name: "current_period_start", type: "integer" },
+              { name: "current_period_end", type: "integer" },
               { name: "start", type: "integer" },
-              { name: "end", type: "integer" },
-              { name: "coupon", type: "object", properties:
-                [
+              { name: "ended_at", type: "integer" },
+              { name: "cancel_at_period_end", type: "boolean" },
+              { name: "quantity", type: "integer" },
+              { name: "livemode", type: "boolean" },
+              { name: "application_fee_percent", type: "number" },
+              { name: "tax_percent", type: "number" },
+              { name: "plan", type: "object", properties: [
+                { name: "id" },
+                { name: "name" },
+                { name: "amount", type: "integer" },
+                { name: "created", type: "integer" },
+                { name: "currency" },
+                { name: "interval" },
+                { name: "inteval_count", type: "integer" },
+                { name: "livemode", type: "boolean" },
+                { name: "statement_descriptor" },
+                { name: "trial_period_days", type: "integer" }
+              ] },
+              { name: "discount", type: "object", properties: [
+                { name: "customer" },
+                { name: "subscription" },
+                { name: "start", type: "integer" },
+                { name: "end", type: "integer" },
+                { name: "coupon", type: "object", properties: [
                   { name: "id" },
                   { name: "name" },
                   { name: "amount_off", type: "integer" },
@@ -62,126 +135,29 @@
                   { name: "redeem_by", type: "integer" },
                   { name: "times_redeemed", type: "integer" },
                   { name: "valid", type: "boolean" },
-                ]
-              }
-            ]
-          },
-          { name: "sources", type: "object", properties:
-            [
-              { name: "data", type: "array", of: "object", properties:
-                [
+                ] }
+              ] },
+              { name: "items", type: "object", properties: [
+                { name: "data", type: "array", of: "object", properties: [
                   { name: "id" },
-                  { name: "name" },
-                  { name: "brand" },
-                  { name: "last4" },
-                  { name: "dynamic_last4" },
-                  { name: "exp_month" },
-                  { name: "exp_year" },
-                  { name: "country", label: "Card Country" },
-                  { name: "address_line1" },
-                  { name: "address_line2" },
-                  { name: "address_city" },
-                  { name: "address_state" },
-                  { name: "address_zip" },
-                  { name: "address_country" },
-                  { name: "cvc_check" },
-                  { name: "address_line1_check" },
-                  { name: "address_zip_check" },
-                  { name: "fingerprint" },
-                  { name: "funding" },
-                  { name: "tokenization_method" }
-                ]
-              }
-            ]
-          },
-          { name: "subscriptions", type: "object", properties:
-            [
-              { name: "data", type: "array", of: "object", properties:
-                [
-                  { name: "id" },
-                  { name: "status" },
-                  { name: "customer" },
                   { name: "created", type: "integer" },
-                  { name: "canceled_at", type: "integer" },
-                  { name: "trial_start", type: "integer" },
-                  { name: "trial_end", type: "integer" },
-                  { name: "current_period_start", type: "integer" },
-                  { name: "current_period_end", type: "integer" },
-                  { name: "start", type: "integer" },
-                  { name: "ended_at", type: "integer" },
-                  { name: "cancel_at_period_end", type: "boolean" },
                   { name: "quantity", type: "integer" },
-                  { name: "livemode", type: "boolean" },
-                  { name: "application_fee_percent", type: "number" },
-                  { name: "tax_percent", type: "number" },
-                  { name: "plan", type: "object", properties:
-                    [
-                      { name: "id" },
-                      { name: "name" },
-                      { name: "amount", type: "integer" },
-                      { name: "created", type: "integer" },
-                      { name: "currency" },
-                      { name: "interval" },
-                      { name: "inteval_count", type: "integer" },
-                      { name: "livemode", type: "boolean" },
-                      { name: "statement_descriptor" },
-                      { name: "trial_period_days", type: "integer" }
-                    ]
-                  },
-                  { name: "discount", type: "object", properties:
-                    [
-                      { name: "customer" },
-                      { name: "subscription" },
-                      { name: "start", type: "integer" },
-                      { name: "end", type: "integer" },
-                      { name: "coupon", type: "object", properties:
-                        [
-                          { name: "id" },
-                          { name: "name" },
-                          { name: "amount_off", type: "integer" },
-                          { name: "percent_off", type: "integer" },
-                          { name: "created", type: "integer" },
-                          { name: "currency" },
-                          { name: "duration" },
-                          { name: "duration_in_months", type: "integer" },
-                          { name: "max_redemptions", type: "integer" },
-                          { name: "livemode", type: "boolean" },
-                          { name: "redeem_by", type: "integer" },
-                          { name: "times_redeemed", type: "integer" },
-                          { name: "valid", type: "boolean" },
-                        ]
-                      }
-                    ]
-                  },
-                  { name: "items", type: "object", properties:
-                    [
-                      { name: "data", type: "array", of: "object", properties:
-                        [
-                          { name: "id" },
-                          { name: "created", type: "integer" },
-                          { name: "quantity", type: "integer" },
-                          { name: "plan", type: "object", properties:
-                            [
-                              { name: "id" },
-                              { name: "name" },
-                              { name: "amount", type: "integer" },
-                              { name: "created", type: "integer" },
-                              { name: "currency" },
-                              { name: "interval" },
-                              { name: "inteval_count", type: "integer" },
-                              { name: "livemode", type: "boolean" },
-                              { name: "statement_descriptor" },
-                              { name: "trial_period_days", type: "integer" }
-                            ]
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
-          }
+                  { name: "plan", type: "object", properties: [
+                    { name: "id" },
+                    { name: "name" },
+                    { name: "amount", type: "integer" },
+                    { name: "created", type: "integer" },
+                    { name: "currency" },
+                    { name: "interval" },
+                    { name: "inteval_count", type: "integer" },
+                    { name: "livemode", type: "boolean" },
+                    { name: "statement_descriptor" },
+                    { name: "trial_period_days", type: "integer" }
+                  ] }
+                ] }
+              ] }
+            ] }
+          ] }
         ]
       end
     },
@@ -225,23 +201,19 @@
           { name: "refunded", type: "boolean" },
           { name: "receipt_email", control_type: "email" },
           { name: "receipt_number" },
-          {
-            name: "refunds", type: "object", properties: [
-              {
-                name: "data", type: "array", of: "object", properties: [
-                  { name: "id" },
-                  { name: "amount", type: "integer" },
-                  { name: "balance_transaction" },
-                  { name: "charge" },
-                  { name: "created", type: "integer" },
-                  { name: "currency" },
-                  { name: "reason" },
-                  { name: "receipt_number" },
-                  { name: "status" }
-                ]
-              },
-            ]
-          },
+          { name: "refunds", type: "object", properties: [
+            { name: "data", type: "array", of: "object", properties: [
+              { name: "id" },
+              { name: "amount", type: "integer" },
+              { name: "balance_transaction" },
+              { name: "charge" },
+              { name: "created", type: "integer" },
+              { name: "currency" },
+              { name: "reason" },
+              { name: "receipt_number" },
+              { name: "status" }
+            ] },
+          ] },
           { name: "review" },
           { name: "status" }
         ]
@@ -281,14 +253,12 @@
           { name: "currency" },
           { name: "description" },
           { name: "fee", type: "integer" },
-          {
-            name: "fee_details", type: "array", of: "object", properties: [
-              { name: "amount", type: "integer" },
-              { name: "currency" },
-              { name: "description" },
-              { name: "type" }
-            ]
-          },
+          { name: "fee_details", type: "array", of: "object", properties: [
+            { name: "amount", type: "integer" },
+            { name: "currency" },
+            { name: "description" },
+            { name: "type" }
+          ] },
           { name: "source" },
           { name: "status" },
           { name: "type" }
@@ -332,70 +302,58 @@
           { name: "livemode", type: "boolean" },
           { name: "application_fee_percent", type: "number" },
           { name: "tax_percent", type: "number" },
-          { name: "plan", type: "object", properties:
-            [
+          { name: "plan", type: "object", properties: [
+            { name: "id" },
+            { name: "name" },
+            { name: "amount", type: "integer" },
+            { name: "created", type: "integer" },
+            { name: "currency" },
+            { name: "interval" },
+            { name: "inteval_count", type: "integer" },
+            { name: "livemode", type: "boolean" },
+            { name: "statement_descriptor" },
+            { name: "trial_period_days", type: "integer" }
+          ] },
+          { name: "discount", type: "object", properties: [
+            { name: "customer" },
+            { name: "subscription" },
+            { name: "start", type: "integer" },
+            { name: "end", type: "integer" },
+            { name: "coupon", type: "object", properties: [
               { name: "id" },
               { name: "name" },
-              { name: "amount", type: "integer" },
+              { name: "amount_off", type: "integer" },
+              { name: "percent_off", type: "integer" },
               { name: "created", type: "integer" },
               { name: "currency" },
-              { name: "interval" },
-              { name: "inteval_count", type: "integer" },
+              { name: "duration" },
+              { name: "duration_in_months", type: "integer" },
+              { name: "max_redemptions", type: "integer" },
               { name: "livemode", type: "boolean" },
-              { name: "statement_descriptor" },
-              { name: "trial_period_days", type: "integer" }
-            ]
-          },
-          { name: "discount", type: "object", properties:
-            [
-              { name: "customer" },
-              { name: "subscription" },
-              { name: "start", type: "integer" },
-              { name: "end", type: "integer" },
-              { name: "coupon", type: "object", properties:
-                [
-                  { name: "id" },
-                  { name: "name" },
-                  { name: "amount_off", type: "integer" },
-                  { name: "percent_off", type: "integer" },
-                  { name: "created", type: "integer" },
-                  { name: "currency" },
-                  { name: "duration" },
-                  { name: "duration_in_months", type: "integer" },
-                  { name: "max_redemptions", type: "integer" },
-                  { name: "livemode", type: "boolean" },
-                  { name: "redeem_by", type: "integer" },
-                  { name: "times_redeemed", type: "integer" },
-                  { name: "valid", type: "boolean" },
-                ]
-              }
-            ]
-          },
-          { name: "items", type: "object", properties:
-            [
-              { name: "data", type: "array", of: "object", properties:
-                [
-                  { name: "id" },
-                  { name: "created", type: "integer" },
-                  { name: "quantity", type: "integer" },
-                  { name: "plan", type: "object", properties:
-                    [
-                      { name: "id" },
-                      { name: "name" },
-                      { name: "amount", type: "integer" },
-                      { name: "created", type: "integer" },
-                      { name: "currency" },
-                      { name: "interval" },
-                      { name: "inteval_count", type: "integer" },
-                      { name: "livemode", type: "boolean" },
-                      { name: "statement_descriptor" },
-                      { name: "trial_period_days", type: "integer" }
-                    ]
-                  }
-                ]
-              }
-            ]
-          }
+              { name: "redeem_by", type: "integer" },
+              { name: "times_redeemed", type: "integer" },
+              { name: "valid", type: "boolean" },
+            ] }
+          ] },
+          { name: "items", type: "object", properties: [
+            { name: "data", type: "array", of: "object", properties: [
+              { name: "id" },
+              { name: "created", type: "integer" },
+              { name: "quantity", type: "integer" },
+              { name: "plan", type: "object", properties: [
+                { name: "id" },
+                { name: "name" },
+                { name: "amount", type: "integer" },
+                { name: "created", type: "integer" },
+                { name: "currency" },
+                { name: "interval" },
+                { name: "inteval_count", type: "integer" },
+                { name: "livemode", type: "boolean" },
+                { name: "statement_descriptor" },
+                { name: "trial_period_days", type: "integer" }
+              ] }
+            ] }
+          ] }
         ]
       end
     }
@@ -483,18 +441,16 @@
       end,
 
       execute: lambda do |_connection, input|
-        param = input.reject{ |k, v| v.blank? || k == "status" }
+        param = input.reject { |k, v| v.blank? || k == "status" }
         if param.length > 0
           get("/v1/subscriptions",
               limit: 100,
-              status: (input["status"] || "all")
-          ).
+              status: (input["status"] || "all")).
             params(param)
         else
           get("/v1/subscriptions",
               limit: 100,
-              status: (input["status"] || "all")
-          )
+              status: (input["status"] || "all"))
         end
       end,
 
@@ -521,7 +477,7 @@
       end,
 
       execute: lambda do |_connection, input|
-        get("/v1/customers/#{input["id"]}")
+        get("/v1/customers/#{input['id']}")
       end,
 
       output_fields: lambda do |object_definitions|
@@ -544,7 +500,7 @@
       end,
 
       execute: lambda do |_connection, input|
-        get("/v1/charges/#{input["id"]}")
+        get("/v1/charges/#{input['id']}")
       end,
 
       output_fields: lambda do |object_definitions|
@@ -568,7 +524,7 @@
 
       execute: lambda do |_connection, input|
         get("/v1/balance/history?limit=100").
-          params (input)
+          params(input)
       end,
 
       output_fields: lambda do |object_definitions|
@@ -594,7 +550,7 @@
       end,
 
       execute: lambda do |_connection, input|
-        get("/v1/refunds/#{input["id"]}")
+        get("/v1/refunds/#{input['id']}")
       end,
 
       output_fields: lambda do |object_definitions|
@@ -630,7 +586,7 @@
 
         if starting_after.present?
           response = get("/v1/customers?limit=100").
-                     params(starting_after: starting_after)
+                       params(starting_after: starting_after)
         else
           if input["since"].present?
             param = {
@@ -690,7 +646,7 @@
 
         if ending_before.present?
           response = get("/v1/refunds?limit=100").
-                     params(starting_after: ending_before)
+                       params(starting_after: ending_before)
         else
           if input["since"].present?
             param = {
@@ -749,16 +705,16 @@
 
         if ending_before.present?
           response = get("/v1/charges?limit=100").
-                     params(starting_after: ending_before)
+                       params(starting_after: ending_before)
         else
-            if input["since"].present?
-              param = {
-                created: {
-                  gt: input["since"].to_i
-                }
+          if input["since"].present?
+            param = {
+              created: {
+                gt: input["since"].to_i
               }
-            end
-            response = get("/v1/charges?limit=100", param)
+            }
+          end
+          response = get("/v1/charges?limit=100", param)
         end
 
         charges = response["data"]
@@ -808,7 +764,7 @@
 
         if ending_before.present?
           response = get("/v1/payouts?limit=100").
-                     params(starting_after: ending_before)
+                       params(starting_after: ending_before)
         else
           if input["since"].present?
             param = {
@@ -867,13 +823,13 @@
 
         if ending_before.present?
           response = get("/v1/balance/history?limit=100").
-                     params(starting_after: ending_before)
+                       params(starting_after: ending_before)
         else
           if input["since"].present?
             param = {
               created: {
                 gt: input["since"].to_i
-                }
+              }
             }
           end
           response = get("/v1/balance/history?limit=100", param)
