@@ -7,6 +7,7 @@
         name: "client_id",
         label: "API Key",
         optional: false,
+        control_type: "password",
         hint: "API key can be found <a href='https://constantcontact.mashery" \
           ".com/apps/mykeys' target='_blank'>here</a>"
       },
@@ -24,21 +25,20 @@
       type: "oauth2",
 
       authorization_url: lambda do |connection|
-        "https://oauth2.constantcontact.com/oauth2/oauth/siteowner/authorize?" \
-          "redirect_url=https%3A%2F%2Fwww.workato.com%2Foauth%2Fcallback&" \
-          "response_type=code&client_id=#{connection['client_id']}"
+        "https://oauth2.constantcontact.com/oauth2/oauth/siteowner/" \
+          "authorize?client_id=#{connection['client_id']}&response_type=code"
       end,
 
-      acquire: lambda do |connection, auth_code|
+      acquire: lambda do |connection, auth_code, redirect_uri|
         response =
           post("https://oauth2.constantcontact.com/oauth2/oauth/token").
-            params(
-              grant_type: "authorization_code",
-              client_id: connection["api_key"],
+            payload(
+              client_id: connection["client_id"],
               client_secret: connection["client_secret"],
+              grant_type: "authorization_code",
               code: auth_code,
-              redirect_uri: "https%3A%2F%2Fwww.workato.com%2Foauth%2Fcallback"
-            )
+              redirect_uri: redirect_uri
+            ).request_format_www_form_urlencoded
 
         {
           access_token: response["access_token"],
@@ -47,7 +47,7 @@
 
       apply: lambda do |connection, access_token|
         # Constant Contact passes API key as parameter and access token as header
-        params(api_key: connection["api_key"])
+        params(api_key: connection["client_id"])
         headers("Authorization": "Bearer #{access_token}")
       end
     },
@@ -528,30 +528,12 @@
 
       sample_output: lambda do |_connection|
         {
-          "meta": {
-            "pagination": {
-              "next_link": "/v2/emailmarketing/campaigns/9999999999999/" \
-                "tracking/clicks?next=c3RhcnRBdD0zJmxpbWl0PTI"
-  	        }
-          },
-          "results": [
-            {
-              "activity_type": "EMAIL_CLICK",
-              "campaign_id": "1100388730957",
-              "contact_id": "36",
-              "email_address": "abc@example.com",
-              "link_id": "1",
-              "click_date": "2012-12-06T13:06:25.732Z"
-            },
-            {
-              "activity_type": "EMAIL_CLICK",
-              "campaign_id": "1100388730957",
-              "contact_id": "35",
-              "email_address": "def@example.com",
-              "link_id": "1",
-              "click_date": "2012-12-06T13:06:25.633Z"
-            }
-          ]
+          "activity_type": "EMAIL_CLICK",
+          "campaign_id": "1100388730957",
+          "contact_id": "36",
+          "email_address": "abc@example.com",
+          "link_id": "1",
+          "click_date": "2012-12-06T13:06:25.732Z"
         }
       end
     },
@@ -611,28 +593,11 @@
 
       sample_output: lambda do |_connection|
         {
-          "meta": {
-            "pagination": {
-              "next_link": "/v2/emailmarketing/campaigns/1100394165287/" \
-                "tracking/opens?next=c3RhcnRBdD0zJmxpbWl0PTI"
-      		  }
-          },
-          "results": [
-            {
-              "activity_type": "EMAIL_OPEN",
-              "campaign_id": "1100394165287",
-              "contact_id": "51",
-              "email_address": "abc@example.com",
-              "open_date": "2012-12-06T13:06:35.661Z"
-            },
-            {
-              "activity_type": "EMAIL_OPEN",
-              "campaign_id": "1100394165287",
-              "contact_id": "50",
-              "email_address": "def@example.com",
-              "open_date": "2012-12-06T13:06:35.561Z"
-            }
-          ]
+          "activity_type": "EMAIL_OPEN",
+          "campaign_id": "1100394165287",
+          "contact_id": "51",
+          "email_address": "abc@example.com",
+          "open_date": "2012-12-06T13:06:35.661Z"
         }
       end
     },
@@ -692,34 +657,14 @@
 
       sample_output: lambda do |_connection|
         {
-          "meta": {
-            "pagination": {
-              "next_link": "/v2/emailmarketing/campaigns/1100388730957/" \
-                "tracking/bounces?next=c3RhcnRBdD0zJmxpbWl0PTI"
-            }
-          },
-          "results": [
-            {
-              "activity_type": "EMAIL_BOUNCE",
-              "campaign_id": "1100388730957",
-              "contact_id": "1159",
-              "email_address": "user1@example.com",
-              "bounce_code": "B",
-              "bounce_description": "Non-existent address",
-              "bounce_message": "",
-              "bounce_date": "2009-11-25T09:29:28.406Z"
-            },
-            {
-              "activity_type": "EMAIL_BOUNCE",
-              "campaign_id": "1100388730957",
-              "contact_id": "1161",
-              "email_address": "user2@example.com",
-              "bounce_code": "B",
-              "bounce_description": "Non-existent address",
-              "bounce_message": "",
-              "bounce_date": "2009-12-02T09:34:26.382Z"
-            }
-          ]
+          "activity_type": "EMAIL_BOUNCE",
+          "campaign_id": "1100388730957",
+          "contact_id": "1159",
+          "email_address": "user1@example.com",
+          "bounce_code": "B",
+          "bounce_description": "Non-existent address",
+          "bounce_message": "",
+          "bounce_date": "2009-11-25T09:29:28.406Z"
         }
       end
     },
@@ -779,32 +724,13 @@
 
       sample_output: lambda do |_connection|
         {
-          "meta": {
-            "pagination": {
-              "next_link": "/v2/emailmarketing/campaigns/1100394165287/" \
-                "tracking/unsubscribes?next=c3RhcnRBdD0zJmxpbWl0PTI"
-            }
-          },
-          "results": [
-            {
-              "activity_type": "EMAIL_UNSUBSCRIBE",
-              "campaign_id": "1100394165287",
-              "contact_id": "23",
-              "email_address": "abc@example.com",
-              "unsubscribe_date": "2012-12-06T13:06:17.703Z",
-              "unsubscribe_source": "ACTION_BY_CUSTOMER",
-              "unsubscribe_reason": ""
-            },
-            {
-              "activity_type": "EMAIL_UNSUBSCRIBE",
-              "campaign_id": "1100394165287",
-              "contact_id": "22",
-              "email_address": "def@example.com",
-              "unsubscribe_date": "2012-12-06T13:06:17.585Z",
-              "unsubscribe_source": "ACTION_BY_CUSTOMER",
-              "unsubscribe_reason": ""
-            }
-          ]
+          "activity_type": "EMAIL_UNSUBSCRIBE",
+          "campaign_id": "1100394165287",
+          "contact_id": "23",
+          "email_address": "abc@example.com",
+          "unsubscribe_date": "2012-12-06T13:06:17.703Z",
+          "unsubscribe_source": "ACTION_BY_CUSTOMER",
+          "unsubscribe_reason": ""
         }
       end
     },
@@ -861,26 +787,10 @@
 
       sample_output: lambda do |_connection|
         {
-          "meta": {
-            "pagination": {
-              "next_link": "/v2/emailmarketing/campaigns?next=" \
-                "cGFnZU51bT0yJnBhZ2VTaXplPTI"
-            }
-          },
-          "results": [
-            {
-              "id": "1100395494220",
-              "name": "1357157252225",
-              "status": "SENT",
-              "modified_date": "2013-01-07T18:51:35.975Z"
-            },
-            {
-              "id": "1100395673356",
-              "name": "Update1357593398565",
-              "status": "DRAFT",
-              "modified_date": "2013-01-07T16:16:43.768Z"
-            }
-          ]
+          "id": "1100395494220",
+          "name": "1357157252225",
+          "status": "SENT",
+          "modified_date": "2013-01-07T18:51:35.975Z"
         }
       end
     }
