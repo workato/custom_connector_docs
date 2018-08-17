@@ -257,10 +257,8 @@
                                    {
                                      "dimensionName" => "ga:#{k}",
                                      "operator" => "EXACT",
-                                     "expressions" => ["#{v}"]
+                                     "expressions" => [v]
                                    }
-                                 else
-                                   nil
                                  end
                                end
                            ]
@@ -280,10 +278,8 @@
                                    {
                                      "metricName" => "ga:#{k}",
                                      "operator" => "EQUAL",
-                                     "comparisonValue" => "#{v}"
+                                     "comparisonValue" => v
                                    }
-                                 else
-                                   nil
                                  end
                                end
                            ]
