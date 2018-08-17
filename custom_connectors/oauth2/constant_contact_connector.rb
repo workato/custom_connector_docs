@@ -276,6 +276,74 @@
 
       output_fields: lambda do |object_definitions|
         object_definitions["email_campaign"]
+      end,
+
+      sample_output: lambda do |_connection|
+        {
+          "id": "1234567890123",
+          "name": "Campaign Name",
+          "subject": "Campaign Subject",
+          "from_name": "My Organization",
+          "from_email": "fromemail@example.com",
+          "reply_to_email": "replytoemail@example.com",
+          "template_type": "CUSTOM",
+          "created_date":"2012-02-09T11:07:43.626Z",
+          "modified_date": "2012-02-10T11:07:42.626Z",
+          "last_run_date": "2012-02-10T11:07:43.626Z",
+          "next_run_date": "2012-02-11T11:07:43.626Z",
+          "permalink_url": "http://myemail.constantcontact.com/Campaign-" \
+            "Subject.html?soid=1100325770405&aid=pXOr2wq4W5U",
+          "status": "SENT",
+          "permission_reminder_text": "Hi, just a reminder that you're " \
+            "receiving this email because you have expressed an interest in " \
+            "MyCompany. ",
+          "view_as_web_page_text": "View this message as a webpage",
+          "view_as_web_page_link_text": "Click here",
+          "greeting_salutations": "Hello",
+          "greeting_name": "FIRST_NAME",
+          "greeting_string": "Dear",
+          "email_content": "<html><body><p>This is text of the email message." \
+            "</p></body></html>",
+          "text_content": "This is the text of the email message.",
+          "email_content_format": "HTML",
+          "style_sheet": "",
+          "message_footer": {
+            "organization_name": "My Organization",
+            "address_line_1": "123 Maple Street",
+            "address_line_2": "Suite 999",
+            "address_line_3": " ",
+            "city": "Anytown",
+            "state": "MA",
+            "international_state": "",
+            "postal_code": "01245",
+            "country": "US",
+            "include_forward_email": true,
+            "forward_email_link_text": "Click here to forward this email",
+            "include_subscribe_link": true,
+            "subscribe_link_text": "Subscribe to Our Newsletter!"
+          },
+          "tracking_summary": {
+            "sends": 1363,
+            "opens": 789,
+            "clicks": 327,
+            "forwards": 39,
+            "unsubscribes": 0,
+            "bounces": 12,
+            "spam_count": 6
+          },
+          "sent_to_contact_lists": [
+            {
+              "id": "1"
+            }
+          ],
+          "click_through_details": [
+          	{
+          	"url": "http://www.linkedin.com/in/my.profile/",
+          	"url_uid": "1100397796079",
+          	"click_count": 24
+          	}
+          ]
+        }
       end
     },
 
@@ -300,6 +368,17 @@
 
       output_fields: lambda do |object_definitions|
         object_definitions["email_campaign"].only("tracking_summary")
+      end,
+
+      sample_output: lambda do |_connection|
+        {
+          "sends": 15,
+          "opens": 10,
+          "clicks": 10,
+          "forwards": 3,
+          "unsubscribes": 2,
+          "bounces": 18
+        }
       end
     },
 
@@ -324,6 +403,10 @@
 
       output_fields: lambda do |object_definitions|
         object_definitions["contact"]
+      end,
+
+      sample_output: lambda do |_connection|
+        get("/v2/contacts")["results"].first
       end
     },
 
@@ -380,6 +463,10 @@
 
       output_fields: lambda do |object_definitions|
         object_definitions["contact"]
+      end,
+
+      sample_output: lambda do |_connection|
+        get("/v2/contacts")["results"].first
       end
     }
   },
@@ -437,6 +524,35 @@
 
       output_fields: lambda do |object_definitions|
         object_definitions["click_in_campaign"]
+      end,
+
+      sample_output: lambda do |_connection|
+        {
+          "meta": {
+            "pagination": {
+              "next_link": "/v2/emailmarketing/campaigns/9999999999999/" \
+                "tracking/clicks?next=c3RhcnRBdD0zJmxpbWl0PTI"
+  	        }
+          },
+          "results": [
+            {
+              "activity_type": "EMAIL_CLICK",
+              "campaign_id": "1100388730957",
+              "contact_id": "36",
+              "email_address": "abc@example.com",
+              "link_id": "1",
+              "click_date": "2012-12-06T13:06:25.732Z"
+            },
+            {
+              "activity_type": "EMAIL_CLICK",
+              "campaign_id": "1100388730957",
+              "contact_id": "35",
+              "email_address": "def@example.com",
+              "link_id": "1",
+              "click_date": "2012-12-06T13:06:25.633Z"
+            }
+          ]
+        }
       end
     },
 
@@ -491,6 +607,33 @@
 
       output_fields: lambda do |object_definitions|
         object_definitions["open_in_campaign"]
+      end,
+
+      sample_output: lambda do |_connection|
+        {
+          "meta": {
+            "pagination": {
+              "next_link": "/v2/emailmarketing/campaigns/1100394165287/" \
+                "tracking/opens?next=c3RhcnRBdD0zJmxpbWl0PTI"
+      		  }
+          },
+          "results": [
+            {
+              "activity_type": "EMAIL_OPEN",
+              "campaign_id": "1100394165287",
+              "contact_id": "51",
+              "email_address": "abc@example.com",
+              "open_date": "2012-12-06T13:06:35.661Z"
+            },
+            {
+              "activity_type": "EMAIL_OPEN",
+              "campaign_id": "1100394165287",
+              "contact_id": "50",
+              "email_address": "def@example.com",
+              "open_date": "2012-12-06T13:06:35.561Z"
+            }
+          ]
+        }
       end
     },
 
@@ -545,6 +688,39 @@
 
       output_fields: lambda do |object_definitions|
         object_definitions["bounce_in_campaign"]
+      end,
+
+      sample_output: lambda do |_connection|
+        {
+          "meta": {
+            "pagination": {
+              "next_link": "/v2/emailmarketing/campaigns/1100388730957/" \
+                "tracking/bounces?next=c3RhcnRBdD0zJmxpbWl0PTI"
+            }
+          },
+          "results": [
+            {
+              "activity_type": "EMAIL_BOUNCE",
+              "campaign_id": "1100388730957",
+              "contact_id": "1159",
+              "email_address": "user1@example.com",
+              "bounce_code": "B",
+              "bounce_description": "Non-existent address",
+              "bounce_message": "",
+              "bounce_date": "2009-11-25T09:29:28.406Z"
+            },
+            {
+              "activity_type": "EMAIL_BOUNCE",
+              "campaign_id": "1100388730957",
+              "contact_id": "1161",
+              "email_address": "user2@example.com",
+              "bounce_code": "B",
+              "bounce_description": "Non-existent address",
+              "bounce_message": "",
+              "bounce_date": "2009-12-02T09:34:26.382Z"
+            }
+          ]
+        }
       end
     },
 
@@ -599,6 +775,37 @@
 
       output_fields: lambda do |object_definitions|
         object_definitions["unsubscribe_from_campaign"]
+      end,
+
+      sample_output: lambda do |_connection|
+        {
+          "meta": {
+            "pagination": {
+              "next_link": "/v2/emailmarketing/campaigns/1100394165287/" \
+                "tracking/unsubscribes?next=c3RhcnRBdD0zJmxpbWl0PTI"
+            }
+          },
+          "results": [
+            {
+              "activity_type": "EMAIL_UNSUBSCRIBE",
+              "campaign_id": "1100394165287",
+              "contact_id": "23",
+              "email_address": "abc@example.com",
+              "unsubscribe_date": "2012-12-06T13:06:17.703Z",
+              "unsubscribe_source": "ACTION_BY_CUSTOMER",
+              "unsubscribe_reason": ""
+            },
+            {
+              "activity_type": "EMAIL_UNSUBSCRIBE",
+              "campaign_id": "1100394165287",
+              "contact_id": "22",
+              "email_address": "def@example.com",
+              "unsubscribe_date": "2012-12-06T13:06:17.585Z",
+              "unsubscribe_source": "ACTION_BY_CUSTOMER",
+              "unsubscribe_reason": ""
+            }
+          ]
+        }
       end
     },
 
@@ -650,6 +857,31 @@
       output_fields: lambda do |object_definitions|
         object_definitions["email_campaign"].
           only("id", "name", "status", "modified_date")
+      end,
+
+      sample_output: lambda do |_connection|
+        {
+          "meta": {
+            "pagination": {
+              "next_link": "/v2/emailmarketing/campaigns?next=" \
+                "cGFnZU51bT0yJnBhZ2VTaXplPTI"
+            }
+          },
+          "results": [
+            {
+              "id": "1100395494220",
+              "name": "1357157252225",
+              "status": "SENT",
+              "modified_date": "2013-01-07T18:51:35.975Z"
+            },
+            {
+              "id": "1100395673356",
+              "name": "Update1357593398565",
+              "status": "DRAFT",
+              "modified_date": "2013-01-07T16:16:43.768Z"
+            }
+          ]
+        }
       end
     }
   },
