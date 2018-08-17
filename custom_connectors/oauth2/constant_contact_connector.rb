@@ -287,7 +287,7 @@
           "from_email": "fromemail@example.com",
           "reply_to_email": "replytoemail@example.com",
           "template_type": "CUSTOM",
-          "created_date":"2012-02-09T11:07:43.626Z",
+          "created_date": "2012-02-09T11:07:43.626Z",
           "modified_date": "2012-02-10T11:07:42.626Z",
           "last_run_date": "2012-02-10T11:07:43.626Z",
           "next_run_date": "2012-02-11T11:07:43.626Z",
@@ -337,11 +337,11 @@
             }
           ],
           "click_through_details": [
-          	{
-          	"url": "http://www.linkedin.com/in/my.profile/",
-          	"url_uid": "1100397796079",
-          	"click_count": 24
-          	}
+            {
+              "url": "http://www.linkedin.com/in/my.profile/",
+              "url_uid": "1100397796079",
+              "click_count": 24
+            }
           ]
         }
       end
