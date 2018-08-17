@@ -713,18 +713,14 @@
           "shipping": null,
           "sources": {
             "object": "list",
-            "data": [
-
-            ],
+            "data": [],
             "has_more": false,
             "total_count": 0,
             "url": "/v1/customers/cus_DR1bI6Py9kM9IJ/sources"
           },
           "subscriptions": {
             "object": "list",
-            "data": [
-
-            ],
+            "data": [],
             "has_more": false,
             "total_count": 0,
             "url": "/v1/customers/cus_DR1bI6Py9kM9IJ/subscriptions"
@@ -794,9 +790,7 @@
           "refunded": false,
           "refunds": {
             "object": "list",
-            "data": [
-
-            ],
+            "data": [],
             "has_more": false,
             "total_count": 0,
             "url": "/v1/charges/ch_1D09Xq2eZvKYlo2CbaXwGbN2/refunds"
