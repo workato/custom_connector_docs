@@ -251,17 +251,17 @@
             [{
               "operator" => "AND",
               "filters" => [
-                             (input["dimension_filters"] || {}).
-                               map do |k, v|
-                                 if v.present?
-                                   {
-                                     "dimensionName" => "ga:#{k}",
-                                     "operator" => "EXACT",
-                                     "expressions" => [v]
-                                   }
-                                 end
-                               end
-                           ]
+                (input["dimension_filters"] || {}).
+                  map do |k, v|
+                    if v.present?
+                      {
+                        "dimensionName" => "ga:#{k}",
+                        "operator" => "EXACT",
+                        "expressions" => [v]
+                      }
+                    end
+                  end
+              ]
             }]
           end
 
@@ -272,17 +272,17 @@
             [{
               "operator" => "AND",
               "filters" => [
-                             (input["metric_filters"] || {}).
-                               map do |k, v|
-                                 if v.present?
-                                   {
-                                     "metricName" => "ga:#{k}",
-                                     "operator" => "EQUAL",
-                                     "comparisonValue" => v
-                                   }
-                                 end
-                               end
-                           ]
+                (input["metric_filters"] || {}).
+                  map do |k, v|
+                    if v.present?
+                      {
+                        "metricName" => "ga:#{k}",
+                        "operator" => "EQUAL",
+                        "comparisonValue" => v
+                      }
+                    end
+                  end
+              ]
             }]
           end
 
