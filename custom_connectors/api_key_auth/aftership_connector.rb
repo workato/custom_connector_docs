@@ -36,15 +36,15 @@
           { name: "slug", type: :string,
             hint: "If you do not specify a slug, Aftership will " \
               "automatically detect the courier based on the tracking number " \
-              "format and your selected couriers."},
+              "format and your selected couriers." },
           { name: "tracking_postal_code", type: :string,
             hint: "The postal code of receiver's address. " \
-              "Required by some couriers, such as deutsch-post"},
+              "Required by some couriers, such as deutsch-post" },
           { name: "tracking_ship_date", type: :string,
             hint: "Shipping date in YYYYMMDD format. Required by some " \
-              "couriers, such as deutsch-post"},
+              "couriers, such as deutsch-post" },
           { name: "tracking_account_number", type: :string,
-          	hint: "Account number of the shipper for a specific courier. " \
+            hint: "Account number of the shipper for a specific courier. " \
               "Required by some couriers, such as dynamic-logistics" },
           { name: "tracking_key", type: :string,
             hint: "Key of the shipment for a specific courier. " \
@@ -60,10 +60,10 @@
               "Required by some couriers, such asstar-track-courier" },
           { name: "android", type: :string,
             hint: "Google cloud message comma separated registration IDs to " \
-              "receive the push notifications"},
+              "receive the push notifications" },
           { name: "ios", type: :string,
             hint: "Apple iOS comma separated device IDs to receive the " \
-              "push notifications"},
+              "push notifications" },
           { name: "emails", type: :string, label: "E-mails",
             hint: "Comma separated email address(es) to receive email " \
               "notifications" },
