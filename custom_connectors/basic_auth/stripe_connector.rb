@@ -391,106 +391,7 @@
       end,
 
       sample_output: lambda do |_connection|
-        {
-          "object": "list",
-          "url": "/v1/invoices",
-          "has_more": false,
-          "data": [
-            {
-              "id": "in_19yTU92eZvKYlo2C7uDjvu6v",
-              "object": "invoice",
-              "amount_due": 999,
-              "amount_paid": 999,
-              "amount_remaining": 0,
-              "application_fee": null,
-              "attempt_count": 1,
-              "attempted": true,
-              "auto_advance": false,
-              "billing": "charge_automatically",
-              "billing_reason": null,
-              "charge": "ch_19yUQN2eZvKYlo2CQf7aWpSX",
-              "closed": true,
-              "currency": "usd",
-              "customer": "cus_DR1bI6Py9kM9IJ",
-              "date": 1489789429,
-              "description": null,
-              "discount": null,
-              "due_date": null,
-              "ending_balance": 0,
-              "forgiven": false,
-              "hosted_invoice_url": "https://pay.stripe.com/invoice/" \
-                "invst_a7KV10HpLw2QxrihgVyuOkOjMZ",
-              "invoice_pdf": "https://pay.stripe.com/invoice/" \
-                "invst_a7KV10HpLw2QxrihgVyuOkOjMZ/pdf",
-              "lines": {
-                "data": [
-                  {
-                    "id": "sli_3a8cd7c5388060",
-                    "object": "line_item",
-                    "amount": 999,
-                    "currency": "usd",
-                    "description": "1 × Bronze Performance (at $9.99 / month)",
-                    "discountable": true,
-                    "livemode": false,
-                    "metadata": {
-                    },
-                    "period": {
-                      "end": 1537196881,
-                      "start": 1534518481
-                    },
-                    "plan": {
-                      "id": "bronze-performance-150",
-                      "object": "plan",
-                      "active": true,
-                      "aggregate_usage": null,
-                      "amount": 999,
-                      "billing_scheme": "per_unit",
-                      "created": 1534516028,
-                      "currency": "usd",
-                      "interval": "month",
-                      "interval_count": 1,
-                      "livemode": false,
-                      "metadata": {
-                      },
-                      "nickname": null,
-                      "product": "prod_DR0w5agmWtM5hQ",
-                      "tiers": null,
-                      "tiers_mode": null,
-                      "transform_usage": null,
-                      "trial_period_days": null,
-                      "usage_type": "licensed"
-                    },
-                    "proration": false,
-                    "quantity": 1,
-                    "subscription": "sub_DR1bFiLWKqdODT",
-                    "subscription_item": "si_DR1bl2XOwOlwWK",
-                    "type": "subscription"
-                  }
-                ],
-                "has_more": false,
-                "object": "list",
-                "url": "/v1/invoices/in_19yTU92eZvKYlo2C7uDjvu6v/lines"
-              },
-              "livemode": false,
-              "metadata": {
-              },
-              "next_payment_attempt": null,
-              "number": "EF0A41E-0001",
-              "paid": true,
-              "period_end": 1489789420,
-              "period_start": 1487370220,
-              "receipt_number": "2277-9887",
-              "starting_balance": 0,
-              "statement_descriptor": null,
-              "subscription": "sub_9lNL2lSXI8nYEQ",
-              "subtotal": 999,
-              "tax": null,
-              "tax_percent": null,
-              "total": 999,
-              "webhooks_delivered_at": 1489789437
-            }
-          ]
-        }
+        get("/v1/subscriptions?limit=1")["data"].first || {}
       end
     },
 
@@ -569,106 +470,7 @@
       end,
 
       sample_output: lambda do |_connection|
-        {
-          "object": "list",
-          "url": "/v1/invoices",
-          "has_more": false,
-          "data": [
-            {
-              "id": "in_19yTU92eZvKYlo2C7uDjvu6v",
-              "object": "invoice",
-              "amount_due": 999,
-              "amount_paid": 999,
-              "amount_remaining": 0,
-              "application_fee": null,
-              "attempt_count": 1,
-              "attempted": true,
-              "auto_advance": false,
-              "billing": "charge_automatically",
-              "billing_reason": null,
-              "charge": "ch_19yUQN2eZvKYlo2CQf7aWpSX",
-              "closed": true,
-              "currency": "usd",
-              "customer": "cus_DR1bI6Py9kM9IJ",
-              "date": 1489789429,
-              "description": null,
-              "discount": null,
-              "due_date": null,
-              "ending_balance": 0,
-              "forgiven": false,
-              "hosted_invoice_url": "https://pay.stripe.com/invoice/" \
-                "invst_a7KV10HpLw2QxrihgVyuOkOjMZ",
-              "invoice_pdf": "https://pay.stripe.com/invoice/" \
-                "invst_a7KV10HpLw2QxrihgVyuOkOjMZ/pdf",
-              "lines": {
-                "data": [
-                  {
-                    "id": "sli_3a8cd7c5388060",
-                    "object": "line_item",
-                    "amount": 999,
-                    "currency": "usd",
-                    "description": "1 × Bronze Performance (at $9.99 / month)",
-                    "discountable": true,
-                    "livemode": false,
-                    "metadata": {
-                    },
-                    "period": {
-                      "end": 1537196881,
-                      "start": 1534518481
-                    },
-                    "plan": {
-                      "id": "bronze-performance-150",
-                      "object": "plan",
-                      "active": true,
-                      "aggregate_usage": null,
-                      "amount": 999,
-                      "billing_scheme": "per_unit",
-                      "created": 1534516028,
-                      "currency": "usd",
-                      "interval": "month",
-                      "interval_count": 1,
-                      "livemode": false,
-                      "metadata": {
-                      },
-                      "nickname": null,
-                      "product": "prod_DR0w5agmWtM5hQ",
-                      "tiers": null,
-                      "tiers_mode": null,
-                      "transform_usage": null,
-                      "trial_period_days": null,
-                      "usage_type": "licensed"
-                    },
-                    "proration": false,
-                    "quantity": 1,
-                    "subscription": "sub_DR1bFiLWKqdODT",
-                    "subscription_item": "si_DR1bl2XOwOlwWK",
-                    "type": "subscription"
-                  }
-                ],
-                "has_more": false,
-                "object": "list",
-                "url": "/v1/invoices/in_19yTU92eZvKYlo2C7uDjvu6v/lines"
-              },
-              "livemode": false,
-              "metadata": {
-              },
-              "next_payment_attempt": null,
-              "number": "EF0A41E-0001",
-              "paid": true,
-              "period_end": 1489789420,
-              "period_start": 1487370220,
-              "receipt_number": "2277-9887",
-              "starting_balance": 0,
-              "statement_descriptor": null,
-              "subscription": "sub_9lNL2lSXI8nYEQ",
-              "subtotal": 999,
-              "tax": null,
-              "tax_percent": null,
-              "total": 999,
-              "webhooks_delivered_at": 1489789437
-            }
-          ]
-        }
+        get("/v1/subscriptions?limit=1") || {}
       end
     },
 
@@ -695,37 +497,7 @@
       end,
 
       sample_output: lambda do |_connection|
-        {
-          "id": "cus_DR1bI6Py9kM9IJ",
-          "object": "customer",
-          "account_balance": 0,
-          "created": 1534518440,
-          "currency": "usd",
-          "default_source": null,
-          "delinquent": false,
-          "description": null,
-          "discount": null,
-          "email": null,
-          "invoice_prefix": "1DE9A54",
-          "livemode": false,
-          "metadata": {
-          },
-          "shipping": null,
-          "sources": {
-            "object": "list",
-            "data": [],
-            "has_more": false,
-            "total_count": 0,
-            "url": "/v1/customers/cus_DR1bI6Py9kM9IJ/sources"
-          },
-          "subscriptions": {
-            "object": "list",
-            "data": [],
-            "has_more": false,
-            "total_count": 0,
-            "url": "/v1/customers/cus_DR1bI6Py9kM9IJ/subscriptions"
-          }
-        }
+        get("/v1/customers?limit=1")["data"].first || {}
       end
     },
 
@@ -752,82 +524,7 @@
       end,
 
       sample_output: lambda do |_connection|
-        {
-          "id": "ch_1D09Xq2eZvKYlo2CbaXwGbN2",
-          "object": "charge",
-          "amount": 999,
-          "amount_refunded": 0,
-          "application": null,
-          "application_fee": null,
-          "balance_transaction": "txn_19XJJ02eZvKYlo2ClwuJ1rbA",
-          "captured": true,
-          "created": 1534518442,
-          "currency": "usd",
-          "customer": "cus_BEHCMmqoDCb53o",
-          "description": null,
-          "destination": null,
-          "dispute": null,
-          "failure_code": null,
-          "failure_message": null,
-          "fraud_details": {
-          },
-          "invoice": "in_1D08bT2eZvKYlo2Cgi630AjX",
-          "livemode": false,
-          "metadata": {
-          },
-          "on_behalf_of": null,
-          "order": null,
-          "outcome": {
-            "network_status": "approved_by_network",
-            "reason": null,
-            "risk_level": "normal",
-            "seller_message": "Payment complete.",
-            "type": "authorized"
-          },
-          "paid": true,
-          "receipt_email": null,
-          "receipt_number": null,
-          "refunded": false,
-          "refunds": {
-            "object": "list",
-            "data": [],
-            "has_more": false,
-            "total_count": 0,
-            "url": "/v1/charges/ch_1D09Xq2eZvKYlo2CbaXwGbN2/refunds"
-          },
-          "review": null,
-          "shipping": null,
-          "source": {
-            "id": "card_1AroeG2eZvKYlo2CZzvnBtQk",
-            "object": "card",
-            "address_city": null,
-            "address_country": null,
-            "address_line1": null,
-            "address_line1_check": null,
-            "address_line2": null,
-            "address_state": null,
-            "address_zip": null,
-            "address_zip_check": null,
-            "brand": "Visa",
-            "country": "US",
-            "customer": "cus_BEHCMmqoDCb53o",
-            "cvc_check": null,
-            "dynamic_last4": null,
-            "exp_month": 8,
-            "exp_year": 2019,
-            "fingerprint": "Xt5EWLLDS7FJjR1c",
-            "funding": "credit",
-            "last4": "4242",
-            "metadata": {
-            },
-            "name": null,
-            "tokenization_method": null
-          },
-          "source_transfer": null,
-          "statement_descriptor": null,
-          "status": "succeeded",
-          "transfer_group": null
-        }
+        get("/v1/charges?limit=1")["data"].first || {}
       end
     },
 
@@ -858,30 +555,7 @@
       end,
 
       sample_output: lambda do |_connection|
-        {
-          "id": "txn_19XJJ02eZvKYlo2ClwuJ1rbA",
-          "object": "balance_transaction",
-          "amount": 999,
-          "available_on": 1483920000,
-          "created": 1483315442,
-          "currency": "usd",
-          "description": null,
-          "exchange_rate": null,
-          "fee": 59,
-          "fee_details": [
-            {
-              "amount": 59,
-              "application": null,
-              "currency": "usd",
-              "description": "Stripe processing fees",
-              "type": "stripe_fee"
-            }
-          ],
-          "net": 940,
-          "source": "ch_19XJJ02eZvKYlo2CHfSUsSpl",
-          "status": "pending",
-          "type": "charge"
-        }
+        get("/v1/balance/history?limit=1") || {}
       end
     },
 
@@ -908,20 +582,7 @@
       end,
 
       sample_output: lambda do |_connection|
-        {
-          "id": "re_1D09Mk2eZvKYlo2Co37xa3KO",
-          "object": "refund",
-          "amount": 1273,
-          "balance_transaction": "txn_1D09Ml2eZvKYlo2CK3PbrNtp",
-          "charge": "ch_1D09MW2eZvKYlo2CoUru4XAR",
-          "created": 1534517754,
-          "currency": "usd",
-          "metadata": {
-          },
-          "reason": null,
-          "receipt_number": null,
-          "status": "succeeded"
-        }
+        get("/v1/refunds?limit=1")["data"].first || {}
       end
     }
   },
@@ -987,7 +648,7 @@
       end,
 
       sample_output: lambda do |_connection|
-        get("/v1/customers?limit=1")["data"]
+        get("/v1/customers?limit=1")["data"].first || {}
       end
     },
 
@@ -1050,7 +711,7 @@
       end,
 
       sample_output: lambda do |_connection|
-        get("/v1/refunds?limit=1")["data"]
+        get("/v1/refunds?limit=1")["data"].first || {}
       end
     },
 
@@ -1113,7 +774,7 @@
       end,
 
       sample_output: lambda do |_connection|
-        get("/v1/charges?limit=1")["data"]
+        get("/v1/charges?limit=1")["data"].first || {}
       end
     },
 
@@ -1176,7 +837,7 @@
       end,
 
       sample_output: lambda do |_connection|
-        get("/v1/payouts?limit=1")["data"]
+        get("/v1/payouts?limit=1")["data"].first || {}
       end
     },
 
@@ -1239,7 +900,7 @@
       end,
 
       sample_output: lambda do |_connection|
-        get("/v1/balance/history?limit=1")["data"]
+        get("/v1/balance/history?limit=1")["data"].first || {}
       end
     }
   },
