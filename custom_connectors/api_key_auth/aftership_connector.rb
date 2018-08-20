@@ -192,7 +192,7 @@
       end,
 
       sample_output: lambda do |_connection|
-        get("/v4/trackings", limit: 1)["data"]["trackings"]
+        get("/v4/trackings", limit: 1)["data"]["trackings"].first
       end
     },
 
@@ -223,7 +223,7 @@
       end,
 
       sample_output: lambda do |_connection|
-        get("/v4/trackings", limit: 1)["data"]["trackings"]
+        get("/v4/trackings", limit: 1)["data"]["trackings"].first
       end
     }
   }
