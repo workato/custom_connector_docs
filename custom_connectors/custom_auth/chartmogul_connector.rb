@@ -38,7 +38,58 @@
     customer: {
       fields: lambda do
         [
+          { name: "id", type: "integer", control_type: "number" },
           { name: "uuid", label: "Customer UUID" },
+          { name: "external_id", label: "External ID", optional: true,
+            hint: "The unique external identifier for this customer" },
+          { name: "name", hint: "Name of the customer for display purposes." },
+          { name: "email", control_type: "email" },
+          { name: "status" },
+          { name: "customer-since", type: "date_time",
+            control_type: "date_time" },
+          { name: "attributes", type: "object", properties: [
+            { name: "tags", type: "array", of: "string" },
+            { name: "stripe", type: "object", properties: [
+              { name: "uid", type: "integer", control_type: "number" },
+              { name: "coupon", type: "boolean", control_type: "checkbox" },
+            ] },
+            { name: "clearbit", type: "object", properties: [
+              { name: "id" },
+              { name: "name" },
+              { name: "legalName" },
+              { name: "domain", type: "string", control_type: "url" },
+              { name: "url", type: "string", control_type: "url" },
+              { name: "metrics", type: "object", properties: [
+                  { name: "raised", type: "integer", control_type: "number" },
+                  { name: "employees", type: "integer",
+                    control_type: "number" },
+                  { name: "googleRank", type: "integer",
+                    control_type: "number" },
+                  { name: "alexaGlobalRank", type: "integer",
+                    control_type: "number" },
+                  { name: "marketCap", type: "integer", control_type: "number" }
+              ] },
+              { name: "category", type: "object", properties: [
+                { name: "sector" },
+                { name: "industryGroup" },
+                { name: "industry" },
+                { name: "subIndustry" }
+              ] }
+            ] },
+            { name: "custom", type: "object", properties: [
+              { name: "CAC", type: "integer", control_type: "number" },
+              { name: "utmCampaign" },
+              { name: "convertedAt" },
+              { name: "pro", type: "boolean", control_type: "checkbox" },
+              { name: "salesRep" }
+            ] }
+          ] },
+          { name: "address", type: "object", properties: [
+            { name: "address_zip" },
+            { name: "city" },
+            { name: "state" },
+            { name: "country" }
+          ] },
           {
             name: "data_source_uuid",
             label: "Data Source",
@@ -47,11 +98,19 @@
             pick_list: "data_sources",
             optional: true
           },
-          { name: "external_id", label: "External ID", optional: true,
-            hint: "The unique external identifier for this customer" },
-          { name: "name", hint: "Name of the customer for display purposes." },
-          { name: "email", control_type: "email" },
-          { name: "status" },
+          {
+            name: "data_source_uuids",
+            label: "Data Source UUIDs",
+            hint: "An array containing the ChartMogul UUIDs of all data " \
+              "sources that contribute data to this customer. " \
+              "This is most relevant for merged customers.",
+            type: "array",
+            of: "string"
+          },
+          { name: "external_ids", type: "array", of: "string",
+            label: "External IDs", optional: true,
+            hint: "An array containing the unique external identifiers of all" \
+              " customer records that have been merged into this customer" },
           { name: "company" },
           { name: "country",
             hint: "Country code of customer's location, e.g. US,UK,AU." },
@@ -59,10 +118,15 @@
             hint: "State code of customer's location, e.g. TX,CA,ON." },
           { name: "city", hint: "City of the customer's location." },
           { name: "zip", hint: "Zip code of the customer's location." },
-          { name: "currency" },
+          { name: "lead_created_at" },
+          { name: "free_trial_started_at" },
           { name: "mrr", label: "Customer MRR", type: "number" },
           { name: "arr", label: "Customer ARR", type: "number" },
-          { name: "chartmogul_url", control_type: "url" }
+          { name: "billing-system-url", control_type: "url" },
+          { name: "chartmogul-url", control_type: "url" },
+          { name: "billing-system-type" },
+          { name: "currency" },
+          { name: "currency-sign" }
         ]
       end
     },
@@ -100,6 +164,7 @@
         [
           { name: "uuid", label: "Subscription UUID" },
           { name: "external_id", label: "External ID" },
+          { name: "customer_uuid", label: "Customer UUID" },
           { name: "plan_uuid", label: "Plan UUID" },
           { name: "data_source_uuid", label: "Data Source UUID" },
           { name: "cancellation_dates", type: "array", of: "date_time",
@@ -113,14 +178,14 @@
         [
           { name: "date", type: "date", label: "Date Ending" },
           { name: "mrr", label: "MRR", type: "integer" },
-          { name: "mrr_new_business", label: "New Business MRR",
+          { name: "mrr-new-business", label: "New Business MRR",
             type: "integer" },
-          { name: "mrr_expansion", label: "Expansion MRR", type: "integer" },
-          { name: "mrr_contraction", label: "Contraction MRR",
+          { name: "mrr-expansion", label: "Expansion MRR", type: "integer" },
+          { name: "mrr-contraction", label: "Contraction MRR",
             type: "integer" },
-          { name: "mrr_reactivation", label: "Reactivation MRR",
+          { name: "mrr-reactivation", label: "Reactivation MRR",
             type: "integer" },
-          { name: "mrr_churn", label: "Churn MRR", type: "integer" }
+          { name: "mrr-churn", label: "Churn MRR", type: "integer" }
         ]
       end
     },
@@ -211,6 +276,177 @@
     }
   },
 
+  methods: {
+    invoice_output: lambda do
+      {
+        "customer_uuid": "cus_f466e33d-ff2b-4a11-8f85-417eb02157a7",
+        "invoices": [
+          {
+            "uuid": "inv_565c73b2-85b9-49c9-a25e-2b7df6a677c9",
+            "external_id": "INV0001",
+            "date": "2015-11-01T00:00:00.000Z",
+            "due_date": "2015-11-15T00:00:00.000Z",
+            "currency": "USD",
+            "line_items": [
+              {
+                "uuid": "li_d72e6843-5793-41d0-bfdf-0269514c9c56",
+                "external_id": "null",
+                "type": "subscription",
+                "subscription_uuid": "sub_e6bc5407-e258-4de0-bb43-61faaf062035",
+                "subscription_external_id": "sub_0001",
+                "plan_uuid": "pl_eed05d54-75b4-431b-adb2-eb6b9e543206",
+                "prorated": false,
+                "service_period_start": "2015-11-01T00:00:00.000Z",
+                "service_period_end": "2015-12-01T00:00:00.000Z",
+                "amount_in_cents": 5000,
+                "quantity": 1,
+                "discount_code": "PSO86",
+                "discount_amount_in_cents": 1000,
+                "tax_amount_in_cents": 900,
+                "transaction_fees_in_cents": 200,
+                "account_code": "null"
+              },
+              {
+                "uuid": "li_0cc8c112-beac-416d-af11-f35744ca4e83",
+                "external_id": "null",
+                "type": "one_time",
+                "description": "Setup Fees",
+                "amount_in_cents": 2500,
+                "quantity": 1,
+                "discount_code": "PSO86",
+                "discount_amount_in_cents": 500,
+                "tax_amount_in_cents": 450,
+                "transaction_fees_in_cents": 0,
+                "account_code": "null"
+              }
+            ],
+            "transactions": [
+              {
+                "uuid": "tr_879d560a-1bec-41bb-986e-665e38a2f7bc",
+                "external_id": "null",
+                "type": "payment",
+                "date": "2015-11-05T00:14:23.000Z",
+                "result": "successful"
+              }
+            ]
+          }
+        ],
+        "current_page": 1,
+        "total_pages": 1
+      }
+    end,
+
+    customer_output: lambda do
+      {
+        "id": 25647,
+        "uuid": "cus_de305d54-75b4-431b-adb2-eb6b9e546012",
+        "external_id": "34916129",
+        "name": "Example Company",
+        "email": "bob@examplecompany.com",
+        "status": "Active",
+        "customer-since": "2015-06-09T13:16:00-04:00",
+        "attributes": {
+          "tags": ["engage", "unit loss", "discountable"],
+          "stripe": {
+            "uid": 7,
+            "coupon": true
+          },
+          "clearbit": {
+            "id": "027b0d40-016c-40ea-8925-a076fa640992",
+            "name": "Acme",
+            "legalName": "Acme Inc.",
+            "domain": "acme.com",
+            "url": "http://acme.com",
+            "metrics": {
+              "raised": 1502450000,
+              "employees": 1000,
+              "googleRank": 7,
+              "alexaGlobalRank": 2319,
+              "marketCap": "null"
+            },
+            "category": {
+              "sector": "Information Technology",
+              "industryGroup": "Software and Services",
+              "industry": "Software",
+              "subIndustry": "Application Software"
+            }
+          },
+          "custom": {
+            "CAC": 213,
+            "utmCampaign": "social media 1",
+            "convertedAt": "2015-09-08 00:00:00",
+            "pro": false,
+            "salesRep": "Gabi"
+          }
+        },
+        "address": {
+          "address_zip": "0185128",
+          "city": "Nowhereville",
+          "state": "Alaska",
+          "country": "US"
+        },
+        "data_source_uuid": "ds_fef05d54-47b4-431b-aed2-eb6b9e545430",
+        "data_source_uuids": ["ds_fef05d54-47b4-431b-aed2-eb6b9e545430"],
+        "external_ids": ["34916129"],
+        "company": "",
+        "country": "US",
+        "state": "Alaska",
+        "city": "Nowhereville",
+        "zip": "0185128",
+        "lead_created_at": "null",
+        "free_trial_started_at": "null",
+        "mrr": 3000,
+        "arr": 36000,
+        "billing-system-url": "https:\/\/dashboard.stripe.com\/customers\/cus_4Z2ZpyJFuQ0XMb",
+        "chartmogul-url": "https:\/\/app.chartmogul.com\/#customers\/25647-Example_Company",
+        "billing-system-type": "Stripe",
+        "currency": "USD",
+        "currency-sign": "$"
+      }
+    end,
+
+    format_api_input_field_names: lambda do |input|
+      if input.is_a?(Array)
+        input.map do |array_value|
+          call("format_api_input_field_names", array_value)
+        end
+      elsif input.is_a?(Hash)
+        input.map do |key, value|
+          value = call("format_api_input_field_names", value)
+          { key.gsub("_hypen_", "-") => value }
+        end.inject(:merge)
+      else
+        input
+      end
+    end,
+
+    format_api_output_field_names: lambda do |input|
+      if input.is_a?(Array)
+        input.map do |array_value|
+          call("format_api_output_field_names",  array_value)
+        end
+      elsif input.is_a?(Hash)
+        input.map do |key, value|
+          value = call("format_api_output_field_names", value)
+          { key.gsub("-", "_hypen_") => value }
+        end.inject(:merge)
+      else
+        input
+      end
+    end,
+
+    format_schema_field_names: lambda do |input|
+      input.map do |field|
+        if field[:properties].present?
+          field[:properties] = call("format_schema_field_names",
+                                    field[:properties])
+        end
+        field[:name] = field[:name].gsub("-", "_hypen_")
+        field
+      end
+    end
+  },
+
   actions: {
     get_invoices_by_customer: {
       description: "Get <span class='provider'>invoices</span> by customer " \
@@ -242,6 +478,10 @@
             properties: object_definitions["invoice"]
           }
         ]
+      end,
+
+      sample_output: lambda do |_connection|
+        call(:invoice_output)
       end
     },
 
@@ -398,13 +638,20 @@
           )["invoices"].first
       end,
 
-      output_fields: lambda do
+      output_fields: lambda do |object_definitions|
         [
+          { name: "customer_uuid" },
           {
-            name: "uuid",
-            label: "Invoice UUID"
+            name: "invoices",
+            type: "array",
+            of: "object",
+            properties: object_definitions["invoice"]
           }
         ]
+      end,
+
+      sample_output: lambda do |_connection|
+        call(:invoice_output)
       end
     },
 
@@ -445,6 +692,10 @@
             properties: object_definitions["invoice"]
           }
         ]
+      end,
+
+      sample_output: lambda do |_connection|
+        call(:invoice_output)
       end
     },
 
@@ -453,13 +704,14 @@
         "<span class='provider'>ChartMogul</span>",
 
       input_fields: lambda do |object_definitions|
-        object_definitions["customer"].
-          only("external_id", "data_source_uuid").
-          required("external_id")
+        [
+          name: "customer_uuid", optional: false, label: "Customer UUID",
+          hint: "The ChartMogul UUID of the customer you are retrieving."
+        ]
       end,
 
       execute: lambda do |_connection, input|
-        response = get("/v1/import/customers", input)["customers"].first
+        response = get("/v1/customers/#{input['customer_uuid']}")
         if response.present?
           response.each do |k, v|
             if k == "mrr"
@@ -473,6 +725,10 @@
 
       output_fields: lambda do |object_definitions|
         object_definitions["customer"]
+      end,
+
+      sample_output: lambda do |_connection|
+        call(:customer_output)
       end
     },
 
@@ -506,11 +762,15 @@
           end
         end
 
-        post("/v1/import/customers", request)
+        post("/v1/customers", request)
       end,
 
       output_fields: lambda do |object_definitions|
-        object_definitions["customer"].only("uuid")
+        object_definitions["customer"]
+      end,
+
+      sample_output: lambda do |_connection|
+        call(:customer_output)
       end
     },
 
@@ -544,30 +804,51 @@
           end
         end
 
-        patch("/v1/import/customers/#{input['uuid']}", request)
+        patch("/v1/customers/#{input['uuid']}", request)
       end,
 
       output_fields: lambda do |object_definitions|
         object_definitions["customer"]
+      end,
+
+      sample_output: lambda do |_connection|
+        call(:customer_output)
       end
     },
 
     search_plans: {
       description: "Search <span class='provider'>plans</span> in " \
         "<span class='provider'>ChartMogul</span>",
+      help: "Returns a maximum of 100 records.",
 
       input_fields: lambda do |object_definitions|
         object_definitions["plan"].
           only("external_id", "data_source_uuid").
-          required("external_id")
+          concat(
+            [
+              { name: "system",
+                hint: "An optional filter parameter, for the billing system " \
+                  "that the plan belongs to. Possible values: Stripe, " \
+                  "Recurly, Chargify, or Import API" }
+            ]
+          )
       end,
 
       execute: lambda do |_connection, input|
-        get("/v1/import/plans", input)["plans"].first
+        {
+          plans: get("/v1/plans", input).params(per_page: 100)["plans"]
+        }
       end,
 
       output_fields: lambda do |object_definitions|
-        object_definitions["plan"]
+        [
+          { name: "plans", type: "array", of: "object",
+            properties: object_definitions["plan"] }
+        ]
+      end,
+
+      sample_output: lambda do |_connection|
+        get("/v1/plans", per_page: 1) || {}
       end
     },
 
@@ -587,11 +868,15 @@
         input = input.reject { |k, _v| k == "interval" }
         input["interval_count"] = input["interval_count"].to_i
 
-        post("/v1/import/plans", input)
+        post("/v1/plans", input)
       end,
 
       output_fields: lambda do |object_definitions|
         object_definitions["plan"]
+      end,
+
+      sample_output: lambda do |_connection|
+        get("/v1/plans", per_page: 1)["plans"].first || {}
       end
     },
 
@@ -604,6 +889,7 @@
           {
             name: "customer_uuid",
             label: "Customer UUID",
+            optional: false,
             hint: "The ChartMogul UUID of the customer whose subscriptions " \
               "are requested."
           }
@@ -616,14 +902,31 @@
 
       output_fields: lambda do |object_definitions|
         [
-          { name: "customer_uuid" },
+          { name: "customer_uuid", label: "Customer UUID" },
           {
             name: "subscriptions",
             type: "array",
             of: "object",
-            properties: object_definitions["subscription"]
+            properties: object_definitions["subscription"].
+                          only("uuid", "external_id", "plan_uuid",
+                               "data_source_uuid", "cancellation_dates")
           }
         ]
+      end,
+
+      sample_output: lambda do |_connection|
+        {
+          "customer_uuid": "cus_f466e33d-ff2b-4a11-8f85-417eb02157a7",
+          "subscriptions":[
+            {
+              "uuid": "sub_e6bc5407-e258-4de0-bb43-61faaf062035",
+              "external_id": "sub_0001",
+              "plan_uuid": "pl_eed05d54-75b4-431b-adb2-eb6b9e543206",
+              "data_source_uuid": "ds_fef05d54-47b4-431b-aed2-eb6b9e545430",
+              "cancellation_dates":[]
+            }
+          ]
+        }
       end
     },
 
@@ -677,15 +980,18 @@
       end,
 
       output_fields: lambda do |object_definitions|
-        [
-          { name: "customer_uuid" },
-          {
-            name: "subscriptions",
-            type: "array",
-            of: "object",
-            properties: object_definitions["subscription"]
-          }
-        ]
+        object_definitions["subscription"]
+      end,
+
+      sample_output: lambda do |_connection|
+        {
+          "uuid": "sub_e6bc5407-e258-4de0-bb43-61faaf062035",
+          "external_id": "sub_0001",
+          "customer_uuid": "cus_f466e33d-ff2b-4a11-8f85-417eb02157a7",
+          "plan_uuid": "pl_eed05d54-75b4-431b-adb2-eb6b9e543206",
+          "cancellation_dates": ["2016-01-15T00:00:00.000Z"],
+          "data_source_uuid": "ds_fef05d54-47b4-431b-aed2-eb6b9e545430"
+        }
       end
     },
 
@@ -760,6 +1066,27 @@
             ]
           }
         ]
+      end,
+
+      sample_output: lambda do |_connection|
+        {
+          "entries":[
+            {
+              "date":"2015-01-03",
+              "mrr":30000,
+              "mrr-new-business":10000,
+              "mrr-expansion":15000,
+              "mrr-contraction":0,
+              "mrr-churn":0,
+              "mrr-reactivation":0
+            }
+          ],
+          "summary":{
+            "current":43145000,
+            "previous":43145000,
+            "percentage-change":0.0
+          }
+        }
       end
     },
 
@@ -796,10 +1123,26 @@
             properties: [
               { name: "current", type: "integer" },
               { name: "previous", type: "integer" },
-              { name: "percentage", type: "float" }
+              { name: "percentage", type: "number" }
             ]
           }
         ]
+      end,
+
+      sample_output: lambda do |_connection|
+        {
+          "entries":[
+            {
+              "date":"2015-07-31",
+              "customers":382
+            }
+          ],
+          "summary":{
+            "current":382,
+            "previous":379,
+            "percentage-change":0.8
+          }
+        }
       end
     },
 
@@ -834,12 +1177,28 @@
             name: "summary",
             type: "object",
             properties: [
-              { name: "current", type: "integer" },
-              { name: "previous", type: "integer" },
-              { name: "percentage", type: "float" }
+              { name: "current", type: "number" },
+              { name: "previous", type: "number" },
+              { name: "percentage", type: "number" }
             ]
           }
         ]
+      end,
+
+      sample_output: lambda do |_connection|
+        {
+          "entries":[
+            {
+              "date":"2015-01-31",
+              "customer-churn-rate":9.8
+            }
+          ],
+          "summary":{
+            "current":9.8,
+            "previous":8.5,
+            "percentage-change":2
+          }
+        }
       end
     }
   },
