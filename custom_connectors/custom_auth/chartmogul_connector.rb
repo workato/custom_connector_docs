@@ -917,13 +917,13 @@
       sample_output: lambda do |_connection|
         {
           "customer_uuid": "cus_f466e33d-ff2b-4a11-8f85-417eb02157a7",
-          "subscriptions":[
+          "subscriptions": [
             {
               "uuid": "sub_e6bc5407-e258-4de0-bb43-61faaf062035",
               "external_id": "sub_0001",
               "plan_uuid": "pl_eed05d54-75b4-431b-adb2-eb6b9e543206",
               "data_source_uuid": "ds_fef05d54-47b4-431b-aed2-eb6b9e545430",
-              "cancellation_dates":[]
+              "cancellation_dates": []
             }
           ]
         }
@@ -1070,21 +1070,21 @@
 
       sample_output: lambda do |_connection|
         {
-          "entries":[
+          "entries": [
             {
-              "date":"2015-01-03",
-              "mrr":30000,
-              "mrr-new-business":10000,
-              "mrr-expansion":15000,
-              "mrr-contraction":0,
-              "mrr-churn":0,
-              "mrr-reactivation":0
+              "date": "2015-01-03",
+              "mrr": 30000,
+              "mrr-new-business": 10000,
+              "mrr-expansion": 15000,
+              "mrr-contraction": 0,
+              "mrr-churn": 0,
+              "mrr-reactivation": 0
             }
           ],
           "summary":{
-            "current":43145000,
-            "previous":43145000,
-            "percentage-change":0.0
+            "current": 43145000,
+            "previous": 43145000,
+            "percentage-change": 0.0
           }
         }
       end
@@ -1133,14 +1133,14 @@
         {
           "entries":[
             {
-              "date":"2015-07-31",
-              "customers":382
+              "date": "2015-07-31",
+              "customers": 382
             }
           ],
-          "summary":{
-            "current":382,
-            "previous":379,
-            "percentage-change":0.8
+          "summary": {
+            "current": 382,
+            "previous": 379,
+            "percentage-change": 0.8
           }
         }
       end
@@ -1189,14 +1189,14 @@
         {
           "entries":[
             {
-              "date":"2015-01-31",
-              "customer-churn-rate":9.8
+              "date": "2015-01-31",
+              "customer-churn-rate": 9.8
             }
           ],
-          "summary":{
-            "current":9.8,
-            "previous":8.5,
-            "percentage-change":2
+          "summary": {
+            "current": 9.8,
+            "previous": 8.5,
+            "percentage-change": 2
           }
         }
       end
