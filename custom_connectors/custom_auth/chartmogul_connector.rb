@@ -60,14 +60,14 @@
               { name: "domain", type: "string", control_type: "url" },
               { name: "url", type: "string", control_type: "url" },
               { name: "metrics", type: "object", properties: [
-                  { name: "raised", type: "integer", control_type: "number" },
-                  { name: "employees", type: "integer",
-                    control_type: "number" },
-                  { name: "googleRank", type: "integer",
-                    control_type: "number" },
-                  { name: "alexaGlobalRank", type: "integer",
-                    control_type: "number" },
-                  { name: "marketCap", type: "integer", control_type: "number" }
+                { name: "raised", type: "integer", control_type: "number" },
+                { name: "employees", type: "integer",
+                  control_type: "number" },
+                { name: "googleRank", type: "integer",
+                  control_type: "number" },
+                { name: "alexaGlobalRank", type: "integer",
+                  control_type: "number" },
+                { name: "marketCap", type: "integer", control_type: "number" }
               ] },
               { name: "category", type: "object", properties: [
                 { name: "sector" },
@@ -703,7 +703,7 @@
       description: "Get <span class='provider'>customer</span> in " \
         "<span class='provider'>ChartMogul</span>",
 
-      input_fields: lambda do |object_definitions|
+      input_fields: lambda do |_object_definitions|
         [
           name: "customer_uuid", optional: false, label: "Customer UUID",
           hint: "The ChartMogul UUID of the customer you are retrieving."
@@ -1081,7 +1081,7 @@
               "mrr-reactivation": 0
             }
           ],
-          "summary":{
+          "summary": {
             "current": 43145000,
             "previous": 43145000,
             "percentage-change": 0.0
@@ -1131,7 +1131,7 @@
 
       sample_output: lambda do |_connection|
         {
-          "entries":[
+          "entries": [
             {
               "date": "2015-07-31",
               "customers": 382
@@ -1187,7 +1187,7 @@
 
       sample_output: lambda do |_connection|
         {
-          "entries":[
+          "entries": [
             {
               "date": "2015-01-31",
               "customer-churn-rate": 9.8
