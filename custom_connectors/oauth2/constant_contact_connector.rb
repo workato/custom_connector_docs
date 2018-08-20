@@ -212,6 +212,7 @@
     list_email_campaigns: {
       description: "List <span class='provider'>email campaigns</span> in " \
         "<span class='provider'>Constant Contact</span>",
+      help: "Returns a maximum of 50 email campaigns.",
 
       input_fields: lambda do
         [
@@ -226,7 +227,7 @@
             modified_since: input["modified_since"].to_time.utc.iso8601
           }
         end
-        response = get("/v2/emailmarketing/campaigns?limit=30", params)
+        response = get("/v2/emailmarketing/campaigns?limit=50", params)
         campaigns = response["results"]
         next_link = response["meta"]["pagination"]["next_link"]
         while next_link.present?
@@ -251,7 +252,7 @@
       end,
 
       sample_output: lambda do |_connection|
-        { results: get("/v2/emailmarketing/campaigns?limit=1")["results"] }
+        get("/v2/emailmarketing/campaigns?limit=1")
       end
     },
 
@@ -372,12 +373,14 @@
 
       sample_output: lambda do |_connection|
         {
-          "sends": 15,
-          "opens": 10,
-          "clicks": 10,
-          "forwards": 3,
-          "unsubscribes": 2,
-          "bounces": 18
+          "tracking_summary": {
+            "sends": 15,
+            "opens": 10,
+            "clicks": 10,
+            "forwards": 3,
+            "unsubscribes": 2,
+            "bounces": 18
+          }
         }
       end
     },
@@ -406,7 +409,7 @@
       end,
 
       sample_output: lambda do |_connection|
-        get("/v2/contacts")["results"].first
+        get("/v2/contacts")["results"].first || {}
       end
     },
 
@@ -466,7 +469,7 @@
       end,
 
       sample_output: lambda do |_connection|
-        get("/v2/contacts")["results"].first
+        get("/v2/contacts")["results"].first || {}
       end
     }
   },
