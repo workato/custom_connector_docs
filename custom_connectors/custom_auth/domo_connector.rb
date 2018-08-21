@@ -46,9 +46,9 @@
             []
           else
             get("/v1/datasets/#{config_fields['dataset_id']}")["schema"]
-            ["columns"].map { |col|
+            ["columns"].map do |col|
                          { name: col["name"] }
-                       }
+            end
           end
 
         {
@@ -92,19 +92,18 @@
     new_dataset_dev: {
       fields: lambda do |_connection, config_fields|
         index = 0
-        schema_fields =
-          if config_fields.blank?
-            []
-          else
-            while index < config_fields["schema"].to_i do
-              index = index + 1
-              schema_fields =
-                [
-                  { name: "name" },
-                  { name: "type" }
-                ]
-            end
+        if config_fields.blank?
+          schema_fields = []
+        else
+          while index < config_fields["schema"].to_i
+            index = index + 1
+            schema_fields =
+              [
+                { name: "name" },
+                { name: "type" }
+              ]
           end
+        end
 
         {
           name: "data",
@@ -159,7 +158,7 @@
         {
           data: put("/v1/datasets/#{input['dataset_id']}/data").
                   headers("Content-Type": "text/csv").
-                  request_body("#{payload}").
+                  request_body(payload).
                   request_format_www_form_urlencoded
         }
       end,
@@ -188,7 +187,7 @@
                            else
                              {}
                            end
-                        end
+                         end
         }
 
         payload = {
