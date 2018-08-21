@@ -66,7 +66,7 @@
         get(
           "/v1.0/me/drive/items/#{config['file']}/workbook/worksheets" \
           "('#{config['worksheet']}')/usedRange?$select=formulas"
-        )["formulas"]&.first.
+        )["formulas"]&.first&.
           map do |f|
             { name: f, label: f }
           end
@@ -280,7 +280,7 @@
           get("/v1.0/me/drive/items/#{input['file']}/workbook/worksheets" \
             "('#{input['worksheet']}')/usedRange?$select=address,formulas," \
             "rowCount")
-        output_fields = address["formulas"]&.first.
+        output_fields = address["formulas"]&.first&.
                           map do |f|
                             f
                           end
@@ -310,9 +310,12 @@
           end
           # set last record id
           newaddress = result["address"]
-          newrange = newaddress.split("!").last unless newaddress.blank?
-          last_record_id =
-            newrange.split(":").last.scan(/\d+/).first unless newrange.blank?
+          if newaddress.present?
+            newrange = newaddress.split("!").last
+          end
+          if newrange.present?
+            last_record_id = newrange.split(":").last.scan(/\d+/).first
+          end
         end
 
         # trigger output
@@ -322,7 +325,7 @@
           events: output,
           next_poll:
             output.size > 0 ? last_record_id.to_i + 1 : last_record_id.to_i,
-          can_poll_more:  output.size == 0 ? false : true
+          can_poll_more:  !(output.size == 0)
         }
       end,
 
