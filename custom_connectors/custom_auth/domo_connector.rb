@@ -47,7 +47,7 @@
           else
             get("/v1/datasets/#{config_fields['dataset_id']}")["schema"]
             ["columns"].map do |col|
-                         { name: col["name"] }
+              { name: col["name"] }
             end
           end
 
