@@ -21,15 +21,15 @@
         {
           access_token: get("https://api.domo.com/oauth/token?" \
                         "grant_type=client_credentials&scope=data").
-                        user(connection["client_id"]).
-                        password(connection["client_secret"])["access_token"]
+                          user(connection["client_id"]).
+                          password(connection["client_secret"])["access_token"]
         }
       end,
 
       refresh_on: [401],
 
       apply: lambda do |connection|
-        headers(Authorization: "bearer #{connection["access_token"]}")
+        headers(Authorization: "bearer #{connection['access_token']}")
       end
     },
 
@@ -45,9 +45,10 @@
           if config_fields.blank?
             []
           else
-            get("/v1/datasets/#{config_fields["dataset_id"]}")["schema"]
-              ["columns"].map do |col| { name: col["name"] }
-              end
+            get("/v1/datasets/#{config_fields['dataset_id']}")["schema"]
+            ["columns"].map { |col|
+                         { name: col["name"] }
+                       }
           end
 
         {
@@ -67,7 +68,7 @@
           {
             name: "name",
             optional: false,
-          	hint: "Enter a name for the dataset."
+            hint: "Enter a name for the dataset."
           },
           {
             name: "description",
@@ -91,17 +92,18 @@
     new_dataset_dev: {
       fields: lambda do |_connection, config_fields|
         index = 0
-        schema_fields = []
         schema_fields =
-        config_fields.blank? ? [] :
-        while index <  config_fields["schema"].to_i do
-          index = index + 1
-          schema_fields =
-            [
-              { name: "name" },
-              { name: "type" }
-            ]
-        end
+          if config_fields.blank?
+            []
+          else
+            while index < config_fields["schema"].to_i do
+              index = index + 1
+              schema_fields =
+                [
+                  { name: "name" },
+                  { name: "type" }
+                ]
+            end
 
         {
           name: "data",
