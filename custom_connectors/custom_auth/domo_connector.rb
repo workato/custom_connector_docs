@@ -104,6 +104,7 @@
                   { name: "type" }
                 ]
             end
+          end
 
         {
           name: "data",
@@ -157,9 +158,9 @@
 
         {
           data: put("/v1/datasets/#{input['dataset_id']}/data").
-                headers("Content-Type": "text/csv").
-                request_body("#{payload}").
-                request_format_www_form_urlencoded
+                  headers("Content-Type": "text/csv").
+                  request_body("#{payload}").
+                  request_format_www_form_urlencoded
         }
       end,
     },
@@ -172,20 +173,22 @@
         object_definitions["new_dataset"]
       end,
 
-      execute: lambda do |connection, input|
+      execute: lambda do |_connection, input|
         schema_obj = {
           "columns" => (input["schema"] || "").
-          split("\n").
-          map do |line|
-            puts("line==>")
-            puts(line)
-            line_columns = line.split(",")
+                         split("\n").
+                         map do |line|
+                           line_columns = line.split(",")
 
-            (line_columns.length == 2) ? {
-              "type" => line_columns[1].gsub(/\s+/, ""),
-              "name" => line_columns[0].gsub(/\s+/, "")
-            } : {}
-          end
+                           if line_columns.length == 2
+                             {
+                               "type" => line_columns[1].gsub(/\s+/, ""),
+                               "name" => line_columns[0].gsub(/\s+/, "")
+                             }
+                           else
+                             {}
+                           end
+                        end
         }
 
         payload = {
