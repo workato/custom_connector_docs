@@ -3,19 +3,28 @@
 
   connection: {
     fields: [
-      { name: "api_key", label: "API key", hint: "Get more info from " \
-          "<a href='https://help.salesforceiq.com/articles/set-up-api-access'" \
-          "target='_blank'>here.</a>", optional: false },
-      { name: "api_secret", label: "API secret", optional: false,
-        control_type: "password" }
+      { name: "api_key",
+        label: "API key",
+        optional: false,
+        hint: "Get more info from <a href='https://help.salesforceiq.com/" \
+          "articles/set-up-api-access' target='_blank'>here</a>" },
+      { name: "api_secret",
+        label: "API secret",
+        optional: false,
+        control_type: "password",
+        hint: "Get more info from <a href='https://help.salesforceiq.com/" \
+          "articles/set-up-api-access' target='_blank'>here</a>" }
     ],
+
     authorization: {
       type: "basic_auth",
+
       credentials: lambda do |connection|
         user(connection["api_key"])
         password(connection["api_secret"])
       end
     },
+
     base_uri: lambda do
       "https://api.salesforceiq.com"
     end
@@ -39,6 +48,7 @@
           map do |field|
             if field["dataType"] == "List"
               pick_list = field["listOptions"].pluck("display", "id")
+            end
 
             {
               name: field["id"],
@@ -56,11 +66,13 @@
     create_account: {
       description: "Create <span class='provider'>Account</span> in " \
       "<span class='provider'>SalesforceIQ</span>",
+
       input_fields: lambda do |object_definitions|
         object_definitions["account"].
           ignored("id", "modifiedDate", "address_city", "address_state",
                   "address_postal_code", "address_country")
       end,
+
       execute: lambda do |_connection, input|
         fields = input.reject { |key, _| key == "name" }.
                    inject({}) do |hash, (key, value)|
@@ -85,6 +97,7 @@
        "<span class='provider'>SalesforceIQ</span>",
       help: "Returns accounts matching the IDs. Returns all" \
        " accounts, if blank.",
+
       input_fields: lambda do
         [
           { name: "_ids", label: "Account identifiers",
@@ -99,6 +112,7 @@
             account[k] = v.dig(0, "raw")
           end
         end
+
         {
           "accounts": accounts
         }
@@ -121,11 +135,11 @@
   },
 
   triggers: {
-
     new_or_updated_accounts: {
       description: "New/Updated <span class='provider'>Account</span> in " \
         "<span class='provider'>SalesforceIQ</span>",
       help: "Checks for new or updated accounts.",
+
       input_fields: lambda do
         [
           {
@@ -151,7 +165,8 @@
           end
         end
         modified_date_since = accounts.dig(-1, "modifiedDate") ||
-         (Time.now.to_f * 1000).to_i
+          (Time.now.to_f * 1000).to_i
+
         {
           events: accounts,
           next_poll: modified_date_since,
@@ -173,5 +188,4 @@
       end
     }
   }
-
 }
