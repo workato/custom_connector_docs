@@ -37,21 +37,22 @@
         ].concat(
           get("/v2/accounts/fields")["fields"].
           map do |field|
-            pick_list = field["listOptions"].
-              map { |o| [o["display"], o["id"]] } if field["dataType"] == "List"
+            if field["dataType"] == "List"
+              pick_list = field["listOptions"].pluck("display", "id")
+
             {
               name: field["id"],
               label: field["name"],
               control_type: field["dataType"] == "List" ? "select" : "text",
               pick_list: pick_list
             }
-          end)
+          end
+        )
       end
     },
   },
 
   actions: {
-
     create_account: {
       description: "Create <span class='provider'>Account</span> in " \
       "<span class='provider'>SalesforceIQ</span>",
@@ -61,10 +62,10 @@
                   "address_postal_code", "address_country")
       end,
       execute: lambda do |_connection, input|
-        fields = input.select { |key, _| key != "name" }.
-                  inject({}) do |hash, (key, value)|
-                    hash.merge(key => [{ raw: value }])
-                  end
+        fields = input.reject { |key, _| key == "name" }.
+                   inject({}) do |hash, (key, value)|
+                     hash.merge(key => [{ raw: value }])
+                   end
         post("/v2/accounts").
           payload(name: input["name"], fieldValues: fields)
       end,
@@ -77,7 +78,7 @@
         get("/v2/accounts").
           params(_limit: 1).dig("objects", 0) || {}
       end
-      },
+    },
 
     search_account: {
       description: "Search <span class='provider'>Account</span> in " \
@@ -136,14 +137,14 @@
         ]
       end,
 
-      poll: lambda do |_connection, input, modified_date_since|
+      poll: lambda do |_connection, input, _|
         limit = 50
-        modified_date ||= ((input["since"].presence || Time.now).
+        modified_date ||= ((input["since"].presence || Time.now.utc).
           to_time.to_f * 1000).to_i
         # result returns in ascending order
         result = get("/v2/accounts").
-                 params(_limit: limit, _start: 0,
-                        modifiedDate: modified_date)["objects"]
+                   params(_limit: limit, _start: 0,
+                          modifiedDate: modified_date)["objects"]
         accounts = result.each do |account|
           (account["fieldValues"] || {}).map do |k, v|
             account[k] = v.dig(0, "raw")
