@@ -325,7 +325,7 @@
           events: output,
           next_poll:
             output.size > 0 ? last_record_id.to_i + 1 : last_record_id.to_i,
-          can_poll_more:  !(output.size == 0)
+          can_poll_more:  output.size != 0
         }
       end,
 
