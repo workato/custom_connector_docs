@@ -1095,7 +1095,7 @@
                   pick_list: "intervals",
                   hint: "Analysis period, e.g. Quarter returns MRR by quarter"
                 }]).
-          required("st")
+          required("start_hypn_date", "end_hypn_date")
 
       end,
 
