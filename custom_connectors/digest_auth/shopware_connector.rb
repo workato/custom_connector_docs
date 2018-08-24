@@ -32,7 +32,7 @@
     },
 
     base_uri: lambda do |connection|
-      "http://#{connection["shopware_url"]}"
+      "http://#{connection['shopware_url']}"
     end
   },
 
@@ -127,7 +127,7 @@
           ] },
           { name: "paymentStatusId", type: :integer,
             label: "Payment Status Id" },
-          { name: "orderStatusId", type: :integer, label: "Order Status Id"}
+          { name: "orderStatusId", type: :integer, label: "Order Status Id" }
         ]
       end
     },
@@ -209,15 +209,15 @@
               { name: "customerAddressId", type: :integer }
             ] },
             { name: "country", type: :object, properties: [
-                { name: "id", type: :integer },
-                { name: "name", type: :string },
-                { name: "iso", type: :string },
-                { name: "isoName", type: :string },
-                { name: "areaId", type: :integer }
+              { name: "id", type: :integer },
+              { name: "name", type: :string },
+              { name: "iso", type: :string },
+              { name: "isoName", type: :string },
+              { name: "areaId", type: :integer }
             ] },
             { name: "state", type: :object, properties: [
-                { name: "id", type: :integer },
-                { name: "name", type: :string }
+              { name: "id", type: :integer },
+              { name: "name", type: :string }
             ] }
           ] }
         ]
@@ -284,7 +284,7 @@
           ] },
           { name: "documents", type: :array, of: :object, properties: [
             { name: "id", type: :integer },
-            { name: "date", type: :string }, #check for datetime
+            { name: "date", type: :string }, # check for datetime
             { name: "typeId", type: :integer },
             { name: "customerId", type: :integer },
             { name: "orderId", type: :integer },
@@ -414,7 +414,7 @@
 
       input_fields: lambda do
         [
-          { name: "id", type: :integer, optional: false, label: "Order Id"}
+          { name: "id", type: :integer, optional: false, label: "Order Id" }
         ]
       end,
 
