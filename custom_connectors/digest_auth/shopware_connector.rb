@@ -37,7 +37,7 @@
   },
 
   # Test connection
-  test: lambda do |connection|
+  test: lambda do |_connection|
     get("/api/version")
   end,
 
@@ -399,7 +399,7 @@
         ]
       end,
 
-      execute: lambda do |connection, input|
+      execute: lambda do |_connection, input|
         get("/api/customers/#{input['id']}")["data"]
       end,
 
@@ -418,7 +418,7 @@
         ]
       end,
 
-      execute: lambda do |connection, input|
+      execute: lambda do |_connection, input|
         get("/api/orders/#{input['id']}")["data"]
       end,
 
@@ -445,7 +445,7 @@
         ]
       end,
 
-      execute: lambda do |connection, input|
+      execute: lambda do |_connection, input|
         put("/api/orders/#{input['id']}", input)["data"]
       end,
 
@@ -472,20 +472,20 @@
         ]
       end,
 
-      poll: lambda do |connection, input, last_customer_id|
+      poll: lambda do |_connection, input, last_customer_id|
         limit_size = 100
         # set for the first invocation
         input_customer_id = input["id"] || 0
 
         customer_id = last_customer_id || input_customer_id
-        params = [ "filter" => {
-                     "0" => {
-                       "property" => "id",
-                       "expression" => ">",
-                       "value" => customer_id
-                     }
-                  },
-                  "limit" => limit_size ]
+        params = ["filter" => {
+                   "0" => {
+                     "property" => "id",
+                     "expression" => ">",
+                     "value" => customer_id
+                   }
+                 },
+                 "limit" => limit_size]
         response = get("/api/customers", params) || []
         customers = response["data"]
         last_customer_id = customers.last["id"] unless customers.blank?
@@ -505,7 +505,7 @@
         object_definitions["customer"]
       end,
 
-      sample_output: lambda do |connection|
+      sample_output: lambda do |_connection|
         get("/api/customers")["data"]&.first || {}
       end
     },
@@ -523,21 +523,21 @@
         ]
       end,
 
-      poll: lambda do |connection, input, latest_order_id|
+      poll: lambda do |_connection, input, latest_order_id|
         limit_size = 100
 
         # set for the first invocation
         input_order_id = input["id"] || 0
 
         order_id = latest_order_id || input_order_id
-        params = [ "filter" => {
-                     "0" => {
-                       "property" => "id",
-                       "expression" => ">",
-                       "value" => order_id
-                     }
-                  },
-                  "limit" => limit_size ]
+        params = ["filter" => {
+                   "0" => {
+                     "property" => "id",
+                     "expression" => ">",
+                     "value" => order_id
+                   }
+                 },
+                 "limit" => limit_size]
         response = get("/api/orders", params) || []
         orders = response["data"]
         latest_order_id = orders.last["id"] unless orders.blank?
@@ -557,7 +557,7 @@
         object_definitions["order"]
       end,
 
-      sample_output: lambda do |connection|
+      sample_output: lambda do |_connection|
         get("/api/orders")["data"]&.first || {}
       end
     }
