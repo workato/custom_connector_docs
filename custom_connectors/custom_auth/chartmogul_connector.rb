@@ -468,10 +468,10 @@
 
       sample_output: lambda do |_connection|
         {
-            "customer_uuid" => "cus_f466e33d-ff2b-4a11-8f85-417eb02157a7",
-            "invoices" => call("format_api_output_field_names",
-                                get("/v1/invoices",
-                                    per_page: 1)["entries"]&.compact)
+          "customer_uuid" => "cus_f466e33d-ff2b-4a11-8f85-417eb02157a7",
+          "invoices" => call("format_api_output_field_names",
+                             get("/v1/invoices",
+                                 per_page: 1)["entries"]&.compact)
         }
       end
     },
@@ -513,111 +513,111 @@
           required("external_id", "date", "currency", "customer_uuid").
           ignored("uuid", "line_items", "transactions").
           concat([
-              {
-                name: "line_items",
-                hint: "List of invoice line items",
-                type: "array",
-                of: "object",
-                optional: false,
-                properties: [
-                  {
-                    name: "external_id",
-                    label: "External ID",
-                    hint: "A unique identifier specified by you for the line " \
-                      "item. Typically an identifier from your internal " \
-                      "system.",
-                    sticky: true
-                  },
-                  {
-                    name: "type",
-                    optional: false,
-                    hint: "One of either subscription or one_time."
-                  },
-                  {
-                    name: "subscription_external_id",
-                    label: "Subscription External ID",
-                    hint: "A reference identifier for the subscription in " \
-                      "your system."
-                  },
-                  {
-                    name: "plan_uuid",
-                    label: "Plan UUID",
-                    hint: "The ChartMogul UUID of the plan for which this " \
-                      "subscription is being charged."
-                  },
-                  {
-                    name: "prorated",
-                    type: "boolean"
-                  },
-                  {
-                    name: "service_period_start",
-                    label: "Service Period Start",
-                    type: "date_time",
-                    hint: "The start of the service period for which this " \
-                      "subscription is being charged."
-                  },
-                  {
-                    name: "service_period_end",
-                    label: "Service Period End",
-                    type: "date_time",
-                    hint: "The end of the service period for which this " \
-                      "subscription is being charged."
-                  },
-                  {
-                    name: "cancelled_at",
-                    label: "Cancelled At",
-                    type: "date_time",
-                    hint: "If this subscription has been cancelled, the time " \
-                      "of cancellation."
-                  },
-                  {
-                    name: "amount_in_cents",
-                    type: "number",
-                    label: "Amount",
-                    optional: false,
-                    hint: "The line item's amount, in dollars, for the " \
-                      "specified quantity and service period after discounts " \
-                      "and taxes."
-                  },
-                  {
-                    name: "quantity",
-                    type: "integer",
-                    hint: "The quantity of this line item being billed. " \
-                      "Defaults to 1.",
-                    sticky: true
-                  },
-                  {
-                    name: "discount_code",
-                    hint: "If a discount has been applied to this line item, " \
-                      "then an optional reference code to identify the " \
-                      "discount."
-                  },
-                  {
-                    name: "discount_amount_in_cents",
-                    type: "number",
-                    label: "Discount Amount",
-                    hint: "If any discount has been applied to this line item" \
-                      ", then the discount amount in dollars. Defaults to 0."
-                  },
-                  {
-                    name: "tax_amount_in_cents",
-                    type: "number",
-                    label: "Tax Amount",
-                    hint: "The tax that has been applied to this line item, " \
-                      "in dollars. Defaults to 0."
-                  },
-                  {
-                    name: "account_code"
-                  },
-                  {
-                    name: "description",
-                    hint: "A short description of the non-recurring item " \
-                      "being charged to the customer. Used if line item is " \
-                      "One-Time"
-                  }
-                ]
-              }
-            ])
+            {
+              name: "line_items",
+              hint: "List of invoice line items",
+              type: "array",
+              of: "object",
+              optional: false,
+              properties: [
+                {
+                  name: "external_id",
+                  label: "External ID",
+                  hint: "A unique identifier specified by you for the line " \
+                    "item. Typically an identifier from your internal " \
+                    "system.",
+                  sticky: true
+                },
+                {
+                  name: "type",
+                  optional: false,
+                  hint: "One of either subscription or one_time."
+                },
+                {
+                  name: "subscription_external_id",
+                  label: "Subscription External ID",
+                  hint: "A reference identifier for the subscription in " \
+                    "your system."
+                },
+                {
+                  name: "plan_uuid",
+                  label: "Plan UUID",
+                  hint: "The ChartMogul UUID of the plan for which this " \
+                    "subscription is being charged."
+                },
+                {
+                  name: "prorated",
+                  type: "boolean"
+                },
+                {
+                  name: "service_period_start",
+                  label: "Service Period Start",
+                  type: "date_time",
+                  hint: "The start of the service period for which this " \
+                    "subscription is being charged."
+                },
+                {
+                  name: "service_period_end",
+                  label: "Service Period End",
+                  type: "date_time",
+                  hint: "The end of the service period for which this " \
+                    "subscription is being charged."
+                },
+                {
+                  name: "cancelled_at",
+                  label: "Cancelled At",
+                  type: "date_time",
+                  hint: "If this subscription has been cancelled, the time " \
+                    "of cancellation."
+                },
+                {
+                  name: "amount_in_cents",
+                  type: "number",
+                  label: "Amount",
+                  optional: false,
+                  hint: "The line item's amount, in dollars, for the " \
+                    "specified quantity and service period after discounts " \
+                    "and taxes."
+                },
+                {
+                  name: "quantity",
+                  type: "integer",
+                  hint: "The quantity of this line item being billed. " \
+                    "Defaults to 1.",
+                  sticky: true
+                },
+                {
+                  name: "discount_code",
+                  hint: "If a discount has been applied to this line item, " \
+                    "then an optional reference code to identify the " \
+                    "discount."
+                },
+                {
+                  name: "discount_amount_in_cents",
+                  type: "number",
+                  label: "Discount Amount",
+                  hint: "If any discount has been applied to this line item" \
+                    ", then the discount amount in dollars. Defaults to 0."
+                },
+                {
+                  name: "tax_amount_in_cents",
+                  type: "number",
+                  label: "Tax Amount",
+                  hint: "The tax that has been applied to this line item, " \
+                    "in dollars. Defaults to 0."
+                },
+                {
+                  name: "account_code"
+                },
+                {
+                  name: "description",
+                  hint: "A short description of the non-recurring item " \
+                    "being charged to the customer. Used if line item is " \
+                    "One-Time"
+                }
+              ]
+            }
+          ])
       end,
 
       output_fields: lambda do |object_definitions|
@@ -959,11 +959,11 @@
       input_fields: lambda do |object_definitions|
         object_definitions["date_range"].
           concat([{
-                  name: "interval",
-                  control_type: "select",
-                  pick_list: "intervals",
-                  hint: "Analysis period, e.g. Quarter returns MRR by quarter"
-                }]).
+            name: "interval",
+            control_type: "select",
+            pick_list: "intervals",
+            hint: "Analysis period, e.g. Quarter returns MRR by quarter"
+          }]).
           required("start_hypn_date", "end_hypn_date")
 
       end,
@@ -1128,21 +1128,21 @@
         %w[Month month],
         %w[Year year]
       ]
-    end
+    end,
 
     transaction_type: lambda do
       [
         %w[Payment payment],
         %w[Refund refund]
       ]
-    end
+    end,
 
     transaction_result: lambda do
       [
         %w[Successful successful],
         %w[Failed failed]
       ]
-    end
+    end,
 
     data_sources: lambda do |_connection|
       get("/v1/import/data_sources")["data_sources"]&.pluck("name", "uuid")
