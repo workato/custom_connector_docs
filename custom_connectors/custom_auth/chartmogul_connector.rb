@@ -2,135 +2,6 @@
   title: "ChartMogul",
 
   methods: {
-    # TODO: get endpoints to fetch records, than this
-    invoice_output: lambda do
-      {
-        "customer_uuid": "cus_f466e33d-ff2b-4a11-8f85-417eb02157a7",
-        "invoices": [
-          {
-            "uuid": "inv_565c73b2-85b9-49c9-a25e-2b7df6a677c9",
-            "external_id": "INV0001",
-            "date": "2015-11-01T00:00:00.000Z",
-            "due_date": "2015-11-15T00:00:00.000Z",
-            "currency": "USD",
-            "line_items": [
-              {
-                "uuid": "li_d72e6843-5793-41d0-bfdf-0269514c9c56",
-                "external_id": "null",
-                "type": "subscription",
-                "subscription_uuid": "sub_e6bc5407-e258-4de0-bb43-61faaf062035",
-                "subscription_external_id": "sub_0001",
-                "plan_uuid": "pl_eed05d54-75b4-431b-adb2-eb6b9e543206",
-                "prorated": false,
-                "service_period_start": "2015-11-01T00:00:00.000Z",
-                "service_period_end": "2015-12-01T00:00:00.000Z",
-                "amount_in_cents": 5000,
-                "quantity": 1,
-                "discount_code": "PSO86",
-                "discount_amount_in_cents": 1000,
-                "tax_amount_in_cents": 900,
-                "transaction_fees_in_cents": 200,
-                "account_code": "null"
-              },
-              {
-                "uuid": "li_0cc8c112-beac-416d-af11-f35744ca4e83",
-                "external_id": "null",
-                "type": "one_time",
-                "description": "Setup Fees",
-                "amount_in_cents": 2500,
-                "quantity": 1,
-                "discount_code": "PSO86",
-                "discount_amount_in_cents": 500,
-                "tax_amount_in_cents": 450,
-                "transaction_fees_in_cents": 0,
-                "account_code": "null"
-              }
-            ],
-            "transactions": [
-              {
-                "uuid": "tr_879d560a-1bec-41bb-986e-665e38a2f7bc",
-                "external_id": "null",
-                "type": "payment",
-                "date": "2015-11-05T00:14:23.000Z",
-                "result": "successful"
-              }
-            ]
-          }
-        ],
-        "current_page": 1,
-        "total_pages": 1
-      }
-    end,
-
-    customer_output: lambda do
-      {
-        "id": 25647,
-        "uuid": "cus_de305d54-75b4-431b-adb2-eb6b9e546012",
-        "external_id": "34916129",
-        "name": "Example Company",
-        "email": "bob@examplecompany.com",
-        "status": "Active",
-        "customer-since": "2015-06-09T13:16:00-04:00",
-        "attributes": {
-          "tags": ["engage", "unit loss", "discountable"],
-          "stripe": {
-            "uid": 7,
-            "coupon": true
-          },
-          "clearbit": {
-            "id": "027b0d40-016c-40ea-8925-a076fa640992",
-            "name": "Acme",
-            "legalName": "Acme Inc.",
-            "domain": "acme.com",
-            "url": "http://acme.com",
-            "metrics": {
-              "raised": 1502450000,
-              "employees": 1000,
-              "googleRank": 7,
-              "alexaGlobalRank": 2319,
-              "marketCap": "null"
-            },
-            "category": {
-              "sector": "Information Technology",
-              "industryGroup": "Software and Services",
-              "industry": "Software",
-              "subIndustry": "Application Software"
-            }
-          },
-          "custom": {
-            "CAC": 213,
-            "utmCampaign": "social media 1",
-            "convertedAt": "2015-09-08 00:00:00",
-            "pro": false,
-            "salesRep": "Gabi"
-          }
-        },
-        "address": {
-          "address_zip": "0185128",
-          "city": "Nowhereville",
-          "state": "Alaska",
-          "country": "US"
-        },
-        "data_source_uuid": "ds_fef05d54-47b4-431b-aed2-eb6b9e545430",
-        "data_source_uuids": ["ds_fef05d54-47b4-431b-aed2-eb6b9e545430"],
-        "external_ids": ["34916129"],
-        "company": "",
-        "country": "US",
-        "state": "Alaska",
-        "city": "Nowhereville",
-        "zip": "0185128",
-        "lead_created_at": "null",
-        "free_trial_started_at": "null",
-        "mrr": 3000,
-        "arr": 36000,
-        "billing-system-url": "https:\/\/dashboard.stripe.com\/customers\/cus_4Z2ZpyJFuQ0XMb",
-        "chartmogul-url": "https:\/\/app.chartmogul.com\/#customers\/25647-Example_Company",
-        "billing-system-type": "Stripe",
-        "currency": "USD",
-        "currency-sign": "$"
-      }
-    end,
-
     format_api_input_field_names: lambda do |input|
       if input.is_a?(Array)
         input.map do |array_value|
@@ -176,13 +47,15 @@
   connection: {
     fields: [
       {
-        name: "account_token"
-        # TODO:  add https://app.chartmogul.com/#admin/api in hint
+        name: "account_token",
+        hint: "Find your token <a href='https://app.chartmogul.com/#admin/" \
+          "api' target='_blank>here</a>"
       },
       {
         name: "secret_key",
-        control_type: "password"
-        # TODO: add https://app.chartmogul.com/#admin/api in hint
+        control_type: "password",
+        hint: "Find your secret key <a href='https://app.chartmogul.com/" \
+          "#admin/api' target='_blank>here</a>"
       }
     ],
 
@@ -202,8 +75,6 @@
   test: ->(_connection) { get("/v1/ping") },
 
   object_definitions: {
-    # TODO: refactor all object_definitions like this
-    # TODO: remove optional: false properties in object_definitions and put them inside .required() where-all-possible. It will be easier to manage. Ditto for all objects
     customer: {
       fields: lambda do
         [
@@ -359,18 +230,22 @@
           { name: "zip", hint: "Zip code of the customer's location." },
           { name: "lead_created_at" },
           { name: "free_trial_started_at" },
-          # TODO: apply the same properties for all mrr and arr occurances
           {
             name: "mrr",
             label: "Customer MRR",
-            hint: "The current monthly recurring revenue for this customer, expressed in the currency selected for your account, as an integer number of cents. Divide by 100 to obtain the actual amount.",
+            hint: "The current monthly recurring revenue for this customer, " \
+              "expressed in the currency selected for your account, as an " \
+              "integer number of cents. Divide by 100 to obtain the actual " \
+              "amount.",
             type: "number",
             control_type: "number"
           },
           {
             name: "arr",
             label: "Customer ARR",
-            hint: "The current annual run rate for this customer, also expressed as an integer number of cents in your account's selected currency.",
+            hint: "The current annual run rate for this customer, also " \
+              "expressed as an integer number of cents in your account's " \
+              "selected currency.",
             type: "number",
             control_type: "number"
           },
@@ -390,8 +265,8 @@
           { name: "name", hint: "Display name of the plan." },
           { name: "data_source_uuid", label: "Data Source",
             hint: "The data source that this plan belongs to",
-            control_type: "select", pick_list: "data_sources", optional: true },
-          { name: "external_id", optional: true,
+            control_type: "select", pick_list: "data_sources" },
+          { name: "external_id",
             hint: "Typically an identifier from your internal system." },
           { name: "interval_count", type: "integer", control_type: "number",
             hint: "The frequency of billing interval. Accepts integers " \
@@ -401,12 +276,7 @@
             hint: "The unit of billing interval. One of day, month, or " \
               "year. eg. month for the above half-yearly plan.",
             control_type: "select",
-            # TODO: put this into pick_lists: section, ditto for all pick_list instances in object_definitions
-            pick_list: [
-              %w[Day day],
-              %w[Month month],
-              %w[Year year]
-            ]
+            pick_list: "dmy_interval"
           }
         ]
       end
@@ -434,15 +304,17 @@
       fields: lambda do
         [
           { name: "date", type: "date", label: "Date Ending" },
-          { name: "mrr", label: "MRR", type: "integer" },
+          { name: "mrr", label: "MRR", type: "number", control_type: "number" },
           { name: "mrr-new-business", label: "New Business MRR",
-            type: "integer" },
-          { name: "mrr-expansion", label: "Expansion MRR", type: "integer" },
+            type: "number", control_type: "number" },
+          { name: "mrr-expansion", label: "Expansion MRR",
+            type: "number", control_type: "number" },
           { name: "mrr-contraction", label: "Contraction MRR",
-            type: "integer" },
+            type: "number", control_type: "number" },
           { name: "mrr-reactivation", label: "Reactivation MRR",
-            type: "integer" },
-          { name: "mrr-churn", label: "Churn MRR", type: "integer" }
+            type: "number", control_type: "number" },
+          { name: "mrr-churn", label: "Churn MRR", type: "number",
+            control_type: "number" }
         ]
       end
     },
@@ -515,15 +387,11 @@
           { name: "transactions", type: "array", of: "object", properties: [
             { name: "uuid", label: "Transaction UUID" },
             { name: "external_id" },
-            { name: "type", control_type: "select", pick_list: [
-              %w[Payment payment],
-              %w[Refund refund]
-            ] },
+            { name: "type", control_type: "select",
+              pick_list: "transaction_type" },
             { name: "date", type: "date_time" },
-            { name: "result", control_type: "select", pick_list: [
-              %w[Successful successful],
-              %w[Failed failed]
-            ] }
+            { name: "result", control_type: "select",
+              pick_list: "transaction_result" }
           ] }
         ]
       end
@@ -536,17 +404,14 @@
           { name: "external_id", sticky: true,
             hint: "A unique identifier specified by you for the transaction. " \
               "Typically an identifier from your internal system." },
-          { name: "type", optional: false, hint: "Either payment or refund" },
+          { name: "type", hint: "Either payment or refund" },
           { name: "date",
-            optional: false,
             type: "date_time",
             control_type: "date_time",
             hint: "The timestamp of when the transaction was attempted."
           },
-          { name: "result", control_type: "select", pick_list: [
-              %w[Successful successful],
-              %w[Failed failed]
-            ] }
+          { name: "result", control_type: "select",
+            pick_list: "transaction_result" }
         ]
       end
     },
@@ -768,7 +633,12 @@
       end,
 
       sample_output: lambda do |_connection|
-        call(:invoice_output)
+        {
+            "customer_uuid" => "cus_f466e33d-ff2b-4a11-8f85-417eb02157a7",
+            "invoices" => call("format_api_output_field_names",
+                                get("/v1/invoices",
+                                    per_page: 1)["entries"]&.compact)
+        }
       end
     },
 
@@ -809,7 +679,6 @@
       end
     },
 
-    # TODO: apply same changes to all get_* (i.e. get methods for all objects) methods
     get_customer: {
       description: "Get <span class='provider'>customer</span> in " \
         "<span class='provider'>ChartMogul</span>",
@@ -966,8 +835,8 @@
       end
     },
 
-    get_subscriptions_by_customer: {
-      description: "Get <span class='provider'>subscriptions</span> by " \
+    list_subscriptions_by_customer: {
+      description: "List <span class='provider'>subscriptions</span> by " \
         "customer in <span class='provider'>ChartMogul</span>",
 
       input_fields: lambda do
@@ -1253,6 +1122,28 @@
   },
 
   pick_lists: {
+    dmy_interval: lambda do
+      [
+        %w[Day day],
+        %w[Month month],
+        %w[Year year]
+      ]
+    end
+
+    transaction_type: lambda do
+      [
+        %w[Payment payment],
+        %w[Refund refund]
+      ]
+    end
+
+    transaction_result: lambda do
+      [
+        %w[Successful successful],
+        %w[Failed failed]
+      ]
+    end
+
     data_sources: lambda do |_connection|
       get("/v1/import/data_sources")["data_sources"]&.pluck("name", "uuid")
     end,
