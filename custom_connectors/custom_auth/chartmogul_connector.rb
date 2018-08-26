@@ -959,12 +959,16 @@
 
       input_fields: lambda do |object_definitions|
         object_definitions["date_range"].
-          concat([{
-                    name: "interval",
-                    control_type: "select",
-                    pick_list: "intervals",
-                    hint: "Analysis period, e.g. Quarter returns MRR by quarter"
-          }]).
+          concat(
+            [
+              {
+                name: "interval",
+                control_type: "select",
+                pick_list: "intervals",
+                hint: "Analysis period, e.g. Quarter returns MRR by quarter"
+              }
+            ]
+          ).
           required("start_hypn_date", "end_hypn_date")
       end,
 
