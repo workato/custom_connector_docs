@@ -76,8 +76,8 @@
 
   object_definitions: {
     customer: {
-      fields: lambda do
-        [
+      fields: lambda do |_connection, _config_fields|
+        customer_fields = [
           { name: "id", type: "integer", control_type: "number" },
           { name: "uuid", label: "Customer UUID" },
           {
@@ -85,23 +85,24 @@
             label: "External ID",
             hint: "The unique external identifier for this customer"
           },
-          { name: "name", hint: "Name of the customer for display purposes." },
+          { name: "name", hint: "Name of the customer for display purposes" },
           { name: "email", control_type: "email" },
           { name: "status" },
           {
             name: "lead_created_at",
-            hint: "Time at which this customer was established as a lead.",
+            hint: "Time at which this customer was established as a lead",
             type: "timestamp"
           },
           {
             name: "free_trial_started_at",
             hint: "Time at which this customer started a free trial of " \
               "your product or service. This is expected to be the same " \
-              "as, or after the lead created at value.",
+              "as, or after the lead created at value",
             type: "date_time"
           },
           {
             name: "customer-since",
+            label: "Customer since",
             type: "date_time",
             control_type: "date_time"
           },
@@ -114,7 +115,8 @@
                 name: "stripe",
                 type: "object",
                 properties: [
-                  { name: "uid", type: "integer", control_type: "number" },
+                  { name: "uid", label: "UID", type: "integer",
+                    control_type: "number" },
                   { name: "coupon", type: "boolean", control_type: "checkbox" }
                 ]
               },
@@ -175,7 +177,7 @@
                 type: "object",
                 properties: [
                   { name: "CAC", type: "integer", control_type: "number" },
-                  { name: "utmCampaign" },
+                  { name: "utmCampaign", label: "UTM campaign" },
                   { name: "convertedAt" },
                   { name: "pro", type: "boolean", control_type: "checkbox" },
                   { name: "salesRep" }
@@ -195,17 +197,17 @@
           },
           {
             name: "data_source_uuid",
-            label: "Data Source",
+            label: "Data source",
             hint: "The data source that this customer belongs to",
             control_type: "select",
             pick_list: "data_sources"
           },
           {
             name: "data_source_uuids",
-            label: "Data Source UUIDs",
+            label: "Data source UUIDs",
             hint: "An array containing the ChartMogul UUIDs of all data " \
               "sources that contribute data to this customer. " \
-              "This is most relevant for merged customers.",
+              "This is most relevant for merged customers",
             type: "array",
             of: "string"
           },
@@ -228,15 +230,13 @@
           },
           { name: "city", hint: "City of the customer's location." },
           { name: "zip", hint: "Zip code of the customer's location." },
-          { name: "lead_created_at" },
-          { name: "free_trial_started_at" },
           {
             name: "mrr",
             label: "Customer MRR",
             hint: "The current monthly recurring revenue for this customer, " \
               "expressed in the currency selected for your account, as an " \
               "integer number of cents. Divide by 100 to obtain the actual " \
-              "amount.",
+              "amount",
             type: "number",
             control_type: "number"
           },
@@ -245,16 +245,20 @@
             label: "Customer ARR",
             hint: "The current annual run rate for this customer, also " \
               "expressed as an integer number of cents in your account's " \
-              "selected currency.",
+              "selected currency",
             type: "number",
             control_type: "number"
           },
-          { name: "billing-system-url", control_type: "url" },
-          { name: "chartmogul-url", control_type: "url" },
-          { name: "billing-system-type" },
+          { name: "billing-system-url", label: "Billing system URL",
+            control_type: "url" },
+          { name: "chartmogul-url", label: "ChartMogul URL",
+            control_type: "url" },
+          { name: "billing-system-type", label: "Billing system type" },
           { name: "currency" },
-          { name: "currency-sign" }
+          { name: "currency-sign", label: "Currency sign" }
         ]
+
+        call("format_schema_field_names", customer_fields.compact)
       end
     },
 
@@ -262,19 +266,19 @@
       fields: lambda do
         [
           { name: "uuid", label: "Plan UUID" },
-          { name: "name", hint: "Display name of the plan." },
-          { name: "data_source_uuid", label: "Data Source",
+          { name: "name", hint: "Display name of the plan" },
+          { name: "data_source_uuid", label: "Data source UUID",
             hint: "The data source that this plan belongs to",
             control_type: "select", pick_list: "data_sources" },
           { name: "external_id",
-            hint: "Typically an identifier from your internal system." },
+            hint: "Typically an identifier from your internal system" },
           { name: "interval_count", type: "integer", control_type: "number",
             hint: "The frequency of billing interval. Accepts integers " \
-              "greater than 0. eg. 6 for a half-yearly plan." },
+              "greater than 0. eg. 6 for a half-yearly plan" },
           {
             name: "interval_unit",
             hint: "The unit of billing interval. One of day, month, or " \
-              "year. eg. month for the above half-yearly plan.",
+              "year. eg. month for the above half-yearly plan",
             control_type: "select",
             pick_list: "dmy_interval"
           }
@@ -289,7 +293,7 @@
           { name: "external_id", label: "External ID" },
           { name: "customer_uuid", label: "Customer UUID" },
           { name: "plan_uuid", label: "Plan UUID" },
-          { name: "data_source_uuid", label: "Data Source UUID" },
+          { name: "data_source_uuid", label: "Data source UUID" },
           {
             name: "cancellation_dates",
             type: "array",
@@ -301,11 +305,11 @@
     },
 
     mrr: {
-      fields: lambda do
-        [
-          { name: "date", type: "date", label: "Date Ending" },
+      fields: lambda do |_connection, _config_fields|
+        mrr_fields = [
+          { name: "date", type: "date", label: "Date ending" },
           { name: "mrr", label: "MRR", type: "number", control_type: "number" },
-          { name: "mrr-new-business", label: "New Business MRR",
+          { name: "mrr-new-business", label: "New business MRR",
             type: "number", control_type: "number" },
           { name: "mrr-expansion", label: "Expansion MRR",
             type: "number", control_type: "number" },
@@ -316,6 +320,8 @@
           { name: "mrr-churn", label: "Churn MRR", type: "number",
             control_type: "number" }
         ]
+
+        call("format_schema_field_names", mrr_fields.compact)
       end
     },
 
@@ -329,11 +335,14 @@
     },
 
     customer_churn_count: {
-      fields: lambda do
-        [
+      fields: lambda do |_connection, _config_fields|
+        customer_churn_fields = [
           { name: "date", type: "date" },
-          { name: "customers-churn-rate", type: "number" }
+          { name: "customers-churn-rate", label: "Customers churn rate",
+            type: "number" }
         ]
+
+        call("format_schema_field_names", customer_churn_fields.compact)
       end
     },
 
@@ -344,34 +353,48 @@
           {
             name: "customer_uuid",
             label: "Customer UUID",
-            hint: "The ChartMogul UUID of the Customer whose invoices " \
-                "are requested."
+            hint: "The ChartMogul UUID of the customer"
           },
           {
             name: "external_id",
-            hint: "A unique identifier specified by you for the invoice."
+            hint: "A unique identifier specified by you for the invoice"
           },
           {
             name: "date",
             type: "date_time",
-            hint: "The date on which this invoice was raised."
+            hint: "The date on which this invoice was raised"
           },
           {
             name: "due_date",
             type: "date_time",
-            hint: "The date within which this invoice must be paid."
+            hint: "The date within which this invoice must be paid"
           },
           {
             name: "currency",
             hint: "The 3-letter currency code of the currency in which " \
-              "this invoice is being billed, e.g. USD, EUR, GBP."
+              "this invoice is being billed, e.g. USD, EUR, GBP. More info " \
+              "<a href='https://help.chartmogul.com/hc/en-us/articles/" \
+              "214143245-Supported-currencies-' target='_blank'>here</a>"
           },
           { name: "line_items", type: "array", of: "object", properties: [
             { name: "uuid", label: "Item UUID" },
             { name: "external_id" },
             { name: "type" },
-            { name: "subscription_uuid" },
-            { name: "plan_uuid" },
+            { name: "subscription_uuid", label: "Subscription UUID",
+              hint: "ChartMogul UUID of the customer's subscription" },
+            { name: "plan_uuid",
+              label: "Plan UUID",
+              control_type: "select",
+              pick_list: "plans",
+              hint: "ChartMogul UUID of the customer's plan",
+              toggle_hint: "Select from list",
+              toggle_field: {
+                name: "plan_uuid",
+                label: "Plan UUID",
+                type: "string",
+                control_type: "text",
+                toggle_hint: "Use custom value"
+              } },
             { name: "prorated", type: "boolean" },
             { name: "service_period_start", type: "date_time" },
             { name: "service_period_end", type: "date_time" },
@@ -379,9 +402,11 @@
             { name: "quantity", type: "integer" },
             { name: "discount_code" },
             { name: "discount_amount_in_cents", type: "integer",
-              label: "Discount Amount" },
+              label: "Discount amount" },
             { name: "tax_amount_in_cents", type: "integer",
-              label: "Tax Amount" },
+              label: "Tax amount" },
+            { name: "transaction_fees_in_cents", type: "integer",
+              label: "Transaction fees" },
             { name: "account_code" }
           ] },
           { name: "transactions", type: "array", of: "object", properties: [
@@ -403,12 +428,24 @@
           { name: "uuid", label: "Transaction UUID" },
           { name: "external_id", sticky: true,
             hint: "A unique identifier specified by you for the transaction. " \
-              "Typically an identifier from your internal system." },
-          { name: "type", hint: "Either payment or refund" },
+              "Typically an identifier from your internal system" },
+          { name: "type",
+            label: "Type",
+            control_type: "select",
+            pick_list: "transaction_type",
+            toggle_hint: "Select from list",
+            toggle_field: {
+              name: "type",
+              label: "Type",
+              type: "string",
+              control_type: "text",
+              toggle_hint: "Use custom value",
+              hint: "Either payment or refund"
+            } },
           { name: "date",
             type: "date_time",
             control_type: "date_time",
-            hint: "The timestamp of when the transaction was attempted." },
+            hint: "The timestamp of when the transaction was attempted" },
           { name: "result", control_type: "select",
             pick_list: "transaction_result" }
         ]
@@ -418,8 +455,8 @@
     date_range: {
       fields: lambda do |_connection, _config_fields|
         date_range_fields = [
-          { name: "start-date", type: "date" },
-          { name: "end-date", type: "date" }
+          { name: "start-date", label: "Start date", type: "date" },
+          { name: "end-date", label: "End date", type: "date" }
         ]
 
         call("format_schema_field_names", date_range_fields.compact)
@@ -444,7 +481,9 @@
         "in <span class='provider'>ChartMogul</span>",
 
       execute: lambda do |_connection, input|
-        get("/v1/import/customers/#{input['customer_uuid']}/invoices")
+        call("format_api_output_field_names",
+             get("/v1/import/customers/#{input['customer_uuid']}/invoices")&.
+             compact)
       end,
 
       output_fields: lambda do |object_definitions|
@@ -470,7 +509,7 @@
           "customer_uuid" => "cus_f466e33d-ff2b-4a11-8f85-417eb02157a7",
           "invoices" => call("format_api_output_field_names",
                              get("/v1/invoices",
-                                 per_page: 1)["entries"]&.compact)
+                                 per_page: 1)["invoices"]&.compact)
         }
       end
     },
@@ -482,7 +521,7 @@
       execute: lambda do |_connection, input|
         input = call("format_api_input_field_names", input).compact
         input.each do |key, value|
-          if key.to_s include? "date"
+          if key.to_s.include? "date"
             input[key] = value.to_date.iso8601
           end
         end
@@ -542,8 +581,17 @@
                   {
                     name: "plan_uuid",
                     label: "Plan UUID",
-                    hint: "The ChartMogul UUID of the plan for which this " \
-                      "subscription is being charged."
+                    control_type: "select",
+                    pick_list: "plans",
+                    hint: "ChartMogul UUID of the customer's plan",
+                    toggle_hint: "Select from list",
+                    toggle_field: {
+                      name: "plan_uuid",
+                      label: "Plan UUID",
+                      type: "string",
+                      control_type: "text",
+                      toggle_hint: "Use custom value"
+                    }
                   },
                   {
                     name: "prorated",
@@ -595,14 +643,14 @@
                   {
                     name: "discount_amount_in_cents",
                     type: "number",
-                    label: "Discount Amount",
+                    label: "Discount amount",
                     hint: "If any discount has been applied to this line item" \
                       ", then the discount amount in dollars. Defaults to 0."
                   },
                   {
                     name: "tax_amount_in_cents",
                     type: "number",
-                    label: "Tax Amount",
+                    label: "Tax amount",
                     hint: "The tax that has been applied to this line item, " \
                       "in dollars. Defaults to 0."
                   },
@@ -623,7 +671,6 @@
 
       output_fields: lambda do |object_definitions|
         [
-          { name: "customer_uuid" },
           {
             name: "invoices",
             type: "array",
@@ -635,10 +682,9 @@
 
       sample_output: lambda do |_connection|
         {
-          "customer_uuid" => "cus_f466e33d-ff2b-4a11-8f85-417eb02157a7",
           "invoices" => call("format_api_output_field_names",
                              get("/v1/invoices",
-                                 per_page: 1)["entries"]&.compact)
+                                 per_page: 1)["invoices"]&.compact)
         }
       end
     },
@@ -708,10 +754,73 @@
         "<span class='provider'>ChartMogul</span>",
 
       input_fields: lambda do |object_definitions|
-        object_definitions["customer"].
-          required("data_source_uuid", "external_id", "name").
-          ignored("id", "uuid", "mrr", "arr", "chartmogul_url", "status",
-                  "currency")
+        [
+          {
+            name: "data_source_uuid",
+            label: "Data source",
+            hint: "The data source that this customer belongs to",
+            control_type: "select",
+            optional: false,
+            pick_list: "data_sources"
+          },
+          {
+            name: "external_id",
+            label: "External ID",
+            optional: false,
+            hint: "The unique external identifier for this customer"
+          },
+          { name: "name", optional: false,
+            hint: "Name of the customer for display purposes." },
+          { name: "email", control_type: "email" },
+          { name: "company" },
+          {
+            name: "country",
+            hint: "Country code of customer's location, e.g. US,UK,AU."
+          },
+          {
+            name: "state",
+            hint: "State code of customer's location, e.g. TX,CA,ON."
+          },
+          { name: "city", hint: "City of the customer's location." },
+          { name: "zip", hint: "Zip code of the customer's location." },
+          {
+            name: "lead_created_at",
+            hint: "Time at which this customer was established as a lead.",
+            type: "date_time"
+          },
+          {
+            name: "free_trial_started_at",
+            hint: "Time at which this customer started a free trial of " \
+              "your product or service. This is expected to be the same " \
+              "as, or after the lead created at value.",
+            type: "date_time"
+          }
+          # {
+          #   name: "attributes",
+          #   type: "object",
+          #   properties: [
+          #     { name: "tags", type: "array", of: "string" },
+          #     {
+          #       name: "custom",
+          #       type: "array",
+          #       of: "object",
+          #       properties: [
+          #         { name: "type",
+          #           hint: "Can be one of String, Integer, Decimal, " \
+          #             "Timestamp or Boolean." },
+          #         { name: "key",
+          #           hint: "Name of custom attribute. Required for each " \
+          #             "custom attribute. Accepts alphanumeric characters " \
+          #             "and underscores." },
+          #         { name: "value",
+          #           hint: "Value of custom attribute. Required for each " \
+          #             "custom attribute. Should be of the data type as " \
+          #             "specified in type." }
+          #       ]
+          #     }
+          #   ]
+          # }
+        ]
       end,
 
       execute: lambda do |_connection, input|
@@ -745,7 +854,8 @@
       input_fields: lambda do |object_definitions|
         object_definitions["customer"].
           required("uuid").
-          ignored("mrr", "arr", "chartmogul_url", "status", "currency")
+          only("uuid", "name", "email", "company", "country", "state", "city",
+               "lead_created_at", "free_trial_started_at")
       end,
 
       execute: lambda do |_connection, input|
@@ -975,7 +1085,7 @@
       execute: lambda do |_connection, input|
         input = call("format_api_input_field_names", input).compact
         input.each do |key, value|
-          if key.to_s include? "date"
+          if key.to_s.include? "date"
             input[key] = value.to_date.iso8601
           end
         end
@@ -1154,6 +1264,10 @@
 
     intervals: lambda do
       [%w[Day day], %w[Week week], %w[Month month], %w[Quarter quarter]]
+    end,
+
+    plans: lambda do
+      get("/v1/plans")["plans"]&.pluck("name", "uuid")
     end
   }
 }
