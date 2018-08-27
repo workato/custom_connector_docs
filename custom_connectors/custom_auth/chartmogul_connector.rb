@@ -753,7 +753,7 @@
       description: "Create <span class='provider'>customer</span> in " \
         "<span class='provider'>ChartMogul</span>",
 
-      input_fields: lambda do |object_definitions|
+      input_fields: lambda do |_object_definitions|
         [
           {
             name: "data_source_uuid",
