@@ -184,7 +184,7 @@
       end,
 
       execute: lambda do |_connection, input|
-        post("/v4/trackings", tracking: input)["data"]["tracking"]
+        post("/v4/trackings", tracking: input).dig("data", "tracking")
       end,
 
       output_fields: lambda do |object_definitions|
@@ -192,7 +192,7 @@
       end,
 
       sample_output: lambda do |_connection|
-        get("/v4/trackings", limit: 1)["data"]["trackings"].first
+        get("/v4/trackings", limit: 1).dig("data", "trackings", 0)
       end
     },
 
@@ -200,21 +200,16 @@
       description: "Search <span class='provider'>tracking</span> in " \
         "<span class='provider'>Aftership</span>",
 
-      input_fields: lambda do |_object_definitions|
-        {
-          name: "tracking_number",
-          type: "string",
-          optional: false,
-          label: "Tracking Number"
-        }
+      input_fields: lambda do |object_definitions|
+        object_definitions["tracking_input"].
+          only("tracking_number").
+          required("tracking_number")
       end,
 
       execute: lambda do |_connection, input|
-        result = get("/v4/trackings").
-                   params(keyword: input["tracking_number"]) ["data"]
-
         {
-          trackings: result["trackings"].presence || []
+          trackings: get("/v4/trackings", keyword: input["tracking_number"]).
+                       []("data") || []
         }
       end,
 
@@ -223,7 +218,7 @@
       end,
 
       sample_output: lambda do |_connection|
-        get("/v4/trackings", limit: 1)["data"]["trackings"].first
+        get("/v4/trackings", limit: 1).dig("data", "trackings", 0)
       end
     }
   }
