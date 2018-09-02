@@ -254,7 +254,7 @@
       end,
 
       sample_output: lambda do |_connection|
-        get("accounts").dig("data", "list")&.first || {}
+        get("accounts").dig("data", "list", 0) || {}
       end
     },
 
