@@ -226,8 +226,8 @@
 
       sample_output: lambda do
         calendar_id = get("/calendar/v3/users/me/calendarList").
-                        dig("items").first.dig("id")
-        get("/calendar/v3/calendars/#{calendar_id}/events").dig("items").first
+                        dig("items", 0, "id")
+        get("/calendar/v3/calendars/#{calendar_id}/events").dig("items", 0)
       end
     },
 
@@ -311,8 +311,8 @@
 
       sample_output: lambda do
         calendar_id = get("/calendar/v3/users/me/calendarList").
-                        dig("items").first.dig("id")
-        get("/calendar/v3/calendars/#{calendar_id}/events").dig("items").first
+                        dig("items", 0, "id")
+        get("/calendar/v3/calendars/#{calendar_id}/events").dig("items", 0)
       end
     }
   },
