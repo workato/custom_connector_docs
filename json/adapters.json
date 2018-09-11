@@ -314,7 +314,7 @@
     {
       "id": "27",
       "name": "SalesforceIQ",
-      "image": "images/salesforceiq.webp",
+      "image": "images/salesforceiq.png",
       "link": "https://www.workato.com/custom_adapters/1747?token=457560e5",
       "github_link": "https://www.workato.com",
       "properties": {
