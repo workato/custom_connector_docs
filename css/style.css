@@ -187,7 +187,6 @@ a:active {text-decoration: none; color: white;}
   padding: 0px;
   background-color:#fafafa;
   padding-top:48px;
-  padding-bottom:48px;
 }
 
 .list-header{
@@ -232,12 +231,13 @@ a:active {text-decoration: none; color: white;}
 .container-left{
   width:75%;
   float:left;
-  padding-bottom: 128px;
+  padding-bottom: 64px;
 }
 
 .container-right{
   width: calc(25% - 12px);
   float:right;
+  padding-bottom:48px;
 }
 
 
@@ -327,6 +327,8 @@ a:active {text-decoration: none; color: white;}
 }
 
 .filter-section h5{
+  color:#525252;
+  font-weight: 700;
   margin:12px 0;
 }
 
@@ -345,7 +347,11 @@ a:active {text-decoration: none; color: white;}
 
 .filter-section ul li span{
   display:inline-block;
-  margin-left:12px;
+  cursor: pointer;
+}
+
+.selected-input{
+  color: #27989f;
 }
 
 .filter-section ul li input{
@@ -480,6 +486,21 @@ a:active {text-decoration: none; color: white;}
   display: none;
 }
 
+/* Helper */
+.helper{
+  text-align: center;
+  top:50%;
+  padding:100px 12px;
+  font-size:24px;
+  color:#525252;
+  line-height: 1.5;
+}
+
+.helper a{
+  display:inline-block;
+  text-decoration: none;
+  color: #27989f;
+}
 /* Footer */
 
 .footer{
@@ -547,6 +568,10 @@ a:active {text-decoration: none; color: white;}
   .hoverContainer{
     margin-left: -80px;
     width:160px;
+  }
+
+  .helper{
+    font-size: 16px;
   }
 }
 @media only screen and (max-width: 1024px) {

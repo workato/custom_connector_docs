@@ -18,15 +18,20 @@ $(document).ready(function () {
 
 //Handle filter navigation clicks
 function filterHandler() {
-  $("body").on("change", ".filter-input", function () {
+  $("body").on("click", ".filter-input", function () {
     //Get filter and value selected
-    var filterHTML = ($(this).closest("ul").siblings("h5").html())
+    var filterHTML = ($(this).closest("ul").siblings("h5").html());
     var filter = (_.invert(textFormat)[filterHTML]);
-    var val = $(this).val();
+    var selected = $("." + filter + ".selected-input");
+    var val = $(this).html();
     var currentFilter = {};
-
-    if ($(this).is(':checked')) {
-      (filterList[filter] = val);
+    
+    $("." + filter).removeClass("selected-input"); //Reset filter class to default style
+    if ($(selected).html() == val) {
+      filterList[filter] = ""; //Set filter to blank after deselecting
+    } else {
+      $(this).addClass("selected-input"); //Add active class to selected filter
+      filterList[filter] = val; //Add filter value to filter key
     }
 
     //Toggle hidden according to filter match
@@ -56,7 +61,6 @@ function filterHandler() {
     checkAllHidden();
   });
 }
-
 
 //Load JSON
 function loadJSON() {
@@ -124,8 +128,6 @@ function generateAdapters() {
     var name = json[object].name;
     var properties = json[object].properties;
 
-
-
     var li = $("<li>").attr({ "class": "app" }).appendTo(ul);
     var a = $("<a>").attr({
       "href": "javascript:void(0);",
@@ -169,19 +171,19 @@ function generateFilters(filters) {
   var container = $("#container-filter");
   $.each(filters, function (i, item) {
     filterList[i] = ""; //Init empty filter values
-    var div = $("<div>").attr("class", "filter-section").appendTo(container);
+    var div = $("<div>").attr("class", "filter-section ").appendTo(container);
     var title = $("<h5>").html(textFormat[i]).appendTo(div);
     var ul = $("<ul>").appendTo(div);
     i
     $.each(item, function (k, value) {
       var li = $("<li>").appendTo(ul);
-      var radioButtons = $("<input>").attr({
-        "class": "filter-input",
-        "type": "radio",
-        "value": value,
-        "name": i
-      }).appendTo(li);
-      var label = $("<span>").html(value).appendTo(li);
+      // var radioButtons = $("<input>").attr({
+      //   "class": "filter-input",
+      //   "type": "radio",
+      //   "value": value,
+      //   "name": i
+      // }).appendTo(li);
+      var label = $("<span>").attr("class", "filter-input " + i).html(value).appendTo(li);
     });
     isFirstInput = true;
   })
