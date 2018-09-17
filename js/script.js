@@ -57,7 +57,7 @@ function filterHandler() {
       } else {
         $(parent).removeClass("filter-hidden");
       }
-    })
+    });
     checkAllHidden();
   });
 }
