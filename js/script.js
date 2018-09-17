@@ -105,7 +105,7 @@ function checkAllHidden() {
       $('#no-result').show();
       $(".splitter").hide();
     }
-  })
+  });
 }
 
 //Load JSON file to generate app listing
@@ -154,10 +154,10 @@ function generateAdapters() {
       if (!(filters[i].includes(item))) {
         filters[i].push(item);
       }
-      var hoverProperty = $("<li>").appendTo(hoverProperties)
+      var hoverProperty = $("<li>").appendTo(hoverProperties);
       var hoverPropertyFilter = $("<span>").attr("class", "property-filter").html(textFormat[i] + ":").appendTo(hoverProperty);
       var hoverPropertyValue = $("<span>").attr("class", "property-value").html(item).appendTo(hoverProperty);
-    })
+    });
   }));
 
   //Generate dummy box for responsive
@@ -174,7 +174,7 @@ function generateFilters(filters) {
     var div = $("<div>").attr("class", "filter-section ").appendTo(container);
     var title = $("<h5>").html(textFormat[i]).appendTo(div);
     var ul = $("<ul>").appendTo(div);
-    i
+    
     $.each(item, function (k, value) {
       var li = $("<li>").appendTo(ul);
       // var radioButtons = $("<input>").attr({
@@ -186,7 +186,7 @@ function generateFilters(filters) {
       var label = $("<span>").attr("class", "filter-input " + i).html(value).appendTo(li);
     });
     isFirstInput = true;
-  })
+  });
 }
 
 //Function to toggle visibility of navigation dropdown for mobile nav
@@ -214,5 +214,5 @@ function clearSearch() {
       $(this).removeClass("search-hidden");
     });
     checkAllHidden();
-  })
+  });
 }
