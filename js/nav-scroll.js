@@ -20,11 +20,11 @@ $(function () {
     if($nav.hasClass("scrolled-nav")){
       $bg.addClass("scrolled-bg");
       $content.addClass("scrolled-content");
-      $logo.attr("src", "images/workatoDeveloper_logo_color.svg")
+      $logo.attr("src", "images/workatoDeveloper_logo_color.svg");
     } else {
       $bg.removeClass("scrolled-bg");
       $content.removeClass("scrolled-content");
-      $logo.attr("src", "images/workatoDeveloper_logo.svg")
+      $logo.attr("src", "images/workatoDeveloper_logo.svg");
     }
 	});
 });
