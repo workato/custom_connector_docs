@@ -7,7 +7,7 @@ var textFormat = {
   "api_type": "API Type",
   "auth_type": "Auth Type",
   "category": "Category"
-}
+};
 //On Init
 $(document).ready(function () {
   loadJSON();
@@ -44,13 +44,13 @@ function filterHandler() {
         tempFilter = (_.invert(textFormat)[$(this).find(".property-filter").html().slice(0, -1)]);
         tempValue = $(this).find(".property-value").html();
         currentFilter[tempFilter] = tempValue;
-      })
+      });
       $.each(currentFilter, function (key, object) {
         if ((filterList[key] == object || filterList[key] == "")) {
         } else {
           valid = false;
         }
-      })
+      });
 
       if (valid == false) {
         $(parent).addClass("filter-hidden");
