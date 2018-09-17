@@ -2,7 +2,7 @@
   Function to toggle navigation bar background when scrolled
 */
 $(function () {
-  $(".workato-logo").attr("src", "images/workatoDeveloper_logo.svg")
+  $(".workato-logo").attr("src", "images/workatoDeveloper_logo.svg");
   $(".nav-bar").addClass("nav-home");
   $("#nav-dummy").removeClass("nav-dummy");
 
