@@ -45,10 +45,11 @@
           if config_fields.blank?
             []
           else
-            get("/v1/datasets/#{config_fields['dataset_id']}")["schema"]
-            ["columns"].map do |col|
-              { name: col["name"] }
-            end
+            get("/v1/datasets/#{config_fields['dataset_id']}").
+              dig("schema", "columns").
+              map do |col|
+                { name: col["name"] }
+              end
           end
 
         {
@@ -191,9 +192,9 @@
         }
 
         payload = {
-          "name"	=>	input["name"],
-          "description"	=>	input["description"],
-          "schema"	=>	schema_obj
+          "name" => input["name"],
+          "description" => input["description"],
+          "schema" => schema_obj
         }
 
         post("/v1/datasets/", payload)
