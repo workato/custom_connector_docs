@@ -11,7 +11,7 @@
     },
 
     token_url: ->() {
-     'https://pubapi.bigtincan.com/services/oauth/token'
+     'https://pubapi.bigtincan.com/services/oauth2/token'
     },
 
     client_id: 'REPLACE_WITH_CLIENT_ID',
