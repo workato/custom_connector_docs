@@ -3,24 +3,20 @@
 
  connection: {
 
-    fields: [
-      { name: 'account_id', optional: false, hint: 'Your Pub API account ID' }
-    ],
-
     authorization: {
      type: 'oauth2',
 
     authorization_url: ->() {
-     'https://pubapi.bigtincan.com/services/oauth/authorize?response_type=code&device_id=hub_auth'
+     'https://pubapi.bigtincan.com/services/oauth2/authorize?response_type=code&device_id=hub_auth'
     },
 
     token_url: ->() {
-     'https://pubapi.bigtincan.com/services/oauth/token'
+     'https://pubapi.bigtincan.com/services/oauth2/token'
     },
 
-    client_id: 'pa_wkt-btc_zHSFfb',
+    client_id: 'BIGTINCAN_CLIENT_ID',
 
-    client_secret: '59aed30fac72e7fade0a',
+    client_secret: 'BIGTINCAN_CLIENT_SECRET',
 
     credentials: ->(connection, access_token) {
         headers('Authorization': "Bearer #{access_token}")
@@ -89,7 +85,7 @@
           { name: 'data', type: :object,
             properties:
               if config_fields['form_id'].present?
-                fields = get("https://pubapi.bigtincan.com/#{connection['account_id']}/alpha/form/get/#{config_fields['form_id']}")['data']['form_data']['fields']
+                fields = get("https://pubapi.bigtincan.com/v1/form/get/#{config_fields['form_id']}")['data']['form_data']['fields']
                 fields.select { |field| field['label'].present? }.
                        map do |field|
                          {
@@ -126,7 +122,7 @@
              input['limit'] = 10
         end
 
-        get("https://pubapi.bigtincan.com/#{connection['account_id']}/alpha/form/data/#{input['form_id']}").params(page: input['page'], limit: input['limit'])['data']
+        get("https://pubapi.bigtincan.com/v1/form/data/#{input['form_id']}").params(page: input['page'], limit: input['limit'])['data']
       },
 
       output_fields: ->(object_definitions) {
@@ -167,7 +163,7 @@
              input['limit'] = 10
         end
 
-        get("https://pubapi.bigtincan.com/#{connection['account_id']}/alpha/form/all").params(input)
+        get("https://pubapi.bigtincan.com/v1/form/all").params(input)
       
       },
 
@@ -204,7 +200,7 @@
                input['limit'] = 10
         end
         
-        get("https://pubapi.bigtincan.com/#{connection['account_id']}/alpha/form_category/all").params(input)
+        get("https://pubapi.bigtincan.com/v1/form_category/all").params(input)
       },
 
       output_fields: ->(object_definitions) {
@@ -236,7 +232,7 @@
              input['include_data_sources'] = true
         end
 
-        get("https://pubapi.bigtincan.com/#{connection['account_id']}/alpha/form/get/#{input['form_id']}").params(include_data_sources: input['include_data_sources'])['data']
+        get("https://pubapi.bigtincan.com/v1/form/get/#{input['form_id']}").params(include_data_sources: input['include_data_sources'])['data']
 
       },
 
@@ -273,7 +269,7 @@
                    input['include_data_sources'] = true
                end
        
-               get("https://pubapi.bigtincan.com/#{connection['account_id']}/alpha/form/get/#{input['form_id']}")['data']['form_data']
+               get("https://pubapi.bigtincan.com/v1/form/get/#{input['form_id']}")['data']['form_data']
        
              },
        
@@ -310,7 +306,7 @@
                        input['limit'] = 10
         end
         
-        get("https://pubapi.bigtincan.com/#{connection['account_id']}/alpha/story/all").params(input)
+        get("https://pubapi.bigtincan.com/v1/story/all").params(input)
       },
       output_fields: ->(object_definitions) {
         [
@@ -334,7 +330,7 @@
          ]
       },
       execute: ->(connection, input) {
-        get("https://pubapi.bigtincan.com/#{connection['account_id']}/alpha/story/get/#{input['story_perm_id']}")
+        get("https://pubapi.bigtincan.com/v1/story/get/#{input['story_perm_id']}")
       },
       output_fields: ->(object_definitions) {
         [
@@ -360,7 +356,7 @@
           channels: [ { id: input['channel_id'] } ]
         }.compact
         
-        post("https://pubapi.bigtincan.com/#{connection['account_id']}/alpha/story/add").payload(payload_object)
+        post("https://pubapi.bigtincan.com/v1/story/add").payload(payload_object)
       },
       
       output_fields: ->(object_definitions) {
@@ -388,7 +384,7 @@
           channels: [ { id: input['channel_id'] } ]
         }.compact
         
-        put("https://pubapi.bigtincan.com/#{connection['account_id']}/alpha/story/edit/#{input['revision_id']}").payload(payload_object)['data']
+        put("https://pubapi.bigtincan.com/v1/story/edit/#{input['revision_id']}").payload(payload_object)['data']
       },
 
       output_fields: ->(object_definitions) {
@@ -405,7 +401,7 @@
          ]
       },
    execute: ->(connection, input) {
-        delete("https://pubapi.bigtincan.com/#{connection['account_id']}/alpha/story/archive/#{input['revision_id']}")['data']
+        delete("https://pubapi.bigtincan.com/v1/story/archive/#{input['revision_id']}")['data']
       },
    output_fields: ->(object_definitions) {
         [
@@ -433,7 +429,7 @@
              input['limit'] = 10
         end
         
-        get("https://pubapi.bigtincan.com/#{connection['account_id']}/alpha/channel/all").params(input)
+        get("https://pubapi.bigtincan.com/v1/channel/all").params(input)
       },
       output_fields: ->(object_definitions) {
         [
@@ -464,7 +460,7 @@
 
         page ||= 1
 
-        response = get("https://pubapi.bigtincan.com/#{connection['account_id']}/alpha/form/data/#{input['form_id']}").
+        response = get("https://pubapi.bigtincan.com/v1/form/data/#{input['form_id']}").
                     params(limit: 30,
                            page: page,
                            sort: 'desc')['data']
@@ -499,7 +495,7 @@
 
         page ||= 1
 
-         stories = get("https://pubapi.bigtincan.com/#{connection['account_id']}/alpha/story/all").params(limit: 30, page: page, channel_id:input['channel_id'])
+         stories = get("https://pubapi.bigtincan.com/v1/story/all").params(limit: 30, page: page, channel_id:input['channel_id'])
 
          { next_page: stories['next_page'], events: stories['data'] }
       },
@@ -517,12 +513,12 @@
    pick_lists: {
 
      channel_id: ->(connection){
-      get("https://pubapi.bigtincan.com/#{connection['account_id']}/alpha/channel/all")['data'].
+      get("https://pubapi.bigtincan.com/v1/channel/all")['data'].
       map { |channel_id| [channel_id['name'], channel_id['id']] }
      },
 
      form_id: ->(connection){
-           get("https://pubapi.bigtincan.com/#{connection['account_id']}/alpha/form/all?limit=100&form_only")['data'].
+           get("https://pubapi.bigtincan.com/v1/form/all?limit=100&form_only")['data'].
            map { |form_id| [form_id['name'], form_id['id']] }
      }
 
