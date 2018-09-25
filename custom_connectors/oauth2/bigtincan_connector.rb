@@ -513,12 +513,12 @@
    pick_lists: {
 
      channel_id: ->(connection){
-         get("https://pubapi.bigtincan.com/v1/channel/all")['data'].
+       get("https://pubapi.bigtincan.com/v1/channel/all")['data'].
          map { |channel_id| [channel_id['name'], channel_id['id']] }
      },
 
      form_id: ->(connection){
-         get("https://pubapi.bigtincan.com/v1/form/all?limit=100&form_only")['data'].
+       get("https://pubapi.bigtincan.com/v1/form/all?limit=100&form_only")['data'].
          map { |form_id| [form_id['name'], form_id['id']] }
      }
 
