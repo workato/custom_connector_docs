@@ -353,9 +353,11 @@
         payload_object = {
           title: input['title'].presence,
           description: input['description'].presence,
-          channels: [ { id: input['channel_id'] } ]
+          channels: [{
+            id: input['channel_id']
+          }]
         }.compact
-        
+
         post("https://pubapi.bigtincan.com/v1/story/add").payload(payload_object)
       },
       
