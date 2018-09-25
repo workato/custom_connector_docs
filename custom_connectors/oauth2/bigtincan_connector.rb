@@ -14,7 +14,7 @@
       'https://pubapi.bigtincan.com/services/oauth2/token'
     },
 
-    client_id: 'BIGTINCAN_CLIENT_ID',
+    client_id:     'BIGTINCAN_CLIENT_ID',
 
     client_secret: 'BIGTINCAN_CLIENT_SECRET',
 
