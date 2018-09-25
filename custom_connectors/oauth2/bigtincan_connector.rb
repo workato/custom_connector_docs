@@ -7,11 +7,11 @@
      type: 'oauth2',
 
     authorization_url: ->() {
-     'https://pubapi.bigtincan.com/services/oauth2/authorize?response_type=code&device_id=hub_auth'
+      'https://pubapi.bigtincan.com/services/oauth2/authorize?response_type=code&device_id=hub_auth'
     },
 
     token_url: ->() {
-     'https://pubapi.bigtincan.com/services/oauth2/token'
+      'https://pubapi.bigtincan.com/services/oauth2/token'
     },
 
     client_id: 'BIGTINCAN_CLIENT_ID',
@@ -350,7 +350,7 @@
       },
       execute: ->(connection, input) {
         
-       payload_object = {
+        payload_object = {
           title: input['title'].presence,
           description: input['description'].presence,
           channels: [ { id: input['channel_id'] } ]
@@ -421,12 +421,12 @@
       },
 
       execute: ->(connection, input) {
-         if input['page'].blank?
-             input['page'] = 1
+        if input['page'].blank?
+          input['page'] = 1
         end
 
         if input['limit'].blank?
-             input['limit'] = 10
+          input['limit'] = 10
         end
         
         get("https://pubapi.bigtincan.com/v1/channel/all").params(input)
@@ -495,7 +495,7 @@
 
         page ||= 1
 
-         stories = get("https://pubapi.bigtincan.com/v1/story/all").params(limit: 30, page: page, channel_id:input['channel_id'])
+        stories = get("https://pubapi.bigtincan.com/v1/story/all").params(limit: 30, page: page, channel_id: input['channel_id'])
 
          { next_page: stories['next_page'], events: stories['data'] }
       },
@@ -513,13 +513,13 @@
    pick_lists: {
 
      channel_id: ->(connection){
-      get("https://pubapi.bigtincan.com/v1/channel/all")['data'].
-      map { |channel_id| [channel_id['name'], channel_id['id']] }
+       get("https://pubapi.bigtincan.com/v1/channel/all")['data'].
+       map { |channel_id| [channel_id['name'], channel_id['id']] }
      },
 
      form_id: ->(connection){
-           get("https://pubapi.bigtincan.com/v1/form/all?limit=100&form_only")['data'].
-           map { |form_id| [form_id['name'], form_id['id']] }
+       get("https://pubapi.bigtincan.com/v1/form/all?limit=100&form_only")['data'].
+       map { |form_id| [form_id['name'], form_id['id']] }
      }
 
    }
