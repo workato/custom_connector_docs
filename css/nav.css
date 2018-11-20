@@ -1,0 +1,205 @@
+
+.nav-bar{
+  position: fixed;
+  width: 100%;
+  z-index: 10;
+  height:58px;
+  z-index: 15;
+}
+
+.nav-bg{
+  position: absolute;
+  background-color: white;
+  top:0px;
+  width: 100%;
+  height:100%;
+  z-index: -5;
+  transition: 100ms linear;
+  box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.15);
+}
+
+.nav-dummy{
+  height:58px;
+  top:0;
+  width: 100%;
+  z-index: -10;
+}
+
+.nav-home .nav-bg{
+  position: absolute;
+  background-color: white;
+  top:6px;
+  width: 100%;
+  height:100%;
+  z-index: -5;
+
+  transition: 100ms linear;
+}
+
+.nav-home .nav-bg{
+  background-color: transparent;
+  box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.0);
+}
+
+.nav-home .scrolled-bg{
+  background-color: white;
+  box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.15);
+  top:0;
+}
+
+.workato-logo{
+  height:24px;
+}
+
+.workato-logo-color{
+  height:24px;
+  position: absolute;
+  z-index:-1;
+}
+.nav-bar ul{
+  color: white;
+  font-size:16px;
+  height:100%;
+
+  -webkit-box-align:center;
+  display: flex;
+  flex:1 1 auto;
+}
+
+.nav-bar ul li{
+  display:flex;
+  height: 100%;
+  align-items: center;
+  -webkit-box-align:center;
+  padding: 0 15px;
+
+  transition: 100ms linear;
+}
+.nav-home ul{
+  color: white;
+  font-size:16px;
+  height:100%;
+
+  -webkit-box-align:center;
+  display: flex;
+  flex:1 1 auto;
+}
+
+.nav-home ul li{
+  display:flex;
+  height: 100%;
+  align-items: center;
+  -webkit-box-align:center;
+  padding: 0 15px;
+
+  transition: 100ms linear;
+}
+
+.nav-link{
+  color:#121212;
+  transition: 160ms linear;
+}
+
+.nav-link:hover{
+  color:#afafaf;
+}
+
+nav ul .nav-hamburg{
+  display:none;
+  float:right;
+}
+
+.nav-home .nav-hamburg a{
+  color:#efefef;
+}
+
+.nav-hamburg a{
+  color:#121212;
+}
+
+.nav-home .nav-link{
+  color:#efefef;
+  transition: 160ms linear;
+}
+
+.nav-home .nav-link:hover{
+  color:#afafaf !important;
+}
+
+.nav-home .scrolled-content{
+  color:#121212 !important;
+}
+
+.nav-home .scrolled-content:hover{
+  color:#afafaf !important;
+}
+
+.side-nav{
+  z-index: 15;
+  position: fixed;
+  right:-300px;
+  background-color: #212c3d;
+  height:100%;
+  width: 300px;
+  transition: 160ms ease;
+  padding:56px 0;
+}
+.side-nav ul li{
+  font-size: 14px;
+}
+
+.side-nav ul li:hover{
+  background-color: #27989f;
+  transition: 160ms ease;
+}
+
+.side-nav ul li a{
+  color:#efefef;
+  height: 100%;
+  width: 100%;
+  padding:24px;
+}
+
+
+
+.toggle-body{
+}
+
+.return-link{
+  margin-left: auto;
+}
+
+.side-nav-extend{
+  right:0px;
+}
+
+.body-extend{
+  right:300px;
+}
+
+.no-scroll{
+  overflow: hidden !important;
+}
+
+
+@media screen and (max-width: 960px) {
+  nav ul .nav-hamburg {
+    display:flex;
+    margin-left: auto;
+  }
+
+  .nav-link, .return-link{
+    display:none !important;
+  }
+}
+
+@media screen and (min-width: 960px) {
+
+    .side-nav-extend{
+      right:-300px;
+    }
+
+    .body-extend{
+      right:0px;
+    }
+}
