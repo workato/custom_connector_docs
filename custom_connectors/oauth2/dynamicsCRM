@@ -1,0 +1,475 @@
+{
+  title: 'Microsoft Dynamics Finance and Operations',
+
+  secure_tunnel: true,
+
+  connection: {
+
+    fields: [
+      {
+        name: 'subdomain',
+        control_type: 'subdomain',
+        url: '',
+        optional: false,
+        hint: 'If your Dynamics URL is <b>https://abc.crm.dynamics.com</b>,
+        subdomain will be <b>abc.crm.dynamics.com</b>'
+      },
+      {
+        name: 'account_type',
+        control_type: :select,
+        pick_list: [%w[On\ premise onpremises], %w[Cloud online]], # check
+        optional: false
+      },
+      {
+        name: 'adfs_name',
+        control_type: 'subdomain',
+        url: '',
+        label: 'AD domain name',
+        hint: "Requires, if the account type is 'On premise'.
+         If your AD server is <b>https://abc.adfs.dynamics.com/adfs</b>,
+         AD domain name will be <b>abc.adfs.dynamics.com</b>"
+      },
+      {
+        name: 'client_id',
+        optional: false,
+        hint: "Click <a target='_blank'
+         href=http://docs.workato.com/connectors/dynamics-crm.html>here</a>
+          to know how to get client ID"
+      },
+      {
+        name: 'client_secret',
+        optional: true,
+        control_type: 'password'
+      }
+    ],
+
+    authorization: {
+      type: 'oauth2',
+      authorization_url: lambda do |connection|
+        url = if connection['account_type'] == 'onpremises'
+                "https://#{connection['adfs_name']}/adfs"
+              else
+                'https://login.windows.net/common'
+              end
+
+        "#{url}/oauth2/authorize?resource=https://#{connection['subdomain']}&
+        response_type=code&prompt=login&client_id=#{connection['client_id']}"
+      end,
+
+      acquire: lambda do |connection, auth_code, redirect_url|
+        url = if connection['account_type'] == 'onpremises'
+                "https://#{connection['adfs_name']}/adfs"
+              else
+                'https://login.windows.net/common'
+              end
+        post("#{url}/oauth2/token").
+          payload(client_id: connection['client_id'],
+                  client_secret: connection['client_secret'],
+                  grant_type: :authorization_code,
+                  code: auth_code,
+                  redirect_uri: redirect_url).
+          request_format_www_form_urlencoded
+      end,
+
+      refresh: lambda do |connection, refresh_token|
+        url = if connection['account_type'] == 'onpremises'
+                "https://#{connection['adfs_name']}/adfs"
+              else
+                'https://login.windows.net/common'
+              end
+        post("#{url}/oauth2/token").
+          payload(client_id: connection['client_id'],
+                  client_secret: connection['client_secret'],
+                  grant_type: :refresh_token,
+                  refresh_token: refresh_token).
+          request_format_www_form_urlencoded
+      end,
+
+      credentials: lambda do |_connection, access_token|
+        headers('Authorization': "Bearer #{access_token}")
+      end
+    },
+    base_uri: lambda do |connection|
+      "https://#{connection['subdomain']}"
+    end
+  },
+
+  test: lambda do |_connection|
+    get('/data/Customers?$top=1')
+  end,
+
+  methods: {
+    make_schema_builder_fields_sticky: lambda do |input|
+      input.map do |field|
+        if field[:properties].present?
+          field[:properties] = call('make_schema_builder_fields_sticky',
+                                    field[:properties])
+        elsif field['properties'].present?
+          field['properties'] = call('make_schema_builder_fields_sticky',
+                                     field['properties'])
+        end
+        field[:sticky] = true
+        field
+      end
+    end
+  },
+
+  object_definitions: {
+    object_fields: {
+      fields: lambda do |_connection, config|
+        get('/metadata/PublicEntities' \
+           "('#{config['entity_name'].split('~').last}')")['Properties']&.
+          map do |property|
+            field = {
+              name: property['Name'],
+              label: property['Name'].labelize,
+              optional: !property['IsMandatory']
+            }
+            case property['DataType']
+            when 'Date'
+              { type: 'date_time' }
+            when 'Enum'
+              {}
+            when 'Int32'
+              { type: 'integer' }
+            when 'Int64'
+              { type: 'integer' }
+            when 'Container'
+              {}
+            when 'Real'
+              {
+                type: 'number'
+              }
+            when 'Guid'
+              {
+                type: 'string'
+              }
+            else
+              {}
+            end.merge(field)
+          end
+      end
+    },
+
+    custom_action_input: {
+      fields: lambda do |connection, config_fields|
+        input_schema = parse_json(config_fields.dig('input', 'schema') || '[]')
+        [
+          {
+            name: 'path',
+            optional: false,
+            hint: "https://#{connection['subdomain']}"
+          },
+          (
+            if %w[get delete].include?(config_fields['verb'])
+              {
+                name: 'input',
+                type: 'object',
+                control_type: 'form-schema-builder',
+                sticky: input_schema.blank?,
+                label: 'URL parameters',
+                add_field_label: 'Add URL parameter',
+                properties: [
+                  {
+                    name: 'schema',
+                    extends_schema: true,
+                    sticky: input_schema.blank?
+                  },
+                  (
+                    if input_schema.present?
+                      {
+                        name: 'data',
+                        type: 'object',
+                        properties: call('make_schema_builder_fields_sticky',
+                                         input_schema)
+                      }
+                    end
+                  )
+                ].compact
+              }
+            else
+              {
+                name: 'input',
+                type: 'object',
+                properties: [
+                  {
+                    name: 'schema',
+                    extends_schema: true,
+                    schema_neutral: true,
+                    control_type: 'schema-designer',
+                    sample_data_type: 'json_input',
+                    sticky: input_schema.blank?,
+                    label: 'Request body parameters',
+                    add_field_label: 'Add request body parameter'
+                  },
+                  (
+                    if input_schema.present?
+                      {
+                        name: 'data',
+                        type: 'object',
+                        properties: input_schema.
+                          each { |field| field[:sticky] = true }
+                      }
+                    end
+                  )
+                ].compact
+              }
+            end
+          ),
+          {
+            name: 'output',
+            control_type: 'schema-designer',
+            sample_data_type: 'json_http',
+            extends_schema: true,
+            schema_neutral: true,
+            sticky: true
+          }
+        ]
+      end
+    },
+
+    custom_action_output: {
+      fields: lambda do |_connection, config_fields|
+        parse_json(config_fields['output'] || '[]')
+      end
+    }
+  },
+
+  actions: {
+    create_object: {
+      description: "Create <span class='provider'>object</span> in " \
+      "<span class='provider'>Microsoft Dynamics Finance and Operations</span>",
+      config_fields: [
+        {
+          name: 'entity_name',
+          control_type: 'select',
+          pick_list: 'entity_list',
+          optional: false,
+          label: 'Entity name',
+          toggle_hint: 'Select from list',
+          toggle_field: {
+            name: 'entity_name',
+            label: 'Public entity name',
+            type: :string,
+            control_type: 'text',
+            optional: false,
+            toggle_hint: 'Use custom value',
+            hint: "Use Collection/Entity set name, Public entity name
+             separated by `~`' e.g. <code>Customers~Customer</code>.
+             Public entity name can be fetched with metadata API
+              'Metadata/DataEntities' "
+          }
+        }
+      ],
+      input_fields: lambda do |object_definitions|
+        object_definitions['object_fields']
+      end,
+      execute: lambda do |_connection, input|
+        post("/data/#{input.delete('entity_name').split('~').first}", input)
+      end,
+      output_fields: lambda do |object_definitions|
+        object_definitions['object_fields']
+      end,
+      sample_output: lambda do |_connection, input|
+        get("/data/#{input.delete('entity_name').split('~').first}").
+          params("$count": true,
+                 "$top": 1).dig('value', 0)
+      end
+    },
+
+    search_objects: {
+      description: "Search <span class='provider'>objects</span> in " \
+      "<span class='provider'>Microsoft Dynamics Finance and Operations</span>",
+      help: "<a href='http://docs.oasis-open.org/odata/odata/v4.0/errata02/" \
+      'os/complete/part2-url-conventions/odata-v4.0-errata02-os-part2-url-' \
+      "conventions-complete.html#_Toc406398092'>Click here</a> for syntax." \
+      ' If both search and filter are applied to the same request, the ' \
+      'results include only those entities that match both criteria.',
+      config_fields: [
+        {
+          name: 'entity_name',
+          control_type: 'select',
+          pick_list: 'entity_list',
+          optional: false,
+          label: 'Entity name',
+          toggle_hint: 'Select from list',
+          toggle_field: {
+            name: 'entity_name',
+            label: 'Public entity name',
+            type: :string,
+            control_type: 'text',
+            optional: false,
+            toggle_hint: 'Use custom value',
+            hint: "Use Collection/Entity set name, Public entity name
+             separated by `~`' e.g. <code>Customers~Customer</code>.
+             Public entity name can be fetched with metadata API
+              'Metadata/DataEntities' "
+          }
+        },
+        {
+          name: '$select',
+          label: 'Entity fields',
+          sticky: true,
+          control_type: 'multiselect',
+          pick_list: 'entity_fields',
+          pick_list_params: { entity_name: 'entity_name' },
+          delimiter: ',',
+          hint: 'Select fields to be returned in the output,
+           all fields returned if left blank'
+        }
+      ],
+      input_fields: lambda do |_object_definitions|
+        [
+          {
+            name: '$search',
+            label: 'Search query',
+            sticky: true,
+            hint: 'Search query option allows clients to request entities ' \
+              "matching a free-text <a href='http://docs.oasis-open.org" \
+              '/odata/odata/v4.0/errata02/os/complete/part2-url-conventions' \
+              '/odata-v4.0-errata02-os-part2-url-conventions-complete.html' \
+              "#_Toc406398092' target='_blank'> search expression </a> " \
+              'for the syntax format.'
+          },
+          {
+            name: '$filter',
+            label: 'Filter criteria',
+            sticky: true,
+            hint: "<a href='https://docs.microsoft.com/en-us/dynamics365/" \
+            'unified-operations/dev-itpro/data-entities/odata?toc=/fin-and-' \
+            "ops/toc.json' target='_blank'>Click here</a> for filter" \
+            ' syntax help.'
+          },
+          {
+            name: '$expand',
+            label: 'Expand(related resources)',
+            sticky: true,
+            hint: 'Expand query option specifies the related resources
+            to be included in line with retrieved resources'
+          },
+          {
+            name: '$orderby',
+            label: 'Order by',
+            sticky: true
+          },
+          {
+            name: '$top',
+            type: 'integer',
+            label: 'No of objects returned in the query result',
+            sticky: true,
+            hint: 'top query option requests the number of items in the queried
+             collection to be included in the result'
+          },
+          {
+            name: '$skip',
+            type: 'integer',
+            label: 'Skip items',
+            sticky: true,
+            hint: 'skip query option requests the number of items in the
+             queried collection that are to be skipped and not included in
+              the result'
+          }
+        ]
+      end,
+      execute: lambda do |_connection, input|
+        if (input['$search'].present? || input['$filter'].present?) == false
+          error('Provide at least one search criteria. `Search` or `Filter`')
+        end
+
+        { objects: get("/data/#{input['entity_name'].split('~').first}", input).
+          params('$count': true).
+          headers('Accept': 'application/json; odata.metadata=minimal').
+          dig('value') || [] }
+      end,
+      output_fields: lambda do |object_definitions|
+        [
+          { name: 'objects', type: 'array', of: 'object',
+            properties: object_definitions['object_fields'] }
+        ]
+      end,
+      sample_output: lambda do |_connection, input|
+        {
+          objects: get("/data/#{input.delete('entity_name').split('~').first}").
+            params("$count": true, "$top": 1).dig('value')
+        }
+      end
+    },
+
+    custom_action: {
+      description: "Custom <span class='provider'>action</span> " \
+        "in <span class='provider'>Microsoft Dynamics Finance and " \
+        'Operations</span>',
+      help: 'Build your own Microsoft Dynamics Finance and Operations' \
+        ' action with a HTTP request. '\
+        "</br> <a href='https://docs.microsoft.com/en-us/dynamics365/unified-" \
+        "operations/dev-itpro/data-entities/odata?toc=/fin-and-ops/toc.json'" \
+        " target='_blank'>Microsoft Dynamics Finance and Operations" \
+        ' API Documentation</a>',
+
+      config_fields: [{
+        name: 'verb',
+        label: 'Request type',
+        hint: 'Select HTTP method of the request',
+        optional: false,
+        control_type: 'select',
+        pick_list: %w[get post put delete].map { |v| [v.upcase, v] }
+      }],
+
+      input_fields: lambda do |object_definitions|
+        object_definitions['custom_action_input']
+      end,
+
+      execute: lambda do |_connection, input|
+        verb = input['verb']
+        if %w[get post put patch delete].exclude?(verb)
+          error("#{verb} not supported")
+        end
+        data = input.dig('input', 'data').presence || {}
+
+        case verb
+        when 'get'
+          get(input['path'], data).
+            after_error_response(/.*/) do |_code, body, _header, message|
+              error("#{message}: #{body}")
+            end
+        when 'post'
+          post(input['path'], data).
+            after_error_response(/.*/) do |_code, body, _header, message|
+              error("#{message}: #{body}")
+            end
+        when 'put'
+          put(input['path'], data).
+            after_error_response(/.*/) do |_code, body, _header, message|
+              error("#{message}: #{body}")
+            end
+        when 'delete'
+          delete(input['path'], data).
+            after_error_response(/.*/) do |_code, body, _header, message|
+              error("#{message}: #{body}")
+            end
+        end
+      end,
+
+      output_fields: lambda do |object_definitions|
+        object_definitions['custom_action_output']
+      end
+    }
+  },
+
+  pick_lists: {
+    entity_list: lambda do |_connection|
+      get('/metadata/DataEntities').dig('value').
+        select { |o| o['DataServiceEnabled'] }&.
+        map do |object|
+          [object['PublicCollectionName'],
+           "#{object['PublicCollectionName']}~#{object['PublicEntityName']}"]
+        end
+    end,
+    entity_fields: lambda do |_connection, entity_name:|
+      get('/metadata/PublicEntities' \
+         "('#{entity_name.split('~').last}')")['Properties']&.
+         pluck('Name', 'Name')
+    end
+  }
+
+}
