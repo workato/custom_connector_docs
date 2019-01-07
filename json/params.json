@@ -1,6 +1,0 @@
-{
-  "name": "Workato Connector SDK",
-  "tagline": "Connector SDK samples and documentation",
-  "body": "### Basic auth adapter samples\r\n- [Harvest app connector](https://github.com/workato/connector_sdk/blob/master/basic_auth/harvest_connector.rb)\r\n  Learn how to add action and connection section.\r\n\r\n- [Freshdesk connector](https://github.com/workato/connector_sdk/blob/master/basic_auth/freshdesk_connector.rb)\r\n  Learn how to add action, trigger, connection section and reusable schema.\r\n\r\n### OAuth2 adapter samples\r\n- [Podio connector](https://github.com/workato/connector_sdk/blob/master/oauth2/podio_connector.rb)\r\n  Learn how to add action and connection section for a OAuth2 adapter.\r\n- [ProductHunt connector](https://github.com/workato/connector_sdk/blob/master/oauth2/producthunt_connector.rb)\r\n  Learn how to add actions, triggers and connection section for a OAuth2 adapter.\r\n\r\n### Support or Contact\r\n[Contact support](https://support.workato.com) and we’ll help you sort it out.\r\n",
-  "note": "Don't delete this file! It's used internally to help with page regeneration."
-}
