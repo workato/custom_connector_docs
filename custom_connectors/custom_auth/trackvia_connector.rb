@@ -57,34 +57,24 @@
                         type = input[:type]
                         name = input[:name]
 
+                        control_type_dictionary = {
+                          'paragraph' => 'text-area',
+                          'number' => 'number',
+                          'currency' => 'number',
+                          'percentage' => 'number',
+                          'autoIncrement' => 'number',
+                          'relationship' => 'integer',
+                          'checkbox' => 'multiselect',
+                          'dropDown' => 'select',
+                          'date' => 'date',
+                          'datetime' => 'date_time',
+                          'email' => 'email'
+                        }
+
                         if %w[id ID].include?(name)
                           'integer'
                         else
-                          case type
-                          when 'identifier', 'shortAnswer'
-                            'text'
-                          when 'paragraph'
-                            'text-area'
-                          when 'number', 'currency', 'percentage',
-                            'autoIncrement'
-                            'number'
-                          when 'relationship'
-                            'integer'
-                          when 'checkbox'
-                            'multiselect'
-                          when 'dropDown'
-                            'select'
-                          when 'date'
-                            'date'
-                          when 'datetime'
-                            'date_time'
-                          when 'email'
-                            'email'
-                          when 'point'
-                            nil
-                          else
-                            'text'
-                          end
+                          control_type_dictionary[type]
                         end
                       },
     get_picklist_options: lambda { |input|
