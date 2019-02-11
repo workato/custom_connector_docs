@@ -33,7 +33,7 @@
       type = input[:type]
       name = input[:name]
 
-      if name == 'ID' || name == 'id'
+      if ['id', 'ID'].include?(name)
         :number
       else
         case type
@@ -55,7 +55,7 @@
                         type = input[:type]
                         name = input[:name]
 
-                        if name == 'ID' || name == 'id'
+                        if ['id', 'ID'].include?(name)
                           'integer'
                         else
                           case type
