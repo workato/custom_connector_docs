@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 {
   title: 'TrackVia',
   connection: {
@@ -138,11 +140,12 @@
                        },
     get_fields: lambda { |input|
                   view_id = input[:view_id]
-                  get("/openapi/views/#{view_id}")['structure']
-                    .reject do |field|
-                      !field['canCreate'] || !field['canUpdate']
-                    end
-                    .map do |field|
+                  structure = get("/openapi/views/#{view_id}")['structure']
+                              .reject do |field|
+                    !field['canCreate'] || !field['canUpdate']
+                  end
+
+                  structure.map do |field|
                     {
                       name: field['name'],
                       label: field['name'],
