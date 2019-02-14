@@ -9,6 +9,7 @@
         label: 'Auth Token',
         hint: "Please find the Auth Token <a href='https://go.trackvia.com' \
             '/#/account' target='_blank'>here</a>",
+        control_type: 'password',
         optional: false
       },
       {
@@ -16,6 +17,7 @@
         label: 'API Key',
         hint: "Please find the API Key <a href='https://go.trackvia.com' \
           '/#/account' target='_blank'>here</a>",
+        control_type: 'password',
         optional: false
       }
     ],
