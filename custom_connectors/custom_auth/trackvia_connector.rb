@@ -266,7 +266,8 @@
           control_type: 'select',
           pick_list: 'apps',
           optional: false,
-          change_on_blur: true
+          change_on_blur: true,
+          hint: 'Select a TrackVia application from the list above'
         },
         {
           name: 'view_id',
@@ -275,7 +276,8 @@
           control_type: 'select',
           pick_list: 'views',
           pick_list_params: { app_name: 'app_name' },
-          optional: false
+          optional: false,
+          hint: 'Select an application view from the list above'
         }
       ],
       execute: lambda { |_connection, input|
@@ -406,7 +408,8 @@
           control_type: 'select',
           pick_list: 'apps',
           optional: false,
-          change_on_blur: true
+          change_on_blur: true,
+          hint: 'Select a TrackVia application from the list above'
         },
         {
           name: 'view_id',
@@ -415,7 +418,8 @@
           control_type: 'select',
           pick_list: 'views',
           pick_list_params: { app_name: 'app_name' },
-          optional: false
+          optional: false,
+          hint: 'Select an application view from the list above'
         }
       ],
       input_fields: lambda { |object_definitions|
@@ -453,7 +457,8 @@
           control_type: 'select',
           pick_list: 'apps',
           optional: false,
-          change_on_blur: true
+          change_on_blur: true,
+          hint: 'Select a TrackVia application from the list above'
         },
         {
           name: 'view_id',
@@ -462,7 +467,8 @@
           control_type: 'select',
           pick_list: 'views',
           pick_list_params: { app_name: 'app_name' },
-          optional: false
+          optional: false,
+          hint: 'Select an application view from the list above'
         },
         {
           name: 'id',
@@ -508,7 +514,8 @@
           control_type: 'select',
           pick_list: 'apps',
           optional: false,
-          change_on_blur: true
+          change_on_blur: true,
+          hint: 'Select a TrackVia application from the list above'
         },
         {
           name: 'view_id',
@@ -517,7 +524,8 @@
           control_type: 'select',
           pick_list: 'views',
           pick_list_params: { app_name: 'app_name' },
-          optional: false
+          optional: false,
+          hint: 'Select an application view from the list above'
         },
         {
           name: 'id',
@@ -544,7 +552,8 @@
           control_type: 'select',
           pick_list: 'apps',
           optional: false,
-          change_on_blur: true
+          change_on_blur: true,
+          hint: 'Select a TrackVia application from the list above'
         },
         {
           name: 'view_id',
@@ -553,7 +562,8 @@
           control_type: 'select',
           pick_list: 'views',
           pick_list_params: { app_name: 'app_name' },
-          optional: false
+          optional: false,
+          hint: 'Select an application view from the list above'
         }
       ],
       execute: lambda { |_connection, input|
@@ -563,7 +573,10 @@
   },
   triggers: {
     new_record: {
-      type: :paging_desc,
+      description: "Created&nbsp;<span class='provider'>"\
+      'record</span>&nbsp;in&nbsp;' \
+              "<span class='provider'>TrackVia</span>.",
+      help: 'Triggers whenever records in a TrackVia view are created',
       config_fields: [
         {
           name: 'app_name',
@@ -572,7 +585,8 @@
           control_type: 'select',
           pick_list: 'apps',
           optional: false,
-          change_on_blur: true
+          change_on_blur: true,
+          hint: 'Select a TrackVia application from the list above'
         },
         {
           name: 'view_id',
@@ -581,7 +595,8 @@
           control_type: 'select',
           pick_list: 'views',
           pick_list_params: { app_name: 'app_name' },
-          optional: false
+          optional: false,
+          hint: 'Select an application view from the list above'
         }
       ],
       webhook_notification: lambda { |_input, payload|
@@ -608,6 +623,10 @@
                      }
     },
     updated_record: {
+      description: "Updated&nbsp;<span class='provider'>"\
+      'record</span>&nbsp;in&nbsp;' \
+              "<span class='provider'>TrackVia</span>.",
+      help: 'Triggers whenever records in a TrackVia view are updated',
       config_fields: [
         {
           name: 'app_name',
@@ -616,7 +635,8 @@
           control_type: 'select',
           pick_list: 'apps',
           optional: false,
-          change_on_blur: true
+          change_on_blur: true,
+          hint: 'Select a TrackVia application from the list above'
         },
         {
           name: 'view_id',
@@ -625,7 +645,8 @@
           control_type: 'select',
           pick_list: 'views',
           pick_list_params: { app_name: 'app_name' },
-          optional: false
+          optional: false,
+          hint: 'Select an application view from the list above'
         }
       ],
       webhook_notification: lambda { |_input, payload|
@@ -652,6 +673,10 @@
                      }
     },
     deleted_record: {
+      description: "Deleted&nbsp;<span class='provider'>"\
+      'record</span>&nbsp;in&nbsp;' \
+              "<span class='provider'>TrackVia</span>.",
+      help: 'Triggers whenever a record is deleted from TrackVia',
       config_fields: [
         {
           name: 'app_name',
@@ -660,7 +685,8 @@
           control_type: 'select',
           pick_list: 'apps',
           optional: false,
-          change_on_blur: true
+          change_on_blur: true,
+          hint: 'Select a TrackVia application from the list above'
         },
         {
           name: 'view_id',
@@ -669,7 +695,8 @@
           control_type: 'select',
           pick_list: 'views',
           pick_list_params: { app_name: 'app_name' },
-          optional: false
+          optional: false,
+          hint: 'Select an application view from the list above'
         }
       ],
       webhook_notification: lambda { |_input, payload|
