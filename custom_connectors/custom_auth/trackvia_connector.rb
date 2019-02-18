@@ -576,7 +576,8 @@
       description: "Created&nbsp;<span class='provider'>"\
       'record</span>&nbsp;in&nbsp;' \
               "<span class='provider'>TrackVia</span>.",
-      help: 'Triggers whenever records in a TrackVia view are created',
+      help: 'Triggers whenever a record is created and&nbsp;'\
+        'is added to a specified TrackVia view.',
       config_fields: [
         {
           name: 'app_name',
@@ -626,7 +627,8 @@
       description: "Updated&nbsp;<span class='provider'>"\
       'record</span>&nbsp;in&nbsp;' \
               "<span class='provider'>TrackVia</span>.",
-      help: 'Triggers whenever records in a TrackVia view are updated',
+      help: 'Triggers whenever a record belonging to&nbsp;'\
+        'a specified TrackVia view is updated.',
       config_fields: [
         {
           name: 'app_name',
@@ -676,7 +678,8 @@
       description: "Deleted&nbsp;<span class='provider'>"\
       'record</span>&nbsp;in&nbsp;' \
               "<span class='provider'>TrackVia</span>.",
-      help: 'Triggers whenever a record is deleted from TrackVia',
+      help: 'Triggers whenever a record belonging to&nbsp;'\
+        'a specified TrackVia view is deleted.',
       config_fields: [
         {
           name: 'app_name',
