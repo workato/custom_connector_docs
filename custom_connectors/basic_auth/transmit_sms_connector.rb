@@ -116,6 +116,17 @@
             optional: false
           },
           {
+            name: "tracked_link_url",
+            label: "Tracked Link",
+            type: "string",
+            control_type: "url",
+            optional: true,
+            hint: "Full URL that will be shortened and inserted via this "\
+              "**[tracked-link]** variable added to your **Message** above. "\
+              "Hits to this link can be tracked and also passed via the 'Link Hit'"\
+              "trigger. Should be in the format `https://www.mydomain.com/`."
+          },
+          {
             name: "to",
             type: "integer",
             control_type: "phone",
@@ -552,6 +563,7 @@
           results = get("/send-sms.json").
                     params(message: input["message"],
                            to: number["number"]["international"],
+                           tracked_link_url: input["tracked_link_url"],
                            from: from)
           results["mobile"] = number["number"]["international"]
           { results: results }
