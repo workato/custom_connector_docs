@@ -676,57 +676,6 @@
                        object_definitions['hook_body']
                      }
     },
-    # created_updated_record: {
-    #   description: "Created or updated&nbsp;<span class='provider'>"\
-    #   'record</span>&nbsp;in&nbsp;' \
-    #           "<span class='provider'>TrackVia</span>.",
-    #   help: 'Triggers whenever a record belonging to&nbsp;'\
-    #     'a specified TrackVia view is created or updated.',
-    #   config_fields: [
-    #     {
-    #       name: 'app_name',
-    #       label: 'App',
-    #       type: 'string',
-    #       control_type: 'select',
-    #       pick_list: 'apps',
-    #       optional: false,
-    #       change_on_blur: true,
-    #       hint: 'Select a TrackVia application from the list above'
-    #     },
-    #     {
-    #       name: 'view_id',
-    #       label: 'View',
-    #       type: 'integer',
-    #       control_type: 'select',
-    #       pick_list: 'views',
-    #       pick_list_params: { app_name: 'app_name' },
-    #       optional: false,
-    #       hint: 'Select an application view from the list above'
-    #     }
-    #   ],
-    #   webhook_notification: lambda { |_input, payload|
-    #                           # payload[0]
-    #                           # HACK: This is a quick fix to replace an issue
-    #                           # with webhook responses returning
-    #                           # 'id' instead of 'ID'
-    #                           hash = payload[0]
-    #                           hash['ID'] = hash.delete 'id'
-    #                           hash
-    #                         },
-    #   webhook_subscribe: lambda { |webhook_url, _connection, input, _recipe_id|
-    #                        post("/openapi/zapier/views/#{input['view_id']}"\
-    #                         '/api/hooks',
-    #                             target_url: webhook_url,
-    #                             event: 'created,updated')
-    #                      },
-    #   webhook_unsubscribe: lambda { |webhook, input|
-    #                          delete("/openapi/zapier/views/#{input['view_id']}"\
-    #                             "/api/hooks/#{webhook['id']}")
-    #                        },
-    #   output_fields: lambda { |object_definitions|
-    #                    object_definitions['hook_body']
-    #                  }
-    # },
     deleted_record: {
       description: "Deleted&nbsp;<span class='provider'>"\
       'record</span>&nbsp;in&nbsp;' \
