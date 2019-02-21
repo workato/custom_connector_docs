@@ -528,9 +528,9 @@
           hint: 'Select an application view from the list above'
         }
       ],
-      execute: lambda do |_connection, input|
+      execute: lambda { |_connection, input|
         delete("/openapi/views/#{input['view_id']}/records/all")
-      end
+      }
     }
   },
   triggers: {
@@ -578,10 +578,10 @@
              target_url: webhook_url,
              event: 'created')
       end,
-      webhook_unsubscribe: lambda { |webhook, input|
+      webhook_unsubscribe: lambda do |webhook, input|
         delete("/openapi/zapier/views/#{input['view_id']}" \
           "/api/hooks/#{webhook['id']}")
-      },
+      end,
       output_fields: lambda { |object_definitions|
         object_definitions['hook_body']
       }
@@ -630,10 +630,10 @@
              target_url: webhook_url,
              event: 'updated')
       end,
-      webhook_unsubscribe: lambda { |webhook, input|
+      webhook_unsubscribe: lambda do |webhook, input|
         delete("/openapi/zapier/views/#{input['view_id']}" \
           "/api/hooks/#{webhook['id']}")
-      },
+      end
       output_fields: lambda { |object_definitions|
         object_definitions['hook_body']
       }
@@ -674,10 +674,10 @@
              target_url: webhook_url,
              event: 'deleted')
       end,
-      webhook_unsubscribe: lambda { |webhook, input|
+      webhook_unsubscribe: lambda do |webhook, input|
         delete("/openapi/zapier/views/#{input['view_id']}" \
           "/api/hooks/#{webhook['id']}")
-      },
+      end,
       output_fields: lambda { |object_definitions|
         object_definitions['hook_body']
       }
