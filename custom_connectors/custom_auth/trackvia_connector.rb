@@ -27,11 +27,9 @@
         params(access_token: connection['access_token'])
       }
     },
-    base_uri: ->(_connection) { 'https://go.trackvia.com' }
+    base_uri: lambda { |_connection| 'https://go.trackvia.com' }
   },
-  test: lambda { |_connection|
-    get('/openapi/views')
-  },
+  test: lambda { |_connection| get('/openapi/views') },
   methods: {
     get_type: lambda do |input|
       type = input[:type]
@@ -175,19 +173,19 @@
       end
     },
     record: {
-      fields: lambda do |_connection, config_fields|
+      fields: lambda { |_connection, config_fields|
         call(:get_fields, view_id: config_fields['view_id'])
-      end
+      }
     },
     response_record: {
-      fields: lambda do |_connection, config_fields|
+      fields: lambda { |_connection, config_fields|
         call(:get_output_fields, view_id: config_fields['view_id'])
-      end
+      }
     },
     hook_body: {
-      fields: lambda do |_connection, config_fields|
+      fields: lambda { |_connection, config_fields|
         call(:get_output_fields, view_id: config_fields['view_id'])
-      end
+      }
     },
     request: {
       fields: lambda do |_connection, config_fields|
@@ -238,7 +236,7 @@
     }
   },
   pick_lists: {
-    apps: ->(_connection) { get('/openapi/apps').pluck('name', 'name') },
+    apps: lambda { |_connection| get('/openapi/apps').pluck('name', 'name') },
     views: lambda do |_connection, app_name:|
       get('/openapi/views')
         .select do |view|
@@ -580,13 +578,13 @@
              target_url: webhook_url,
              event: 'created')
       end,
-      webhook_unsubscribe: lambda do |webhook, input|
+      webhook_unsubscribe: lambda { |webhook, input|
         delete("/openapi/zapier/views/#{input['view_id']}" \
-        "/api/hooks/#{webhook['id']}")
-      end,
-      output_fields: lambda do |object_definitions|
+          "/api/hooks/#{webhook['id']}")
+      },
+      output_fields: lambda { |object_definitions|
         object_definitions['hook_body']
-      end
+      }
     },
     updated_record: {
       description: "Updated&nbsp;<span class='provider'>" \
@@ -632,11 +630,13 @@
              target_url: webhook_url,
              event: 'updated')
       end,
-      webhook_unsubscribe: lambda do |webhook, input|
+      webhook_unsubscribe: lambda { |webhook, input|
         delete("/openapi/zapier/views/#{input['view_id']}" \
-        "/api/hooks/#{webhook['id']}")
-      end,
-      output_fields: ->(object_definitions) { object_definitions['hook_body'] }
+          "/api/hooks/#{webhook['id']}")
+      },
+      output_fields: lambda { |object_definitions|
+        object_definitions['hook_body']
+      }
     },
     deleted_record: {
       description: "Deleted&nbsp;<span class='provider'>" \
@@ -667,20 +667,20 @@
           hint: 'Select an application view from the list above'
         }
       ],
-      webhook_notification: ->(_input, payload) { payload[0] },
+      webhook_notification: lambda { |_input, payload| payload[0] },
       webhook_subscribe: lambda do |webhook_url, _connection, input, _recipe_id|
         post("/openapi/zapier/views/#{input['view_id']}" \
         '/api/hooks',
              target_url: webhook_url,
              event: 'deleted')
       end,
-      webhook_unsubscribe: lambda do |webhook, input|
+      webhook_unsubscribe: lambda { |webhook, input|
         delete("/openapi/zapier/views/#{input['view_id']}" \
-        "/api/hooks/#{webhook['id']}")
-      end,
-      output_fields: lambda do |object_definitions|
+          "/api/hooks/#{webhook['id']}")
+      },
+      output_fields: lambda { |object_definitions|
         object_definitions['hook_body']
-      end
+      }
     }
   }
 }
