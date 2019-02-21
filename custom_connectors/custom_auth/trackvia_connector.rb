@@ -240,8 +240,11 @@
     views: lambda do |_connection, app_name:|
       get('/openapi/views')
         .select do |view|
-        view['applicationName'] == app_name
-      end
+          view['applicationName'] == app_name
+        end
+        .after_error_response(/.*/) do |code, body, header, message|
+          error("#{message} : #{body}")
+        end
         .pluck('name', 'id')
     end
   },
@@ -280,12 +283,20 @@
         max = 100
         first_page = get("/openapi/views/#{input['view_id']}")
                      .params(start: start, max: max)
+                     .after_error_response(/.*/) do 
+                        |code, body, header, message|
+                        error("#{message} : #{body}")
+                      end
         total_records = first_page['totalCount']
         all_records = all_records.concat(first_page['data'])
         start = start + max
         while all_records.length < total_records
           page = get("/openapi/views/#{input['view_id']}")
                  .params(start: start, max: max)
+                 .after_error_response(/.*/) do 
+                    |code, body, header, message|
+                    error("#{message} : #{body}")
+                  end
           all_records = all_records.concat(page['data'])
           start = start + max
         end
@@ -344,6 +355,9 @@
             firstName: input['first_name'],
             lastName: input['last_name']
           )
+          .after_error_response(/.*/) do |code, body, header, message|
+            error("#{message} : #{body}")
+          end
       end,
       output_fields: lambda do |object_definitions|
         [
@@ -392,6 +406,9 @@
       execute: lambda do |_connection, input|
         post("/openapi/views/#{input['view_id']}/records")
           .payload(data: input['data'])
+          .after_error_response(/.*/) do |code, body, header, message|
+            error("#{message} : #{body}")
+          end
       end,
       output_fields: lambda do |object_definitions|
         [
@@ -448,6 +465,9 @@
         put("/openapi/views/#{input['view_id']}" \
         "/records/#{input['id']}")
           .payload(data: input['data'])
+          .after_error_response(/.*/) do |code, body, header, message|
+            error("#{message} : #{body}")
+          end
       end,
       output_fields: lambda do |object_definitions|
         [
@@ -499,6 +519,9 @@
       execute: lambda do |_connection, input|
         delete("/openapi/views/#{input['view_id']}" \
         "/records/#{input['id']}")
+        .after_error_response(/.*/) do |code, body, header, message|
+          error("#{message} : #{body}")
+        end
       end
     },
     delete_all_records_in_view: {
@@ -530,6 +553,9 @@
       ],
       execute: lambda { |_connection, input|
         delete("/openapi/views/#{input['view_id']}/records/all")
+          .after_error_response(/.*/) do |code, body, header, message|
+            error("#{message} : #{body}")
+          end
       }
     }
   },
@@ -633,7 +659,7 @@
       webhook_unsubscribe: lambda do |webhook, input|
         delete("/openapi/zapier/views/#{input['view_id']}" \
           "/api/hooks/#{webhook['id']}")
-      end
+      end,
       output_fields: lambda { |object_definitions|
         object_definitions['hook_body']
       }
