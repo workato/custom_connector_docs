@@ -295,49 +295,17 @@
                    all_records = all_records.concat(page['data'])
                    start = start + max
                  end
+                 all_records.each { |hash| 
+                  hash['ID'] = hash.delete 'id'
+                 }
                  { data: all_records, totalCount: total_records }
                },
       output_fields: lambda { |object_definitions|
                        [
                          { name: 'data',
                            type: :array, of: :object,
-                           properties: object_definitions['record'] },
+                           properties: object_definitions['response_record'] },
                          { name: 'structure', type: :array, of: :object },
-                         { name: 'totalCount', type: :integer }
-                       ]
-                     }
-    },
-    get_all_users: {
-      description: "Gets&nbsp;<span class='provider'>"\
-      'a list of all users</span>&nbsp;in' \
-              "&nbsp;<span class='provider'>TrackVia</span>.",
-      help: 'Gets a list of all users in your TrackVia account',
-      execute: lambda { |_connection, _input|
-                 all_records = []
-                 start = 0
-                 max = 100
-                 first_page = get('/openapi/users')
-                              .params(
-                                start: start,
-                                max: max
-                              )
-                 total_records = first_page['totalCount']
-                 all_records = all_records.concat(first_page['data'])
-                 start = start + max
-                 while all_records.length < total_records
-                   page = get('/openapi/users')
-                          .params(
-                            start: start,
-                            max: max
-                          )
-                   all_records = all_records.concat(page['data'])
-                   start = start + max
-                 end
-                 { data: all_records, totalCount: total_records }
-               },
-      output_fields: lambda {
-                       [
-                         { name: 'data', type: :array, of: :object },
                          { name: 'totalCount', type: :integer }
                        ]
                      }
