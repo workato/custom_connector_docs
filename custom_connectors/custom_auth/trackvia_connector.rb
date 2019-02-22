@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 {
   title: 'TrackVia',
   connection: {
@@ -190,10 +188,8 @@
             of: :object,
             properties: [
               call(:get_fields, view_id: config_fields['view_id'])
-              # { name: 'fieldName' },
             ]
           }
-          # { name: 'data', type: :array, of: :record }
         ]
       end
     },
@@ -246,7 +242,7 @@
       description: "Get all <span class='provider'>" \
       'records</span> from a view in ' \
       "<span class='provider'>TrackVia</span>.",
-      help: 'Fetches all records for a specified view in TracVia',
+      help: 'Fetches all records for a specified view in TrackVia',
       config_fields: [
         {
           name: 'app_name',
@@ -269,7 +265,7 @@
           hint: 'Select an application view from the list above'
         }
       ],
-      
+
       execute: lambda do |_connection, input|
         all_records = []
         start = 0
