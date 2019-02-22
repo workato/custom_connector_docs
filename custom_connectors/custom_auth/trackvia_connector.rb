@@ -331,7 +331,6 @@
           control_type: 'text',
           optional: false
         },
-        # TODO: Change time_zone config field to a picklist selector
         {
           name: 'time_zone',
           type: 'string',
@@ -549,7 +548,7 @@
 
       execute: lambda do |_connection, input|
         delete("/openapi/views/#{input['view_id']}/records/all")
-          .after_error_response(/.*/) do |code, body, header, message|
+          .after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message} : #{body}")
           end
       end
@@ -587,18 +586,14 @@
       ],
 
       webhook_notification: lambda do |_input, payload|
-        # payload[0]
-        # HACK: This is a quick fix to replace an
-        # issue with webhook responses returning 'id'
-        # instead of 'ID'
         hash = payload[0]
         hash['ID'] = hash.delete('id')
         hash
       end,
       webhook_subscribe: lambda do |webhook_url, _connection, input, _recipe_id|
         post("/openapi/zapier/views/#{input['view_id']}/api/hooks",
-          target_url: webhook_url,
-          event: 'created')
+             target_url: webhook_url,
+             event: 'created')
       end,
 
       webhook_unsubscribe: lambda do |webhook, input|
@@ -640,10 +635,6 @@
       ],
 
       webhook_notification: lambda do |_input, payload|
-        # payload[0]
-        # HACK: This is a quick fix to replace an issue
-        # with webhook responses returning
-        # 'id' instead of 'ID'
         hash = payload[0]
         hash['ID'] = hash.delete('id')
         hash
