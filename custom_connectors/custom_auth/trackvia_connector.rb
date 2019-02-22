@@ -300,8 +300,9 @@
           { name: 'data',
             type: :array, of: :object,
             properties: object_definitions['response_record'] },
-            { name: 'structure', type: :array, of: :object,
-              properties: object_definitions['column'] },
+          { name: 'structure',
+            type: :array, of: :object,
+            properties: object_definitions['column'] },
           { name: 'totalCount', type: :integer }
         ]
       end
@@ -551,7 +552,7 @@
           .after_error_response(/.*/) do |code, body, header, message|
             error("#{message} : #{body}")
           end
-        end
+      end
     }
   },
   triggers: {
