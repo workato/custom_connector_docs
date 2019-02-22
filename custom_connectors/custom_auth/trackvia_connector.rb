@@ -7,16 +7,16 @@
       {
         name: 'access_token',
         label: 'Auth Token',
-        hint: "Please find the Auth Token <a href='https://go.trackvia.com' \
-            '/#/account' target='_blank'>here</a>",
+        hint: "Click <a href='https://go.trackvia.com/#/account' " \
+        "target='_blank'>here</a> to find the Authentication token",
         control_type: 'password',
         optional: false
       },
       {
         name: 'user_key',
-        label: 'API Key',
-        hint: "Please find the API Key <a href='https://go.trackvia.com' \
-          '/#/account' target='_blank'>here</a>",
+        label: 'API key',
+        hint: "Click <a href='https://go.trackvia.com/#/account' " \
+        "target='_blank'>here</a> to find the API key",
         control_type: 'password',
         optional: false
       }
@@ -27,14 +27,13 @@
         params(access_token: connection['access_token'])
       }
     },
-    base_uri: lambda { |_connection| 'https://go.trackvia.com' }
+    base_uri: ->(_connection) { 'https://go.trackvia.com' }
   },
-  test: lambda { |_connection| get('/openapi/views') },
+  test: ->(_connection) { get('/openapi/views') },
   methods: {
     get_type: lambda do |input|
       type = input[:type]
       name = input[:name]
-
       if %w[id ID].include?(name)
         :number
       else
@@ -56,7 +55,6 @@
     get_control_type: lambda do |input|
       type = input[:type]
       name = input[:name]
-
       control_type_dictionary = {
         'paragraph' => 'text-area',
         'number' => 'number',
@@ -70,24 +68,20 @@
         'datetime' => 'date_time',
         'email' => 'email'
       }
-
       if %w[id ID].include?(name)
         'integer'
       else
         control_type_dictionary[type]
       end
     end,
+
     get_picklist_options: lambda do |input|
       choices = input[:choices]
-      unless choices == nil
-        choices.map do |choice|
-          [choice, choice]
-        end
-      end
+      choices.map { |choice| [choice, choice] } unless choices.blank?
     end,
+
     get_properties: lambda do |input|
       type = input[:type]
-
       if type == 'point'
         [
           {
@@ -105,10 +99,12 @@
         ]
       end
     end,
+
     get_delimeter: lambda do |input|
       type = input[:type]
       ',' if type == 'checkbox'
     end,
+
     get_output_fields: lambda do |input|
       view_id = input[:view_id]
       get("/openapi/views/#{view_id}")['structure']
@@ -127,13 +123,11 @@
         }
       end
     end,
+
     get_fields: lambda do |input|
       view_id = input[:view_id]
       structure = get("/openapi/views/#{view_id}")['structure']
-                  .reject do |field|
-        !field['canCreate'] || !field['canUpdate']
-      end
-
+                  .reject { |field| !field['canCreate'] || !field['canUpdate'] }
       structure.map do |field|
         {
           name: field['name'],
@@ -236,25 +230,23 @@
     }
   },
   pick_lists: {
-    apps: lambda { |_connection| get('/openapi/apps').pluck('name', 'name') },
+    apps: ->(_connection) { get('/openapi/apps').pluck('name', 'name') },
     views: lambda do |_connection, app_name:|
       get('/openapi/views')
-        .select do |view|
-          view['applicationName'] == app_name
-        end
-        .after_error_response(/.*/) do |code, body, header, message|
+        .after_error_response(/.*/) do |_code, body, _header, message|
           error("#{message} : #{body}")
         end
-        .pluck('name', 'id')
+        .select { |view| view['applicationName'] == app_name }
+        &.pluck('name', 'id')
     end
   },
   actions: {
     # GET requests
     get_all_view_records: {
-      description: "Gets&nbsp;<span class='provider'>" \
-      'all records</span>&nbsp;for a' \
-      "&nbsp;<span class='provider'>TrackVia view</span>.",
-      help: 'Gets all records for a specified TrackVia view',
+      description: "Get all <span class='provider'>" \
+      'records</span> from a view in ' \
+      "<span class='provider'>TrackVia</span>.",
+      help: 'Fetches all records for a specified view in TracVia',
       config_fields: [
         {
           name: 'app_name',
@@ -277,26 +269,27 @@
           hint: 'Select an application view from the list above'
         }
       ],
+      
       execute: lambda do |_connection, input|
         all_records = []
         start = 0
         max = 100
-        first_page = get("/openapi/views/#{input['view_id']}")
-                     .params(start: start, max: max)
-                     .after_error_response(/.*/) do 
-                        |code, body, header, message|
-                        error("#{message} : #{body}")
-                      end
+        first_page =
+          get("/openapi/views/#{input['view_id']}")
+          .params(start: start, max: max)
+          .after_error_response(/.*/) do |_code, body, _header, message|
+            error("#{message} : #{body}")
+          end
         total_records = first_page['totalCount']
         all_records = all_records.concat(first_page['data'])
         start = start + max
         while all_records.length < total_records
-          page = get("/openapi/views/#{input['view_id']}")
-                 .params(start: start, max: max)
-                 .after_error_response(/.*/) do 
-                    |code, body, header, message|
-                    error("#{message} : #{body}")
-                  end
+          page =
+            get("/openapi/views/#{input['view_id']}")
+            .params(start: start, max: max)
+            .after_error_response(/.*/) do |_code, body, _header, message|
+              error("#{message} : #{body}")
+            end
           all_records = all_records.concat(page['data'])
           start = start + max
         end
@@ -305,22 +298,23 @@
         end
         { data: all_records, totalCount: total_records }
       end,
+
       output_fields: lambda do |object_definitions|
         [
           { name: 'data',
             type: :array, of: :object,
             properties: object_definitions['response_record'] },
-          { name: 'structure', type: :array, of: :object },
+            { name: 'structure', type: :array, of: :object,
+              properties: object_definitions['column'] },
           { name: 'totalCount', type: :integer }
         ]
       end
     },
     # POST requests
     create_user: {
-      description: "Create a&nbsp;<span class='provider'>" \
-      'new user</span>&nbsp;in' \
-      "&nbsp;<span class='provider'>TrackVia</span>.",
-      help: 'Create a new user in your TrackVia account',
+      description: "Create <span class='provider'>user</span> " \
+      "in <span class='provider'>TrackVia</span>",
+      help: 'Create a user in TrackVia',
       config_fields: [
         {
           name: 'email',
@@ -348,6 +342,7 @@
           optional: true
         }
       ],
+
       execute: lambda do |_connection, input|
         post('/openapi/users')
           .params(
@@ -355,10 +350,11 @@
             firstName: input['first_name'],
             lastName: input['last_name']
           )
-          .after_error_response(/.*/) do |code, body, header, message|
+          .after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message} : #{body}")
           end
       end,
+
       output_fields: lambda do |object_definitions|
         [
           { name: 'structure',
@@ -372,10 +368,9 @@
       end
     },
     create_record: {
-      description: "Create a&nbsp;<span class='provider'>" \
-      'new record</span>&nbsp;in&nbsp;' \
+      description: "Create <span class='provider'>record</span> in " \
       "<span class='provider'>TrackVia</span>.",
-      help: 'Create a new record in your TrackVia account',
+      help: 'Create a record in TrackVia',
       config_fields: [
         {
           name: 'app_name',
@@ -403,13 +398,15 @@
           type: :array, of: :object,
           properties: object_definitions['record'] }
       end,
+
       execute: lambda do |_connection, input|
         post("/openapi/views/#{input['view_id']}/records")
           .payload(data: input['data'])
-          .after_error_response(/.*/) do |code, body, header, message|
+          .after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message} : #{body}")
           end
       end,
+
       output_fields: lambda do |object_definitions|
         [
           { name: 'structure',
@@ -424,10 +421,9 @@
     },
     # PUT requests
     update_record: {
-      description: "Update an&nbsp;<span class='provider'>" \
-      'existing record</span>&nbsp;in&nbsp;' \
+      description: "Update <span class='provider'>record</span> in " \
       "<span class='provider'>TrackVia</span>.",
-      help: 'Update an existing record in your TrackVia account',
+      help: 'Update a record in TrackVia',
       config_fields: [
         {
           name: 'app_name',
@@ -461,14 +457,16 @@
           type: :array, of: :object,
           properties: object_definitions['record'] }
       end,
+
       execute: lambda do |_connection, input|
         put("/openapi/views/#{input['view_id']}" \
         "/records/#{input['id']}")
           .payload(data: input['data'])
-          .after_error_response(/.*/) do |code, body, header, message|
+          .after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message} : #{body}")
           end
       end,
+
       output_fields: lambda do |object_definitions|
         [
           { name: 'structure',
@@ -484,10 +482,9 @@
     },
     # DELETE requests
     delete_record: {
-      description: "Delete an&nbsp;<span class='provider'>" \
-      'existing record</span>&nbsp;in&nbsp;' \
+      description: "Delete <span class='provider'> record</span> in " \
       "<span class='provider'>TrackVia</span>.",
-      help: 'Delete an existing record in your TrackVia account',
+      help: 'Delete a record in TrackVia',
       config_fields: [
         {
           name: 'app_name',
@@ -516,6 +513,7 @@
           optional: false
         }
       ],
+
       execute: lambda do |_connection, input|
         delete("/openapi/views/#{input['view_id']}" \
         "/records/#{input['id']}")
@@ -525,10 +523,10 @@
       end
     },
     delete_all_records_in_view: {
-      description: "Delete&nbsp;<span class='provider'>" \
-      'all records</span>&nbsp;in a&nbsp;' \
-      "<span class='provider'>TrackVia view</span>.",
-      help: 'Delete all records in a TrackVia view',
+      description: "Delete all <span class='provider'>" \
+      'records</span> from a view in ' \
+      "<span class='provider'>TrackVia</span>.",
+      help: 'Delete all records from a view in TrackVia',
       config_fields: [
         {
           name: 'app_name',
@@ -551,20 +549,21 @@
           hint: 'Select an application view from the list above'
         }
       ],
-      execute: lambda { |_connection, input|
+
+      execute: lambda do |_connection, input|
         delete("/openapi/views/#{input['view_id']}/records/all")
           .after_error_response(/.*/) do |code, body, header, message|
             error("#{message} : #{body}")
           end
-      }
+        end
     }
   },
   triggers: {
     new_record: {
-      description: "Created&nbsp;<span class='provider'>" \
-      'record</span>&nbsp;in&nbsp;' \
+      description: "New <span class='provider'>" \
+      'record</span> added to view in ' \
       "<span class='provider'>TrackVia</span>.",
-      help: 'Triggers whenever a record is created and&nbsp;' \
+      help: 'Triggers whenever a record is created and' \
       'is added to a specified TrackVia view.',
       type: :paging_desc,
       config_fields: [
@@ -589,33 +588,34 @@
           hint: 'Select an application view from the list above'
         }
       ],
+
       webhook_notification: lambda do |_input, payload|
         # payload[0]
         # HACK: This is a quick fix to replace an
         # issue with webhook responses returning 'id'
         # instead of 'ID'
         hash = payload[0]
-        hash['ID'] = hash.delete 'id'
+        hash['ID'] = hash.delete('id')
         hash
       end,
       webhook_subscribe: lambda do |webhook_url, _connection, input, _recipe_id|
-        post("/openapi/zapier/views/#{input['view_id']}" \
-        '/api/hooks',
-             target_url: webhook_url,
-             event: 'created')
+        post("/openapi/zapier/views/#{input['view_id']}/api/hooks",
+          target_url: webhook_url,
+          event: 'created')
       end,
+
       webhook_unsubscribe: lambda do |webhook, input|
         delete("/openapi/zapier/views/#{input['view_id']}" \
           "/api/hooks/#{webhook['id']}")
       end,
-      output_fields: lambda { |object_definitions|
-        object_definitions['hook_body']
-      }
+
+      output_fields: ->(object_definitions) { object_definitions['hook_body'] }
     },
+
     updated_record: {
-      description: "Updated&nbsp;<span class='provider'>" \
-      'record</span>&nbsp;in&nbsp;' \
-      "<span class='provider'>TrackVia</span>.",
+      description: "Updated <span class='provider'>" \
+      'record</span> in ' \
+      "<span class='provider'>TrackVia</span> view",
       help: 'Triggers whenever a record belonging to&nbsp;' \
       'a specified TrackVia view is updated.',
       type: :paging_desc,
@@ -641,34 +641,36 @@
           hint: 'Select an application view from the list above'
         }
       ],
+
       webhook_notification: lambda do |_input, payload|
         # payload[0]
         # HACK: This is a quick fix to replace an issue
         # with webhook responses returning
         # 'id' instead of 'ID'
         hash = payload[0]
-        hash['ID'] = hash.delete 'id'
+        hash['ID'] = hash.delete('id')
         hash
       end,
+
       webhook_subscribe: lambda do |webhook_url, _connection, input, _recipe_id|
         post("/openapi/zapier/views/#{input['view_id']}" \
         '/api/hooks',
              target_url: webhook_url,
              event: 'updated')
       end,
+
       webhook_unsubscribe: lambda do |webhook, input|
         delete("/openapi/zapier/views/#{input['view_id']}" \
           "/api/hooks/#{webhook['id']}")
       end,
-      output_fields: lambda { |object_definitions|
-        object_definitions['hook_body']
-      }
+
+      output_fields: ->(object_definitions) { object_definitions['hook_body'] }
     },
     deleted_record: {
-      description: "Deleted&nbsp;<span class='provider'>" \
-      'record</span>&nbsp;in&nbsp;' \
+      description: "Deleted <span class='provider'>" \
+      'record</span> from view in ' \
       "<span class='provider'>TrackVia</span>.",
-      help: 'Triggers whenever a record belonging to&nbsp;' \
+      help: 'Triggers whenever a record belonging to' \
       'a specified TrackVia view is deleted.',
       type: :paging_desc,
       config_fields: [
@@ -693,20 +695,21 @@
           hint: 'Select an application view from the list above'
         }
       ],
-      webhook_notification: lambda { |_input, payload| payload[0] },
+
+      webhook_notification: ->(_input, payload) { payload[0] },
+
       webhook_subscribe: lambda do |webhook_url, _connection, input, _recipe_id|
-        post("/openapi/zapier/views/#{input['view_id']}" \
-        '/api/hooks',
+        post("/openapi/zapier/views/#{input['view_id']}/api/hooks", \
              target_url: webhook_url,
              event: 'deleted')
       end,
+
       webhook_unsubscribe: lambda do |webhook, input|
         delete("/openapi/zapier/views/#{input['view_id']}" \
           "/api/hooks/#{webhook['id']}")
       end,
-      output_fields: lambda { |object_definitions|
-        object_definitions['hook_body']
-      }
+
+      output_fields: ->(object_definitions) { object_definitions['hook_body'] }
     }
   }
 }
