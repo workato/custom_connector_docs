@@ -284,7 +284,7 @@
           end
         total_records = first_page['totalCount']
         all_records = all_records.concat(first_page['data'])
-        start += max
+        start = start + max
         while all_records.length < total_records
           page =
             get("/openapi/views/#{input['view_id']}")
@@ -293,28 +293,20 @@
               error("#{message} : #{body}")
             end
           all_records = all_records.concat(page['data'])
-          start += max
+          start = start + max
         end
         all_records.each do |hash|
           hash['ID'] = hash.delete 'id'
         end
-        { data: all_records, totalCount: total_records }
+        all_records
       end,
 
-      output_fields: lambda do |object_definitions|
-        [
-          { name: 'data',
-            type: :array, of: :object,
-            properties: object_definitions['response_record'] },
-          { name: 'structure',
-            type: :array, of: :object,
-            properties: object_definitions['column'] },
-          { name: 'totalCount', type: :integer }
-        ]
-      end,
+      output_fields: lambda { |object_definitions|
+        object_definitions['response_record']
+      },
 
       sample_output: lambda { |_connection, input|
-        { 'data': call(:get_fields_sample_output, view_id: input['view_id']) }
+        call(:get_fields_sample_output, view_id: input['view_id'])
       }
     },
     # POST requests
@@ -358,23 +350,15 @@
           )
           .after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message} : #{body}")
-          end
+          end['data']
       end,
 
-      output_fields: lambda do |object_definitions|
-        [
-          { name: 'structure',
-            type: :array,
-            of: :object,
-            properties: object_definitions['column'] },
-          { name: 'data',
-            type: :array, of: :object,
-            properties: object_definitions['user'] }
-        ]
-      end,
+      output_fields: lambda { |object_definitions|
+        object_definitions['response_record']
+      },
 
       sample_output: lambda { |_connection, input|
-        { 'data': call(:get_fields_sample_output, view_id: input['view_id']) }
+        call(:get_fields_sample_output, view_id: input['view_id'])
       }
     },
     create_record: {
@@ -413,24 +397,16 @@
         post("/openapi/views/#{input['view_id']}/records")
           .payload(data: input['data'])
           .after_error_response(/.*/) do |_code, body, _header, message|
-            error("#{message} : #{body}")
-          end
+          error("#{message} : #{body}")
+        end['data']
       end,
 
-      output_fields: lambda do |object_definitions|
-        [
-          { name: 'structure',
-            type: :array, of: :object,
-            properties: object_definitions['column'] },
-          { name: 'data',
-            type: :array, of: :object,
-            properties: object_definitions['response_record'] },
-          { name: 'totalCount', type: :integer }
-        ]
-      end,
+      output_fields: lambda { |object_definitions|
+        object_definitions['response_record']
+      },
 
       sample_output: lambda { |_connection, input|
-        { 'data': call(:get_fields_sample_output, view_id: input['view_id']) }
+        call(:get_fields_sample_output, view_id: input['view_id'])
       }
     },
     # PUT requests
@@ -478,24 +454,15 @@
           .payload(data: input['data'])
           .after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message} : #{body}")
-          end
+          end['data']
       end,
 
-      output_fields: lambda do |object_definitions|
-        [
-          { name: 'structure',
-            type: :array, of: :object,
-            properties: object_definitions['column'] },
-          { name: 'data',
-            type: :array,
-            of: :object,
-            properties: object_definitions['response_record'] },
-          { name: 'totalCount', type: :integer }
-        ]
-      end,
+      output_fields: lambda { |object_definitions|
+        object_definitions['response_record']
+      },
 
       sample_output: lambda { |_connection, input|
-        { 'data': call(:get_fields_sample_output, view_id: input['view_id']) }
+        call(:get_fields_sample_output, view_id: input['view_id'])
       }
     },
     # DELETE requests
@@ -581,7 +548,7 @@
       description: "New <span class='provider'>" \
       'record</span> added to view in ' \
       "<span class='provider'>TrackVia</span>.",
-      help: 'Triggers whenever a record is created and' \
+      help: 'Triggers whenever a record is created and ' \
       'is added to a specified TrackVia view.',
       type: :paging_desc,
       config_fields: [
