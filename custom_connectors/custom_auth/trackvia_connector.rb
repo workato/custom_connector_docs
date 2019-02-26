@@ -234,12 +234,12 @@
   pick_lists: {
     apps: ->(_connection) { get('/openapi/apps').pluck('name', 'name') },
     views: lambda do |_connection, app_name:|
-      get('/openapi/views')
-        .after_error_response(/.*/) do |_code, body, _header, message|
-          error("#{message} : #{body}")
-        end
-        .select { |view| view['applicationName'] == app_name }
-        &.pluck('name', 'id')
+      views = get('/openapi/views')
+              .after_error_response(/.*/) do |_code, body, _header, message|
+                error("#{message} : #{body}")
+              end
+      views.select { |view| view['applicationName'] == app_name }
+      views.pluck('name', 'id')
     end
   },
   actions: {
@@ -284,7 +284,7 @@
           end
         total_records = first_page['totalCount']
         all_records = all_records.concat(first_page['data'])
-        start = start + max
+        start += max
         while all_records.length < total_records
           page =
             get("/openapi/views/#{input['view_id']}")
@@ -293,7 +293,7 @@
               error("#{message} : #{body}")
             end
           all_records = all_records.concat(page['data'])
-          start = start + max
+          start += max
         end
         all_records.each do |hash|
           hash['ID'] = hash.delete 'id'
@@ -314,9 +314,7 @@
       end,
 
       sample_output: lambda { |_connection, input|
-        { name: 'data',
-          type: :array, of: :object,
-          properties: call(:get_fields_sample_output, view_id: input['view_id'])  }
+        { 'data': call(:get_fields_sample_output, view_id: input['view_id']) }
       }
     },
     # POST requests
@@ -376,9 +374,7 @@
       end,
 
       sample_output: lambda { |_connection, input|
-        { name: 'data',
-          type: :array, of: :object,
-          properties: call(:get_fields_sample_output, view_id: input['view_id'])  }
+        { 'data': call(:get_fields_sample_output, view_id: input['view_id']) }
       }
     },
     create_record: {
@@ -434,9 +430,7 @@
       end,
 
       sample_output: lambda { |_connection, input|
-        { name: 'data',
-          type: :array, of: :object,
-          properties: call(:get_fields_sample_output, view_id: input['view_id'])  }
+        { 'data': call(:get_fields_sample_output, view_id: input['view_id']) }
       }
     },
     # PUT requests
@@ -501,9 +495,7 @@
       end,
 
       sample_output: lambda { |_connection, input|
-        { name: 'data',
-          type: :array, of: :object,
-          properties: call(:get_fields_sample_output, view_id: input['view_id'])  }
+        { 'data': call(:get_fields_sample_output, view_id: input['view_id']) }
       }
     },
     # DELETE requests
@@ -543,7 +535,7 @@
       execute: lambda do |_connection, input|
         delete("/openapi/views/#{input['view_id']}" \
         "/records/#{input['id']}")
-        .after_error_response(/.*/) do |code, body, header, message|
+          .after_error_response(/.*/) do |_code, body, _header, message|
           error("#{message} : #{body}")
         end
       end
