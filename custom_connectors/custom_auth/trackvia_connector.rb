@@ -313,7 +313,7 @@
         ]
       end,
 
-      sample_output: lambda { |_connection, input| 
+      sample_output: lambda { |_connection, input|
         { name: 'data',
           type: :array, of: :object,
           properties: call(:get_fields_sample_output, view_id: input['view_id'])  }
@@ -375,7 +375,7 @@
         ]
       end,
 
-      sample_output: lambda { |_connection, input| 
+      sample_output: lambda { |_connection, input|
         { name: 'data',
           type: :array, of: :object,
           properties: call(:get_fields_sample_output, view_id: input['view_id'])  }
@@ -433,7 +433,7 @@
         ]
       end,
 
-      sample_output: lambda { |_connection, input| 
+      sample_output: lambda { |_connection, input|
         { name: 'data',
           type: :array, of: :object,
           properties: call(:get_fields_sample_output, view_id: input['view_id'])  }
@@ -500,7 +500,7 @@
         ]
       end,
 
-      sample_output: lambda { |_connection, input| 
+      sample_output: lambda { |_connection, input|
         { name: 'data',
           type: :array, of: :object,
           properties: call(:get_fields_sample_output, view_id: input['view_id'])  }
@@ -633,8 +633,8 @@
 
       output_fields: ->(object_definitions) { object_definitions['hook_body'] },
 
-      sample_output: lambda { |_connection, input| 
-        call(:get_fields_sample_output, view_id: input['view_id']) 
+      sample_output: lambda { |_connection, input|
+        call(:get_fields_sample_output, view_id: input['view_id'])
       }
     },
 
@@ -688,8 +688,8 @@
 
       output_fields: ->(object_definitions) { object_definitions['hook_body'] },
 
-      sample_output: lambda { |_connection, input| 
-        call(:get_fields_sample_output, view_id: input['view_id']) 
+      sample_output: lambda { |_connection, input|
+        call(:get_fields_sample_output, view_id: input['view_id'])
       }
     },
     deleted_record: {
@@ -737,8 +737,8 @@
 
       output_fields: ->(object_definitions) { object_definitions['hook_body'] },
 
-      sample_output: lambda { |_connection, input| 
-        call(:get_fields_sample_output, view_id: input['view_id']) 
+      sample_output: lambda { |_connection, input|
+        call(:get_fields_sample_output, view_id: input['view_id'])
       }
     }
   }
