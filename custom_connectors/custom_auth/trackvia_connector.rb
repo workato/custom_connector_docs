@@ -143,6 +143,12 @@
                            type: field['type'])
         }
       end
+    end,
+
+    get_fields_sample_output: lambda do |input|
+      view_id = input[:view_id]
+      get("/openapi/views/#{view_id}?start=0&max=1")
+        .dig('data', 0)
     end
   },
   object_definitions: {
@@ -305,7 +311,13 @@
             properties: object_definitions['column'] },
           { name: 'totalCount', type: :integer }
         ]
-      end
+      end,
+
+      sample_output: lambda { |_connection, input| 
+        { name: 'data',
+          type: :array, of: :object,
+          properties: call(:get_fields_sample_output, view_id: input['view_id'])  }
+      }
     },
     # POST requests
     create_user: {
@@ -361,7 +373,13 @@
             type: :array, of: :object,
             properties: object_definitions['user'] }
         ]
-      end
+      end,
+
+      sample_output: lambda { |_connection, input| 
+        { name: 'data',
+          type: :array, of: :object,
+          properties: call(:get_fields_sample_output, view_id: input['view_id'])  }
+      }
     },
     create_record: {
       description: "Create <span class='provider'>record</span> in " \
@@ -413,7 +431,13 @@
             properties: object_definitions['response_record'] },
           { name: 'totalCount', type: :integer }
         ]
-      end
+      end,
+
+      sample_output: lambda { |_connection, input| 
+        { name: 'data',
+          type: :array, of: :object,
+          properties: call(:get_fields_sample_output, view_id: input['view_id'])  }
+      }
     },
     # PUT requests
     update_record: {
@@ -474,7 +498,13 @@
             properties: object_definitions['response_record'] },
           { name: 'totalCount', type: :integer }
         ]
-      end
+      end,
+
+      sample_output: lambda { |_connection, input| 
+        { name: 'data',
+          type: :array, of: :object,
+          properties: call(:get_fields_sample_output, view_id: input['view_id'])  }
+      }
     },
     # DELETE requests
     delete_record: {
@@ -601,7 +631,11 @@
           "/api/hooks/#{webhook['id']}")
       end,
 
-      output_fields: ->(object_definitions) { object_definitions['hook_body'] }
+      output_fields: ->(object_definitions) { object_definitions['hook_body'] },
+
+      sample_output: lambda { |_connection, input| 
+        call(:get_fields_sample_output, view_id: input['view_id']) 
+      }
     },
 
     updated_record: {
@@ -652,7 +686,11 @@
           "/api/hooks/#{webhook['id']}")
       end,
 
-      output_fields: ->(object_definitions) { object_definitions['hook_body'] }
+      output_fields: ->(object_definitions) { object_definitions['hook_body'] },
+
+      sample_output: lambda { |_connection, input| 
+        call(:get_fields_sample_output, view_id: input['view_id']) 
+      }
     },
     deleted_record: {
       description: "Deleted <span class='provider'>" \
@@ -697,7 +735,11 @@
           "/api/hooks/#{webhook['id']}")
       end,
 
-      output_fields: ->(object_definitions) { object_definitions['hook_body'] }
+      output_fields: ->(object_definitions) { object_definitions['hook_body'] },
+
+      sample_output: lambda { |_connection, input| 
+        call(:get_fields_sample_output, view_id: input['view_id']) 
+      }
     }
   }
 }
