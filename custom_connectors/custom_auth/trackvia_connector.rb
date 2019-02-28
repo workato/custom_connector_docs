@@ -3,6 +3,14 @@
   connection: {
     fields: [
       {
+        name: 'user_key',
+        label: 'API Key',
+        hint: "Click <a href='https://go.trackvia.com/#/account' " \
+        "target='_blank'>here</a> to find the API key",
+        control_type: 'password',
+        optional: false
+      },
+      {
         name: 'access_token',
         label: 'Auth Token',
         hint: "Click <a href='https://go.trackvia.com/#/account' " \
@@ -11,12 +19,30 @@
         optional: false
       },
       {
-        name: 'user_key',
-        label: 'API key',
+        name: 'subdomain',
+        label: 'Subdomain',
         hint: "Click <a href='https://go.trackvia.com/#/account' " \
-        "target='_blank'>here</a> to find the API key",
-        control_type: 'password',
-        optional: false
+        "target='_blank'>here</a> to find your account type",
+        type: 'string',
+        control_type: 'select',
+        pick_list: [
+          %w[Enterprise go],
+          %w[Governent, gov],
+          %w[HIPPA hippa]
+        ],
+        optional: true,
+        toggle_hint: 'Select your environment type from the list',
+        toggle_field: {
+          name: 'subdomain',
+          label: 'Private Subdomain',
+          type: :string,
+          control_type: 'text',
+          optional: true,
+          toggle_hint: 'Enter your private subdomain',
+          hint: 'Enter your subdomain of your private instance. For example, ' \
+            'if you login through mydomain.trackvia.com, use mydomain ' \
+            'as your subdomain.'
+        }
       }
     ],
     authorization: {
@@ -25,7 +51,13 @@
         params(access_token: connection['access_token'])
       }
     },
-    base_uri: ->(_connection) { 'https://go.trackvia.com' }
+    base_uri: lambda do |connection|
+      if connection
+        "https://#{connection['sub_domain']}.trackvia.com"
+      else
+        'https://go.trackvia.com'
+      end
+    end
   },
   test: ->(_connection) { get('/openapi/views') },
   methods: {
@@ -268,7 +300,7 @@
           pick_list: 'views',
           pick_list_params: { app_name: 'app_name' },
           optional: false,
-          hint: 'Select an application view from the list above'
+          hint: 'Select an available view from the list above.'
         }
       ],
 
@@ -384,7 +416,7 @@
           pick_list: 'views',
           pick_list_params: { app_name: 'app_name' },
           optional: false,
-          hint: 'Select an application view from the list above'
+          hint: 'Select an available view from the list above.'
         }
       ],
       input_fields: lambda do |object_definitions|
@@ -433,7 +465,7 @@
           pick_list: 'views',
           pick_list_params: { app_name: 'app_name' },
           optional: false,
-          hint: 'Select an application view from the list above'
+          hint: 'Select an available view from the list above.'
         },
         {
           name: 'id',
@@ -489,7 +521,7 @@
           pick_list: 'views',
           pick_list_params: { app_name: 'app_name' },
           optional: false,
-          hint: 'Select an application view from the list above'
+          hint: 'Select an available view from the list above.'
         },
         {
           name: 'id',
@@ -531,7 +563,7 @@
           pick_list: 'views',
           pick_list_params: { app_name: 'app_name' },
           optional: false,
-          hint: 'Select an application view from the list above'
+          hint: 'Select an available view from the list above.'
         }
       ],
 
@@ -549,7 +581,7 @@
       'record</span> added to view in ' \
       "<span class='provider'>TrackVia</span>.",
       help: 'Triggers whenever a record is created and ' \
-      'is added to a specified TrackVia view.',
+      'added to a specified TrackVia view.',
       type: :paging_desc,
       config_fields: [
         {
@@ -570,7 +602,7 @@
           pick_list: 'views',
           pick_list_params: { app_name: 'app_name' },
           optional: false,
-          hint: 'Select an application view from the list above'
+          hint: 'Select an available view from the list above.'
         }
       ],
 
@@ -601,7 +633,7 @@
       description: "Updated <span class='provider'>" \
       'record</span> in ' \
       "<span class='provider'>TrackVia</span> view",
-      help: 'Triggers whenever a record belonging to&nbsp;' \
+      help: 'Triggers whenever a record belonging to ' \
       'a specified TrackVia view is updated.',
       type: :paging_desc,
       config_fields: [
@@ -623,7 +655,7 @@
           pick_list: 'views',
           pick_list_params: { app_name: 'app_name' },
           optional: false,
-          hint: 'Select an application view from the list above'
+          hint: 'Select an available view from the list above.'
         }
       ],
 
@@ -655,7 +687,7 @@
       description: "Deleted <span class='provider'>" \
       'record</span> from view in ' \
       "<span class='provider'>TrackVia</span>.",
-      help: 'Triggers whenever a record belonging to' \
+      help: 'Triggers whenever a record belonging to ' \
       'a specified TrackVia view is deleted.',
       type: :paging_desc,
       config_fields: [
@@ -677,7 +709,7 @@
           pick_list: 'views',
           pick_list_params: { app_name: 'app_name' },
           optional: false,
-          hint: 'Select an application view from the list above'
+          hint: 'Select an available view from the list above.'
         }
       ],
 
