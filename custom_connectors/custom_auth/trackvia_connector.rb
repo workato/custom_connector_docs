@@ -52,7 +52,7 @@
       }
     },
     base_uri: lambda do |connection|
-      if connection
+      if connection['sub_domain']
         "https://#{connection['sub_domain']}.trackvia.com"
       else
         'https://go.trackvia.com'
@@ -135,6 +135,32 @@
       ',' if type == 'checkbox'
     end,
 
+    get_toggle_hint: lambda do |input|
+      type = input[:type]
+      if type == 'dropDown'
+        'Select an option from the list'
+      elsif type == 'checkbox'
+        'Select one or more options from the list'
+      end
+    end,
+
+    get_toggle_field: lambda do |input|
+      type = input[:type]
+      name = input[:name]
+      required = input[:required]
+      if %w[dropDown checkbox].include?(type)
+        {
+          name: name,
+          label: name,
+          type: :string,
+          control_type: 'text',
+          optional: required,
+          toggle_hint: "Set #{name} manually",
+          hint: "Please ensure that the value provided is valid"
+        }
+      end
+    end,
+
     get_output_fields: lambda do |input|
       view_id = input[:view_id]
       get("/openapi/views/#{view_id}")['structure']
@@ -172,7 +198,14 @@
           delimiter: call(:get_delimeter,
                           type: field['type']),
           properties: call(:get_properties,
-                           type: field['type'])
+                           type: field['type']),
+          toggle_hint: call(:get_toggle_hint,
+                            type: field['type'],
+                            name: field['name']),
+          toggle_field: call(:get_toggle_field,
+                             type: field['type'],
+                             name: field['name'],
+                             required: !field['required'])
         }
       end
     end,
