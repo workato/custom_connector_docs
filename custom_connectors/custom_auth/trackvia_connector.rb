@@ -156,7 +156,7 @@
           control_type: 'text',
           optional: required,
           toggle_hint: "Set #{name} manually",
-          hint: "Please ensure that the value provided is valid"
+          hint: 'Please ensure that the value provided is valid'
         }
       end
     end,
