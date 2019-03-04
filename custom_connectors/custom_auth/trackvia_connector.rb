@@ -564,11 +564,14 @@
       ],
 
       execute: lambda do |_connection, input|
-        delete("/openapi/views/#{input['view_id']}" \
-        "/records/#{input['id']}")
-          .after_error_response(/.*/) do |_code, body, _header, message|
-          error("#{message} : #{body}")
-        end&.presence || 'success'
+        {
+          'status':
+          delete("/openapi/views/#{input['view_id']}" \
+          "/records/#{input['id']}")
+            .after_error_response(/.*/) do |_code, body, _header, message|
+            error("#{message} : #{body}")
+          end&.presence || 'success'
+        }
       end,
 
       output_fields: lambda do |_object_definitions|
@@ -608,10 +611,13 @@
       ],
 
       execute: lambda do |_connection, input|
-        delete("/openapi/views/#{input['view_id']}/records/all")
-          .after_error_response(/.*/) do |_code, body, _header, message|
-            error("#{message} : #{body}")
-          end&.presence || 'success'
+        {
+          'status':
+          delete("/openapi/views/#{input['view_id']}/records/all")
+            .after_error_response(/.*/) do |_code, body, _header, message|
+              error("#{message} : #{body}")
+            end&.presence || 'success'
+        }
       end,
 
       output_fields: lambda do |_object_definitions|
