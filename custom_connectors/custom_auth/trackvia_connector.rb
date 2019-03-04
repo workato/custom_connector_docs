@@ -633,7 +633,7 @@
     new_record: {
       description: "New <span class='provider'>" \
       'record</span> added to view in ' \
-      "<span class='provider'>TrackVia</span>.",
+      "<span class='provider'>TrackVia</span>",
       help: 'Triggers when a record is created and added to a TrackVia view.',
       type: :paging_desc,
       config_fields: [
@@ -738,7 +738,7 @@
     deleted_record: {
       description: "Deleted <span class='provider'>" \
       'record</span> from view in ' \
-      "<span class='provider'>TrackVia</span>.",
+      "<span class='provider'>TrackVia</span>",
       help: 'Triggers when a record is deleted from a TrackVia view.',
       type: :paging_desc,
       config_fields: [
