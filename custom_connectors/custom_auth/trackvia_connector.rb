@@ -299,12 +299,11 @@
   pick_lists: {
     apps: ->(_connection) { get('/openapi/apps').pluck('name', 'name') },
     views: lambda do |_connection, app_name:|
-      views = get('/openapi/views')
-              .after_error_response(/.*/) do |_code, body, _header, message|
-                error("#{message} : #{body}")
-              end
-      views.select { |view| view['applicationName'] == app_name }
-      views.pluck('name', 'id')
+      get('/openapi/views')
+        .after_error_response(/.*/) do |_code, body, _header, message|
+          error("#{message} : #{body}")
+        end&.select { |view| view['applicationName'] == app_name }
+        &.pluck('name', 'id')
     end
   },
   actions: {
@@ -568,8 +567,16 @@
         delete("/openapi/views/#{input['view_id']}" \
         "/records/#{input['id']}")
           .after_error_response(/.*/) do |_code, body, _header, message|
-          error("#{message} : #{body}")
+          error("#{message} : #{body}")&.presence || 'success'
         end
+      end,
+
+      output_fields: lambda do |_object_definitions|
+        [{ name: 'status' }]
+      end,
+
+      sample_output: lambda do |_connection, _input|
+        { status: 'success' }
       end
     },
     delete_all_records_in_view: {
@@ -603,8 +610,16 @@
       execute: lambda do |_connection, input|
         delete("/openapi/views/#{input['view_id']}/records/all")
           .after_error_response(/.*/) do |_code, body, _header, message|
-            error("#{message} : #{body}")
+            error("#{message} : #{body}")&.presence || 'success'
           end
+      end,
+
+      output_fields: lambda do |_object_definitions|
+        [{ name: 'status' }]
+      end,
+
+      sample_output: lambda do |_connection, _input|
+        { status: 'success' }
       end
     }
   },
@@ -613,8 +628,7 @@
       description: "New <span class='provider'>" \
       'record</span> added to view in ' \
       "<span class='provider'>TrackVia</span>.",
-      help: 'Triggers whenever a record is created and ' \
-      'added to a specified TrackVia view.',
+      help: 'Triggers when a record is created and added to a TrackVia view.',
       type: :paging_desc,
       config_fields: [
         {
@@ -666,8 +680,7 @@
       description: "Updated <span class='provider'>" \
       'record</span> in ' \
       "<span class='provider'>TrackVia</span> view",
-      help: 'Triggers whenever a record belonging to ' \
-      'a specified TrackVia view is updated.',
+      help: 'Triggers when a record is updated in a TrackVia view.',
       type: :paging_desc,
       config_fields: [
         {
@@ -720,8 +733,7 @@
       description: "Deleted <span class='provider'>" \
       'record</span> from view in ' \
       "<span class='provider'>TrackVia</span>.",
-      help: 'Triggers whenever a record belonging to ' \
-      'a specified TrackVia view is deleted.',
+      help: 'Triggers when a record is deleted from a TrackVia view.',
       type: :paging_desc,
       config_fields: [
         {
