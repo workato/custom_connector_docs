@@ -117,13 +117,13 @@
           },
           {
             name: "tracked_link_url",
-            label: "Tracked Link",
+            label: "Tracked link",
             type: "string",
             control_type: "url",
             optional: true,
             hint: "Full URL that will be shortened and inserted via this "\
               "**[tracked-link]** variable added to your **Message** above. "\
-              "Hits to this link can be tracked and also passed via the 'Link Hit'"\
+              "Hits to this link can be tracked and also passed via the 'Link Hit' "\
               "trigger. Should be in the format `https://www.mydomain.com/`."
           },
           {
