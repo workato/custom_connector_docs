@@ -47,8 +47,8 @@
     ],
     authorization: {
       apply: lambda { |connection|
-        params(user_key: connection['user_key'])
-        params(access_token: connection['access_token'])
+        params(user_key: connection['user_key'],
+               access_token: connection['access_token'])
       }
     },
     base_uri: lambda do |connection|
@@ -59,7 +59,7 @@
       end
     end
   },
-  test: ->(_connection) { get('/openapi/views') },
+  test: ->(_connection) { get('/openapi/views')&.first },
   methods: {
     get_type: lambda do |input|
       type = input[:type]
@@ -298,6 +298,27 @@
   },
   pick_lists: {
     apps: ->(_connection) { get('/openapi/apps').pluck('name', 'name') },
+    document_fields: lambda do |_connection, view_id:|
+      document_fields = get("/openapi/views/#{view_id}")['structure']
+                        .select { |field| field['type'] == 'document' }
+                        &.pluck('name', 'name')
+      output = []
+
+      document_fields.each do |key, value|
+        output << [key, value.gsub(' ', '%20')]
+      end
+
+      output
+    end,
+    mime_types: lambda do |_connection|
+      [
+        ['PDF', 'application/pdf'],
+        ['CSV', 'text/csv'],
+        ['Word', 'application/msword'],
+        ['Excel', 'application/vnd.ms-excel'],
+        ['Text', 'text/plain']
+      ]
+    end,
     views: lambda do |_connection, app_name:|
       get('/openapi/views')
         .after_error_response(/.*/) do |_code, body, _header, message|
@@ -372,6 +393,68 @@
       sample_output: lambda { |_connection, input|
         call(:get_fields_sample_output, view_id: input['view_id'])
       }
+    },
+    get_file_from_record: {
+      description: "Get <span class='provider'>file</span> from " \
+      "a record in <span class='provider'>TrackVia</span>.",
+      help: "Retreive a file from a record's document field in TrackVia",
+      config_fields: [
+        {
+          name: 'app_name',
+          label: 'App',
+          type: 'string',
+          control_type: 'select',
+          pick_list: 'apps',
+          optional: false,
+          change_on_blur: true,
+          hint: 'Select a TrackVia application from the list above'
+        },
+        {
+          name: 'view_id',
+          label: 'View',
+          type: 'integer',
+          control_type: 'select',
+          pick_list: 'views',
+          pick_list_params: { app_name: 'app_name' },
+          optional: false,
+          hint: 'Select an available view from the list above.'
+        },
+        {
+          name: 'id',
+          type: 'integer',
+          control_type: 'number',
+          optional: false
+        },
+        {
+          name: 'field_name',
+          label: 'Field Name',
+          type: 'string',
+          control_type: 'select',
+          pick_list: 'document_fields',
+          pick_list_params: { view_id: 'view_id' },
+          optional: false,
+          hint: 'Select an available view from the list above.'
+        }
+      ],
+
+      execute: lambda do |_connection, input|
+        {
+          "content": get("/openapi/views/#{input['view_id']}" \
+            "/records/#{input['id']}/files/#{input['field_name']}")
+            .headers("Content-Type": 'text/plain')
+            .response_format_raw
+        }
+      end,
+
+      output_fields: lambda do
+        [
+          { name: 'content' }
+        ]
+      end,
+
+      sample_output: lambda do
+        { "content": 'test' }
+      end
     },
     # POST requests
     create_user: {
@@ -463,6 +546,95 @@
           .after_error_response(/.*/) do |_code, body, _header, message|
           error("#{message} : #{body}")
         end['data']
+      end,
+
+      output_fields: lambda { |object_definitions|
+        object_definitions['response_record']
+      },
+
+      sample_output: lambda { |_connection, input|
+        call(:get_fields_sample_output, view_id: input['view_id'])
+      }
+    },
+    upload_file_to_record: {
+      description: "Upload <span class='provider'>file</span> to " \
+      "a record in <span class='provider'>TrackVia</span>.",
+      help: "Upload a file to a record's document field in TrackVia",
+      config_fields: [
+        {
+          name: 'app_name',
+          label: 'App',
+          type: 'string',
+          control_type: 'select',
+          pick_list: 'apps',
+          optional: false,
+          change_on_blur: true,
+          hint: 'Select a TrackVia application from the list above'
+        },
+        {
+          name: 'view_id',
+          label: 'View',
+          type: 'integer',
+          control_type: 'select',
+          pick_list: 'views',
+          pick_list_params: { app_name: 'app_name' },
+          optional: false,
+          hint: 'Select an available view from the list above.'
+        },
+        {
+          name: 'field_name',
+          label: 'Field Name',
+          type: 'string',
+          control_type: 'select',
+          pick_list: 'document_fields',
+          pick_list_params: { view_id: 'view_id' },
+          optional: false,
+          hint: 'Select an available view from the list above.'
+        }
+      ],
+      input_fields: lambda do |_object_definitions|
+        [
+          {
+            name: 'id',
+            type: 'integer',
+            control_type: 'number',
+            optional: false
+          },
+          {
+            name: 'content',
+            type: 'string',
+            control_type: 'text-area',
+            optional: false
+          },
+          {
+            name: 'content_type',
+            type: 'string',
+            control_type: 'select',
+            pick_list: 'mime_types',
+            optional: false,
+            hint: 'Select an available data type from the list above.',
+            toggle_hint: 'Select a common file type',
+            toggle_field: {
+              name: 'content_type',
+              label: 'Content Type',
+              type: :string,
+              control_type: 'text',
+              optional: false,
+              toggle_hint: 'Enter your private subdomain',
+              hint: 'Enter the MIME type of the file you want to upload. ' \
+                'See http://www.iana.org/assignments/media-types/' \
+                'media-types.xhtml for the complete list of MIME types '
+            }
+          }
+        ]
+      end,
+
+      execute: lambda do |_connection, input|
+        post("/openapi/views/#{input['view_id']}" \
+            "/records/#{input['id']}/files/#{input['field_name']}")
+          .headers(enctype: 'multipart/form-data')
+          .payload(file: [input['content'], [input['content_type']]])
+          .request_format_multipart_form
       end,
 
       output_fields: lambda { |object_definitions|
@@ -633,7 +805,7 @@
     new_record: {
       description: "New <span class='provider'>" \
       'record</span> added to view in ' \
-      "<span class='provider'>TrackVia</span>",
+      "<span class='provider'>TrackVia</span>.",
       help: 'Triggers when a record is created and added to a TrackVia view.',
       type: :paging_desc,
       config_fields: [
@@ -719,7 +891,7 @@
 
       webhook_subscribe: lambda do |webhook_url, _connection, input, _recipe_id|
         post("/openapi/zapier/views/#{input['view_id']}" \
-        '/api/hooks',
+          '/api/hooks',
              target_url: webhook_url,
              event: 'updated')
       end,
@@ -738,7 +910,7 @@
     deleted_record: {
       description: "Deleted <span class='provider'>" \
       'record</span> from view in ' \
-      "<span class='provider'>TrackVia</span>",
+      "<span class='provider'>TrackVia</span>.",
       help: 'Triggers when a record is deleted from a TrackVia view.',
       type: :paging_desc,
       config_fields: [
