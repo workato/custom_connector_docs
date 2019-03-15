@@ -217,24 +217,6 @@
     end
   },
   object_definitions: {
-    app: {
-      fields: lambda do
-        [
-          { name: 'name' },
-          { name: 'id', type: :integer }
-        ]
-      end
-    },
-    view: {
-      fields: lambda do
-        [
-          { name: 'id', type: :integer },
-          { name: 'name' },
-          { name: 'applicationName' },
-          { name: 'default', type: :boolean }
-        ]
-      end
-    },
     record: {
       fields: lambda { |_connection, config_fields|
         call(:get_fields, view_id: config_fields['view_id'])
@@ -249,51 +231,6 @@
       fields: lambda { |_connection, config_fields|
         call(:get_output_fields, view_id: config_fields['view_id'])
       }
-    },
-    request: {
-      fields: lambda do |_connection, config_fields|
-        [
-          {
-            name: 'data',
-            type: :array,
-            of: :object,
-            properties: [
-              call(:get_fields, view_id: config_fields['view_id'])
-            ]
-          }
-        ]
-      end
-    },
-    user: {
-      fields: lambda do
-        [
-          { name: 'Status' },
-          { name: 'Time Zone' },
-          { name: 'Email' },
-          { name: 'Record ID' },
-          { name: 'Updated', type: :date_time },
-          { name: 'First Name' },
-          { name: 'id', type: :integer },
-          { name: 'Last Name' },
-          { name: 'Created', type: :date_time }
-        ]
-      end
-    },
-    column: {
-      fields: lambda do
-        [
-          { name: 'name' },
-          { name: 'type' },
-          { name: 'required', type: :boolean },
-          { name: 'unique', type: :boolean },
-          { name: 'canRead', type: :boolean },
-          { name: 'canUpdate', type: :boolean },
-          { name: 'canCreate', type: :boolean },
-          { name: 'displayOrder', type: :integer },
-          { name: 'relationshipSize', type: :integer },
-          { name: 'propertyName' }
-        ]
-      end
     }
   },
   pick_lists: {
