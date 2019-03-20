@@ -876,16 +876,3 @@
     end
   }
 }
-© 2019 GitHub, Inc.
-Terms
-Privacy
-Security
-Status
-Help
-Contact GitHub
-Pricing
-API
-Training
-Blog
-About
-Revert View details wilsonliaows merged commit e65d902 into workato:master just now 1 check passed
