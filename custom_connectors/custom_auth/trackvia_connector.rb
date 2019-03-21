@@ -108,7 +108,6 @@
     get_picklist_options: lambda do |input|
       choices = input[:choices]
       choices.map { |choice| [choice, choice] } unless choices.blank?
-      choices.compact
     end,
 
     get_properties: lambda do |input|
