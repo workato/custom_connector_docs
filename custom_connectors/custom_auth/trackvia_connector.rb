@@ -26,8 +26,8 @@
         type: 'string',
         control_type: 'select',
         pick_list: [
-          %w[Enterprise go],
-          %w[Governent gov],
+          %w[Standard go],
+          %w[Government gov],
           %w[HIPPA hippa]
         ],
         optional: true,
@@ -61,6 +61,16 @@
   },
   test: ->(_connection) { get('/openapi/views')&.first },
   methods: {
+    convert_input_name: lambda do |input|
+      name = input[:name]
+      name.gsub(/'/,'%27')
+    end,
+
+    convert_output_name: lambda do |input|
+      name = input[:name]
+      name.gsub(/%27/, "'")
+    end,
+
     get_type: lambda do |input|
       type = input[:type]
       name = input[:name]
@@ -166,7 +176,8 @@
       get("/openapi/views/#{view_id}")['structure']
         .map do |field|
         {
-          name: field['name'],
+          name: call(:convert_output_name,
+                     name: field['name']),
           label: field['name'],
           optional: !field['required'],
           type: call(:get_type,
@@ -186,7 +197,8 @@
                   .reject { |field| !field['canCreate'] || !field['canUpdate'] }
       structure.map do |field|
         {
-          name: field['name'],
+          name: call(:convert_input_name,
+                     name: field['name']),
           label: field['name'],
           optional: !field['required'],
           type: call(:get_type, type: field['type']),
