@@ -26,8 +26,8 @@
         type: 'string',
         control_type: 'select',
         pick_list: [
-          %w[Enterprise go],
-          %w[Governent gov],
+          %w[Standard go],
+          %w[Government gov],
           %w[HIPPA hippa]
         ],
         optional: true,
