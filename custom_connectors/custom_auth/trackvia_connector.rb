@@ -320,11 +320,13 @@
         all_records.each do |hash|
           hash['ID'] = hash.delete 'id'
         end
-        all_records
+        { records: all_records }
       end,
 
       output_fields: lambda { |object_definitions|
-        object_definitions['response_record']
+        { name: 'records',
+          type: :array, of: :object,
+          properties: object_definitions['response_record'] }
       },
 
       sample_output: lambda { |_connection, input|
