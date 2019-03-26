@@ -629,7 +629,7 @@
           .payload(data: input['data'])
           .after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message} : #{body}")
-          end['data']
+          end
       end,
 
       output_fields: lambda { |object_definitions|
