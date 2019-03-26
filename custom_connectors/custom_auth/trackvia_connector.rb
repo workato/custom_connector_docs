@@ -333,6 +333,80 @@
         call(:get_fields_sample_output, view_id: input['view_id'])
       }
     },
+    find_records_in_view: {
+      description: "Find records <span class='provider'>" \
+      'records</span> in a view in ' \
+      "<span class='provider'>TrackVia</span>.",
+      help: 'Find all records for a specified view in TrackVia ' \
+      'that has data that matches a query parameter.',
+      config_fields: [
+        {
+          name: 'app_name',
+          label: 'App',
+          type: 'string',
+          control_type: 'select',
+          pick_list: 'apps',
+          optional: false,
+          change_on_blur: true,
+          hint: 'Select a TrackVia application from the list above'
+        },
+        {
+          name: 'view_id',
+          label: 'View',
+          type: 'integer',
+          control_type: 'select',
+          pick_list: 'views',
+          pick_list_params: { app_name: 'app_name' },
+          optional: false,
+          hint: 'Select an available view from the list above.'
+        },
+        {
+          name: 'query_param',
+          label: 'Query Param',
+          type: 'string',
+          hint: 'Data to find'
+        }
+      ],
+
+      execute: lambda do |_connection, input|
+        all_records = []
+        start = 0
+        max = 100
+        first_page =
+          get("/openapi/views/#{input['view_id']}/find")
+          .params(start: start, max: max, q: input[:query_param])
+          .after_error_response(/.*/) do |_code, body, _header, message|
+            error("#{message} : #{body}")
+          end
+        total_records = first_page['totalCount']
+        all_records = all_records.concat(first_page['data'])
+        start = start + max
+        while all_records.length < total_records
+          page =
+            get("/openapi/views/#{input['view_id']}")
+            .params(start: start, max: max, q: input[:query_param])
+            .after_error_response(/.*/) do |_code, body, _header, message|
+              error("#{message} : #{body}")
+            end
+          all_records = all_records.concat(page['data'])
+          start = start + max
+        end
+        all_records.each do |hash|
+          hash['ID'] = hash.delete 'id'
+        end
+        { records: all_records }
+      end,
+
+      output_fields: lambda { |object_definitions|
+        { name: 'records',
+          type: :array, of: :object,
+          properties: object_definitions['response_record'] }
+      },
+
+      sample_output: lambda { |_connection, input|
+        call(:get_fields_sample_output, view_id: input['view_id'])
+      }
+    },
     get_file_from_record: {
       description: "Get <span class='provider'>file</span> from " \
       "a record in <span class='provider'>TrackVia</span>.",
