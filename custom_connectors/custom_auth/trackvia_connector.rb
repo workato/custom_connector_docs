@@ -334,11 +334,12 @@
       }
     },
     find_records_in_view: {
-      description: "Find records <span class='provider'>" \
+      description: "Find <span class='provider'>" \
       'records</span> in a view in ' \
-      "<span class='provider'>TrackVia</span>.",
+      "<span class='provider'>TrackVia</span>" \
+      ' that contains a specific value.',
       help: 'Find all records for a specified view in TrackVia ' \
-      'that has data that matches a query parameter.',
+      'that has data that matches a provided value.',
       config_fields: [
         {
           name: 'app_name',
@@ -361,10 +362,11 @@
           hint: 'Select an available view from the list above.'
         },
         {
-          name: 'query_param',
-          label: 'Query Param',
+          name: 'value_to_find',
+          label: 'Value to find',
           type: 'string',
-          hint: 'Data to find'
+          hint: 'Data to find',
+          optional: 'false'
         }
       ],
 
@@ -374,7 +376,7 @@
         max = 100
         first_page =
           get("/openapi/views/#{input['view_id']}/find")
-          .params(start: start, max: max, q: input[:query_param])
+          .params(start: start, max: max, q: input[:value_to_find])
           .after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message} : #{body}")
           end
@@ -384,7 +386,7 @@
         while all_records.length < total_records
           page =
             get("/openapi/views/#{input['view_id']}")
-            .params(start: start, max: max, q: input[:query_param])
+            .params(start: start, max: max, q: input[:value_to_find])
             .after_error_response(/.*/) do |_code, body, _header, message|
               error("#{message} : #{body}")
             end
