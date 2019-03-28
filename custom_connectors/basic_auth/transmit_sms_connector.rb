@@ -121,10 +121,9 @@
             type: "string",
             control_type: "url",
             optional: true,
-            hint: "Full URL that will be shortened and inserted via this "\
-              "**[tracked-link]** variable added to your **Message** above. "\
-              "Hits to this link can be tracked and also passed via the 'Link Hit' "\
-              "trigger. Should be in the format `https://www.mydomain.com/`."
+            hint: "Add variable <b>[tracked-link]</b> to your <b>Message body</b> "\
+              "to shorten and insert this link. Hits to this link can be tracked and also passed "\
+              "via the 'Link Hit' trigger. Should be in the format `https://www.mydomain.com/`."
           },
           {
             name: "to",
@@ -382,7 +381,7 @@
 
         fields << { name: "first_name", type: "string" }
         fields << { name: "last_name", type: "string" }
-        fields << { name: "msisdn", type: "string" }
+        fields << { name: "msisdn", label: "Mobile", type: "string" }
         fields << { name: "list_id", type: "string" }
       end
     },
@@ -479,7 +478,7 @@
 
         fields << { name: "first_name", type: "string" }
         fields << { name: "last_name", type: "string" }
-        fields << { name: "msisdn", type: "string" }
+        fields << { name: "msisdn", label: "Mobile", type: "string" }
         fields << { name: "list_id", type: "string" }
         fields << { name: "created_at", type: "string" }
         fields << { name: "status", type: "string" }
@@ -503,7 +502,7 @@
           { name: "received_at", type: "string" },
           { name: "first_name", type: "string" },
           { name: "last_name", type: "string" },
-          { name: "msisdn", type: "integer" },
+          { name: "msisdn", label: "Mobile", type: "integer" },
           { name: "response", type: "string" },
           { name: "longcode", type: "integer" }
         ]
