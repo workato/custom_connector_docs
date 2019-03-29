@@ -734,6 +734,95 @@
         call(:get_fields_sample_output, view_id: input['view_id'])
       }
     },
+    upload_image_to_record: {
+      description: "Upload <span class='provider'>image</span> to " \
+      "a record in <span class='provider'>TrackVia</span>.",
+      help: "Upload an image to a record's image field in TrackVia",
+      config_fields: [
+        {
+          name: 'app_name',
+          label: 'App',
+          type: 'string',
+          control_type: 'select',
+          pick_list: 'apps',
+          optional: false,
+          change_on_blur: true,
+          hint: 'Select a TrackVia application from the list above'
+        },
+        {
+          name: 'view_id',
+          label: 'View',
+          type: 'integer',
+          control_type: 'select',
+          pick_list: 'views',
+          pick_list_params: { app_name: 'app_name' },
+          optional: false,
+          hint: 'Select an available view from the list above.'
+        },
+        {
+          name: 'image_field',
+          label: 'Image Field',
+          type: 'string',
+          control_type: 'select',
+          pick_list: 'image_fields',
+          pick_list_params: { view_id: 'view_id' },
+          optional: false,
+          hint: 'Select an available image field from the list above.'
+        }
+      ],
+      input_fields: lambda do |_object_definitions|
+        [
+          {
+            name: 'id',
+            type: 'integer',
+            control_type: 'number',
+            optional: false
+          },
+          {
+            name: 'content',
+            type: 'string',
+            control_type: 'text-area',
+            optional: false
+          },
+          {
+            name: 'content_type',
+            type: 'string',
+            control_type: 'select',
+            pick_list: 'mime_types',
+            optional: false,
+            hint: 'Select an available data type from the list above.',
+            toggle_hint: 'Select a common file type',
+            toggle_field: {
+              name: 'content_type',
+              label: 'Content Type',
+              type: :string,
+              control_type: 'text',
+              optional: false,
+              toggle_hint: 'Enter your private subdomain',
+              hint: 'Enter the MIME type of the file you want to upload. ' \
+                'See http://www.iana.org/assignments/media-types/' \
+                'media-types.xhtml for the complete list of MIME types '
+            }
+          }
+        ]
+      end,
+
+      execute: lambda do |_connection, input|
+        post("/openapi/views/#{input['view_id']}" \
+            "/records/#{input['id']}/files/#{input['field_name']}")
+          .headers(enctype: 'multipart/form-data')
+          .payload(file: [input['content'], [input['content_type']]])
+          .request_format_multipart_form
+      end,
+
+      output_fields: lambda { |object_definitions|
+        object_definitions['response_record']
+      },
+
+      sample_output: lambda { |_connection, input|
+        call(:get_fields_sample_output, view_id: input['view_id'])
+      }
+    },
     # PUT requests
     update_record: {
       description: "Update <span class='provider'>record</span> in " \
