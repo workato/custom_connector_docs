@@ -26,9 +26,9 @@
         type: 'string',
         control_type: 'select',
         pick_list: [
-          %w[Standard go],
-          %w[Government gov],
-          %w[HIPPA hippa]
+          %w[Standard go.trackvia],
+          %w[Government gov.trackvia],
+          %w[HIPPA hippa.trackvia]
         ],
         optional: true,
         toggle_hint: 'Select your environment type from the list',
@@ -52,8 +52,8 @@
       }
     },
     base_uri: lambda do |connection|
-      if connection['sub_domain']
-        "https://#{connection['sub_domain']}.trackvia.com"
+      if connection['subdomain']
+        "https://#{connection['subdomain']}.com"
       else
         'https://go.trackvia.com'
       end
@@ -61,6 +61,48 @@
   },
   test: ->(_connection) { get('/openapi/views')&.first },
   methods: {
+    convert_fields: lambda do |input|
+      data = input[:data]
+      view_id = input[:view_id]
+      field_mapping = input[:field_mapping]
+      
+      unless field_mapping
+      	field_mapping = call(:get_field_mapping,
+                           	 view_id: view_id)
+      end
+     
+      if data.is_a?(Array)
+        data.map do |array_value|
+          puts array_value
+          call("convert_fields",  data: array_value, view_id: view_id, field_mapping: field_mapping)
+        end
+      elsif data.is_a?(Hash)
+        data.map do |key, value|
+          value = call("convert_fields", data: value, view_id: view_id, field_mapping: field_mapping)
+          old_key = key
+          new_key = key
+          if field_mapping[key.to_i]
+            new_key = field_mapping[key.to_i]
+          end
+          { key.gsub(old_key, new_key) => value }
+        end.inject(:merge)
+      else
+        data
+      end
+    end,
+
+    get_field_mapping: lambda do |input|
+      view_id = input[:view_id]
+      structure = get("/openapi/views/#{view_id}")['structure']
+      field_mapping = {}
+      structure.map do |field|
+        if field['fieldMetaId']
+        	field_mapping[field['fieldMetaId']] = field['name']
+        end
+      end
+      field_mapping
+    end,
+
     get_type: lambda do |input|
       type = input[:type]
       name = input[:name]
@@ -82,6 +124,7 @@
         end
       end
     end,
+
     get_control_type: lambda do |input|
       type = input[:type]
       name = input[:name]
@@ -147,10 +190,11 @@
     get_toggle_field: lambda do |input|
       type = input[:type]
       name = input[:name]
+      field_meta_id = input[:field_meta_id]
       required = input[:required]
       if %w[dropDown checkbox].include?(type)
         {
-          name: name,
+          name: field_meta_id,
           label: name,
           type: :string,
           control_type: 'text',
@@ -168,12 +212,9 @@
         {
           name: field['name'],
           label: field['name'],
-          optional: !field['required'],
           type: call(:get_type,
                      type: field['type'],
                      name: field['name']),
-          control_type: call(:get_control_type,
-                             type: field['type']),
           properties: call(:get_properties,
                            type: field['type'])
         }
@@ -186,10 +227,12 @@
                   .reject { |field| !field['canCreate'] || !field['canUpdate'] }
       structure.map do |field|
         {
-          name: field['name'],
+          name: field['field_meta_id'],
           label: field['name'],
           optional: !field['required'],
-          type: call(:get_type, type: field['type']),
+          type: call(:get_type,
+                     type: field['type'],
+                     name: field['name']),
           control_type: call(:get_control_type,
                              type: field['type'],
                              name: field['name']),
@@ -205,6 +248,7 @@
           toggle_field: call(:get_toggle_field,
                              type: field['type'],
                              name: field['name'],
+                             field_meta_id: field['field_meta_id'],
                              required: !field['required'])
         }
       end
@@ -234,18 +278,11 @@
     }
   },
   pick_lists: {
-    apps: ->(_connection) { get('/openapi/apps').pluck('name', 'name') },
+    apps: ->(_connection) { get('/openapi/apps').pluck('name', 'id') },
     document_fields: lambda do |_connection, view_id:|
-      document_fields = get("/openapi/views/#{view_id}")['structure']
-                        .select { |field| field['type'] == 'document' }
-                        &.pluck('name', 'name')
-      output = []
-
-      document_fields.each do |key, value|
-        output << [key, value.gsub(' ', '%20')]
-      end
-
-      output
+      get("/openapi/views/#{view_id}")['structure']
+        .select { |field| field['type'] == 'document' }
+      &.pluck('name', 'fieldMetaId')
     end,
     mime_types: lambda do |_connection|
       [
@@ -256,12 +293,25 @@
         ['Text', 'text/plain']
       ]
     end,
-    views: lambda do |_connection, app_name:|
-      get('/openapi/views')
+    views: lambda do |_connection, app_id:|
+      apps = {}
+      get('/openapi/apps').map do |app|
+        apps[app['id'].to_i] = app['name']
+      end
+      application_name = apps[app_id.to_i]
+      views = get('/openapi/views')
         .after_error_response(/.*/) do |_code, body, _header, message|
           error("#{message} : #{body}")
-        end&.select { |view| view['applicationName'] == app_name }
-        &.pluck('name', 'id')
+        end
+        
+      selected_views = views.select { |view| view['applicationName'] == application_name }
+
+      picklist_values = []
+      selected_views.each do |selected_view| 
+        picklist_values << [ selected_view['name'], selected_view['id'] ] 
+      end
+      
+      picklist_values
     end
   },
   actions: {
@@ -273,9 +323,9 @@
       help: 'Fetches all records for a specified view in TrackVia',
       config_fields: [
         {
-          name: 'app_name',
+          name: 'app_id',
           label: 'App',
-          type: 'string',
+          type: 'integer',
           control_type: 'select',
           pick_list: 'apps',
           optional: false,
@@ -288,7 +338,7 @@
           type: 'integer',
           control_type: 'select',
           pick_list: 'views',
-          pick_list_params: { app_name: 'app_name' },
+          pick_list_params: { app_id: 'app_id' },
           optional: false,
           hint: 'Select an available view from the list above.'
         }
@@ -342,9 +392,9 @@
       'that has data that matches a provided value.',
       config_fields: [
         {
-          name: 'app_name',
+          name: 'app_id',
           label: 'App',
-          type: 'string',
+          type: 'integer',
           control_type: 'select',
           pick_list: 'apps',
           optional: false,
@@ -357,7 +407,7 @@
           type: 'integer',
           control_type: 'select',
           pick_list: 'views',
-          pick_list_params: { app_name: 'app_name' },
+          pick_list_params: { app_id: 'app_id' },
           optional: false,
           hint: 'Select an available view from the list above.'
         },
@@ -415,9 +465,9 @@
       help: "Retreive a file from a record's document field in TrackVia",
       config_fields: [
         {
-          name: 'app_name',
+          name: 'app_id',
           label: 'App',
-          type: 'string',
+          type: 'integer',
           control_type: 'select',
           pick_list: 'apps',
           optional: false,
@@ -430,7 +480,7 @@
           type: 'integer',
           control_type: 'select',
           pick_list: 'views',
-          pick_list_params: { app_name: 'app_name' },
+          pick_list_params: { app_id: 'app_id' },
           optional: false,
           hint: 'Select an available view from the list above.'
         },
@@ -504,7 +554,7 @@
       ],
 
       execute: lambda do |_connection, input|
-        post('/openapi/users')
+        response = post('/openapi/users')
           .params(
             email: input['email'],
             firstName: input['first_name'],
@@ -512,7 +562,7 @@
           )
           .after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message} : #{body}")
-          end['data']
+          end
       end,
 
       output_fields: lambda { |object_definitions|
@@ -529,9 +579,9 @@
       help: 'Create a record in TrackVia',
       config_fields: [
         {
-          name: 'app_name',
+          name: 'app_id',
           label: 'App',
-          type: 'string',
+          type: 'integer',
           control_type: 'select',
           pick_list: 'apps',
           optional: false,
@@ -544,7 +594,7 @@
           type: 'integer',
           control_type: 'select',
           pick_list: 'views',
-          pick_list_params: { app_name: 'app_name' },
+          pick_list_params: { app_id: 'app_id' },
           optional: false,
           hint: 'Select an available view from the list above.'
         }
@@ -557,14 +607,16 @@
 
       execute: lambda do |_connection, input|
         post("/openapi/views/#{input['view_id']}/records")
-          .payload(data: input['data'])
+          .payload(data: call(:convert_fields, data: input['data'], view_id: input['view_id'], field_mapping: nil))
           .after_error_response(/.*/) do |_code, body, _header, message|
           error("#{message} : #{body}")
-        end['data']
+        end
       end,
 
       output_fields: lambda { |object_definitions|
-        object_definitions['response_record']
+        { name: 'data',
+          type: :array, of: :object,
+          properties: object_definitions['response_record'] }
       },
 
       sample_output: lambda { |_connection, input|
@@ -577,9 +629,9 @@
       help: "Upload a file to a record's document field in TrackVia",
       config_fields: [
         {
-          name: 'app_name',
+          name: 'app_id',
           label: 'App',
-          type: 'string',
+          type: 'integer',
           control_type: 'select',
           pick_list: 'apps',
           optional: false,
@@ -592,7 +644,7 @@
           type: 'integer',
           control_type: 'select',
           pick_list: 'views',
-          pick_list_params: { app_name: 'app_name' },
+          pick_list_params: { app_id: 'app_id' },
           optional: false,
           hint: 'Select an available view from the list above.'
         },
@@ -667,9 +719,9 @@
       help: 'Update a record in TrackVia',
       config_fields: [
         {
-          name: 'app_name',
+          name: 'app_id',
           label: 'App',
-          type: 'string',
+          type: 'integer',
           control_type: 'select',
           pick_list: 'apps',
           optional: false,
@@ -682,7 +734,7 @@
           type: 'integer',
           control_type: 'select',
           pick_list: 'views',
-          pick_list_params: { app_name: 'app_name' },
+          pick_list_params: { app_id: 'app_id' },
           optional: false,
           hint: 'Select an available view from the list above.'
         },
@@ -702,7 +754,7 @@
       execute: lambda do |_connection, input|
         put("/openapi/views/#{input['view_id']}" \
         "/records/#{input['id']}")
-          .payload(data: input['data'])
+          .payload(data: call(:convert_fields, data: input['data'], view_id: input['view_id'], field_mapping: nil))
           .after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message} : #{body}")
           end
@@ -723,9 +775,9 @@
       help: 'Delete a record in TrackVia',
       config_fields: [
         {
-          name: 'app_name',
+          name: 'app_id',
           label: 'App',
-          type: 'string',
+          type: 'integer',
           control_type: 'select',
           pick_list: 'apps',
           optional: false,
@@ -738,7 +790,7 @@
           type: 'integer',
           control_type: 'select',
           pick_list: 'views',
-          pick_list_params: { app_name: 'app_name' },
+          pick_list_params: { app_id: 'app_id' },
           optional: false,
           hint: 'Select an available view from the list above.'
         },
@@ -776,9 +828,9 @@
       help: 'Delete all records from a view in TrackVia',
       config_fields: [
         {
-          name: 'app_name',
+          name: 'app_id',
           label: 'App',
-          type: 'string',
+          type: 'integer',
           control_type: 'select',
           pick_list: 'apps',
           optional: false,
@@ -791,7 +843,7 @@
           type: 'integer',
           control_type: 'select',
           pick_list: 'views',
-          pick_list_params: { app_name: 'app_name' },
+          pick_list_params: { app_id: 'app_id' },
           optional: false,
           hint: 'Select an available view from the list above.'
         }
@@ -825,9 +877,9 @@
       type: :paging_desc,
       config_fields: [
         {
-          name: 'app_name',
+          name: 'app_id',
           label: 'App',
-          type: 'string',
+          type: 'integer',
           control_type: 'select',
           pick_list: 'apps',
           optional: false,
@@ -840,7 +892,7 @@
           type: 'integer',
           control_type: 'select',
           pick_list: 'views',
-          pick_list_params: { app_name: 'app_name' },
+          pick_list_params: { app_id: 'app_id' },
           optional: false,
           hint: 'Select an available view from the list above.'
         }
@@ -877,9 +929,9 @@
       type: :paging_desc,
       config_fields: [
         {
-          name: 'app_name',
+          name: 'app_id',
           label: 'App',
-          type: 'string',
+          type: 'integer',
           control_type: 'select',
           pick_list: 'apps',
           optional: false,
@@ -892,7 +944,7 @@
           type: 'integer',
           control_type: 'select',
           pick_list: 'views',
-          pick_list_params: { app_name: 'app_name' },
+          pick_list_params: { app_id: 'app_id' },
           optional: false,
           hint: 'Select an available view from the list above.'
         }
@@ -930,9 +982,9 @@
       type: :paging_desc,
       config_fields: [
         {
-          name: 'app_name',
+          name: 'app_id',
           label: 'App',
-          type: 'string',
+          type: 'integer',
           control_type: 'select',
           pick_list: 'apps',
           optional: false,
@@ -945,7 +997,7 @@
           type: 'integer',
           control_type: 'select',
           pick_list: 'views',
-          pick_list_params: { app_name: 'app_name' },
+          pick_list_params: { app_id: 'app_id' },
           optional: false,
           hint: 'Select an available view from the list above.'
         }
