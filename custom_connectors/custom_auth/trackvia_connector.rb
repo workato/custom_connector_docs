@@ -459,10 +459,12 @@
         call(:get_fields_sample_output, view_id: input['view_id'])
       }
     },
-    get_file_from_record: {
-      description: "Get <span class='provider'>file</span> from " \
+    get_document_from_record: {
+      description: "Get <span class='provider'>document</span> from " \
       "a record in <span class='provider'>TrackVia</span>.",
-      help: "Retreive a file from a record's document field in TrackVia",
+      help: "Retreive a file from a record's document field in TrackVia. " \
+      "To retrieve a record from a record's image field, please use " \
+      "'Get image from record'",
       config_fields: [
         {
           name: 'app_id',
@@ -491,8 +493,8 @@
           optional: false
         },
         {
-          name: 'field_name',
-          label: 'Field Name',
+          name: 'document_field',
+          label: 'Document Field',
           type: 'string',
           control_type: 'select',
           pick_list: 'document_fields',
@@ -505,7 +507,7 @@
       execute: lambda do |_connection, input|
         {
           "content": get("/openapi/views/#{input['view_id']}" \
-            "/records/#{input['id']}/files/#{input['field_name']}")
+            "/records/#{input['id']}/files/#{input['document_field']}")
             .headers("Content-Type": 'text/plain')
             .response_format_raw
         }
