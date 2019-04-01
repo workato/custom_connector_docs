@@ -40,8 +40,8 @@
           optional: true,
           toggle_hint: 'Enter your private subdomain',
           hint: 'Enter your subdomain of your private instance. For example, ' \
-            'if you login through mydomain.trackvia.com, use mydomain ' \
-            'as your subdomain.'
+            'if you login through mydomain.trackvia.com,' \
+            "use 'mydomain.trackvia' as your subdomain."
         }
       }
     ],
@@ -296,24 +296,25 @@
       &.pluck('name', 'fieldMetaId')
     end,
     image_fields: lambda do |_connection, view_id:|
-      image_fields = get("/openapi/views/#{view_id}")['structure']
-                     .select { |field| field['type'] == 'image' }
-                     &.pluck('name', 'name')
-      output = []
-
-      image_fields.each do |key, value|
-        output << [key, value.gsub(' ', '%20')]
-      end
-
-      output
+      get("/openapi/views/#{view_id}")['structure']
+        .select { |field| field['type'] == 'document' }
+      &.pluck('name', 'fieldMetaId')
     end,
-    mime_types: lambda do |_connection|
+    document_mime_types: lambda do |_connection|
       [
         ['PDF', 'application/pdf'],
         ['CSV', 'text/csv'],
         ['Word', 'application/msword'],
         ['Excel', 'application/vnd.ms-excel'],
         ['Text', 'text/plain']
+      ]
+    end,
+    image_mime_types: lambda do |_connection|
+      [
+        ['JPEG', 'image/jpeg'],
+        ['PNG', 'image/png'],
+        ['GIF', 'image/gif'],
+        ['SVG', 'image/svg+xml']
       ]
     end,
     views: lambda do |_connection, app_id:|
@@ -393,17 +394,27 @@
 
       execute: lambda do |_connection, input|
         start = input['start_index'] || 0
-        max = 100 || input['number_of_records']
-        all_records =
+        max = input['number_of_records'] || 1
+        start = start.to_i
+        max = max.to_i
+        start = 0 if start < 0
+
+        if max > 1000
+          max = 1000
+        elsif max < 1
+          max = 1
+        end
+
+        records =
           get("/openapi/views/#{input['view_id']}")
           .params(start: start, max: max)
           .after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message} : #{body}")
-          end
-        all_records.each do |hash|
+          end['data']
+        records.each do |hash|
           hash['ID'] = hash.delete 'id'
         end
-        { records: all_records }
+        { records: records }
       end,
 
       output_fields: lambda { |object_definitions|
@@ -448,38 +459,55 @@
           name: 'value_to_find',
           label: 'Value to find',
           type: 'string',
-          hint: 'Data to find',
           optional: 'false'
         }
       ],
 
+      input_fields: lambda do |_object_definitions|
+        [
+          {
+            name: 'number_of_records',
+            label: 'Number of Records',
+            type: 'integer',
+            control_type: 'number',
+            optional: false,
+            hint: 'Number of records to retrieve from the view. Limit 1000.'
+          },
+          {
+            name: 'start_index',
+            label: 'Index',
+            type: 'integer',
+            control_type: 'number',
+            optional: true,
+            hint: 'Record index to start at'
+          }
+        ]
+      end,
+
       execute: lambda do |_connection, input|
-        all_records = []
-        start = 0
-        max = 100
-        first_page =
+        start = input['start_index'] || 0
+        max = input['number_of_records'] || 1
+        start = start.to_i
+        max = max.to_i
+
+        start = 0 if start < 0
+
+        if max > 1000
+          max = 1000
+        elsif max < 1
+          max = 1
+        end
+
+        records =
           get("/openapi/views/#{input['view_id']}/find")
           .params(start: start, max: max, q: input[:value_to_find])
           .after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message} : #{body}")
-          end
-        total_records = first_page['totalCount']
-        all_records = all_records.concat(first_page['data'])
-        start = start + max
-        while all_records.length < total_records
-          page =
-            get("/openapi/views/#{input['view_id']}")
-            .params(start: start, max: max, q: input[:value_to_find])
-            .after_error_response(/.*/) do |_code, body, _header, message|
-              error("#{message} : #{body}")
-            end
-          all_records = all_records.concat(page['data'])
-          start = start + max
-        end
-        all_records.each do |hash|
+          end['data']
+        records.each do |hash|
           hash['ID'] = hash.delete 'id'
         end
-        { records: all_records }
+        { records: records }
       end,
 
       output_fields: lambda { |object_definitions|
@@ -781,9 +809,9 @@
             name: 'content_type',
             type: 'string',
             control_type: 'select',
-            pick_list: 'mime_types',
+            pick_list: 'document_mime_types',
             optional: false,
-            hint: 'Select an available data type from the list above.',
+            hint: 'Select an available document type from the list above.',
             toggle_hint: 'Select a common file type',
             toggle_field: {
               name: 'content_type',
@@ -791,7 +819,7 @@
               type: :string,
               control_type: 'text',
               optional: false,
-              toggle_hint: 'Enter your private subdomain',
+              toggle_hint: 'Enter a document MIME type',
               hint: 'Enter the MIME type of the file you want to upload. ' \
                 'See http://www.iana.org/assignments/media-types/' \
                 'media-types.xhtml for the complete list of MIME types '
@@ -874,18 +902,18 @@
             name: 'content_type',
             type: 'string',
             control_type: 'select',
-            pick_list: 'mime_types',
+            pick_list: 'image_mime_types',
             optional: false,
-            hint: 'Select an available data type from the list above.',
-            toggle_hint: 'Select a common file type',
+            hint: 'Select an available image type from the list above.',
+            toggle_hint: 'Select a common image file type',
             toggle_field: {
               name: 'content_type',
               label: 'Content Type',
               type: :string,
               control_type: 'text',
               optional: false,
-              toggle_hint: 'Enter your private subdomain',
-              hint: 'Enter the MIME type of the file you want to upload. ' \
+              toggle_hint: 'Enter a valid image MIME type',
+              hint: 'Enter the MIME type of the image you want to upload. ' \
                 'See http://www.iana.org/assignments/media-types/' \
                 'media-types.xhtml for the complete list of MIME types '
             }
@@ -894,8 +922,12 @@
       end,
 
       execute: lambda do |_connection, input|
+        image_field = call(:convert_field,
+                           field: input['image_field'],
+                           view_id: input['view_id'],
+                           field_mapping: nil)
         post("/openapi/views/#{input['view_id']}" \
-            "/records/#{input['id']}/files/#{input['field_name']}")
+            "/records/#{input['id']}/files/#{image_field}")
           .headers(enctype: 'multipart/form-data')
           .payload(file: [input['content'], [input['content_type']]])
           .request_format_multipart_form
