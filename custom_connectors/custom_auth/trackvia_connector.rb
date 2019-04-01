@@ -338,11 +338,12 @@
   },
   actions: {
     # GET requests
-    get_all_view_records: {
-      description: "Get all <span class='provider'>" \
+    get_records_from_view: {
+      description: "Get <span class='provider'>" \
       'records</span> from a view in ' \
       "<span class='provider'>TrackVia</span>.",
-      help: 'Fetches all records for a specified view in TrackVia',
+      help: 'Fetches records for a specified view in TrackVia. '\
+      'Limit to 1000 records.',
       config_fields: [
         {
           name: 'app_id',
@@ -366,29 +367,36 @@
         }
       ],
 
+      input_fields: lambda do |_object_definitions|
+        [
+          {
+            name: 'number_of_records',
+            label: 'Number of Records',
+            type: 'integer',
+            control_type: 'number',
+            optional: false,
+            hint: 'Number of records to retrieve from the view. Limit 1000.'
+          },
+          {
+            name: 'start_index',
+            label: 'Index',
+            type: 'integer',
+            control_type: 'number',
+            optional: true,
+            hint: 'Record index to start at'
+          }
+        ]
+      end,
+
       execute: lambda do |_connection, input|
-        all_records = []
-        start = 0
-        max = 100
-        first_page =
+        start = input['start_index'] || 0
+        max = 100 || input['number_of_records']
+        all_records =
           get("/openapi/views/#{input['view_id']}")
           .params(start: start, max: max)
           .after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message} : #{body}")
           end
-        total_records = first_page['totalCount']
-        all_records = all_records.concat(first_page['data'])
-        start = start + max
-        while all_records.length < total_records
-          page =
-            get("/openapi/views/#{input['view_id']}")
-            .params(start: start, max: max)
-            .after_error_response(/.*/) do |_code, body, _header, message|
-              error("#{message} : #{body}")
-            end
-          all_records = all_records.concat(page['data'])
-          start = start + max
-        end
         all_records.each do |hash|
           hash['ID'] = hash.delete 'id'
         end
