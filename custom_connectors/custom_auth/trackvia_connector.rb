@@ -61,29 +61,39 @@
   },
   test: ->(_connection) { get('/openapi/views')&.first },
   methods: {
+    convert_field: lambda do |input|
+      field = input[:field]
+      view_id = input[:view_id]
+      field_mapping = input[:field_mapping]
+
+      unless field_mapping
+         field_mapping = call(:get_field_mapping,
+                              view_id: view_id)
+      end
+      field_mapping[field.to_i]
+    end,
+
     convert_fields: lambda do |input|
       data = input[:data]
       view_id = input[:view_id]
       field_mapping = input[:field_mapping]
-      
+
       unless field_mapping
-      	field_mapping = call(:get_field_mapping,
-                           	 view_id: view_id)
+         field_mapping = call(:get_field_mapping,
+                              view_id: view_id)
       end
-     
+
       if data.is_a?(Array)
         data.map do |array_value|
           puts array_value
-          call("convert_fields",  data: array_value, view_id: view_id, field_mapping: field_mapping)
+          call('convert_fields', data: array_value, view_id: view_id, field_mapping: field_mapping)
         end
       elsif data.is_a?(Hash)
         data.map do |key, value|
-          value = call("convert_fields", data: value, view_id: view_id, field_mapping: field_mapping)
+          value = call('convert_fields', data: value, view_id: view_id, field_mapping: field_mapping)
           old_key = key
           new_key = key
-          if field_mapping[key.to_i]
-            new_key = field_mapping[key.to_i]
-          end
+          new_key = field_mapping[key.to_i] if field_mapping[key.to_i]
           { key.gsub(old_key, new_key) => value }
         end.inject(:merge)
       else
@@ -97,7 +107,7 @@
       field_mapping = {}
       structure.map do |field|
         if field['fieldMetaId']
-        	field_mapping[field['fieldMetaId']] = field['name']
+           field_mapping[field['fieldMetaId']] = field['name']
         end
       end
       field_mapping
@@ -300,17 +310,17 @@
       end
       application_name = apps[app_id.to_i]
       views = get('/openapi/views')
-        .after_error_response(/.*/) do |_code, body, _header, message|
+              .after_error_response(/.*/) do |_code, body, _header, message|
           error("#{message} : #{body}")
         end
-        
+
       selected_views = views.select { |view| view['applicationName'] == application_name }
 
       picklist_values = []
-      selected_views.each do |selected_view| 
-        picklist_values << [ selected_view['name'], selected_view['id'] ] 
+      selected_views.each do |selected_view|
+        picklist_values << [selected_view['name'], selected_view['id']]
       end
-      
+
       picklist_values
     end
   },
@@ -505,9 +515,10 @@
       ],
 
       execute: lambda do |_connection, input|
+        document_field = call(:convert_field, field: input['document_field'], view_id: input['view_id'], field_mapping: nil)
         {
           "content": get("/openapi/views/#{input['view_id']}" \
-            "/records/#{input['id']}/files/#{input['document_field']}")
+            "/records/#{input['id']}/files/#{document_field}")
             .headers("Content-Type": 'text/plain')
             .response_format_raw
         }
@@ -557,12 +568,12 @@
 
       execute: lambda do |_connection, input|
         response = post('/openapi/users')
-          .params(
+                   .params(
             email: input['email'],
             firstName: input['first_name'],
             lastName: input['last_name']
           )
-          .after_error_response(/.*/) do |_code, body, _header, message|
+                   .after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message} : #{body}")
           end
       end,
