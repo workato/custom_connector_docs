@@ -294,6 +294,18 @@
         .select { |field| field['type'] == 'document' }
       &.pluck('name', 'fieldMetaId')
     end,
+    image_fields: lambda do |_connection, view_id:|
+      image_fields = get("/openapi/views/#{view_id}")['structure']
+                     .select { |field| field['type'] == 'image' }
+                     &.pluck('name', 'name')
+      output = []
+
+      image_fields.each do |key, value|
+        output << [key, value.gsub(' ', '%20')]
+      end
+
+      output
+    end,
     mime_types: lambda do |_connection|
       [
         ['PDF', 'application/pdf'],
@@ -519,6 +531,68 @@
         {
           "content": get("/openapi/views/#{input['view_id']}" \
             "/records/#{input['id']}/files/#{document_field}")
+            .headers("Content-Type": 'text/plain')
+            .response_format_raw
+        }
+      end,
+
+      output_fields: lambda do
+        [
+          { name: 'content' }
+        ]
+      end,
+
+      sample_output: lambda do
+        { "content": 'test' }
+      end
+    },
+    get_image_from_record: {
+      description: "Get <span class='provider'>image</span> from " \
+      "a record in <span class='provider'>TrackVia</span>.",
+      help: "Retreive an image from a record's image field in TrackVia",
+      config_fields: [
+        {
+          name: 'app_name',
+          label: 'App',
+          type: 'string',
+          control_type: 'select',
+          pick_list: 'apps',
+          optional: false,
+          change_on_blur: true,
+          hint: 'Select a TrackVia application from the list above'
+        },
+        {
+          name: 'view_id',
+          label: 'View',
+          type: 'integer',
+          control_type: 'select',
+          pick_list: 'views',
+          pick_list_params: { app_name: 'app_name' },
+          optional: false,
+          hint: 'Select an available view from the list above.'
+        },
+        {
+          name: 'id',
+          type: 'integer',
+          control_type: 'number',
+          optional: false
+        },
+        {
+          name: 'image_field',
+          label: 'Image Field',
+          type: 'string',
+          control_type: 'select',
+          pick_list: 'image_fields',
+          pick_list_params: { view_id: 'view_id' },
+          optional: false,
+          hint: 'Select an available image field from the list above.'
+        }
+      ],
+
+      execute: lambda do |_connection, input|
+        {
+          "content": get("/openapi/views/#{input['view_id']}" \
+            "/records/#{input['id']}/files/#{input['image_field']}")
             .headers("Content-Type": 'text/plain')
             .response_format_raw
         }
