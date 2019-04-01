@@ -636,8 +636,8 @@
         call(:get_fields_sample_output, view_id: input['view_id'])
       }
     },
-    upload_file_to_record: {
-      description: "Upload <span class='provider'>file</span> to " \
+    upload_document_to_record: {
+      description: "Upload <span class='provider'>document</span> to " \
       "a record in <span class='provider'>TrackVia</span>.",
       help: "Upload a file to a record's document field in TrackVia",
       config_fields: [
@@ -662,14 +662,14 @@
           hint: 'Select an available view from the list above.'
         },
         {
-          name: 'field_name',
-          label: 'Field Name',
+          name: 'document_field',
+          label: 'Document Field',
           type: 'string',
           control_type: 'select',
           pick_list: 'document_fields',
           pick_list_params: { view_id: 'view_id' },
           optional: false,
-          hint: 'Select an available view from the list above.'
+          hint: 'Select an available document field from the list above.'
         }
       ],
       input_fields: lambda do |_object_definitions|
@@ -710,8 +710,9 @@
       end,
 
       execute: lambda do |_connection, input|
+        document_field = call(:convert_field, field: input['document_field'], view_id: input['view_id'], field_mapping: nil)
         post("/openapi/views/#{input['view_id']}" \
-            "/records/#{input['id']}/files/#{input['field_name']}")
+            "/records/#{input['id']}/files/#{document_field}")
           .headers(enctype: 'multipart/form-data')
           .payload(file: [input['content'], [input['content_type']]])
           .request_format_multipart_form
