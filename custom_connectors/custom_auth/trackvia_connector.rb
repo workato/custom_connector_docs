@@ -66,10 +66,8 @@
       view_id = input[:view_id]
       field_mapping = input[:field_mapping]
 
-      unless field_mapping
-         field_mapping = call(:get_field_mapping,
-                              view_id: view_id)
-      end
+      field_mapping ||= call(:get_field_mapping,
+                             view_id: view_id)
       field_mapping[field.to_i]
     end,
 
@@ -78,19 +76,22 @@
       view_id = input[:view_id]
       field_mapping = input[:field_mapping]
 
-      unless field_mapping
-         field_mapping = call(:get_field_mapping,
-                              view_id: view_id)
-      end
+      field_mapping ||= call(:get_field_mapping,
+                             view_id: view_id)
 
       if data.is_a?(Array)
         data.map do |array_value|
-          puts array_value
-          call('convert_fields', data: array_value, view_id: view_id, field_mapping: field_mapping)
+          call('convert_fields',
+               data: array_value,
+               view_id: view_id,
+               field_mapping: field_mapping)
         end
       elsif data.is_a?(Hash)
         data.map do |key, value|
-          value = call('convert_fields', data: value, view_id: view_id, field_mapping: field_mapping)
+          value = call('convert_fields',
+                       data: value,
+                       view_id: view_id,
+                       field_mapping: field_mapping)
           old_key = key
           new_key = key
           new_key = field_mapping[key.to_i] if field_mapping[key.to_i]
@@ -107,7 +108,7 @@
       field_mapping = {}
       structure.map do |field|
         if field['fieldMetaId']
-           field_mapping[field['fieldMetaId']] = field['name']
+          field_mapping[field['fieldMetaId']] = field['name']
         end
       end
       field_mapping
@@ -323,10 +324,12 @@
       application_name = apps[app_id.to_i]
       views = get('/openapi/views')
               .after_error_response(/.*/) do |_code, body, _header, message|
-          error("#{message} : #{body}")
-        end
+        error("#{message} : #{body}")
+      end
 
-      selected_views = views.select { |view| view['applicationName'] == application_name }
+      selected_views = views.select do |view|
+        view['applicationName'] == application_name
+      end
 
       picklist_values = []
       selected_views.each do |selected_view|
@@ -535,7 +538,10 @@
       ],
 
       execute: lambda do |_connection, input|
-        document_field = call(:convert_field, field: input['document_field'], view_id: input['view_id'], field_mapping: nil)
+        document_field = call(:convert_field,
+                              field: input['document_field'],
+                              view_id: input['view_id'],
+                              field_mapping: nil)
         {
           "content": get("/openapi/views/#{input['view_id']}" \
             "/records/#{input['id']}/files/#{document_field}")
@@ -649,15 +655,15 @@
       ],
 
       execute: lambda do |_connection, input|
-        response = post('/openapi/users')
-                   .params(
+        post('/openapi/users')
+          .params(
             email: input['email'],
             firstName: input['first_name'],
             lastName: input['last_name']
           )
-                   .after_error_response(/.*/) do |_code, body, _header, message|
-            error("#{message} : #{body}")
-          end
+          .after_error_response(/.*/) do |_code, body, _header, message|
+          error("#{message} : #{body}")
+        end
       end,
 
       output_fields: lambda { |object_definitions|
@@ -702,7 +708,10 @@
 
       execute: lambda do |_connection, input|
         post("/openapi/views/#{input['view_id']}/records")
-          .payload(data: call(:convert_fields, data: input['data'], view_id: input['view_id'], field_mapping: nil))
+          .payload(data: call(:convert_fields,
+                              data: input['data'],
+                              view_id: input['view_id'],
+                              field_mapping: nil))
           .after_error_response(/.*/) do |_code, body, _header, message|
           error("#{message} : #{body}")
         end
@@ -792,7 +801,10 @@
       end,
 
       execute: lambda do |_connection, input|
-        document_field = call(:convert_field, field: input['document_field'], view_id: input['view_id'], field_mapping: nil)
+        document_field = call(:convert_field,
+                              field: input['document_field'],
+                              view_id: input['view_id'],
+                              field_mapping: nil)
         post("/openapi/views/#{input['view_id']}" \
             "/records/#{input['id']}/files/#{document_field}")
           .headers(enctype: 'multipart/form-data')
@@ -939,7 +951,10 @@
       execute: lambda do |_connection, input|
         put("/openapi/views/#{input['view_id']}" \
         "/records/#{input['id']}")
-          .payload(data: call(:convert_fields, data: input['data'], view_id: input['view_id'], field_mapping: nil))
+          .payload(data: call(:convert_fields,
+                              data: input['data'],
+                              view_id: input['view_id'],
+                              field_mapping: nil))
           .after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message} : #{body}")
           end
