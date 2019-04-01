@@ -1,4 +1,4 @@
-[![Workato](images/workato_logo.png)](https://www.workato.com)
+[![Workato](https://github.com/workato/custom_connector_docs/raw/gh-pages/images/workato_logo.png)](https://www.workato.com)
 
 # Introduction
 
