@@ -704,6 +704,25 @@
       output_fields: lambda do |object_definitions|
         object_definitions["get_contact_response"]
       end
+    },
+    
+    GetSMSResponse: {
+      title: "Get SMS received",
+      subtitle: "Get SMS received",
+      description: "Get <span class='provider'>SMS</span> received in " \
+        " <span class='provider'>transmitsms.com</span>",
+      help: "Fetches incoming messages from all virtual numbers under " \
+        "user's account.",
+
+      execute: lambda do |_connection, input|
+        get("https://frontapi.transmitsms.com/zapier/get-responses.json").
+          params(page: 1,
+                 max: 10)
+      end,
+
+      output_fields: lambda do |object_definitions|
+        object_definitions["get_sms_response"]
+      end
     }
   },
 
@@ -809,36 +828,6 @@
 
       output_fields: lambda do |object_definitions|
         object_definitions["new_contact_notification"]
-      end
-    },
-
-    GetSMSResponse: {
-      title: "New SMS received to inbox",
-      subtitle: "New SMS received in inbox",
-      description: "New <span class='provider'>SMS</span> received in " \
-        "inbox in <span class='provider'>transmitsms.com</span>",
-      help: "Fetches new incoming messages from all virtual numbers under " \
-        "user's account.",
-
-      poll: lambda do |_connection, _input, page|
-        page ||= 1
-        response = get("https://frontapi.transmitsms.com/zapier/" \
-                     "get-responses.json").
-                   params(page: page,
-                          max: 10)
-        {
-          events: response["responses"],
-          next_page: page + 1,
-          can_poll_more: response.dig("page", "count") <= page
-        }
-      end,
-
-      dedup: lambda do |response|
-        response["id"]
-      end,
-
-      output_fields: lambda do |object_definitions|
-        object_definitions["get_sms_response"]
       end
     }
   },
