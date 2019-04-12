@@ -1,88 +1,79 @@
 {
   title: 'TrackVia',
   connection: {
-    # fields: [
-    #   {
-    #     name: 'user_key',
-    #     label: 'API Key',
-    #     hint: "Click <a href='https://go.trackvia.com/#/account' " \
-    #     "target='_blank'>here</a> to find the API key",
-    #     control_type: 'password',
-    #     optional: false
-    #   },
-    #   {
-    #     name: 'access_token',
-    #     label: 'Auth Token',
-    #     hint: "Click <a href='https://go.trackvia.com/#/account' " \
-    #     "target='_blank'>here</a> to find the Authentication token",
-    #     control_type: 'password',
-    #     optional: false
-    #   }
-    # ],
-    # authorization: {
-    #   apply: lambda { |connection|
-    #     params(user_key: connection['user_key'],
-    #            access_token: connection['access_token'])
-    #   }
-    # },
     fields: [
-      { name: 'user_key', control_type: 'password', optional: false }
+      {
+        name: 'custom_domain',
+        label: 'Custom Domain',
+        hint: 'Enter your custom TrackVia domain,'\
+        ' e.g. customdomain.trackvia.com',
+        optional: 'true'
+      }
     ],
-
     authorization: {
-      type: "oauth2",
+      type: 'oauth2',
+      client_id: 'Workato',
+      client_secret: 'U9n0GXc9c1rj',
 
-      authorization_url: lambda do
-        "https://go.trackvia.com/oauth/authorize"
+      authorization_url: lambda { |connection|
+        url = 'https://go.trackvia.com'
+        if connection['custom_domain']
+          url = "https://#{connection['custom_domain']}"
+        end
+        params = {
+          response_type: 'code'
+        }.to_param
+        "#{url}/oauth/authorize?" + params
+      },
+
+      acquire: lambda do |connection, auth_code|
+        url = 'https://go.trackvia.com'
+        if connection['custom_domain']
+          url = "https://#{connection['custom_domain']}"
+        end
+        response = post("#{url}/oauth/token")
+                   .payload(
+                     redirect_uri: 'https://www.workato.com/oauth/callback',
+                     grant_type: 'authorization_code',
+                     code: auth_code,
+                     client_id: 'Workato',
+                     client_secret: 'U9n0GXc9c1rj'
+                   ).request_format_www_form_urlencoded
+        [
+          response,
+          nil,
+          {
+            user_key: response['user_key']
+          }
+        ]
       end,
-  
-      token_url: lambda do
-        "https://go.trackvia.com/oauth/token"
+
+      refresh: lambda do |connection, refresh_token|
+        url = 'https://go.trackvia.com'
+        if connection['custom_domain']
+          url = "https://#{connection['custom_domain']}"
+        end
+        post("#{url}/oauth/token")
+          .payload(client_id: 'Workato',
+                   client_secret: 'U9n0GXc9c1rj',
+                   grant_type: 'refresh_token',
+                   refresh_token: refresh_token)
+          .request_format_www_form_urlencoded
       end,
 
-      client_id: "Workato",
+      refresh_on: [401, 403],
 
-      client_secret: "U9n0GXc9c1rj",
-
-      credentials: lambda do |connection, access_token|
-        headers("Authorization": "Bearer #{access_token}")
-      end
-
-      # acquire: lambda do |connection, auth_code|
-      #   # response = post("https://go.trackvia.com/oauth/token").
-      #   #              payload(
-      #   #                grant_type: "authorization_code",
-      #   #                code: auth_code,
-      #   #                redirect_uri: "https://www.workato.com/oauth/callback"
-      #   #                client_id: connection["client_id"],
-      #   #                client_secret: connection["client_secret"],
-      #   #              ).request_format_www_form_urlencoded
-      #   # [response, nil, nil]
-      # end,
-
-      # refresh_on: 401,
-
-      # refresh: lambda do |connection, refresh_token|
-      #   post("https://go.trackvia.com/oauth/token").
-      #     payload(
-      #       grant_type: "refresh_token",
-      #       refresh_token: refresh_token,
-      #       client_id: connection["client_id"],
-      #       client_secret: connection["client_secret"],
-      #     ).request_format_www_form_urlencoded
-      # end,
-
-      # apply: lambda do |connection, access_token|
-      #   headers("Authorization": "Bearer #{access_token}")
-      #   params(user_key: connection['user_key'])
-      # end
-
-      # apply: lambda { |connection|
-      #   params(user_key: connection['user_key'])
-      # }
+      apply: lambda { |connection, access_token|
+        params(access_token: access_token,
+               user_key: connection['user_key'])
+      }
     },
-    base_uri: lambda do |_connection|
-      'https://go.trackvia.com'
+    base_uri: lambda do |connection|
+      if connection['custom_domain']
+        "https://#{connection['custom_domain']}"
+      else
+        'https://go.trackvia.com'
+      end
     end
   },
   test: ->(_connection) { get('/openapi/views')&.first },
