@@ -1152,6 +1152,7 @@
         hash['ID'] = hash.delete('id')
         hash
       end,
+
       webhook_subscribe: lambda do |webhook_url, _connection, input, _recipe_id|
         post("/openapi/zapier/views/#{input['view_id']}/api/hooks",
              target_url: webhook_url,
@@ -1161,6 +1162,10 @@
       webhook_unsubscribe: lambda do |webhook, input|
         delete("/openapi/zapier/views/#{input['view_id']}" \
           "/api/hooks/#{webhook['id']}")
+      end,
+
+      dedup: lambda do |response|
+        response['ID'].to_s + '@' + response['Updated'].to_s
       end,
 
       output_fields: ->(object_definitions) { object_definitions['hook_body'] },
@@ -1215,6 +1220,10 @@
       webhook_unsubscribe: lambda do |webhook, input|
         delete("/openapi/zapier/views/#{input['view_id']}" \
           "/api/hooks/#{webhook['id']}")
+      end,
+
+      dedup: lambda do |response|
+        response['ID'].to_s + '@' + response['Updated'].to_s
       end,
 
       output_fields: ->(object_definitions) { object_definitions['hook_body'] },
