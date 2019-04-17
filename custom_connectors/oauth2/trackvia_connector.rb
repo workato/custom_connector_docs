@@ -39,11 +39,15 @@
                      client_id: 'Workato',
                      client_secret: 'U9n0GXc9c1rj'
                    ).request_format_www_form_urlencoded
+        user_key = get("#{url}/3scale/openapiapps")
+                   .params(
+                     access_token: response['access_token']
+                   )[0]['userKey']
         [
           response,
           nil,
           {
-            user_key: response['user_key']
+            user_key: user_key
           }
         ]
       end,
@@ -53,12 +57,18 @@
         if connection['custom_domain']
           url = "https://#{connection['custom_domain']}"
         end
-        post("#{url}/oauth/token")
-          .payload(client_id: 'Workato',
-                   client_secret: 'U9n0GXc9c1rj',
-                   grant_type: 'refresh_token',
-                   refresh_token: refresh_token)
-          .request_format_www_form_urlencoded
+        response = post("#{url}/oauth/token")
+                   .payload(client_id: 'Workato',
+                            client_secret: 'U9n0GXc9c1rj',
+                            grant_type: 'refresh_token',
+                            refresh_token: refresh_token)
+                   .request_format_www_form_urlencoded
+        user_key = get("#{url}/3scale/openapiapps")
+                   .params(
+                     access_token: response['access_token']
+                   )[0]['userKey']
+        response['user_key'] = user_key
+        response
       end,
 
       refresh_on: [401, 403],
