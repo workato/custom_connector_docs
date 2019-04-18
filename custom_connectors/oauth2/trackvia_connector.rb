@@ -263,9 +263,9 @@
       view_id = input[:view_id]
       structure = get("/openapi/views/#{view_id}")['structure']
                   .reject { |field| !field['canCreate'] || !field['canUpdate'] }
-      structure.map do |field|
+      result = structure.map do |field|
         {
-          name: field['field_meta_id'],
+          name: field['fieldMetaId'].to_s,
           label: field['name'],
           optional: !field['required'],
           type: call(:get_type,
@@ -286,10 +286,12 @@
           toggle_field: call(:get_toggle_field,
                              type: field['type'],
                              name: field['name'],
-                             field_meta_id: field['field_meta_id'],
+                             field_meta_id: field['fieldMetaId'],
                              required: !field['required'])
         }
       end
+      puts result
+      result
     end,
 
     get_fields_sample_output: lambda do |input|
@@ -621,7 +623,7 @@
       help: "Retreive an image from a record's image field in TrackVia",
       config_fields: [
         {
-          name: 'app_name',
+          name: 'app_id',
           label: 'App',
           type: 'string',
           control_type: 'select',
@@ -636,7 +638,7 @@
           type: 'integer',
           control_type: 'select',
           pick_list: 'views',
-          pick_list_params: { app_name: 'app_name' },
+          pick_list_params: { app_id: 'app_id' },
           optional: false,
           hint: 'Select an available view from the list above.'
         },
@@ -881,7 +883,7 @@
       help: "Upload an image to a record's image field in TrackVia",
       config_fields: [
         {
-          name: 'app_name',
+          name: 'app_id',
           label: 'App',
           type: 'string',
           control_type: 'select',
@@ -896,7 +898,7 @@
           type: 'integer',
           control_type: 'select',
           pick_list: 'views',
-          pick_list_params: { app_name: 'app_name' },
+          pick_list_params: { app_id: 'app_id' },
           optional: false,
           hint: 'Select an available view from the list above.'
         },
