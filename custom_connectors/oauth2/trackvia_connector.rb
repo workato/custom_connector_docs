@@ -95,7 +95,7 @@
 
       field_mapping ||= call(:get_field_mapping,
                              view_id: view_id)
-      field_mapping[field.to_i]
+      field_mapping[field]
     end,
 
     convert_fields: lambda do |input|
@@ -121,7 +121,7 @@
                        field_mapping: field_mapping)
           old_key = key
           new_key = key
-          new_key = field_mapping[key.to_i] if field_mapping[key.to_i]
+          new_key = field_mapping[key] if field_mapping[key]
           { key.gsub(old_key, new_key) => value }
         end.inject(:merge)
       else
@@ -135,7 +135,7 @@
       field_mapping = {}
       structure.map do |field|
         if field['fieldMetaId']
-          field_mapping[field['fieldMetaId']] = field['name']
+          field_mapping["f_#{field['fieldMetaId']}"] = field['name']
         end
       end
       field_mapping
@@ -265,7 +265,7 @@
                   .reject { |field| !field['canCreate'] || !field['canUpdate'] }
       result = structure.map do |field|
         {
-          name: field['fieldMetaId'].to_s,
+          name: "f_#{field['fieldMetaId']}",
           label: field['name'],
           optional: !field['required'],
           type: call(:get_type,
@@ -286,7 +286,7 @@
           toggle_field: call(:get_toggle_field,
                              type: field['type'],
                              name: field['name'],
-                             field_meta_id: field['fieldMetaId'],
+                             field_meta_id: "f_#{field['fieldMetaId']}",
                              required: !field['required'])
         }
       end
@@ -303,12 +303,12 @@
   object_definitions: {
     record: {
       fields: lambda { |_connection, config_fields|
-        call(:get_fields, view_id: config_fields['view_id'])
+        call(:get_fields, config_fields)
       }
     },
     response_record: {
       fields: lambda { |_connection, config_fields|
-        call(:get_output_fields, view_id: config_fields['view_id'])
+        call(:get_output_fields, view_id: config_fields['view_id'].presence || "users")
       }
     },
     hook_body: {
@@ -759,6 +759,7 @@
       ],
       input_fields: lambda do |object_definitions|
         { name: 'data',
+          label: 'Record',
           type: :array, of: :object,
           properties: object_definitions['record'] }
       end,
@@ -1005,6 +1006,7 @@
       ],
       input_fields: lambda do |object_definitions|
         { name: 'data',
+          label: 'Record',
           type: :array, of: :object,
           properties: object_definitions['record'] }
       end,
