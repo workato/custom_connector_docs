@@ -308,7 +308,8 @@
     },
     response_record: {
       fields: lambda { |_connection, config_fields|
-        call(:get_output_fields, view_id: config_fields['view_id'].presence || "users")
+        call(:get_output_fields,
+             view_id: config_fields['view_id'].presence || 'users')
       }
     },
     hook_body: {
