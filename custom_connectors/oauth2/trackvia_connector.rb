@@ -290,7 +290,6 @@
                              required: !field['required'])
         }
       end
-      puts result
       result
     end,
 
@@ -303,7 +302,8 @@
   object_definitions: {
     record: {
       fields: lambda { |_connection, config_fields|
-        call(:get_fields, config_fields)
+        call(:get_fields,
+             view_id: config_fields['view_id'].presence || 'users')
       }
     },
     response_record: {
@@ -713,15 +713,18 @@
       ],
 
       execute: lambda do |_connection, input|
-        post('/openapi/users')
-          .params(
-            email: input['email'],
-            firstName: input['first_name'],
-            lastName: input['last_name']
-          )
-          .after_error_response(/.*/) do |_code, body, _header, message|
+        res = post('/openapi/users')
+              .params(
+                email: input['email'],
+                firstName: input['first_name'],
+                lastName: input['last_name']
+              )
+              .after_error_response(/.*/) do |_code, body, _header, message|
           error("#{message} : #{body}")
         end
+        data = res['data'][0]
+        data['ID'] = data.delete 'id'
+        { data: data }
       end,
 
       output_fields: lambda { |object_definitions|
@@ -766,19 +769,22 @@
       end,
 
       execute: lambda do |_connection, input|
-        post("/openapi/views/#{input['view_id']}/records")
-          .payload(data: call(:convert_fields,
-                              data: input['data'],
-                              view_id: input['view_id'],
-                              field_mapping: nil))
-          .after_error_response(/.*/) do |_code, body, _header, message|
-          error("#{message} : #{body}")
-        end
+        res = post("/openapi/views/#{input['view_id']}/records")
+              .payload(data: call(:convert_fields,
+                                  data: input['data'],
+                                  view_id: input['view_id'],
+                                  field_mapping: nil))
+              .after_error_response(/.*/) do |_code, body, _header, message|
+                error("#{message} : #{body}")
+              end
+        data = res['data'][0]
+        data['ID'] = data.delete 'id'
+        { data: data }
       end,
 
       output_fields: lambda { |object_definitions|
         { name: 'data',
-          type: :array, of: :object,
+          type: :object,
           properties: object_definitions['response_record'] }
       },
 
@@ -864,11 +870,14 @@
                               field: input['document_field'],
                               view_id: input['view_id'],
                               field_mapping: nil)
-        post("/openapi/views/#{input['view_id']}" \
-            "/records/#{input['id']}/files/#{document_field}")
-          .headers(enctype: 'multipart/form-data')
-          .payload(file: [input['content'], [input['content_type']]])
-          .request_format_multipart_form
+        res = post("/openapi/views/#{input['view_id']}" \
+                "/records/#{input['id']}/files/#{document_field}")
+              .headers(enctype: 'multipart/form-data')
+              .payload(file: [input['content'], [input['content_type']]])
+              .request_format_multipart_form
+        data = res['data'][0]
+        data['ID'] = data.delete 'id'
+        { data: data }
       end,
 
       output_fields: lambda { |object_definitions|
@@ -957,11 +966,15 @@
                            field: input['image_field'],
                            view_id: input['view_id'],
                            field_mapping: nil)
-        post("/openapi/views/#{input['view_id']}" \
-            "/records/#{input['id']}/files/#{image_field}")
-          .headers(enctype: 'multipart/form-data')
-          .payload(file: [input['content'], [input['content_type']]])
-          .request_format_multipart_form
+        res = post("/openapi/views/#{input['view_id']}" \
+                "/records/#{input['id']}/files/#{image_field}")
+              .headers(enctype: 'multipart/form-data')
+              .payload(file: [input['content'], [input['content_type']]])
+              .request_format_multipart_form
+
+        data = res['data'][0]
+        data['ID'] = data.delete 'id'
+        { data: data }
       end,
 
       output_fields: lambda { |object_definitions|
@@ -1013,19 +1026,24 @@
       end,
 
       execute: lambda do |_connection, input|
-        put("/openapi/views/#{input['view_id']}" \
-        "/records/#{input['id']}")
-          .payload(data: call(:convert_fields,
-                              data: input['data'],
-                              view_id: input['view_id'],
-                              field_mapping: nil))
-          .after_error_response(/.*/) do |_code, body, _header, message|
-            error("#{message} : #{body}")
-          end
+        res = put("/openapi/views/#{input['view_id']}" \
+              "/records/#{input['id']}")
+              .payload(data: call(:convert_fields,
+                                  data: input['data'],
+                                  view_id: input['view_id'],
+                                  field_mapping: nil))
+              .after_error_response(/.*/) do |_code, body, _header, message|
+                error("#{message} : #{body}")
+              end
+        data = res['data'][0]
+        data['ID'] = data.delete 'id'
+        { data: data }
       end,
 
       output_fields: lambda { |object_definitions|
-        object_definitions['response_record']
+        { name: 'data',
+          type: :object,
+          properties: object_definitions['response_record'] }
       },
 
       sample_output: lambda { |_connection, input|
