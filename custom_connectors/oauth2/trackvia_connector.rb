@@ -321,14 +321,20 @@
   pick_lists: {
     apps: ->(_connection) { get('/openapi/apps').pluck('name', 'id') },
     document_fields: lambda do |_connection, view_id:|
-      get("/openapi/views/#{view_id}")['structure']
-        .select { |field| field['type'] == 'document' }
-      &.pluck('name', 'fieldMetaId')
+      res = get("/openapi/views/#{view_id}")['structure']
+            .select { |field| field['type'] == 'document' }
+            &.pluck('name', 'fieldMetaId')
+      res.each do |key, value|
+        res[key] = "f_#{value}"
+      end
     end,
     image_fields: lambda do |_connection, view_id:|
-      get("/openapi/views/#{view_id}")['structure']
-        .select { |field| field['type'] == 'document' }
-      &.pluck('name', 'fieldMetaId')
+      res = get("/openapi/views/#{view_id}")['structure']
+            .select { |field| field['type'] == 'image' }
+            &.pluck('name', 'fieldMetaId')
+      res.each do |key, value|
+        res[key] = "f_#{value}"
+      end
     end,
     document_mime_types: lambda do |_connection|
       [
