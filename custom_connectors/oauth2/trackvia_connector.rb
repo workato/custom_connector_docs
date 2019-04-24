@@ -606,11 +606,15 @@
                               field: input['document_field'],
                               view_id: input['view_id'],
                               field_mapping: nil)
+        document_field.gsub(' ', '%20')
         {
           "content": get("/openapi/views/#{input['view_id']}" \
             "/records/#{input['id']}/files/#{document_field}")
             .headers("Content-Type": 'text/plain')
             .response_format_raw
+            .after_error_response(/.*/) do |_code, body, _header, message|
+              error("#{message} : #{body}")
+            end
         }
       end,
 
@@ -668,11 +672,19 @@
       ],
 
       execute: lambda do |_connection, input|
+        image_field = call(:convert_field,
+                           field: input['image_field'],
+                           view_id: input['view_id'],
+                           field_mapping: nil)
+        image_field.gsub(' ', '%20')
         {
           "content": get("/openapi/views/#{input['view_id']}" \
-            "/records/#{input['id']}/files/#{input['image_field']}")
+            "/records/#{input['id']}/files/#{image_field}")
             .headers("Content-Type": 'text/plain')
             .response_format_raw
+            .after_error_response(/.*/) do |_code, body, _header, message|
+              error("#{message} : #{body}")
+            end
         }
       end,
 
@@ -876,11 +888,15 @@
                               field: input['document_field'],
                               view_id: input['view_id'],
                               field_mapping: nil)
+        document_field.gsub(' ', '%20')
         res = post("/openapi/views/#{input['view_id']}" \
                 "/records/#{input['id']}/files/#{document_field}")
               .headers(enctype: 'multipart/form-data')
               .payload(file: [input['content'], [input['content_type']]])
               .request_format_multipart_form
+              .after_error_response(/.*/) do |_code, body, _header, message|
+                error("#{message} : #{body}")
+              end
         data = res['data'][0]
         data['ID'] = data.delete 'id'
         { data: data }
@@ -972,11 +988,15 @@
                            field: input['image_field'],
                            view_id: input['view_id'],
                            field_mapping: nil)
+        image_field.gsub(' ', '%20')
         res = post("/openapi/views/#{input['view_id']}" \
                 "/records/#{input['id']}/files/#{image_field}")
               .headers(enctype: 'multipart/form-data')
               .payload(file: [input['content'], [input['content_type']]])
               .request_format_multipart_form
+              .after_error_response(/.*/) do |_code, body, _header, message|
+                error("#{message} : #{body}")
+              end
 
         data = res['data'][0]
         data['ID'] = data.delete 'id'
