@@ -717,7 +717,7 @@
       execute: lambda do |_connection, input|
         get("https://frontapi.transmitsms.com/zapier/get-responses.json").
           params(page: 1,
-                 max: 10)
+                 max: 1000)
       end,
 
       output_fields: lambda do |object_definitions|
