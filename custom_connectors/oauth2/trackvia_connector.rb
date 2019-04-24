@@ -324,16 +324,16 @@
       res = get("/openapi/views/#{view_id}")['structure']
             .select { |field| field['type'] == 'document' }
             &.pluck('name', 'fieldMetaId')
-      res.each do |key, value|
-        res[key] = "f_#{value}"
+      res.each do |field|
+        field[1] = "f_#{field[1]}"
       end
     end,
     image_fields: lambda do |_connection, view_id:|
       res = get("/openapi/views/#{view_id}")['structure']
             .select { |field| field['type'] == 'image' }
             &.pluck('name', 'fieldMetaId')
-      res.each do |key, value|
-        res[key] = "f_#{value}"
+      res.each do |field|
+        field[1] = "f_#{field[1]}"
       end
     end,
     document_mime_types: lambda do |_connection|
