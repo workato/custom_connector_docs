@@ -57,11 +57,7 @@
              password: connection['password']).compact
       end,
 
-      # TODO: check this
-      # refresh_on: [400, 401, /"error_message"\s*\:\s*"Session is invalid/],
-
-      # TODO: check this
-      # detect_on: [/"response_message"\s*\:\s*"Error"/],
+      refresh_on: [400, 401],
 
       apply: lambda { |connection|
         headers('Authorization' => "token #{connection['token']}")
