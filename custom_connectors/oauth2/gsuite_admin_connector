@@ -1,0 +1,1798 @@
+{
+  title: 'G Suite Admin',
+
+  methods: {
+    generate_password: lambda do
+      charset = %w[0 1 2 3 4 5 6 7 8 9 Q W E R T Y U I O P L K J H G F D S
+                   A Z X C V B N M m n b v c x z a s d f g h j k l p o i u
+                   y t r e w q ! @ # $ % ^ & *]
+      (0...rand(10..20)).map { charset.to_a[rand(charset.size)] }.join
+    end,
+
+    make_schema_builder_fields_sticky: lambda do |input|
+      input.map do |field|
+        if field[:properties].present?
+          field[:properties] = call('make_schema_builder_fields_sticky',
+                                    field[:properties])
+        elsif field['properties'].present?
+          field['properties'] = call('make_schema_builder_fields_sticky',
+                                     field['properties'])
+        end
+        field[:sticky] = true
+        field
+      end
+    end
+  },
+
+  connection: {
+    fields: [
+      { name: 'client_id', optional: false },
+      { name: 'client_secret', optional: false, control_type: 'password' }
+    ],
+
+    authorization: {
+      type: 'oauth2',
+
+      authorization_url: lambda do |connection|
+        scopes = [
+          'https://www.googleapis.com/auth/admin.directory.group',
+          'https://www.googleapis.com/auth/admin.directory.user',
+          'https://www.googleapis.com/auth/admin.directory.user.security'
+        ].join(' ')
+
+        'https://accounts.google.com/o/oauth2/auth'\
+        "?client_id=#{connection['client_id']}&response_type=code" \
+        "&scope=#{scopes}&access_type=offline&prompt=consent"
+      end,
+
+      acquire: lambda do |connection, auth_code, redirect_uri|
+        response = post('https://accounts.google.com/o/oauth2/token',
+                        client_id: connection['client_id'],
+                        client_secret: connection['client_secret'],
+                        grant_type: 'authorization_code',
+                        code: auth_code,
+                        redirect_uri: redirect_uri).
+                   request_format_www_form_urlencoded
+
+        [response, nil, nil]
+      end,
+
+      refresh: lambda do |connection, refresh_token|
+        post('https://accounts.google.com/o/oauth2/token',
+             client_id: connection['client_id'],
+             client_secret: connection['client_secret'],
+             grant_type: 'refresh_token',
+             refresh_token: refresh_token).request_format_www_form_urlencoded
+      end,
+
+      refresh_on: [401],
+
+      apply: lambda do |_connection, access_token|
+        headers(Authorization: "Bearer #{access_token}")
+      end
+    },
+
+    base_uri: ->(_connection) { 'https://www.googleapis.com' }
+  },
+
+  test: ->(_connection) { true },
+
+  object_definitions: {
+    custom_action_input: {
+      fields: lambda do |_connection, config_fields|
+        input_schema = parse_json(config_fields.dig('input', 'schema') || '[]')
+
+        [
+          {
+            name: 'path',
+            optional: false,
+            hint: 'Base URI is <b>https://www.googleapis.com</b> - path will ' \
+              'be appended to this URI. ' \
+              'Use absolute URI to override this base URI.'
+          },
+          (
+            if %w[get delete].include?(config_fields['verb'])
+              {
+                name: 'input',
+                type: 'object',
+                control_type: 'form-schema-builder',
+                sticky: input_schema.blank?,
+                label: 'URL parameters',
+                add_field_label: 'Add URL parameter',
+                properties: [
+                  {
+                    name: 'schema',
+                    extends_schema: true,
+                    sticky: input_schema.blank?
+                  },
+                  (
+                    if input_schema.present?
+                      {
+                        name: 'data',
+                        type: 'object',
+                        properties: call('make_schema_builder_fields_sticky',
+                                         input_schema)
+                      }
+                    end
+                  )
+                ].compact
+              }
+            else
+              {
+                name: 'input',
+                type: 'object',
+                properties: [
+                  {
+                    name: 'schema',
+                    extends_schema: true,
+                    schema_neutral: true,
+                    control_type: 'schema-designer',
+                    sample_data_type: 'json_input',
+                    sticky: input_schema.blank?,
+                    label: 'Request body parameters',
+                    add_field_label: 'Add request body parameter'
+                  },
+                  (
+                    if input_schema.present?
+                      {
+                        name: 'data',
+                        type: 'object',
+                        properties: input_schema.
+                          each { |field| field[:sticky] = true }
+                      }
+                    end
+                  )
+                ].compact
+              }
+            end
+          ),
+          {
+            name: 'output',
+            control_type: 'schema-designer',
+            sample_data_type: 'json_http',
+            extends_schema: true,
+            schema_neutral: true,
+            sticky: true
+          }
+        ]
+      end
+    },
+
+    custom_action_output: {
+      fields: lambda do |_connection, config_fields|
+        parse_json(config_fields['output'] || '[]')
+      end
+    },
+
+    group: {
+      fields: lambda do |_connection, _config_fields|
+        [
+          { name: 'id' },
+          {
+            name: 'email',
+            label: 'Group email',
+            control_type: 'email'
+          },
+          { name: 'name', label: 'Group name', sticky: true },
+          {
+            name: 'directMembersCount',
+            control_type: 'number',
+            type: 'integer',
+            parse_output: 'integer_conversion'
+          },
+          {
+            name: 'description',
+            control_type: 'text-area',
+            sticky: false,
+            hint: 'An extended description to help users determine the ' \
+              'purpose of a group. For example, you can include information ' \
+              'about who should join the group, the types of messages to ' \
+              'send to the group, links to FAQs about the group, or related ' \
+              'groups.'
+          },
+          {
+            name: 'adminCreated',
+            label: 'Admin created',
+            control_type: 'checkbox',
+            type: 'boolean',
+            toggle_hint: 'Select from option list',
+            toggle_field: {
+              name: 'adminCreated',
+              label: 'Admin created',
+              toggle_hint: 'Use custom value',
+              control_type: 'text',
+              type: 'boolean'
+            }
+          },
+          {
+            name: 'aliases',
+            type: 'array',
+            of: 'string'
+          },
+          { name: 'nonEditableAliases', type: 'array', of: 'string' }
+        ]
+      end
+    },
+
+    group_member: {
+      fields: lambda do |_connection, _config_fields|
+        [
+          { name: 'id' },
+          {
+            name: 'email',
+            label: 'Email address',
+            control_type: 'email'
+          },
+          { name: 'role' },
+          { name: 'type' },
+          { name: 'status' },
+          { name: 'delivery_settings' }
+        ]
+      end
+    },
+
+    license_assignment: {
+      fields: lambda do |_connection, _config_fields|
+        [
+          { name: 'etags', hint: 'ETag of the resource' },
+          {
+            name: 'productId',
+            label: 'Product ID',
+            optional: false,
+            control_type: 'select',
+            pick_list: 'products',
+            toggle_hint: 'Select from list',
+            toggle_field: {
+              name: 'productId',
+              label: 'Product ID',
+              toggle_hint: 'Use custom value',
+              control_type: 'text',
+              type: 'string'
+            }
+          },
+          { name: 'productName', hint: 'Display Name of the product' },
+          { name: 'selfLink', hint: 'Link to this page' },
+          {
+            name: 'skuId',
+            label: 'SKU',
+            hint: "A product SKU's unique identifier",
+            optional: false,
+            control_type: 'select',
+            pick_list: 'skus',
+            pick_list_params: { productId: 'productId' },
+            toggle_hint: 'Select from list',
+            toggle_field: {
+              name: 'skuId',
+              label: 'SKU ID',
+              hint: "A product SKU's unique identifier. Find more info " \
+                "<a href='https://developers.google.com/admin-sdk/licensing" \
+                "/v1/how-tos/products'>here</a>",
+              toggle_hint: 'Use custom value',
+              control_type: 'text',
+              type: 'string'
+            }
+          },
+          { name: 'skuName', hint: 'Display Name of the sku of the product' },
+          {
+            name: 'userId',
+            control_type: 'email',
+            hint: "The user's current primary email address. If the user's " \
+              'email address changes, use the new email address in your API ' \
+              'requests. Since a userId is subject to change, do not use a ' \
+              'userId value as a key for persistent data. This key could ' \
+              "break if the current user's email address changes. If the " \
+              'userId is suspended, the license status changes.'
+          }
+        ]
+      end
+    },
+
+    user: {
+      fields: lambda do |_connection, _config_fields|
+        [
+          { name: 'id' },
+          { control_type: 'email', name: 'primaryEmail' },
+          {
+            name: 'name',
+            type: 'object',
+            properties: [
+              { name: 'givenName' },
+              { name: 'familyName' },
+              { name: 'fullName' }
+            ]
+          },
+          {
+            name: 'isAdmin',
+            control_type: 'checkbox',
+            type: 'boolean',
+            toggle_hint: 'Select from option list',
+            toggle_field: {
+              name: 'isAdmin',
+              label: 'Is admin',
+              toggle_hint: 'Use custom value',
+              control_type: 'boolean',
+              type: 'boolean'
+            }
+          },
+          {
+            name: 'isDelegatedAdmin',
+            label: 'Is delegated admin',
+            control_type: 'checkbox',
+            type: 'boolean',
+            toggle_hint: 'Select from option list',
+            toggle_field: {
+              label: 'Is delegated admin',
+              toggle_hint: 'Use custom value',
+              control_type: 'boolean',
+              type: 'boolean',
+              name: 'isDelegatedAdmin'
+            }
+          },
+          {
+            control_type: 'date_time',
+            label: 'Last login time',
+            render_input: 'date_time_conversion',
+            parse_output: 'date_time_conversion',
+            type: 'date_time',
+            name: 'lastLoginTime'
+          },
+          {
+            control_type: 'date_time',
+            label: 'Creation time',
+            render_input: 'date_time_conversion',
+            parse_output: 'date_time_conversion',
+            type: 'date_time',
+            name: 'creationTime'
+          },
+          {
+            control_type: 'checkbox',
+            label: 'Agreed to terms',
+            toggle_hint: 'Select from option list',
+            toggle_field: {
+              label: 'Agreed to terms',
+              toggle_hint: 'Use custom value',
+              control_type: 'boolean',
+              type: 'boolean',
+              name: 'agreedToTerms'
+            },
+            type: 'boolean',
+            name: 'agreedToTerms'
+          },
+          {
+            control_type: 'checkbox',
+            toggle_hint: 'Select from option list',
+            toggle_field: {
+              toggle_hint: 'Use custom value',
+              control_type: 'boolean',
+              type: 'boolean',
+              name: 'suspended'
+            },
+            type: 'boolean',
+            name: 'suspended'
+          },
+          {
+            name: 'changePasswordAtNextLogin',
+            control_type: 'checkbox',
+            type: 'boolean',
+            hint: 'Indicates if the user is forced to change their password ' \
+              "at next login. This setting doesn't apply when SSO is " \
+              'configured with a third party identity provider.',
+            toggle_hint: 'Select from option list',
+            optional: true,
+            toggle_field: {
+              name: 'changePasswordAtNextLogin',
+              label: 'Change password at next login',
+              hint: 'Indicates if the user is forced to change their ' \
+                "password at next login. This setting doesn't apply when " \
+                'SSO is configured with a third party identity provider.',
+              toggle_hint: 'Enter custom value',
+              control_type: 'boolean',
+              type: 'boolean'
+            }
+          },
+          {
+            control_type: 'checkbox',
+            label: 'IP whitelisted',
+            toggle_hint: 'Select from option list',
+            toggle_field: {
+              label: 'IP whitelisted',
+              toggle_hint: 'Use custom value',
+              name: 'ipWhitelisted',
+              hint: "If true, the user's IP address is " \
+                '<a href="https://support.google.com/a/answer/60752">white ' \
+                'listed</a>.',
+              control_type: 'boolean',
+              type: 'boolean'
+            },
+            type: 'boolean',
+            name: 'ipWhitelisted',
+            hint: "If true, the user's IP address is " \
+            '<a href="https://support.google.com/a/answer/60752">white ' \
+            'listed</a>.'
+          },
+          {
+            name: 'emails',
+            type: 'array',
+            of: 'object',
+            properties: [
+              {
+                control_type: 'email',
+                type: 'string',
+                name: 'address'
+              },
+              {
+                control_type: 'checkbox',
+                label: 'Primary',
+                toggle_hint: 'Select from option list',
+                toggle_field: {
+                  label: 'Primary',
+                  control_type: 'boolean',
+                  toggle_hint: 'Use custom value',
+                  type: 'boolean',
+                  name: 'primary'
+                },
+                type: 'boolean',
+                name: 'primary'
+              },
+              {
+                control_type: 'select',
+                label: 'Type',
+                toggle_hint: 'Select from option list',
+                toggle_field: {
+                  name: 'type',
+                  label: 'Type',
+                  toggle_hint: 'Use custom value',
+                  control_type: 'string',
+                  type: 'string'
+                },
+                type: 'string',
+                name: 'type',
+                pick_list: [
+                  %w[Work work],
+                  %w[Home home],
+                  %w[Other other]
+                ]
+              }
+            ]
+          },
+          {
+            name: 'externalIds',
+            type: 'array',
+            of: 'object',
+            label: 'External IDs',
+            hint: 'A list of external IDs for the user, such as an employee ' \
+            'to or network ID.',
+            properties: [
+              { name: 'value' },
+              {
+                name: 'type',
+                control_type: 'select',
+                pick_list: 'external_id_types',
+                toggle_hint: 'Select from option list',
+                toggle_field: {
+                  name: 'type',
+                  label: 'Type',
+                  hint: 'Type of external ID. Can be either account, ' \
+                    'customer, login_id, network or organization.',
+                  toggle_hint: 'Enter custom value',
+                  control_type: 'text',
+                  type: 'string'
+                }
+              }
+            ]
+          },
+          {
+            name: 'organizations',
+            type: 'array',
+            of: 'object',
+            label: 'Organizations',
+            properties: [
+              { name: 'title' },
+              {
+                control_type: 'checkbox',
+                label: 'Primary',
+                toggle_hint: 'Select from option list',
+                toggle_field: {
+                  name: 'primary',
+                  label: 'Primary',
+                  control_type: 'boolean',
+                  toggle_hint: 'Use custom value',
+                  type: 'boolean'
+                },
+                type: 'boolean',
+                name: 'primary'
+              },
+              { name: 'customType' },
+              { name: 'department' },
+              { name: 'description' },
+              { name: 'costCenter' }
+            ]
+          },
+          {
+            name: 'nonEditableAliases',
+            type: 'array',
+            of: 'string',
+            control_type: 'text',
+            label: 'Non editable aliases'
+          },
+          { name: 'customerId' },
+          {
+            name: 'orgUnitPath',
+            hint: 'The full path of the parent organization associated with ' \
+            'the user. If the parent organization is the top-level, it is ' \
+            'represented as a forward slash (/).'
+          },
+          {
+            control_type: 'checkbox',
+            label: 'Is mailbox setup',
+            toggle_hint: 'Select from option list',
+            toggle_field: {
+              label: 'Is mailbox setup',
+              control_type: 'boolean',
+              toggle_hint: 'Use custom value',
+              type: 'boolean',
+              name: 'isMailboxSetup'
+            },
+            type: 'boolean',
+            name: 'isMailboxSetup'
+          },
+          {
+            control_type: 'checkbox',
+            label: 'Enrolled in 2-step verification',
+            toggle_hint: 'Select from option list',
+            toggle_field: {
+              label: 'Enrolled in 2-step verification',
+              control_type: 'boolean',
+              toggle_hint: 'Use custom value',
+              type: 'boolean',
+              name: 'isEnrolledIn2Sv'
+            },
+            type: 'boolean',
+            name: 'isEnrolledIn2Sv'
+          },
+          {
+            control_type: 'checkbox',
+            label: '2-step verification enforced',
+            toggle_hint: 'Select from option list',
+            toggle_field: {
+              name: 'isEnforcedIn2Sv',
+              label: '2-step verification enforced',
+              toggle_hint: 'Use custom value',
+              control_type: 'boolean',
+              type: 'boolean'
+            },
+            type: 'boolean',
+            name: 'isEnforcedIn2Sv'
+          },
+          {
+            control_type: 'checkbox',
+            label: 'Include in global address list',
+            toggle_hint: 'Select from option list',
+            toggle_field: {
+              label: 'Include in global address list',
+              toggle_hint: 'Use custom value',
+              name: 'includeInGlobalAddressList',
+              control_type: 'boolean',
+              type: 'boolean'
+            },
+            type: 'boolean',
+            name: 'includeInGlobalAddressList',
+            hint: "Indicates if the user's profile is visible in the " \
+              'G Suite global address list when the contact sharing feature ' \
+              'is enabled for the domain.'
+          }
+        ]
+      end
+    },
+
+    user_alias: {
+      fields: lambda do |_connection, _config_fields|
+        [
+          {
+            name: 'alias',
+            hint: 'The alias email address',
+            control_type: 'email'
+          },
+          { name: 'etag', hint: 'ETag of the resource' },
+          { name: 'id' },
+          {
+            name: 'primaryEmail',
+            hint: "The user's primary email address",
+            control_type: 'email'
+          }
+        ]
+      end
+    },
+
+    verification_code: {
+      fields: lambda do |_connection, _config_fields|
+        [{ name: 'userId' }, { name: 'verificationCode' }]
+      end
+    }
+  },
+
+  actions: {
+    custom_action: {
+      description: "Custom <span class='provider'>action</span> " \
+        "in <span class='provider'>G Suite Admin</span>",
+
+      help: {
+        body: 'Build your own G Suite Admin action with an HTTP request. The ' \
+          'request will be authorized with your G Suite Admin connection.',
+        learn_more_url: 'https://developers.google.com/admin-sdk/directory' \
+          '/v1/reference/',
+        learn_more_text: 'G Suite API Documentation'
+      },
+
+      execute: lambda do |_connection, input|
+        verb = input['verb']
+        data = input.dig('input', 'data').presence || {}
+
+        case verb
+        when 'get'
+          response =
+            get(input['path'], data).
+            after_error_response(/.*/) do |_code, body, _header, message|
+              error("#{message}: #{body}")
+            end.compact
+
+          if response.is_a?(Array)
+            array_name = parse_json(input['output'] || '[]').
+                         dig(0, 'name') || 'array'
+            { array_name.to_s => response }
+          elsif response.is_a?(Hash)
+            response
+          else
+            error('API response is not a JSON')
+          end
+        when 'post'
+          post(input['path'], data).
+            after_error_response(/.*/) do |_code, body, _header, message|
+            error("#{message}: #{body}")
+          end.compact
+        when 'put'
+          put(input['path'], data).
+            after_error_response(/.*/) do |_code, body, _header, message|
+            error("#{message}: #{body}")
+          end.compact
+        when 'patch'
+          patch(input['path'], data).
+            after_error_response(/.*/) do |_code, body, _header, message|
+            error("#{message}: #{body}")
+          end.compact
+        when 'delete'
+          delete(input['path'], data).
+            after_error_response(/.*/) do |_code, body, _header, message|
+            error("#{message}: #{body}")
+          end.compact
+        end
+      end,
+
+      config_fields: [{
+        name: 'verb',
+        label: 'Request type',
+        hint: 'Select HTTP method of the request',
+        optional: false,
+        control_type: 'select',
+        pick_list: %w[get post put patch delete].
+          map { |verb| [verb.upcase, verb] }
+      }],
+
+      input_fields: lambda do |object_definitions|
+        object_definitions['custom_action_input']
+      end,
+
+      output_fields: lambda do |object_definitions|
+        object_definitions['custom_action_output']
+      end
+    },
+
+    add_member_to_group: {
+      description: 'Add <span class="provider">member</span> to group in ' \
+        '<span class="provider">G Suite Admin</span>',
+
+      input_fields: lambda do |_object_definitions|
+        [
+          {
+            name: 'group',
+            label: 'Group',
+            type: 'string',
+            optional: false,
+            control_type: 'select',
+            pick_list: 'groups',
+            toggle_hint: 'Select from option list',
+            toggle_field: {
+              name: 'group',
+              label: 'Group key',
+              hint: 'Group ID or group email address',
+              toggle_hint: 'Enter group key',
+              control_type: 'text',
+              type: 'string'
+            }
+          },
+          {
+            name: 'email',
+            label: 'Group member email',
+            optional: false,
+            control_type: 'email'
+          },
+          {
+            name: 'role',
+            label: 'Role',
+            optional: false,
+            control_type: 'select',
+            pick_list: 'member_roles',
+            toggle_hint: 'Select from list',
+            toggle_field: {
+              name: 'role',
+              label: 'Role',
+              toggle_hint: 'Use custom value',
+              control_type: 'text',
+              type: 'string'
+            }
+          }
+        ]
+      end,
+
+      execute: lambda do |_connection, input|
+        post("/admin/directory/v1/groups/#{input.delete('group')}/members",
+             input)
+      end,
+
+      output_fields: lambda do |object_defintions|
+        object_defintions['group_member'].only('id')
+      end,
+
+      sample_output: lambda do |_connection, _input|
+        {
+          id: get('/admin/directory/v1/groups',
+                  customer: 'my_customer', maxResults: 1).dig('groups', 0, 'id')
+        }
+      end
+    },
+
+    create_group: {
+      description: 'Create <span class="provider">group</span> in ' \
+        '<span class="provider">G Suite Admin</span>',
+
+      input_fields: lambda do |object_definitions|
+        object_definitions['group'].only('description', 'email', 'name').
+          required('email')
+      end,
+
+      execute: lambda do |_connection, input|
+        post('/admin/directory/v1/groups', input).
+          after_error_response(/.*/) do |_code, body, _headers, message|
+          error("#{message}: #{body}")
+        end
+      end,
+
+      output_fields: ->(object_definitions) { object_definitions['group'] },
+
+      sample_output: lambda do |_connection, _input|
+        get('/admin/directory/v1/groups',
+            customer: 'my_customer', maxResults: 1).dig('groups', 0)
+      end
+    },
+
+    delete_group: {
+      description: 'Delete <span class="provider">group</span> in ' \
+        '<span class="provider">G Suite Admin</span>',
+
+      input_fields: lambda do |_object_definitions|
+        [{
+          name: 'group_key',
+          label: 'Group email',
+          control_type: 'email',
+          type: 'string',
+          optional: false,
+          hint: 'Email address of the group',
+          toggle_hint: 'Use email address',
+          toggle_field: {
+            name: 'group_key',
+            label: 'Group ID',
+            toggle_hint: 'Use group ID',
+            control_type: 'text',
+            type: 'string'
+          }
+        }]
+      end,
+
+      execute: lambda do |_connection, input|
+        delete("/admin/directory/v1/groups/#{input['group_key']}").
+          after_error_response(/.*/) do |_code, body, _headers, message|
+          error("#{message}: #{body}")
+        end
+      end
+    },
+
+    delete_member_from_group: {
+      description: 'Delete <span class="provider">member</span> from group ' \
+        'in <span class="provider">G Suite Admin</span>',
+
+      input_fields: lambda do |_object_definitions|
+        [
+          {
+            name: 'group',
+            label: 'Group',
+            type: 'string',
+            optional: false,
+            control_type: 'select',
+            pick_list: 'groups',
+            toggle_hint: 'Select from option list',
+            toggle_field: {
+              name: 'group',
+              label: 'Group key',
+              hint: 'Group ID or group email address',
+              toggle_hint: 'Enter group key',
+              control_type: 'text',
+              type: 'string'
+            }
+          },
+          {
+            name: 'member',
+            label: 'Member',
+            type: 'string',
+            optional: false,
+            control_type: 'select',
+            pick_list: 'members',
+            pick_list_params: { group: 'group' },
+            toggle_hint: 'Select from option list',
+            toggle_field: {
+              name: 'member',
+              label: 'Member key',
+              hint: 'Member ID or member email address',
+              toggle_hint: 'Enter a custom value',
+              control_type: 'text',
+              type: 'string'
+            }
+          }
+        ]
+      end,
+
+      execute: lambda do |_connection, input|
+        delete("/admin/directory/v1/groups/#{input['group']}/members" \
+          "/#{input['member']}").
+          after_error_response(/.*/) do |_code, body, _headers, message|
+          error("#{message}: #{body}")
+        end
+      end
+    },
+
+    get_group: {
+      description: 'Get <span class="provider">group</span> in ' \
+        '<span class="provider">G Suite Admin</span>',
+
+      input_fields: lambda do |_object_definitions|
+        [{
+          name: 'group_key',
+          label: 'Email address',
+          control_type: 'email',
+          type: 'string',
+          optional: false,
+          hint: 'Email address of the group to retrieve',
+          toggle_hint: 'Use email address',
+          toggle_field: {
+            name: 'group_key',
+            label: 'Group ID',
+            hint: 'Group ID of the group to retrieve',
+            toggle_hint: 'Use group ID',
+            control_type: 'text',
+            type: 'string'
+          }
+        }]
+      end,
+
+      execute: lambda do |_connection, input|
+        get("/admin/directory/v1/groups/#{input['group_key']}")
+      end,
+
+      output_fields: ->(object_definitions) { object_definitions['group'] },
+
+      sample_output: lambda do |_connection, _input|
+        get('/admin/directory/v1/groups',
+            customer: 'my_customer', maxResults: 1).dig('groups', 0)
+      end
+    },
+
+    get_members_in_group: {
+      description: 'Get <span class="provider">members</span> in group in ' \
+        '<span class="provider">G Suite Admin</span>',
+
+      input_fields: lambda do |_object_definitions|
+        [{
+          name: 'group_key',
+          label: 'Email address',
+          control_type: 'email',
+          type: 'string',
+          optional: false,
+          hint: 'Email address of the group to retrieve',
+          toggle_hint: 'Use email address',
+          toggle_field: {
+            name: 'group_key',
+            label: 'Group ID',
+            hint: 'Group ID of the group to retrieve',
+            toggle_hint: 'Use group ID',
+            control_type: 'text',
+            type: 'string'
+          }
+        }]
+      end,
+
+      execute: lambda do |_connection, input|
+        get("/admin/directory/v1/groups/#{input['group_key']}/members")
+      end,
+
+      output_fields: lambda do |object_definitions|
+        [{
+          name: 'members',
+          type: 'array',
+          of: 'object',
+          properties: object_definitions['group_member']
+        }]
+      end,
+
+      sample_output: lambda do |_connection, _input|
+        group_id = get('/admin/directory/v1/groups',
+                       customer: 'my_customer',
+                       maxResults: 1).dig('groups', 0, 'id')
+        {
+          members: [get("/admin/directory/v1/groups/#{group_id}/members").
+            dig('members', 0)]
+        }
+      end
+    },
+
+    search_groups: {
+      description: 'Search <span class="provider">groups</span> in ' \
+        '<span class="provider">G Suite Admin</span>',
+      help: 'Fetches the groups that match the search criteria. Returns a ' \
+        'maximum of 100 records',
+
+      input_fields: lambda do |_object_definitions|
+        [
+          {
+            name: 'query',
+            label: 'Search group by field values',
+            sticky: true,
+            type: 'object',
+            properties: [
+              { name: 'name', label: 'Group name', sticky: true },
+              {
+                name: 'email',
+                label: 'Group email',
+                control_type: 'email',
+                sticky: true
+              },
+              { name: 'memberKey', sticky: true }
+            ]
+          },
+          {
+            name: 'custom_query',
+            label: 'Search group by custom query',
+            sticky: true,
+            hint: 'You can search for group matching certain attributes ' \
+              "with a custom query.<br/>For example: <b>name='Integration' " \
+              "email='integration@domain.com'</b><br/> Click " \
+              "<a href='https://developers.google.com/admin-sdk/directory" \
+              "/v1/guides/search-groups' target='_blank'>here</a> for " \
+              'more info on building custom query'
+          }
+        ]
+      end,
+
+      execute: lambda do |_connection, input|
+        query_string = input['query']&.
+                       map { |key, value| "#{key}='#{value}'" }&.
+                       smart_join(' ')
+        params = {
+          customer: 'my_customer',
+          maxResults: 100,
+          query: "#{query_string} #{input['custom_query']}"&.strip.presence
+        }.compact
+
+        get('/admin/directory/v1/groups', params)
+      end,
+
+      output_fields: lambda do |object_definitions|
+        [{
+          name: 'groups',
+          type: 'array',
+          of: 'object',
+          properties: object_definitions['group']
+        }]
+      end,
+
+      sample_output: lambda do |_connection, _input|
+        {
+          groups: [get('/admin/directory/v1/groups',
+                       customer: 'my_customer', maxResults: 1).dig('groups', 0)]
+        }
+      end
+    },
+
+    update_group: {
+      description: 'Update <span class="provider">group</span> in ' \
+        '<span class="provider">G Suite Admin</span>',
+
+      input_fields: lambda do |object_definitions|
+        [{
+          name: 'group_key',
+          label: 'Group email',
+          control_type: 'email',
+          type: 'string',
+          optional: false,
+          hint: 'Email address of the group',
+          toggle_hint: 'Use email address',
+          toggle_field: {
+            name: 'group_key',
+            label: 'Group ID',
+            toggle_hint: 'Use group ID',
+            control_type: 'text',
+            type: 'string'
+          }
+        }].concat(object_definitions['group'].
+            only('description', 'email', 'name'))
+      end,
+
+      execute: lambda do |_connection, input|
+        put("/admin/directory/v1/groups/#{input.delete('group_key')}", input).
+          after_error_response(/.*/) do |_code, body, _headers, message|
+          error("#{message}: #{body}")
+        end
+      end,
+
+      output_fields: lambda do |object_definitions|
+        object_definitions['group'].only('id', 'primaryEmail').
+          concat([{ name: 'password' }])
+      end,
+
+      sample_output: lambda do |_connection, _input|
+        {
+          id: '02bn6wsx1lo7wbi',
+          password: '**********'
+        }
+      end
+    },
+
+    assign_license: {
+      description: 'Assign <span class="provider">license</span> in ' \
+        '<span class="provider">G Suite Admin</span>',
+
+      input_fields: lambda do |object_definitions|
+        object_definitions['license_assignment'].
+          only('productId', 'skuId', 'userId').
+          required('productId', 'skuId', 'userId')
+      end,
+
+      execute: lambda do |_connection, input|
+        post("/apps/licensing/v1/product/#{input.delete('productId')}" \
+          "/sku/#{input.delete('skuId')}/user/", input)
+      end,
+
+      output_fields: lambda do |object_definitions|
+        object_definitions['license_assignment']
+      end,
+
+      sample_output: lambda do |_connection, _input|
+        user_id = get('/admin/directory/v1/users').dig('users', 0, 'id')
+        get("/admin/directory/v1/groups/#{user_id}/aliases").dig('aliases', 0)
+      end
+    },
+
+    revoke_license: {
+      description: 'Revoke <span class="provider">license</span> in ' \
+        '<span class="provider">G Suite Admin</span>',
+
+      input_fields: lambda do |object_definitions|
+        object_definitions['license_assignment'].
+          only('productId', 'skuId', 'userId').
+          required('productId', 'skuId', 'userId')
+      end,
+
+      execute: lambda do |_connection, input|
+        delete("/apps/licensing/v1/product/#{input['productId']}" \
+          "/sku/#{input['skuId']}/user/#{input['userId']}").
+          after_error_response(/.*/) do |_code, body, _headers, message|
+          error("#{message}: #{body}")
+        end
+      end
+    },
+
+    reassign_license: {
+      description: 'Reassign <span class="provider">license</span> in ' \
+        '<span class="provider">G Suite Admin</span>',
+
+      input_fields: lambda do |object_definitions|
+        object_definitions['license_assignment'].
+          only('productId', 'skuId', 'userId').
+          required('productId', 'skuId', 'userId')
+      end,
+
+      execute: lambda do |_connection, input|
+        put("/apps/licensing/v1/product/#{input['productId']}" \
+          "/sku/#{input['skuId']}/user/#{input['userId']}", input).
+          after_error_response(/.*/) do |_code, body, _headers, message|
+          error("#{message}: #{body}")
+        end
+      end,
+
+      output_fields: lambda do |object_definitions|
+        object_definitions['license_assignment']
+      end,
+
+      sample_output: lambda do |_connection, _input|
+        get('/admin/directory/v1/groups').dig('groups', 0)
+      end
+    },
+
+    get_license_assignments: {
+      description: 'Get <span class="provider">license assignments</span> in ' \
+        '<span class="provider">G Suite Admin</span>',
+
+      input_fields: lambda do |object_definitions|
+        [{ name: 'customerId' }].
+          concat(object_definitions['license_assignment'].
+          only('productId', 'skuId', 'customerId').
+          required('productId', 'skuId', 'customerId'))
+      end,
+
+      execute: lambda do |_connection, input|
+        {
+          license_assignments:
+            get("/apps/licensing/v1/product/#{input.delete('productId')}" \
+              "/sku/#{input.delete('skuId')}/users", input)
+        }
+      end,
+
+      output_fields: lambda do |object_definitions|
+        [{
+          name: 'license_assignments',
+          type: 'array',
+          of: 'object',
+          properties: object_definitions['license_assignment']
+        }]
+      end
+    },
+
+    create_user: {
+      description: 'Create <span class="provider">user</span> in ' \
+        '<span class="provider">G Suite Admin</span>',
+
+      input_fields: lambda do |object_definitions|
+        [
+          {
+            name: 'name',
+            optional: false,
+            type: 'object',
+            properties: [
+              { name: 'familyName', optional: false },
+              { name: 'givenName', optional: false }
+            ]
+          },
+          {
+            name: 'generate_password',
+            control_type: 'checkbox',
+            type: 'boolean',
+            hint: 'Generate randomized password',
+            optional: false,
+            toggle_hint: 'Generate password',
+            toggle_field: {
+              name: 'generate_password',
+              label: 'Password',
+              toggle_hint: 'Enter custom password',
+              hint: 'Enter a password from 8 to 100 characters',
+              control_type: 'password',
+              type: 'string'
+            }
+          }
+        ].concat(object_definitions['user'].
+              only('primaryEmail', 'changePasswordAtNextLogin', 'emails').
+              required('primaryEmail'))
+      end,
+
+      execute: lambda do |_connection, input|
+        password =
+          if (generate_password = input&.delete('generate_password')) == true ||
+             generate_password == 'true'
+            call('generate_password')
+          else
+            generate_password
+          end
+        input['password'] = password.md5_hexdigest
+        input['hashFunction'] = 'MD5'
+        response =
+          post('/admin/directory/v1/users', input).
+          after_error_response(/.*/) do |_code, body, _headers, message|
+            error("#{message}: #{body}")
+          end
+        response['password'] = password
+
+        response
+      end,
+
+      output_fields: lambda do |object_definitions|
+        object_definitions['user'].only('id', 'primaryEmail').
+          concat([{ name: 'password' }])
+      end,
+
+      sample_output: lambda do |_connection, _input|
+        {
+          id: '114983797827085828801',
+          primaryEmail: 'aaron@workatoapj.com',
+          password: '**********'
+        }
+      end
+    },
+
+    delete_user: {
+      description: 'Delete <span class="provider">user</span> in ' \
+        '<span class="provider">G Suite Admin</span>',
+
+      input_fields: lambda do |_object_definitions|
+        [{
+          name: 'user_key',
+          label: 'User email',
+          control_type: 'email',
+          type: 'string',
+          optional: false,
+          toggle_hint: 'Use email address',
+          toggle_field: {
+            name: 'user_key',
+            label: 'User ID',
+            toggle_hint: 'Use user ID',
+            control_type: 'text',
+            type: 'string'
+          }
+        }]
+      end,
+
+      execute: lambda do |_connection, input|
+        delete("/admin/directory/v1/users/#{input['user_key']}").
+          after_error_response(/.*/) do |_code, body, _headers, message|
+          error("#{message}: #{body}")
+        end
+      end
+    },
+
+    get_user: {
+      description: 'Get <span class="provider">user</span> in ' \
+        '<span class="provider">G Suite Admin</span>',
+
+      input_fields: lambda do |_object_definitions|
+        [{
+          name: 'user_key',
+          label: 'Email address',
+          control_type: 'email',
+          type: 'string',
+          optional: false,
+          hint: 'Email address of the user to retrieve',
+          toggle_hint: 'Use email address',
+          toggle_field: {
+            name: 'user_key',
+            label: 'User ID',
+            hint: 'User ID of the user to retrieve',
+            toggle_hint: 'Use user ID',
+            control_type: 'text',
+            type: 'string'
+          }
+        }]
+      end,
+
+      execute: lambda do |_connection, input|
+        get("/admin/directory/v1/users/#{input['user_key']}")
+      end,
+
+      output_fields: ->(object_definitions) { object_definitions['user'] },
+
+      sample_output: lambda do |_connection, _input|
+        get('/admin/directory/v1/users',
+            customer: 'my_customer', maxResults: 1).dig('users', 0)
+      end
+    },
+
+    search_users: {
+      description: 'Search <span class="provider">users</span> in ' \
+        '<span class="provider">G Suite Admin</span>',
+      help: 'Fetches the users that match the search criteria. Returns a ' \
+        'maximum of 100 records',
+
+      input_fields: lambda do |_object_definitions|
+        [
+          { name: 'domain' },
+          {
+            name: 'query',
+            label: 'Search user by field values',
+            sticky: true,
+            type: 'object',
+            properties: [
+              { name: 'familyName', sticky: true },
+              { name: 'givenName', sticky: true },
+              { name: 'email', control_type: 'email', sticky: true }
+            ]
+          },
+          {
+            name: 'custom_query',
+            label: 'Search user by custom query',
+            sticky: true,
+            hint: 'You can search for users matching certain attributes ' \
+              "with a custom query.<br/>For example: <b>name='Jane Smith' " \
+              "isAdmin=true addressCountry='Sweden'</b><br/> Click " \
+              "<a href='https://developers.google.com/admin-sdk/directory" \
+              "/v1/guides/search-users#fields' target='_blank'>here</a> for " \
+              'more info on building custom query'
+          }
+        ]
+      end,
+
+      execute: lambda do |_connection, input|
+        query_string = input['query']&.
+                       map { |key, value| "#{key}='#{value}'" }&.
+                       smart_join(' ')
+        params = {
+          customer: 'my_customer',
+          maxResults: 100,
+          query: "#{query_string} #{input['custom_query']}"&.strip.presence
+        }.compact
+
+        get('/admin/directory/v1/users', params)
+      end,
+
+      output_fields: lambda do |object_definitions|
+        [{
+          name: 'users',
+          type: 'array',
+          of: 'object',
+          properties: object_definitions['user']
+        }]
+      end,
+
+      sample_output: lambda do |_connection, _input|
+        { users: [get('/admin/directory/v1/users',
+                      customer: 'my_customer', maxResults: 1).dig('users', 0)] }
+      end
+    },
+
+    update_user: {
+      description: 'Update <span class="provider">user</span> in ' \
+        '<span class="provider">G Suite Admin</span>',
+
+      input_fields: lambda do |object_definitions|
+        [
+          {
+            name: 'user_key',
+            label: 'Email address',
+            control_type: 'email',
+            type: 'string',
+            optional: false,
+            hint: 'Email address of the user to retrieve',
+            toggle_hint: 'Use email address',
+            toggle_field: {
+              name: 'user_key',
+              label: 'User ID',
+              hint: 'User ID of the user to retrieve',
+              toggle_hint: 'Use user ID',
+              control_type: 'text',
+              type: 'string'
+            }
+          },
+          {
+            name: 'generate_password',
+            label: 'Generate password',
+            hint: 'Generate randomized password',
+            control_type: 'checkbox',
+            type: 'boolean',
+            sticky: true,
+            toggle_hint: 'Generate password',
+            toggle_field: {
+              name: 'generate_password',
+              label: 'Password',
+              toggle_hint: 'Enter custom password',
+              hint: 'Enter a password of length 8 to 100 characters',
+              control_type: 'password',
+              type: 'string'
+            }
+          },
+          {
+            name: 'name',
+            type: 'object',
+            properties: [
+              { name: 'familyName', label: 'Family name', sticky: true },
+              { name: 'givenName', label: 'Given name', sticky: true }
+            ]
+          }
+        ].concat(object_definitions['user'].
+            ignored('agreedToTerms', 'aliases', 'creationTime',
+                    'customSchemas', 'customerId', 'deletionTime', 'id',
+                    'isAdmin', 'isDelegatedAdmin', 'isEnforcedIn2Sv',
+                    'isEnrolledIn2Sv', 'isMailboxSetup', 'lastLoginTime',
+                    'organizations', 'name'))
+      end,
+
+      execute: lambda do |_connection, input|
+        password =
+          if (generate_password = input&.delete('generate_password')) == true ||
+             generate_password == 'true'
+            call('generate_password')
+          else
+            generate_password
+          end
+        if password.present?
+          input['password'] = password.md5_hexdigest
+          input['hashFunction'] = 'MD5'
+        end
+        response =
+          put("/admin/directory/v1/users/#{input.delete('user_key')}", input).
+          after_error_response(/.*/) do |_code, body, _headers, message|
+            error("#{message}: #{body}")
+          end
+        response['password'] = password
+
+        response
+      end,
+
+      output_fields: lambda do |object_definitions|
+        object_definitions['user'].only('id', 'primaryEmail').
+          concat([{ name: 'password' }])
+      end,
+
+      sample_output: lambda do |_connection, _input|
+        {
+          id: '114983797827085828801',
+          primaryEmail: 'aaron@workatoapj.com',
+          password: '**********'
+        }
+      end
+    },
+
+    create_user_alias: {
+      description: 'Create <span class="provider">user alias</span> in ' \
+        '<span class="provider">G Suite Admin</span>',
+
+      input_fields: lambda do |object_definitions|
+        [{
+          name: 'user_key',
+          label: 'Email address',
+          control_type: 'email',
+          type: 'string',
+          optional: false,
+          hint: 'Email address of the user to retrieve',
+          toggle_hint: 'Use email address',
+          toggle_field: {
+            name: 'user_key',
+            label: 'User ID',
+            hint: 'User ID of the user to retrieve',
+            toggle_hint: 'Use user ID',
+            control_type: 'text',
+            type: 'string'
+          }
+        }].concat(object_definitions['user_alias'].only('alias').
+          required('alias'))
+      end,
+
+      execute: lambda do |_connection, input|
+        post("/admin/directory/v1/users/#{input.delete('user_key')}/aliases",
+             input)
+      end,
+
+      output_fields: lambda do |object_definitions|
+        object_definitions['user_alias'].ignored('primaryEmail')
+      end,
+
+      sample_output: lambda do |_connection, _input|
+        user_id = get('/admin/directory/v1/users',
+                      customer: 'my_customer',
+                      maxResults: 1).dig('users', 0, 'id')
+        get("/admin/directory/v1/users/#{user_id}/aliases").dig('aliases', 0)
+      end
+    },
+
+    delete_user_alias: {
+      description: 'Delete <span class="provider">user alias</span> in ' \
+        '<span class="provider">G Suite Admin</span>',
+
+      input_fields: lambda do |object_definitions|
+        [{
+          name: 'user_key',
+          label: 'User email',
+          control_type: 'email',
+          type: 'string',
+          optional: false,
+          toggle_hint: 'Use email address',
+          toggle_field: {
+            name: 'user_key',
+            label: 'User ID',
+            toggle_hint: 'Use user ID',
+            control_type: 'text',
+            type: 'string'
+          }
+        }].concat(object_definitions['user_alias'].only('alias').
+          required('alias'))
+      end,
+
+      execute: lambda do |_connection, input|
+        delete("/admin/directory/v1/users/#{input['user_key']}/aliases" \
+          "/#{input['alias']}").
+          after_error_response(/.*/) do |_code, body, _headers, message|
+          error("#{message}: #{body}")
+        end
+      end
+    },
+
+    get_user_aliases: {
+      description: 'Get <span class="provider">user aliases</span> in ' \
+        '<span class="provider">G Suite Admin</span>',
+
+      input_fields: lambda do |_object_definitions|
+        [{
+          name: 'user_key',
+          label: 'Email address',
+          control_type: 'email',
+          type: 'string',
+          optional: false,
+          hint: 'Email address of the user to retrieve',
+          toggle_hint: 'Use email address',
+          toggle_field: {
+            name: 'user_key',
+            label: 'User ID',
+            hint: 'User ID of the user to retrieve',
+            toggle_hint: 'Use user ID',
+            control_type: 'text',
+            type: 'string'
+          }
+        }]
+      end,
+
+      execute: lambda do |_connection, input|
+        get("/admin/directory/v1/users/#{input['user_key']}/aliases")
+      end,
+
+      output_fields: lambda do |object_definitions|
+        [{
+          name: 'aliases',
+          type: 'array',
+          of: 'object',
+          properties: object_definitions['user_alias']
+        }]
+      end,
+
+      sample_output: lambda do |_connection, _input|
+        user_id = get('/admin/directory/v1/users',
+                      customer: 'my_customer',
+                      maxResults: 1).dig('users', 0, 'id')
+        {
+          aliases: [get("/admin/directory/v1/users/#{user_id}/aliases").
+            dig('aliases', 0)]
+        }
+      end
+    },
+
+    get_user_verification_codes: {
+      description: "Get <span class='provider'>verification codes</span> of " \
+        "user <span class='provider'>G Suite Admin</span>",
+      help: 'List of the current set of valid verification codes for ' \
+        'the specified user.',
+
+      input_fields: lambda do |_object_definitions|
+        [{
+          name: 'user_key',
+          label: 'User email',
+          control_type: 'email',
+          type: 'string',
+          optional: false,
+          toggle_hint: 'Use email address',
+          toggle_field: {
+            name: 'user_key',
+            label: 'User ID',
+            toggle_hint: 'Use user ID',
+            control_type: 'text',
+            type: 'string'
+          }
+        }]
+      end,
+
+      execute: lambda do |_connection, input|
+        {
+          codes: get("/admin/directory/v1/users/#{input['user_key']}" \
+            '/verificationCodes')['items']
+        }
+      end,
+
+      output_fields: lambda do |object_definitions|
+        [{
+          name: 'codes',
+          label: 'Verification codes',
+          type: 'array',
+          of: 'object',
+          properties: object_definitions['verification_code']
+        }]
+      end
+    },
+
+    generate_user_verification_codes: {
+      description: "Generate user <span class='provider'>verification codes" \
+        "</span> in <span class='provider'>G Suite Admin</span>",
+      help: 'Generate a new list of verification codes for the ' \
+        'specified user',
+
+      input_fields: lambda do |_object_definitions|
+        [{
+          name: 'user_key',
+          label: 'User email',
+          control_type: 'email',
+          type: 'string',
+          optional: false,
+          toggle_hint: 'Use email address',
+          toggle_field: {
+            name: 'user_key',
+            label: 'User ID',
+            toggle_hint: 'Use user ID',
+            control_type: 'text',
+            type: 'string'
+          }
+        }]
+      end,
+
+      execute: lambda do |_connection, input|
+        post("/admin/directory/v1/users/#{input['user_key']}" \
+          '/verificationCodes/generate')
+      end
+    },
+
+    invalidate_user_verification_codes: {
+      description: "Invalidate user <span class='provider'>verification codes" \
+        "</span> in <span class='provider'>G Suite Admin</span>",
+      help: 'Invalidates the current set of valid verification codes ' \
+        'for the specified user.',
+
+      input_fields: lambda do |_object_definitions|
+        [{
+          name: 'user_key',
+          label: 'User email',
+          control_type: 'email',
+          type: 'string',
+          optional: false,
+          toggle_hint: 'Use email address',
+          toggle_field: {
+            name: 'user_key',
+            label: 'User ID',
+            toggle_hint: 'Use user ID',
+            control_type: 'text',
+            type: 'string'
+          }
+        }]
+      end,
+
+      execute: lambda do |_connection, input|
+        post("/admin/directory/v1/users/#{input['user_key']}" \
+          '/verificationCodes/invalidate')
+      end
+    }
+  },
+
+  triggers: {
+    new_group: {
+      description: "New <span class='provider'>group</span> in " \
+        "<span class='provider'>G Suite Admin</span>",
+
+      poll: lambda do |_connection, _input, next_page|
+        params = {
+          customer: 'my_customer',
+          maxResults: 200,
+          pageToken: next_page.presence
+        }.compact
+        records = get('/admin/directory/v1/groups', params)
+
+        {
+          events: records['groups'],
+          next_poll: (next_page = records['nextPageToken']).presence,
+          can_poll_more: next_page.present?
+        }
+      end,
+
+      dedup: ->(group) { group['id'] },
+
+      output_fields: ->(object_definitions) { object_definitions['group'] },
+
+      sample_output: lambda do |_connection, _input|
+        get('/admin/directory/v1/groups',
+            customer: 'my_customer', maxResults: 1).dig('groups', 0)
+      end
+    },
+
+    new_user: {
+      description: "New <span class='provider'>user</span> in " \
+        "<span class='provider'>G Suite Admin</span>",
+
+      poll: lambda do |_connection, _input, next_page|
+        params = {
+          customer: 'my_customer',
+          maxResults: 500,
+          pageToken: next_page.presence
+        }.compact
+        records = get('/admin/directory/v1/users', params)
+
+        {
+          events: records['users'],
+          next_poll: (next_page = records['nextPageToken']).presence,
+          can_poll_more: next_page.present?
+        }
+      end,
+
+      dedup: ->(user) { user['id'] },
+
+      output_fields: ->(object_definitions) { object_definitions['user'] },
+
+      sample_output: lambda do |_connection, _input|
+        get('/admin/directory/v1/users',
+            customer: 'my_customer', maxResults: 1).dig('users', 0)
+      end
+    }
+  },
+
+  pick_lists: {
+    external_id_types: lambda do |_connection|
+      [%w[Account account], %w[Customer customer], %w[Login\ ID login_id],
+       %w[Network network], %w[Organization organization]]
+    end,
+
+    groups: lambda do |_connection|
+      get('/admin/directory/v1/groups',
+          customer: 'my_customer',
+          maxResults: 200)['groups']&.pluck('name', 'id')
+    end,
+
+    members: lambda do |_connection, group:|
+      get("/admin/directory/v1/groups/#{group}/members",
+          maxResults: 200)['members']&.pluck('email', 'id')
+    end,
+
+    member_roles: lambda do |_connection|
+      [%w[Manager MANAGER], %w[Member MEMBER], %w[Owner OWNER]]
+    end,
+
+    products: lambda do |_connection|
+      [%w[G\ Suite Google-Apps],
+       %w[Google\ Drive\ storage Google-Drive-storage],
+       %w[Google\ Vault Google-Vault],
+       %w[Cloud\ Identity 101001],
+       %w[Cloud\ Identity\ Premium 101005],
+       %w[Google\ Voice 101033]]
+    end,
+
+    skus: lambda do |_connection, productId:|
+      {
+        'Google-Apps' => [
+          ['G Suite Enterprise', '1010020020'],
+          ['G Suite Business', 'Google-Apps-Unlimited'],
+          ['G Suite Basic', 'Google-Apps-For-Business'],
+          ['Drive Enterprise', '1010060001'],
+          ['G Suite Lite', 'Google-Apps-Lite'],
+          ['Google Apps Message Security', 'Google-Apps-For-Postini']
+        ],
+        'Google-Drive-storage' => [
+          ['Google Drive storage 20 GB', 'Google-Drive-storage-20GB'],
+          ['Google-Drive-storage-50GB	', 'Google-Drive-storage-50GB'],
+          ['Google Drive storage 200 GB', 'Google-Drive-storage-200GB'],
+          ['Google Drive storage 400 GB', 'Google-Drive-storage-400GB	'],
+          ['Google Drive storage 1 TB', 'Google-Drive-storage-1TB'],
+          ['Google Drive storage 2 TB', 'Google-Drive-storage-2TB'],
+          ['Google Drive storage 4 TB', 'Google-Drive-storage-4TB'],
+          ['Google Drive storage 8 TB', 'Google-Drive-storage-8TB'],
+          ['Google Drive storage 16 TB', 'Google-Drive-storage-16TB']
+        ],
+        'Google-Vault' => [
+          ['Google Vault', 'Google-Vault'],
+          ['Google Vault - Former Employee', 'Google-Vault-Former-Employee']
+        ],
+        '101001' => [['Cloud Identity', '1010010001']],
+        '101005' => [['Cloud Identity Premium', '1010050001']],
+        '101033' => [
+          ['Google Voice Starter', '1010330003'],
+          ['Google Voice Standard', '1010330004'],
+          ['Google Voice Premier', '1010330002']
+        ]
+      }[productId]
+    end
+  }
+}
