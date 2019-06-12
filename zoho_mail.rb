@@ -32,22 +32,23 @@
 
       authorization_url: lambda do |connection|
         scope = [
-        "VirtualOffice.search.READ",
-        "VirtualOffice.folders.READ",
-        "VirtualOffice.accounts.READ",
-        "VirtualOffice.messages.READ",
-        "VirtualOffice.messages.CREATE"].join(' ')
+          'VirtualOffice.search.READ',
+          'VirtualOffice.folders.READ',
+          'VirtualOffice.accounts.READ',
+          'VirtualOffice.messages.READ',
+          'VirtualOffice.messages.CREATE'
+        ].join(' ')
         "https://accounts.#{connection['domain']}/oauth/v2/"\
         "auth?scope=#{scope}&client_id=#{connection['client_id']}&"\
         'response_type=code&access_type=offline&prompt=consent'
       end,
 
       acquire: lambda do |connection, auth_code, redirect_uri|
-                 scope = ["VirtualOffice.search.READ",
-                          "VirtualOffice.folders.READ",
-                          "VirtualOffice.accounts.READ",
-                          "VirtualOffice.messages.READ",
-                          "VirtualOffice.messages.CREATE"].join(' ')
+                 scope = ['VirtualOffice.search.READ',
+                          'VirtualOffice.folders.READ',
+                          'VirtualOffice.accounts.READ',
+                          'VirtualOffice.messages.READ',
+                          'VirtualOffice.messages.CREATE'].join(' ')
 
                  response = post("https://accounts.#{connection['domain']}"\
                   '/oauth/v2/token')
@@ -69,11 +70,11 @@
                end,
 
       refresh: lambda do |connection, redirect_uri|
-                 scope = ["VirtualOffice.search.READ",
-                          "VirtualOffice.folders.READ",
-                          "VirtualOffice.accounts.READ",
-                          "VirtualOffice.messages.READ",
-                          "VirtualOffice.messages.CREATE"].join(' ')
+                 scope = ['VirtualOffice.search.READ',
+                          'VirtualOffice.folders.READ',
+                          'VirtualOffice.accounts.READ',
+                          'VirtualOffice.messages.READ',
+                          'VirtualOffice.messages.CREATE'].join(' ')
 
                  post("https://accounts.#{connection['domain']}/oauth/v2/token")
                    .params(client_id: connection['client_id'],
@@ -129,7 +130,9 @@
   },
 
   methods: {
-    getAccountId: lambda do |parsed|
+    getAccountId: lambda do |connection|
+                    parsed = get("https://mail.#{connection['domain']}/"\
+                          'api/accounts')['data']
                     account_id = 0
                     parsed.each do |accdata|
                       if accdata['type'] == 'ZOHO_ACCOUNT'
@@ -163,12 +166,12 @@
                   account_id = input['accountId']
                   mail_content = []
                   response.each do |mailjson|
-                    next if (!mailjson['folderId'].blank?)
+                    next if mailjson['folderId'].blank?
 
                     content = get("https://mail.#{connection['domain']}/api/"\
                     "accounts/#{account_id}/folders/#{mailjson['folderId']}/"\
-                    "messages/#{mailjson['messageId']}/content")
-                    ['data']['content']
+                    "messages/#{mailjson['messageId']}/"\
+                    'content')['data']['content']
                     mailjson = mailjson.merge('content' => content)
                     mail_content << mailjson
                   end
@@ -195,9 +198,7 @@
     end,
 
     folders: lambda do |connection|
-      account_id = call(:getAccountId,
-                        get("https://mail.#{connection['domain']}/"\
-                          'api/accounts')['data'])
+      account_id = call(:getAccountId, connection)
       call(:getFolders, get("https://mail.#{connection['domain']}/api/accounts"\
         "/#{account_id}/folders")['data'])
         .map { |folder| [folder['folderName'], folder['folderName']] }
@@ -230,13 +231,11 @@
           ] }
       ],
       execute: lambda { |connection, input|
-        if input['Account'].blank?
-          account_id = call(:getAccountId,
-                            get("https://mail.#{connection['domain']}"\
-                              '/api/accounts')['data'])
-        else
-          account_id = input['Account']
-        end
+        account_id = if input['Account'].blank?
+                       call(:getAccountId, connection)
+                     else
+                       input['Account']
+                     end
 
         payload = {
           'fromAddress' => input['From'],
@@ -291,13 +290,11 @@
           ] }
       ],
       execute: lambda { |connection, input|
-        if input['Account'].blank?
-          account_id = call(:getAccountId,
-                            get("https://mail.#{connection['domain']}/api"\
-                              '/accounts')['data'])
-        else
-          account_id = input['Account']
-        end
+        account_id = if input['Account'].blank?
+                       call(:getAccountId, connection)
+                     else
+                       input['Account']
+                     end
         payload = {
           'fromAddress' => input['From'],
           'toAddress' => input['To'],
@@ -342,13 +339,11 @@
 
       ],
       execute: lambda { |connection, input|
-                 if input['Account'].blank?
-                   account_id = call(:getAccountId,
-                                     get("https://mail.#{connection['domain']}"\
-                                      '/api/accounts')['data'])
-                 else
-                   account_id = input['Account']
-                 end
+                 account_id = if input['Account'].blank?
+                                call(:getAccountId, connection)
+                              else
+                                input['Account']
+                              end
                  payload = {
                    'fromAddress' => input['From'],
                    'toAddress' => input['To'].gsub('@', '+task@'),
@@ -397,12 +392,11 @@
         limit = 50
         page ||= 0
         offset = (limit * page) + 1
-        if input['Account'].blank?
-          account_id = call(:getAccountId,
-                            get("https://mail.#{connection['domain']}/api/"\
-                              'accounts')['data'])
-        else account_id = input['Account']
-        end
+        account_id = if input['Account'].blank?
+                       call(:getAccountId, connection)
+                     else
+                       input['Account']
+                     end
 
         response = get("https://mail.#{connection['domain']}"\
           "/api/accounts/#{account_id}/messages/search")
@@ -456,13 +450,11 @@
               limit = 50
               page ||= 0
               offset = (limit * page) + 1
-              if input['Account'].blank?
-                account_id = call(:getAccountId,
-                                  get("https://mail.#{connection['domain']}/"\
-                                    "api/accounts")['data'])
-              else
-                account_id = input['Account']
-              end
+              account_id = if input['Account'].blank?
+                             call(:getAccountId, connection)
+                           else
+                             input['Account']
+                           end
               response = get("https://mail.#{connection['domain']}"\
                 "/api/accounts/#{account_id}/messages/search")
                          .params(searchKey: input['search'],
@@ -477,12 +469,7 @@
               response = call(:addContent, input)
               {
                 events: response,
-                next_page:
-                if page > 5
-                  nil
-                else
-                  response.length >= limit ? page + 1 : nil
-                end
+                next_page: response.length >= 50 && page < 5 ? page + 1 : nil
               }
             end,
 
@@ -512,13 +499,11 @@
               limit = 50
               page ||= 0
               offset = (limit * page) + 1
-              if input['Account'].blank?
-                account_id = call(:getAccountId,
-                                  get("https://mail.#{connection['domain']}/"\
-                                    "api/accounts")['data'])
-              else
-                account_id = input['Account']
-              end
+              account_id = if input['Account'].blank?
+                             call(:getAccountId, connection)
+                           else
+                             input['Account']
+                           end
               response = get("https://mail.#{connection['domain']}"\
                 "/api/accounts/#{account_id}/messages/search")
                          .params(searchKey: 'in:' + input['folderName'] +
@@ -533,13 +518,7 @@
               response = call(:addContent, input)
               {
                 events: response,
-                next_page:
-                if page > 5
-                  nil
-                else
-                  response.length >= limit ? page + 1 : nil
-                end
-
+                next_page: response.length >= 50 && page < 5 ? page + 1 : nil
               }
             end,
 
