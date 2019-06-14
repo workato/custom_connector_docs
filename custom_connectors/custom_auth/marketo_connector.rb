@@ -135,7 +135,7 @@
           { name: "updatedAt" },
           { name: "url" },
           { name: "type"},
-          { name: "channel"},
+          { name: "channle"},
           { name: "folder",
               type: :object,
               properties: [
@@ -324,7 +324,7 @@
 
       input_fields: lambda do|object_definitions|
         [
-           {
+          {
             name: "action",
             label: "Operation type of the request",
             control_type: "select",
@@ -353,10 +353,10 @@
       end,
 
       execute: lambda do |_connection, input|
-        post("/rest/v1/leads.json").
-          payload(action: input["action"],
-                 lookupField: input["lookupField"],
-                 input: input["leads"])
+        post("/rest/v1/leads.json")
+         .payload(action: input["action"],
+                  lookupField: input["lookupField"],
+                  input: input["leads"])
       end,
 
       output_fields: lambda do |object_definitions|
@@ -448,7 +448,7 @@
         %w[Salesforce\ Lead\ Owner\ ID sfdcLeadOwnerId]
       ]
     end,
-    
+
     action_types: lambda do
       [
         %w[Create\ or\ Update createOrUpdate],
