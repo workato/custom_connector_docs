@@ -309,8 +309,8 @@
       end,
 
       execute: lambda do |_connection, input|
-        post("/rest/asset/v1/programs.json").
-          payload(input)
+        post("/rest/asset/v1/programs.json")
+          .payload(input)
       end,
 
       output_fields: lambda do |object_definitions|
@@ -318,8 +318,8 @@
       end
     },
     batch_create_leads: {
-      description: "Batch create or update <span class='provider'>leads</span> into " \
-        "<span class='provider'>Marketo</span>",
+      description: "Batch create / update <span class='provider'>leads</span>" \
+        " into <span class='provider'>Marketo</span>",
       help: "Batch create or update a list of leads",
 
       input_fields: lambda do|object_definitions|
@@ -354,9 +354,9 @@
 
       execute: lambda do |_connection, input|
         post("/rest/v1/leads.json")
-         .payload(action: input["action"],
-                  lookupField: input["lookupField"],
-                  input: input["leads"])
+          .payload(action: input["action"],
+                   lookupField: input["lookupField"],
+                   input: input["leads"])
       end,
 
       output_fields: lambda do |object_definitions|
