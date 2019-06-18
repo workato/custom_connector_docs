@@ -64,7 +64,7 @@
                 end
               ),
               control_type: (
-                if ["integer", "boolean", "date", "url", "email", "phone"].
+                if ["integer", "date", "url", "email", "phone"].
                   include?(field.dig("dataType"))
                   field.dig("dataType")
                 elsif field.dig("dataType") == "datetime"
