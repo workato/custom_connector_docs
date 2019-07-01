@@ -64,7 +64,7 @@
                 end
               ),
               control_type: (
-                if ["integer", "boolean", "date", "url", "email", "phone"].
+                if ["integer", "date", "url", "email", "phone"].
                   include?(field.dig("dataType"))
                   field.dig("dataType")
                 elsif field.dig("dataType") == "datetime"
@@ -121,6 +121,71 @@
               { name: "code", type: "integer", control_type: "integer" },
               { name: "message" }
             ]
+          }
+        ]
+      end
+    },
+    programs: {
+      fields: lambda do |_object_definitions|
+        [
+          { name: "name" },
+          { name: "id"},
+          { name: "description" },
+          { name: "createdAt"},
+          { name: "updatedAt" },
+          { name: "url" },
+          { name: "type"},
+          { name: "channle"},
+          { name: "folder",
+              type: :object,
+              properties: [
+                {
+                  name: "type"
+                },
+                {
+                  name: "value"
+                },
+                {
+                  name: "folderName",
+                }
+        	]
+          },
+          { name: "status" },
+          { name: "Workspace"},
+          { name: "tags" },
+          { name: "costs",
+              	type: :array,
+          		of: :object,
+              properties: [
+                {
+                  name: "startDate"
+                },
+                {
+                  name: "cost"
+                }
+        	]
+          },
+        ]
+      end
+    },
+    response: {
+      fields: lambda do |_object_definitions|
+        [
+          { name: "requestId" },
+          { name: "success",
+            type: :boolean
+          },
+          { name: "result",
+              type: :object,
+              properties: [
+                {
+                  name: "id",
+                  type: :integer
+                },
+                {
+                  name: "status"
+                }
+        	]
           }
         ]
       end
@@ -186,6 +251,116 @@
 
       output_fields: lambda do |object_definitions|
         object_definitions["bulk_lead"]
+      end
+    },
+    create_program: {
+      description: "Create <span class='provider'>programs</span> in " \
+        "<span class='provider'>Marketo</span>",
+      help: "Create events, emails etc. in marketo" \
+        "Max file size is 10MB.",
+
+      input_fields: lambda do
+        [
+          {
+            name: "name",
+            label: "Event Name",
+            control_type: "string",
+            optional: false,
+            hint: "Event Name"
+          },
+          {
+            name: "folder",
+            label: "Folder",
+            type: "object",
+            optional: false,
+            properties: [
+              { name: "id", type: "integer", control_type: "number" },
+              { name: "type" }
+            ]
+          },
+          {
+            name: "description",
+            label: "Description",
+            optional: false
+          },
+          {
+            name: "type",
+            label: "Folder Type",
+            optional: false,
+            hint: "Folder"
+          },
+          {
+            name: "channel",
+            label: "Channel",
+            optional: false
+          },
+          {
+            name: "costs",
+            label: "Costs",
+            type: "array",
+            of: "object",
+            optional: false,
+            properties: [
+              { name: "startDate", type: "date", control_type: "date" },
+              { name: "cost", type: "number", control_type: "number" }
+            ]
+          }
+        ]
+      end,
+
+      execute: lambda do |_connection, input|
+        post("/rest/asset/v1/programs.json")
+          .payload(input)
+      end,
+
+      output_fields: lambda do |object_definitions|
+        object_definitions["programs"]
+      end
+    },
+    batch_create_leads: {
+      description: "Batch create / update <span class='provider'>leads</span>" \
+        " into <span class='provider'>Marketo</span>",
+      help: "Batch create or update a list of leads",
+
+      input_fields: lambda do|object_definitions|
+        [
+          {
+            name: "action",
+            label: "Operation type of the request",
+            control_type: "select",
+            pick_list: "action_types",
+            optional: true,
+            hint: "If it is omitted, the action defaults to createOrUpdate"
+          },
+          {
+            name: "lookupField",
+            label: "Lookup using",
+            control_type: "select",
+            pick_list: "lookup_types",
+            optional: true,
+            hint: "Field to use for deduplication. Default is email. " \
+              "Note: You can use ID for update only operations."
+          },
+          {
+            name: "leads",
+            label: "Leads list",
+            type: "array",
+            of: "object",
+            properties: object_definitions["lead"],
+            hint: "List of Lead objects"
+          }
+        ]
+      end,
+
+      execute: lambda do |_connection, input|
+        post("/rest/v1/leads.json")
+          .payload(action: input["action"],
+                   lookupField: input["lookupField"],
+                   input: input["leads"])
+      end,
+
+      output_fields: lambda do |object_definitions|
+        object_definitions["response"]
       end
     }
   },
@@ -271,6 +446,15 @@
         %w[Salesforce\ Lead\ ID sfdcLeadId],
         %w[Salesforce\ Opportunity\ ID sfdcOpptyId],
         %w[Salesforce\ Lead\ Owner\ ID sfdcLeadOwnerId]
+      ]
+    end,
+
+    action_types: lambda do
+      [
+        %w[Create\ or\ Update createOrUpdate],
+        %w[Create createOnly],
+        %w[Update updateOnly],
+        %w[Create\ Duplicate createDuplicate]
       ]
     end
   }
