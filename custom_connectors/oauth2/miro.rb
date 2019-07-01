@@ -5,47 +5,51 @@
     authorization: {
       type: 'oauth2',
 
-      authorization_url: ->() {
+      authorization_url: lambda do
         'https://miro.com/oauth/authorize?response_type=code'
-      },
+      end,
 
-      token_url: ->() {
+      token_url: lambda do
         'https://api.miro.com/v1/oauth/token'
-      },
+      end,
 
       client_id: 'MIRO_CLIENT_ID',
       client_secret: 'MIRO_CLIENT_SECRET',
 
-      credentials: ->(_connection, access_token) {
-        headers("Authorization" => "Bearer #{access_token}")
-      }
+      credentials: lambda do |_connection, access_token|
+        headers('Authorization' => "Bearer #{access_token}")
+      end
     }
   },
 
   object_definitions: {
     board: {
-      fields: ->() { [{ name: 'id' }, { name: 'name' }, { name: 'description' }] }
+      fields: lambda do
+        [
+          { name: 'id' },
+          { name: 'name' },
+          { name: 'description' }
+        ]
+      end
     },
     card: {
-      fields: ->() { [{ name: 'id' }, { name: 'title' }] }
+      fields: lambda do
+        [
+          { name: 'id' },
+          { name: 'title' }
+        ]
+      end
     }
   },
 
   actions: {
 
     create_board: {
-
-      description: '',
-
-      input_fields: ->() {
+      description: 'Creates a Board',
+      input_fields: lambda do
         [
-          {
-            name: 'name',
-            label: 'Title'
-          },
-          {
-            name: 'description'
-          },
+          { name: 'name', label: 'Title' },
+          { name: 'description' },
           {
             name: 'access_by_link',
             control_type: 'select',
@@ -59,9 +63,9 @@
             hint: 'Team access to the board. Can be private, view, comment or edit.'
           }
         ]
-      },
-      execute: ->(_connection, input) {
-        post("https://api.miro.com/v1/boards")
+      end,
+      execute: lambda do |_connection, input|
+        post('https://api.miro.com/v1/boards')
           .payload(
             name: input['name'],
             description: input['description'],
@@ -70,7 +74,7 @@
               accountAccess: input['access_within_account']
             }
           )
-      },
+      end,
       output_fields: lambda do |object_definitions|
         object_definitions['board']
       end
@@ -80,7 +84,7 @@
 
       description: 'Creates a copy of an existing board',
 
-      input_fields: ->() {
+      input_fields: lambda do
         [
           {
             name: 'source',
@@ -89,13 +93,8 @@
             pick_list: 'boards',
             optional: false
           },
-          {
-            name: 'name',
-            label: 'Title'
-          },
-          {
-            name: 'description'
-          },
+          { name: 'name', label: 'Title' },
+          { name: 'description' },
           {
             name: 'access_by_link',
             control_type: 'select',
@@ -109,8 +108,8 @@
             hint: 'Team access to the board: private, view, comment or edit.'
           }
         ]
-      },
-      execute: ->(_connection, input) {
+      end,
+      execute: lambda do |_connection, input|
         post("https://api.miro.com/v1/boards/#{input['source']}/copy")
           .payload(
             name: input['name'],
@@ -120,7 +119,7 @@
               accountAccess: input['access_within_account']
             }
           )
-      },
+      end,
       output_fields: lambda do |object_definitions|
         object_definitions['board']
       end
@@ -157,35 +156,29 @@
           parentFrameId: input['frame'],
         }
 
-        title = input['title']
-        link = input['link']
-
-        if title.present?
-          payload[:title] = title
-          if link.present?
-            payload[:title] = "<p><a href=\"#{link}\" target=\"_blank\">#{title}</a></p>"
+        if input['title'].present?
+          payload[:title] = input['title']
+          if input['link'].present?
+            payload[:title] =
+              "<p><a href=\"#{input['link']}\" target=\"_blank\">#{input['title']}</a></p>"
           end
         end
 
-        descr = input['description']
-        if descr.present?
-          payload[:description] = descr
+        if input['description'].present?
+          payload[:description] = input['description']
         end
 
-        color = input['border_color']
-        if color.present?
-          payload[:style] = { backgroundColor: color }
+        if input['border_color'].present?
+          payload[:style] = { backgroundColor: input['border_color'] }
         end
 
-        due_date = input['due_date']
-        if due_date.present?
+        if input['due_date'].present?
           payload[:dueDate] = {
-            dueDate: [due_date.strftime('%Q').to_i]
+            dueDate: [input['due_date'].strftime('%Q').to_i]
           }
         end
 
-        post("https://api.miro.com/v1/boards/#{input['board']}/widgets")
-          .payload(payload)
+        post("https://api.miro.com/v1/boards/#{input['board']}/widgets").payload(payload)
       end,
 
       output_fields: lambda do |object_definitions|
