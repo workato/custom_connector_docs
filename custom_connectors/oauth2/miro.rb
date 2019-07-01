@@ -175,7 +175,8 @@
           }
         end
 
-        post("https://api.miro.com/v1/boards/#{input['board']}/widgets").payload(payload)
+        post("https://api.miro.com/v1/boards/#{input['board']}/widgets")
+          .payload(payload)
       end,
 
       output_fields: lambda do |object_definitions|
