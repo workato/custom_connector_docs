@@ -60,7 +60,7 @@
             name: 'access_within_account',
             control_type: 'select',
             pick_list: 'board_access_within_account',
-            hint: 'Team access to the board. Can be private, view, comment or edit.'
+            hint: 'Team access to the board: private, view, comment or edit.'
           }
         ]
       end,
@@ -151,10 +151,7 @@
       end,
 
       execute: lambda do |_connection, input|
-        payload = {
-          type: 'card',
-          parentFrameId: input['frame'],
-        }
+        payload = { type: 'card', parentFrameId: input['frame'] }
 
         if input['title'].present?
           payload[:title] = input['title']
