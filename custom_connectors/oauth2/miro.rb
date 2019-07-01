@@ -24,10 +24,10 @@
 
   object_definitions: {
     board: {
-      fields: ->() { [{name: 'id'}, {name: 'name'}, {name: 'description'}] }
+      fields: ->() { [{ name: 'id' }, { name: 'name' }, { name: 'description' }] }
     },
     card: {
-      fields: ->() { [{name: 'id'}, {name: 'title'}] }
+      fields: ->() { [{ name: 'id' }, { name: 'title' }] }
     }
   },
 
@@ -71,9 +71,9 @@
             }
           )
       },
-      output_fields: ->(object_definitions) {
+      output_fields: lambda do |object_definitions|
         object_definitions['board']
-      }
+      end
     },
 
     copy_board: {
@@ -106,7 +106,7 @@
             name: 'access_within_account',
             control_type: 'select',
             pick_list: 'board_access_within_account',
-            hint: 'Team access to the board. Can be private, view, comment or edit.'
+            hint: 'Team access to the board: private, view, comment or edit.'
           }
         ]
       },
@@ -121,13 +121,13 @@
             }
           )
       },
-      output_fields: ->(object_definitions) {
+      output_fields: lambda do |object_definitions|
         object_definitions['board']
-      }
+      end
     },
 
     create_card_widget: {
-      input_fields: ->() {
+      input_fields: lambda do
         [
           {
             name: 'board',
@@ -140,33 +140,18 @@
             control_type: 'select',
             pick_list: 'frames',
             optional: false,
-            pick_list_params: {board: 'board'},
+            pick_list_params: { board: 'board' },
             hint: 'Switch frame to grid mode to avoid cards overlap'
           },
-          {
-            name: 'title'
-          },
-          {
-            name: 'link',
-            label: 'Title link',
-            control_type: 'url'
-          },
-          {
-            name: 'description'
-          },
-          {
-            name: 'border_color',
-            hint: 'In hex format (default is #2399f3)'
-          },
-          {
-            name: 'due_date',
-            type: 'date',
-            control_type: 'date'
-          }
+          { name: 'title' },
+          { name: 'link', label: 'Title link', control_type: 'url' },
+          { name: 'description' },
+          { name: 'border_color', hint: 'In hex format (default is #2399f3)' },
+          { name: 'due_date', type: 'date', control_type: 'date' }
         ]
-      },
+      end,
 
-      execute: ->(_connection, input) {
+      execute: lambda do |_connection, input|
         payload = {
           type: 'card',
           parentFrameId: input['frame'],
@@ -189,24 +174,25 @@
 
         color = input['border_color']
         if color.present?
-          payload[:style] = {backgroundColor: color}
+          payload[:style] = { backgroundColor: color }
         end
 
         due_date = input['due_date']
         if due_date.present?
-          payload[:dueDate] = {dueDate: [due_date.strftime('%Q').to_i]}
+          payload[:dueDate] = {
+            dueDate: [due_date.strftime('%Q').to_i]
+          }
         end
 
         post("https://api.miro.com/v1/boards/#{input['board']}/widgets")
           .payload(payload)
-      },
+      end,
 
-      output_fields: ->(object_definitions) {
+      output_fields: lambda do |object_definitions|
         object_definitions['card']
-      }
+      end
     }
   },
-
 
   triggers: {},
 
@@ -222,7 +208,7 @@
 
     board_access_within_account: lambda do
       [
-        ['Private — nobody in the team can find and access the board', 'private'],
+        ['Private — nobody in the team can access this board', 'private'],
         ['View — any team member can find and view the board', 'view'],
         ['Comment — any team member can find and comment the board', 'comment'],
         ['Edit — any team member can find and edit the board', 'edit']
@@ -232,7 +218,7 @@
     boards: lambda do
       host = 'https://api.miro.com/v1'
       account_id = get("#{host}/oauth-token")['account']['id']
-      query = "fields=id,name&limit=500"
+      query = 'fields=id,name&limit=500'
       boards_resp = get("#{host}/accounts/#{account_id}/boards?#{query}")
       next_link = boards_resp['nextLink']
       boards = boards_resp['data']
