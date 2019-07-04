@@ -93,14 +93,18 @@
              end
     },
 
-    test: lambda do |connection|
-            puts get("https://mail.#{connection['domain']}/api/accounts")
-          end
+    base_uri: lambda do |connection|
+                "https://mail.#{connection['domain']}"
+              end
+
   },
+  test: lambda do |_connection|
+          puts get('/api/accounts')
+        end,
   object_definitions: {
 
-    newMailResponse: {
-      fields: lambda do
+    new_mail_response: {
+      fields: lambda do |_connection, _config_fields|
                 [
                   { name: 'summary' },
                   { name: 'sentDateInGMT' },
@@ -116,8 +120,8 @@
                 ]
               end
     },
-    sendMailResponse: {
-      fields: lambda do
+    send_mail_response: {
+      fields: lambda do |_connection, _config_fields|
                 [
                   { name: 'fromAddress' },
                   { name: 'subject' },
@@ -132,67 +136,54 @@
   },
 
   methods: {
-    getAccountId: lambda do |connection|
-                    parsed = get("https://mail.#{connection['domain']}/"\
-                          'api/accounts')['data']
-                    account_id = 0
-                    parsed.each do |accdata|
-                      if accdata['type'] == 'ZOHO_ACCOUNT'
-                        account_id = accdata['accountId']
-                      end
-                    end
-                    account_id
-                  end,
-    getFromAddresses: lambda do |parsed|
-                        from_addresses = []
-                        parsed.each do |accdata|
-                          if accdata['type'] == 'ZOHO_ACCOUNT'
-                            from_addresses = accdata['sendMailDetails']
-                          end
-                        end
-                        from_addresses
-                      end,
+    get_account_id: lambda do |_connection|
+                      (get('/api/accounts')['data']
+                        .select { |a| a['type'] == 'ZOHO_ACCOUNT' })[0]
+                        .fetch('accountId')
+                    end,
+    get_from_addresses: lambda do |parsed|
+                          (parsed.select { |a| a['type'] == 'ZOHO_ACCOUNT' }
+                          )[0].fetch('sendMailDetails')
+                        end,
 
-    getFolders: lambda do |parsed|
-                  folder_json = []
-                  parsed.each do |folderdata|
-                    if folderdata['folderType'] == 'Inbox'
-                      folder_json << folderdata
-                    end
-                  end
-                  folder_json
-                end,
-    addContent: lambda do |input|
-                  response = input['response']
-                  connection = input['connection']
-                  account_id = input['accountId']
-                  mail_content = []
-                  response.each do |mailjson|
-                    next if mailjson['folderId'].blank?
+    get_folders: lambda do |parsed|
+                   folder_json = []
+                   parsed.each do |folderdata|
+                     if folderdata['folderType'] == 'Inbox'
+                       folder_json << folderdata
+                     end
+                   end
+                   folder_json
+                 end,
+    add_content: lambda do |input|
+                   response = input['response']
+                   account_id = input['accountId']
+                   mail_content = []
+                   response.each do |mailjson|
+                     next if mailjson['folderId'].blank?
 
-                    content = get("https://mail.#{connection['domain']}/api/"\
-                    "accounts/#{account_id}/folders/#{mailjson['folderId']}/"\
-                    "messages/#{mailjson['messageId']}/"\
-                    'content')['data']['content']
-                    mailjson = mailjson.merge('content' => content)
-                    mail_content << mailjson
-                  end
-                  mail_content
-                end
+                     content = get("/api/accounts/#{account_id}/folders"\
+                       "/#{mailjson['folderId']}/messages/"\
+                       "#{mailjson['messageId']}/content")['data']['content']
+                     mailjson = mailjson.merge('content' => content)
+                     mail_content << mailjson
+                   end
+                   mail_content
+                 end
   },
 
   pick_lists: {
-    fromAddress: lambda do |connection|
-      call(:getFromAddresses,
-           get("https://mail.#{connection['domain']}/api/accounts")['data'])
-        .map do |fromaddress|
-        [fromaddress['fromAddress'],
-         fromaddress['fromAddress']]
+    from_address: lambda do |_connection|
+      call(:get_from_addresses,
+           get('/api/accounts')['data'])
+        .map do |from_address|
+        [from_address['fromAddress'],
+         from_address['fromAddress']]
       end
     end,
 
-    accounts: lambda do |connection|
-      get("https://mail.#{connection['domain']}/api/accounts")['data']
+    accounts: lambda do |_connection|
+      get('/api/accounts')['data']
         .map do |accountdetails|
         [accountdetails['displayName'],
          accountdetails['accountId']]
@@ -200,8 +191,8 @@
     end,
 
     folders: lambda do |connection|
-      account_id = call(:getAccountId, connection)
-      call(:getFolders, get("https://mail.#{connection['domain']}/api/accounts"\
+      account_id = call(:get_account_id, connection)
+      call(:get_folders, get('/api/accounts' \
         "/#{account_id}/folders")['data'])
         .map { |folder| [folder['folderName'], folder['folderName']] }
     end
@@ -210,31 +201,35 @@
   actions: {
 
     send_mail: {
-      config_fields: [
-        { name: 'Account', control_type: 'select', pick_list:
-          'accounts', optional: true,
-          hint: 'Select the account (Zoho account/ POP account)
-           from the list of accounts available in Zoho Mail.' },
-        { name: 'From', control_type: 'select',
-          pick_list: 'fromAddress', optional: false },
-        { name: 'To', optional: false,
-          hint: 'comma separated value of valid email addresses' },
-        { name: 'Subject', optional: false },
-        { name: 'Content', optional: false },
-        { name: 'Cc',
-          hint: 'Comma separated value of valid email addresses' },
-        { name: 'Bcc',
-          hint: 'Comma separated value of valid email addresses' },
-        { name: 'Body Type',
-          control_type: 'select',
-          pick_list: [
-            %w[html html],
-            %w[plaintext plaintext]
-          ] }
-      ],
+      description: "Send <span class='provider'>New mail</span> in " \
+        "<span class='provider'>Zoho Mail</span>",
+      input_fields: lambda do
+        [
+          { name: 'Account', control_type: 'select', pick_list:
+            'accounts', optional: true,
+            hint: 'Select the account (Zoho account/ POP account)
+             from the list of accounts available in Zoho Mail.' },
+          { name: 'From', control_type: 'select',
+            pick_list: 'from_address', optional: false },
+          { name: 'To', optional: false,
+            hint: 'comma separated value of valid email addresses' },
+          { name: 'Subject', optional: false },
+          { name: 'Content', optional: false },
+          { name: 'Cc',
+            hint: 'Comma separated value of valid email addresses' },
+          { name: 'Bcc',
+            hint: 'Comma separated value of valid email addresses' },
+          { name: 'Body Type',
+            control_type: 'select',
+            pick_list: [
+              %w[html html],
+              %w[plaintext plaintext]
+            ] }
+        ]
+      end,
       execute: lambda { |connection, input|
         account_id = if input['Account'].blank?
-                       call(:getAccountId, connection)
+                       call(:get_account_id, connection)
                      else
                        input['Account']
                      end
@@ -248,8 +243,7 @@
           'bccAddress' => input['Bcc'],
           'mailFormat' => input['Body Type']
         }
-        post("https://mail.#{connection['domain']}"\
-          "/api/accounts/#{account_id}/messages", payload)['data']
+        post("/api/accounts/#{account_id}/messages", payload)['data']
       },
 
       sample_output: lambda do |_connection, input|
@@ -264,36 +258,40 @@
       end,
 
       output_fields: lambda { |object_definitions|
-                       object_definitions['sendMailResponse']
+                       object_definitions['send_mail_response']
                      }
     },
 
     create_draft: {
-      config_fields: [
-        { name: 'Account', control_type: 'select',
-          pick_list: 'accounts', optional: true,
-          hint: 'Select the account (Zoho account/ POP account)
-           from the list of accounts available in Zoho Mail.' },
-        { name: 'From', control_type: 'select',
-          pick_list: 'fromAddress', optional: false },
-        { name: 'To', optional: false,
-          hint: 'comma separated value of valid email addresses' },
-        { name: 'Subject', optional: false },
-        { name: 'Content', optional: false },
-        { name: 'Cc',
-          hint: 'Comma separated value of valid email addresses' },
-        { name: 'Bcc',
-          hint: 'Comma separated value of valid email addresses' },
-        { name: 'Body Type',
-          control_type: 'select',
-          pick_list: [
-            %w[html html],
-            %w[plaintext plaintext]
-          ] }
-      ],
+      description: "Create <span class='provider'>Draft</span> in " \
+        "<span class='provider'>Zoho Mail</span>",
+      input_fields: lambda do
+        [
+          { name: 'Account', control_type: 'select',
+            pick_list: 'accounts', optional: true,
+            hint: 'Select the account (Zoho account/ POP account)
+             from the list of accounts available in Zoho Mail.' },
+          { name: 'From', control_type: 'select',
+            pick_list: 'from_address', optional: false },
+          { name: 'To', optional: false,
+            hint: 'comma separated value of valid email addresses' },
+          { name: 'Subject', optional: false },
+          { name: 'Content', optional: false },
+          { name: 'Cc',
+            hint: 'Comma separated value of valid email addresses' },
+          { name: 'Bcc',
+            hint: 'Comma separated value of valid email addresses' },
+          { name: 'Body Type',
+            control_type: 'select',
+            pick_list: [
+              %w[html html],
+              %w[plaintext plaintext]
+            ] }
+        ]
+      end,
       execute: lambda { |connection, input|
         account_id = if input['Account'].blank?
-                       call(:getAccountId, connection)
+                       call(:get_account_id, connection)
                      else
                        input['Account']
                      end
@@ -307,8 +305,7 @@
           'mailFormat' => input['Body Type'],
           'mode' => 'draft'
         }
-        post("https://mail.#{connection['domain']}"\
-          "/api/accounts/#{account_id}/messages", payload)['data']
+        post("/api/accounts/#{account_id}/messages", payload)['data']
       },
       sample_output: lambda do |_connection, input|
         {
@@ -322,27 +319,31 @@
       end,
 
       output_fields: lambda { |object_definitions|
-                       object_definitions['sendMailResponse']
+                       object_definitions['send_mail_response']
                      }
     },
 
     create_task: {
-      config_fields: [
-        { name: 'Account', control_type: 'select',
-          pick_list: 'accounts', optional: true,
-          hint: 'Select the account (Zoho account/ POP account)
-          from the list of accounts available in Zoho Mail.' },
-        { name: 'From', control_type: 'select',
-          pick_list: 'fromAddress', optional: false },
-        { name: 'To', optional: false, control_type: 'email',
-          hint: 'Assignee' },
-        { name: 'Subject', optional: false },
-        { name: 'Content' }
+      description: "Create <span class='provider'>New task</span> in " \
+        "<span class='provider'>Zoho Mail</span>",
+      input_fields: lambda do
+        [
+          { name: 'Account', control_type: 'select',
+            pick_list: 'accounts', optional: true,
+            hint: 'Select the account (Zoho account/ POP account)
+            from the list of accounts available in Zoho Mail.' },
+          { name: 'From', control_type: 'select',
+            pick_list: 'from_address', optional: false },
+          { name: 'To', optional: false, control_type: 'email',
+            hint: 'Assignee' },
+          { name: 'Subject', optional: false },
+          { name: 'Content' }
 
-      ],
+        ]
+      end,
       execute: lambda { |connection, input|
                  account_id = if input['Account'].blank?
-                                call(:getAccountId, connection)
+                                call(:get_account_id, connection)
                               else
                                 input['Account']
                               end
@@ -355,8 +356,7 @@
                    'bccAddress' => input['Bcc'],
                    'mailFormat' => input['Body Type']
                  }
-                 post("https://mail.#{connection['domain']}/"\
-                  "api/accounts/#{account_id}/messages", payload)['data']
+                 post("api/accounts/#{account_id}/messages", payload)['data']
                },
 
       sample_output: lambda do |_connection, input|
@@ -371,7 +371,7 @@
       end,
 
       output_fields: lambda { |object_definitions|
-                       object_definitions['sendMailResponse']
+                       object_definitions['send_mail_response']
                      }
     }
 
@@ -380,6 +380,8 @@
   triggers: {
 
     new_mail: {
+      description: "<span class='provider'>New mail</span> in " \
+        "<span class='provider'>Zoho Mail</span>",
       type: :paging_desc,
 
       input_fields: lambda do
@@ -387,31 +389,35 @@
           { name: 'Account', control_type: 'select',
             pick_list: 'accounts', optional: true,
             hint: 'Select the account (Zoho account/ POP account)
-             from the list of accounts available in Zoho Mail.' }
+             from the list of accounts available in Zoho Mail.' },
+          {
+            name: 'since', optional: true, control_type: 'date_time',
+            type: 'date_time'
+          }
         ]
       end,
       poll: lambda do |connection, input, page|
-        limit = 50
+        limit = 25
         page ||= 0
         offset = (limit * page) + 1
         account_id = if input['Account'].blank?
-                       call(:getAccountId, connection)
+                       call(:get_account_id, connection)
                      else
                        input['Account']
                      end
-
-        response = get("https://mail.#{connection['domain']}"\
-          "/api/accounts/#{account_id}/messages/search")
+        received_time = if input['since'].blank?
+                          Time.now.to_i * 1000 - 3_600_000
+                        else
+                          input['since'].to_time.to_i * 1000
+                        end
+        response = get("/api/accounts/#{account_id}/messages/search")
                    .params(searchKey: 'newMails',
                            limit: limit,
                            includeto: 'true',
                            start: offset,
-                           receivedTime: Time.now.to_i * 1000 -
-                           3_600_000)['data']
-        input = { 'connection' => connection }
-                .merge({ 'accountId' => account_id }
-                  .merge('response' => response))
-        response = call(:addContent, input)
+                           receivedTime: received_time)['data']
+        input = { 'response' => response }.merge('accountId' => account_id)
+        response = call(:add_content, input)
         {
           events: response,
           next_page: response.length >= limit ? page + 1 : nil
@@ -423,10 +429,12 @@
       end,
 
       output_fields: lambda do |object_definitions|
-        object_definitions['newMailResponse']
+        object_definitions['new_mail_response']
       end
     },
     new_mail_matching_search: {
+      description: "New mail <span class='provider'>matching search</span> in "\
+        "<span class='provider'>Zoho Mail</span>",
       type: :paging_desc,
 
       input_fields: lambda do
@@ -449,29 +457,25 @@
         ]
       end,
       poll: lambda do |connection, input, page|
-              limit = 50
+              limit = 25
               page ||= 0
               offset = (limit * page) + 1
               account_id = if input['Account'].blank?
-                             call(:getAccountId, connection)
+                             call(:get_account_id, connection)
                            else
                              input['Account']
                            end
-              response = get("https://mail.#{connection['domain']}"\
-                "/api/accounts/#{account_id}/messages/search")
+              response = get("/api/accounts/#{account_id}/messages/search")
                          .params(searchKey: input['search'],
                                  limit: limit,
                                  includeto: 'true',
-                                 start: offset,
-                                 receivedTime: Time.now.to_i * 1000 -
-                           3_600_000)['data']
-              input = { 'connection' => connection }
-                      .merge({ 'accountId' => account_id }
-                        .merge('response' => response))
-              response = call(:addContent, input)
+                                 start: offset)['data']
+              input = { 'response' => response }
+                      .merge('accountId' => account_id)
+              response = call(:add_content, input)
               {
                 events: response,
-                next_page: response.length >= 50 && page < 5 ? page + 1 : nil
+                next_page: response.length >= limit && page < 5 ? page + 1 : nil
               }
             end,
 
@@ -480,10 +484,12 @@
                    end,
 
       output_fields: lambda do |object_definitions|
-                       object_definitions['newMailResponse']
+                       object_definitions['new_mail_response']
                      end
     },
     new_mail_in_folder: {
+      description: "New mail in <span class='provider'>selected folder</span>"\
+        " in <span class='provider'>Zoho Mail</span>",
       type: :paging_desc,
 
       input_fields: lambda do
@@ -498,29 +504,27 @@
                       ]
                     end,
       poll: lambda do |connection, input, page|
-              limit = 50
+              limit = 25
               page ||= 0
               offset = (limit * page) + 1
               account_id = if input['Account'].blank?
-                             call(:getAccountId, connection)
+                             call(:get_account_id, connection)
                            else
                              input['Account']
                            end
-              response = get("https://mail.#{connection['domain']}"\
-                "/api/accounts/#{account_id}/messages/search")
+              response = get("/api/accounts/#{account_id}/messages/search")
                          .params(searchKey: 'in:' + input['folderName'] +
                           '::fromdate:' + (Time.now - 172_800)
                           .strftime('%d-%b-%Y'),
                                  limit: limit,
                                  includeto: 'true',
                                  start: offset)['data']
-              input = { 'connection' => connection }
-                      .merge({ 'accountId' => account_id }
-                        .merge('response' => response))
-              response = call(:addContent, input)
+              input = { 'response' => response }
+                      .merge('accountId' => account_id)
+              response = call(:add_content, input)
               {
                 events: response,
-                next_page: response.length >= 50 && page < 5 ? page + 1 : nil
+                next_page: response.length >= limit && page < 5 ? page + 1 : nil
               }
             end,
 
@@ -529,7 +533,7 @@
                    end,
 
       output_fields: lambda do |object_definitions|
-                       object_definitions['newMailResponse']
+                       object_definitions['new_mail_response']
                      end
     }
   }
