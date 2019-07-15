@@ -1,4 +1,3 @@
-# frozen_string_literal: true
 {
   title: 'Miro',
 
@@ -152,29 +151,26 @@
 
       execute: lambda do |_connection, input|
         payload = { type: 'card', parentFrameId: input['frame'] }
-
-        if input['title'].present?
-          payload[:title] = input['title']
-          if input['link'].present?
+        title = input['title']
+        if title.present?
+          payload[:title] = title
+          link = input['link']
+          if link.present?
             payload[:title] =
-              "<p><a href=\"#{input['link']}\" target=\"_blank\">#{input['title']}</a></p>"
+              "<p><a href=\"#{link}\" target=\"_blank\">#{title}</a></p>"
           end
         end
-
         if input['description'].present?
           payload[:description] = input['description']
         end
-
         if input['border_color'].present?
           payload[:style] = { backgroundColor: input['border_color'] }
         end
-
         if input['due_date'].present?
           payload[:dueDate] = {
             dueDate: [input['due_date'].strftime('%Q').to_i]
           }
         end
-
         post("https://api.miro.com/v1/boards/#{input['board']}/widgets")
           .payload(payload)
       end,
