@@ -4,6 +4,9 @@
   title: 'Miro',
 
   connection: {
+
+    base_uri: ->(_connection) { "https://api.miro.com" },
+
     authorization: {
       type: 'oauth2',
 
@@ -67,7 +70,7 @@
         ]
       end,
       execute: lambda do |_connection, input|
-        post('https://api.miro.com/v1/boards')
+        post('/v1/boards')
           .payload(
             name: input['name'],
             description: input['description'],
@@ -110,7 +113,7 @@
         ]
       end,
       execute: lambda do |_connection, input|
-        post("https://api.miro.com/v1/boards/#{input['source']}/copy")
+        post("/v1/boards/#{input['source']}/copy")
           .payload(
             name: input['name'],
             description: input['description'],
@@ -173,7 +176,7 @@
             dueDate: [input['due_date'].strftime('%Q').to_i]
           }
         end
-        post("https://api.miro.com/v1/boards/#{input['board']}/widgets")
+        post("/v1/boards/#{input['board']}/widgets")
           .payload(payload)
       end,
 
@@ -205,10 +208,9 @@
     end,
 
     boards: lambda do
-      host = 'https://api.miro.com/v1'
-      account_id = get("#{host}/oauth-token")['account']['id']
+      account_id = get('/v1/oauth-token')['account']['id']
       query = 'fields=id,name&limit=500'
-      boards_resp = get("#{host}/accounts/#{account_id}/boards?#{query}")
+      boards_resp = get("v1/accounts/#{account_id}/boards?#{query}")
       next_link = boards_resp['nextLink']
       boards = boards_resp['data']
 
@@ -223,8 +225,7 @@
 
     frames: lambda do |_connection, board:|
       query = 'widgetType=frame&fields=id,title'
-      get("https://api.miro.com/v1/boards/#{board}/widgets?#{query}")['data']
-        .pluck('title', 'id')
+      get("/v1/boards/#{board}/widgets?#{query}")['data'].pluck('title', 'id')
     end
 
   }
