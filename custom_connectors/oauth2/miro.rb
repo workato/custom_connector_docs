@@ -1,5 +1,4 @@
 # frozen_string_literal: true
-
 {
   title: 'Miro',
 
@@ -47,7 +46,7 @@
   actions: {
 
     create_board: {
-      description: 'Creates a Board',
+      description: 'Creates a Board in Miro',
       input_fields: lambda do
         [
           { name: 'name', label: 'Title' },
@@ -83,9 +82,7 @@
     },
 
     copy_board: {
-
-      description: 'Creates a copy of an existing board',
-
+      description: 'Creates a copy of an existing board in Miro',
       input_fields: lambda do
         [
           {
@@ -128,6 +125,7 @@
     },
 
     create_card_widget: {
+      description: 'Creates a Card Widget on board in Miro',
       input_fields: lambda do
         [
           {
