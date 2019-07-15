@@ -5,7 +5,7 @@
 
   connection: {
 
-    base_uri: ->(_connection) { "https://api.miro.com" },
+    base_uri: ->(_connection) { 'https://api.miro.com' },
 
     authorization: {
       type: 'oauth2',
