@@ -18,7 +18,7 @@
       authorization_url: lambda do |connection|
         params = {
           client_id: connection['client_id'],
-          response_type: "code"
+          response_type: 'code'
         }.to_param
 
         "https://miro.com/oauth/authorize?#{params}"
