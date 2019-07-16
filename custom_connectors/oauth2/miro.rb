@@ -35,7 +35,7 @@
 
         response = post("https://api.miro.com/v1/oauth/token?#{params}")
 
-        { access_token: response['access_token'], account_id: response['account_id'] }
+        { access_token: response['access_token'] }
       end,
 
       credentials: lambda do |_connection, access_token|
