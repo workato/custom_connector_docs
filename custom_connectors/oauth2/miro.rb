@@ -50,22 +50,33 @@
   actions: {
 
     create_board: {
-      description: 'Creates a Board in Miro',
+      description: 'Creates a Board in Miro.',
       input_fields: lambda do
         [
-          { name: 'name', label: 'Title' },
-          { name: 'description' },
+          {
+            name: 'name',
+            label: 'Title',
+            sticky: true,
+            hint: 'Title for your new board.'
+          },
+          {
+            name: 'description',
+            sticky: true,
+            hint: 'Description for your new board.'
+          },
           {
             name: 'access_by_link',
             control_type: 'select',
             pick_list: 'board_access_by_link',
-            hint: 'Access to the board by link. Can be private, view, comment.'
+            sticky: true,
+            hint: 'Access to the board by link. Can be private, view or comment.'
           },
           {
             name: 'access_within_account',
             control_type: 'select',
             pick_list: 'board_access_within_account',
-            hint: 'Team access to the board: private, view, comment or edit.'
+            sticky: true,
+            hint: 'Team access to the board. Can be private, view, comment or edit.'
           }
         ]
       end,
@@ -86,7 +97,7 @@
     },
 
     copy_board: {
-      description: 'Creates a copy of an existing board in Miro',
+      description: 'Creates a copy of an existing board in Miro.',
       input_fields: lambda do
         [
           {
@@ -94,20 +105,32 @@
             label: 'Original Board',
             control_type: 'select',
             pick_list: 'boards',
-            optional: false
+            optional: false,
+            hint: 'Choose a board to copy.'
           },
-          { name: 'name', label: 'Title' },
-          { name: 'description' },
+          {
+            name: 'name',
+            label: 'Title',
+            sticky: true,
+            hint: 'Title for your new board.'
+          },
+          {
+            name: 'description',
+            sticky: true,
+            hint: 'Description for your new board.'
+          },
           {
             name: 'access_by_link',
             control_type: 'select',
             pick_list: 'board_access_by_link',
+            sticky: true,
             hint: 'Access to the board by link. Can be private, view, comment.'
           },
           {
             name: 'access_within_account',
             control_type: 'select',
             pick_list: 'board_access_within_account',
+            sticky: true,
             hint: 'Team access to the board: private, view, comment or edit.'
           }
         ]
@@ -129,14 +152,15 @@
     },
 
     create_card_widget: {
-      description: 'Creates a Card Widget on board in Miro',
+      description: 'Creates a Card Widget on board in Miro.',
       input_fields: lambda do
         [
           {
             name: 'board',
             control_type: 'select',
             pick_list: 'boards',
-            optional: false
+            optional: false,
+            hint: 'Choose board for card creation.'
           },
           {
             name: 'frame',
@@ -144,13 +168,41 @@
             pick_list: 'frames',
             optional: false,
             pick_list_params: { board: 'board' },
-            hint: 'Switch frame to grid mode to avoid cards overlap'
+            hint: 'Switch frame to grid mode to avoid cards overlap.'
           },
-          { name: 'title' },
-          { name: 'link', label: 'Title link', control_type: 'url' },
-          { name: 'description' },
-          { name: 'border_color', hint: 'In hex format (default is #2399f3)' },
-          { name: 'due_date', type: 'date', control_type: 'date' }
+          {
+            name: 'title',
+            label: 'Card Title',
+            sticky: true,
+            hint: 'max 6000 symbols'
+          },
+          {
+            name: 'link',
+            label: 'Title Link',
+            control_type: 'url',
+            sticky: true,
+            hint: 'This link will be integrated into card title.'
+          },
+          {
+            name: 'description',
+            label: 'Card Description',
+            sticky: true,
+            hint: 'This description will opened by double-click on card.'
+          },
+          {
+            name: 'border_color',
+            label: 'Card Border Color',
+            sticky: true,
+            hint: 'In hex format (default is #2399f3)'
+          },
+          {
+            name: 'due_date',
+            label: 'Card Due Date',
+            type: 'date',
+            control_type: 'date',
+            sticky: true,
+            hint: 'Set due date for the card.'
+          }
         ]
       end,
 
@@ -176,8 +228,7 @@
             dueDate: [input['due_date'].strftime('%Q').to_i]
           }
         end
-        post("/v1/boards/#{input['board']}/widgets")
-          .payload(payload)
+        post("/v1/boards/#{input['board']}/widgets").payload(payload)
       end,
 
       output_fields: lambda do |object_definitions|
