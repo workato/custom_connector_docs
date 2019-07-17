@@ -148,8 +148,8 @@
 
       execute: lambda do |_connection, input|
         post('/v1/boards', input)
-          .after_error_response(/.*/) do |_code, body, _header, _message|
-          error("#{body}")
+          .after_error_response(/.*/) do |_code, body, _header, message|
+          error("#{message}: #{body}")
         end
       end,
 
@@ -182,8 +182,8 @@
 
       execute: lambda do |_connection, input|
         post("/v1/boards/#{input['source']}/copy", input)
-          .after_error_response(/.*/) do |_code, body, _header, _message|
-          error("#{body}")
+          .after_error_response(/.*/) do |_code, body, _header, message|
+          error("#{message}: #{body}")
         end
       end,
 
@@ -293,8 +293,8 @@
       account_id = get('/v1/oauth-token')['account']['id']
       response =
         get("v1/accounts/#{account_id}/boards?fields=id,name&limit=500")
-          .after_error_response(/.*/) do |_code, body, _header, _message|
-          error("#{body}")
+          .after_error_response(/.*/) do |_code, body, _header, message|
+          error("#{message}: #{body}")
         end
       next_link = response['nextLink']
       data = response['data']
@@ -310,8 +310,8 @@
       query = 'widgetType=frame&fields=id,title'
       response =
         get("/v1/boards/#{board}/widgets?#{query}")
-          .after_error_response(/.*/) do |_code, body, _header, _message|
-          error("#{body}")
+          .after_error_response(/.*/) do |_code, body, _header, message|
+          error("#{message}: #{body}")
         end
       response['data'].pluck('title', 'id')
     end
