@@ -38,6 +38,8 @@
         { access_token: response['access_token'] }
       end,
 
+      refresh_on: [401, 403],
+
       credentials: lambda do |_connection, access_token|
         headers('Authorization' => "Bearer #{access_token}")
       end
@@ -146,6 +148,9 @@
 
       execute: lambda do |_connection, input|
         post('/v1/boards', input)
+          .after_error_response(/.*/) do |_code, body, _header, _message|
+          error("#{body}")
+        end
       end,
 
       output_fields: lambda do |object_definitions|
@@ -177,6 +182,9 @@
 
       execute: lambda do |_connection, input|
         post("/v1/boards/#{input['source']}/copy", input)
+          .after_error_response(/.*/) do |_code, body, _header, _message|
+          error("#{body}")
+        end
       end,
 
       output_fields: lambda do |object_definitions|
@@ -241,6 +249,9 @@
 
         board_id = input.delete('board')
         post("/v1/boards/#{board_id}/widgets", input.compact)
+          .after_error_response(/.*/) do |_code, body, _header, message|
+          error("#{message}: #{body}")
+        end
       end,
 
       output_fields: lambda do |object_definitions|
@@ -280,23 +291,29 @@
 
     boards: lambda do
       account_id = get('/v1/oauth-token')['account']['id']
-      query = 'fields=id,name&limit=500'
-      boards_resp = get("v1/accounts/#{account_id}/boards?#{query}")
-      next_link = boards_resp['nextLink']
-      boards = boards_resp['data']
-
+      response =
+        get("v1/accounts/#{account_id}/boards?fields=id,name&limit=500")
+          .after_error_response(/.*/) do |_code, body, _header, _message|
+          error("#{body}")
+        end
+      next_link = response['nextLink']
+      data = response['data']
       while next_link.present?
         resp = get(next_link)
         next_link = resp['nextLink']
-        resp['data'].each { |board| boards << board }
+        resp['data'].each { |board| data << board }
       end
-
-      boards.pluck('name', 'id')
+      data.pluck('name', 'id')
     end,
 
     frames: lambda do |_connection, board:|
       query = 'widgetType=frame&fields=id,title'
-      get("/v1/boards/#{board}/widgets?#{query}")['data'].pluck('title', 'id')
+      response =
+        get("/v1/boards/#{board}/widgets?#{query}")
+          .after_error_response(/.*/) do |_code, body, _header, _message|
+          error("#{body}")
+        end
+      response['data'].pluck('title', 'id')
     end
 
   }
