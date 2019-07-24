@@ -94,16 +94,47 @@
             name: 'type'
           },
           {
+            name: 'board',
+            control_type: 'select',
+            pick_list: 'boards',
+            optional: false,
+            hint: 'Choose board for card creation.'
+          },
+          {
+            name: 'parentFrameId',
+            label: 'Frame',
+            control_type: 'select',
+            pick_list: 'frames',
+            optional: false,
+            pick_list_params: { board: 'board' },
+            hint: 'Switch frame to grid mode to avoid cards overlap.'
+          },
+          {
             name: 'title',
             label: 'Card Title',
             sticky: true,
             hint: 'Max 6000 symbols.'
           },
           {
+            name: 'link',
+            label: 'Title Link',
+            control_type: 'url',
+            sticky: true,
+            hint: 'This link will be integrated into card title.'
+          },
+          {
             name: 'description',
             label: 'Card Description',
             sticky: true,
             hint: 'This description will opened by double-click on card.'
+          },
+          {
+            name: 'date',
+            label: 'Card Due Date',
+            type: 'date',
+            control_type: 'date',
+            hint: 'Set due date for the card.',
+            sticky: true
           },
           {
             name: 'style',
@@ -114,21 +145,6 @@
                 label: 'Card Border Color',
                 sticky: true,
                 hint: 'In hex format (default is #2399f3)'
-              }
-            ]
-          },
-          {
-            name: 'date',
-            label: 'Due date',
-            type: 'object',
-            properties: [
-              {
-                name: 'due',
-                label: 'Card Due Date',
-                type: 'date',
-                control_type: 'date',
-                sticky: true,
-                hint: 'Set due date for the card.'
               }
             ]
           }
@@ -202,31 +218,7 @@
       description: 'Creates a Card Widget on board in Miro.',
 
       input_fields: lambda do |object_definitions|
-        [
-          {
-            name: 'board',
-            control_type: 'select',
-            pick_list: 'boards',
-            optional: false,
-            hint: 'Choose board for card creation.'
-          },
-          {
-            name: 'parentFrameId',
-            label: 'Frame',
-            control_type: 'select',
-            pick_list: 'frames',
-            optional: false,
-            pick_list_params: { board: 'board' },
-            hint: 'Switch frame to grid mode to avoid cards overlap.'
-          },
-          {
-            name: 'link',
-            label: 'Title Link',
-            control_type: 'url',
-            sticky: true,
-            hint: 'This link will be integrated into card title.'
-          }
-        ].concat(object_definitions['card'].ignored('type'))
+        object_definitions['card'].ignored('type')
       end,
 
       execute: lambda do |_connection, input|
@@ -237,14 +229,6 @@
         if title.present? && link.present?
           input['title'] =
             "<p><a href=\"#{link}\" target=\"_blank\">#{title}</a></p>"
-        end
-
-        date = input.delete('date')
-        if date.present?
-          due = date['due']
-          if due.present?
-            input[:dueDate] = { dueDate: [due.strftime('%Q').to_i] }
-          end
         end
 
         board_id = input.delete('board')
@@ -260,8 +244,10 @@
 
       sample_output: lambda do |_connection, _input|
         {
+          type: 'card',
           title: 'Sample Card',
           description: 'Sample description',
+          date: '2020-01-01',
           style: {
             backgroundColor: '#2399f3'
           }
