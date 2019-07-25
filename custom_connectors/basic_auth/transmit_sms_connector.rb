@@ -121,10 +121,9 @@
             type: "string",
             control_type: "url",
             optional: true,
-            hint: "Full URL that will be shortened and inserted via this "\
-              "**[tracked-link]** variable added to your **Message** above. "\
-              "Hits to this link can be tracked and also passed via the 'Link Hit' "\
-              "trigger. Should be in the format `https://www.mydomain.com/`."
+            hint: "Add variable <b>[tracked-link]</b> to your <b>Message body</b> "\
+              "to shorten and insert this link. Hits to this link can be tracked and also passed "\
+              "via the 'Link Hit' trigger. Should be in the format `https://www.mydomain.com/`."
           },
           {
             name: "to",
@@ -382,7 +381,7 @@
 
         fields << { name: "first_name", type: "string" }
         fields << { name: "last_name", type: "string" }
-        fields << { name: "msisdn", type: "string" }
+        fields << { name: "msisdn", label: "Mobile", type: "string" }
         fields << { name: "list_id", type: "string" }
       end
     },
@@ -479,7 +478,7 @@
 
         fields << { name: "first_name", type: "string" }
         fields << { name: "last_name", type: "string" }
-        fields << { name: "msisdn", type: "string" }
+        fields << { name: "msisdn", label: "Mobile", type: "string" }
         fields << { name: "list_id", type: "string" }
         fields << { name: "created_at", type: "string" }
         fields << { name: "status", type: "string" }
@@ -503,7 +502,7 @@
           { name: "received_at", type: "string" },
           { name: "first_name", type: "string" },
           { name: "last_name", type: "string" },
-          { name: "msisdn", type: "integer" },
+          { name: "msisdn", label: "Mobile", type: "integer" },
           { name: "response", type: "string" },
           { name: "longcode", type: "integer" }
         ]
@@ -705,6 +704,25 @@
       output_fields: lambda do |object_definitions|
         object_definitions["get_contact_response"]
       end
+    },
+    
+    GetSMSResponse: {
+      title: "Get SMS received",
+      subtitle: "Get SMS received",
+      description: "Get <span class='provider'>SMS</span> received in " \
+        " <span class='provider'>transmitsms.com</span>",
+      help: "Fetches incoming messages from all virtual numbers under " \
+        "user's account.",
+
+      execute: lambda do |_connection, input|
+        get("https://frontapi.transmitsms.com/zapier/get-responses.json").
+          params(page: 1,
+                 max: 1000)
+      end,
+
+      output_fields: lambda do |object_definitions|
+        object_definitions["get_sms_response"]
+      end
     }
   },
 
@@ -810,36 +828,6 @@
 
       output_fields: lambda do |object_definitions|
         object_definitions["new_contact_notification"]
-      end
-    },
-
-    GetSMSResponse: {
-      title: "New SMS received to inbox",
-      subtitle: "New SMS received in inbox",
-      description: "New <span class='provider'>SMS</span> received in " \
-        "inbox in <span class='provider'>transmitsms.com</span>",
-      help: "Fetches new incoming messages from all virtual numbers under " \
-        "user's account.",
-
-      poll: lambda do |_connection, _input, page|
-        page ||= 1
-        response = get("https://frontapi.transmitsms.com/zapier/" \
-                     "get-responses.json").
-                   params(page: page,
-                          max: 10)
-        {
-          events: response["responses"],
-          next_page: page + 1,
-          can_poll_more: response.dig("page", "count") <= page
-        }
-      end,
-
-      dedup: lambda do |response|
-        response["id"]
-      end,
-
-      output_fields: lambda do |object_definitions|
-        object_definitions["get_sms_response"]
       end
     }
   },
