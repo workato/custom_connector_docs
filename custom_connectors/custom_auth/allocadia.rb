@@ -22,17 +22,17 @@
       cells = input[:cells]
 
       new_cells = {}
-    
+
       cells&.each do |id,cell|
         col = columns[id]
-        
-        unless col == nil || cell['value'] == nil || cell['value'] == ""
+
+        unless col.blank? || cell['value'].blank?
           new_cells[cell['columnName']] = call(:format_cell_value, { column: col, value: cell['value'] })
           # Need to use name rather than ID for YoY support, etc.
           #new_cells["f_#{id}"] = call(:format_cell_value, { column: col, value: cell['value'] })
         end
       end
-         
+
       Hash[ new_cells.sort_by { |key, val| key } ]
     end,
 
@@ -40,24 +40,24 @@
     format_cell_value: lambda do |input|
       col = input[:column]
       value = input[:value]
-      
+
       case col['type']
       when 'DROPDOWN'
-        value = col['choices'].select {|choice| choice['id'] == value}[0]['label']
-            
+        value = col['choices'].select {|choice| choice['id'] == value}.dig(0, 'label')
+
       when 'MULTISELECT'
-        msStr = ""
+        ms_array = []
         value&.each do |id,pcnt|
-          choiceName = col['choices'].select {|choice| choice['id'] == id}[0]['label']
-          msStr = msStr + choiceName + "::" + pcnt + ","
+          choice_name = col['choices'].select {|choice| choice['id'] == id}.dig(0, 'label')
+          ms_array << choice_name + "::" + pcnt
         end
-        value = msStr[0...-1] # trims the trailing , from the end
-            
+        value = ms_array.join(',')
+
       when 'LINK'
         # if it's a link format value as either "label", "url", or "label (url)" depending on what's present
         label = value['label']
         url = value['url']
-        if (label && url) 
+        if (label && url)
           value = label + " (" + url + ")"
         elsif (label)
           value = label
@@ -72,53 +72,48 @@
     format_cell_to_allocadia: lambda do |input|
       col = input[:column]
       value = input[:value]
-      
-      value = (value == "") ? nil : value # treat empty string the same as nil
-      
-      if (value == nil && col['required'])
+
+      if (value.blank? && col['required'])
         error("[#{col['name']}] is a required field. Cannot clear value.")
       end
-      
-      unless value == nil
-      case col['type']
-      when 'DROPDOWN'
-        value = col['choices'].select {|choice| choice['label'] == value}[0]['id']
-            
-      when 'MULTISELECT'
-        msObj = {}
-        value&.split(",").each do |msVal|
-          choiceName = msVal.split("::")[0]
-          pcnt = msVal.split("::")[1]
-          choiceId = col['choices'].select {|choice| choice['label'] == choiceName}[0]['id']
-          msObj[choiceId] = pcnt.to_f
-        end
-        value = msObj
-            
-      when 'LINK'
-        url = nil
-        label = value
-        # if the string ends in parentheses and the start inside parentheses is http then assume it's in label (url) format
-        if (value[-1] == ")")
-          urlStart = value&.rindex("(")
-          if (urlStart && value[urlStart+1..urlStart+4].casecmp("http") == 0)
-            url = value[urlStart+1...-1]
-            label = value[0...urlStart-1]
+
+      if value.present?
+        case col['type']
+        when 'DROPDOWN'
+          value = col['choices'].select {|choice| choice['label'] == value}.dig(0, 'id')
+
+        when 'MULTISELECT'
+          ms_obj = {}
+          value&.split(",").each do |ms_val|
+            choice_name_pcnt_arr = ms_val.split("::")
+            choice_id = col['choices'].select {|choice| choice['label'] == choice_name_pcnt_arr[0]}.dig(0, 'id')
+            ms_obj[choice_id] = choice_name_pcnt_arr[1].to_f
           end
+          value = ms_obj
+
+        when 'LINK'
+          url = nil
+          label = value
+          # if the string ends in parentheses and the start inside parentheses is http then assume it's in label (url) format
+          label_url = value&.match(/(.*) (\()(http.*)(\))/i) # /i will ignore case
+          if (label_url.present?)
+            label = label_url[1]
+            url = label_url[3]
+          end
+
+          # if it's not in label (url) format but appears to be a url then treat it as a url with no label
+          if (!url && label&.match(/^http.*/i))
+            url = label
+            label = nil
+          end
+          value = {}
+          value['label'] = label
+          value['url'] = url
         end
-        
-        # if it's not in label (url) format but appears to be a url then treat it as a url with no label
-        if (!url && label[0...4].casecmp("http") == 0)
-          url = label
-          label = nil
-        end
-        value = {}
-        value['label'] = label
-        value['url'] = url
       end
-      end
-      value
+      value.blank? ? nil : value # treat empty string the same as nil
     end,
-    
+
     # recursively check if the item is part of the hierarchy by following the parentId up the hierarchy
     item_in_hierarchy: lambda do |input|
       root_id = input[:root_id]
@@ -129,17 +124,17 @@
         item['id'] == root_id
       elsif item['parentId'] == root_id
         true
-      elsif
+      else
         parent = all_items.select {|find_item| find_item['id'] == item['parentId']}[0]
         call(:item_in_hierarchy, { root_id: root_id, all_items: all_items, item: parent })
       end
     end,
 
-    # retrieve all of the columns that are applicable to line items - "filter" input optional 
+    # retrieve all of the columns that are applicable to line items - "filter" input optional
     get_line_item_columns_raw: lambda do |input|
       get("/v1/budgets/#{input[:budgetId]}/columns?$filter=location ne \"ACTUAL\" and location ne \"PO\" and location ne \"ROLLUP\" and location ne \"BUDGET\" and location ne \"OTHER\"#{input[:filter]}")
     end,
-    
+
     # retrieve all of the columns that are applicable to line items, in a hash key'd by id
     get_line_item_columns_key_id: lambda do |input|
       cols = {}
@@ -148,7 +143,7 @@
       end
       cols
     end,
- 
+
     # retrieve all of the columns that are applicable to line items, in a hash key'd by name
     get_line_item_columns_key_name: lambda do |input|
       cols = {}
@@ -205,39 +200,31 @@
       refresh_on: [401],
 
       apply: lambda { |connection|
-        headers('Authorization' => "token #{connection['token']}")
+        # if token doesn't exist yet use a dummy value so that we get a 401 and not a 400 error
+        headers('Authorization' => "token #{connection['token'] ? connection['token'] : '1234'}")
       }
     }
   },
 
-  test: ->(_connection) { get('/v1/budgets') }, # TODO can we access users with a viewer? or maybe just do a post to get a token?
+  test: ->(_connection) { post("/v1/token",
+             username: _connection['username'],
+             password: _connection['password']) },
 
+
+  # todo - look to add hints where applicable
   object_definitions: {
 
-    simple_choice: {
+    choice_add: {
       fields: lambda do |_connection, _config_fields|
         [
-          { name: 'id' }
-        ]
-      end
-    },
-    
-    full_choice: {
-      fields: lambda do |_connection, _config_fields|
-        [
-          { name: 'id' },
-          { name: 'label' },
-          { name: 'createdDate' },
-          { name: 'updatedDate' },
+          { name: 'label', optional: false },
           { name: 'externalAssociations',
             type: 'array',
             of: 'object',
-            properties: 
+            properties:
              [
-               { name: 'externalId' },
-               { name: 'type' },
-               { name: 'createdDate' },
-               { name: 'updatedDate' } 
+               { name: 'externalId', sticky: true },
+               { name: 'type', default: 'CAMPAIGN' },
              ]
           }
         ]
@@ -300,6 +287,14 @@
             control_type: 'select',
             pick_list: 'column_locations',
             label: 'Location',
+            toggle_hint: 'Select from option list',
+            toggle_field: {
+              label: 'Location',
+              control_type: 'text',
+              toggle_hint: 'Use custom value',
+              type: 'boolean',
+              name: 'location'
+            },
             type: 'string',
             name: 'location'
           },
@@ -334,7 +329,7 @@
       end
     },
 
-   budget: {
+    budget: {
       fields: lambda do |_connection, _config_fields|
         [
           {
@@ -399,7 +394,7 @@
             parse_output: 'date_time_conversion',
             type: 'date_time',
             name: 'updatedDate'
-          },
+          }
         ]
       end
     },
@@ -407,29 +402,28 @@
     line_item: {
       fields: lambda do |_connection, config_fields|
         budget_id = config_fields['budgetId'] ? config_fields['budgetId'] : config_fields['updateBudgetId']
-        read_only_filter = config_fields['updateBudgetId'] ? " and readOnly eq false" : ""  # if this an update, only get non-readOnly columns
-        
+        # if this an update, only get non-readOnly columns
+        read_only_filter = config_fields['updateBudgetId'] ? ' and readOnly eq false' : ''
+
         cells_prop =
-          if (budget_id) && (budget_id&.to_i) != 0
-            line_item_columns = call(:get_line_item_columns_raw, { budgetId: budget_id, filter: read_only_filter })
+          if budget_id && (budget_id&.to_i) != 0
+            line_item_columns = call(:get_line_item_columns_raw, budgetId: budget_id, filter: read_only_filter)
             line_item_columns&.map do |field|
-              case field['type'] 
-              when 'CURRENCY', 'NUMBER' 
+              case field['type']
+              when 'CURRENCY', 'NUMBER'
                 {
-                  name: "#{field['name']}",
-                  #name: "f_#{field['id']}",
-                  label: "#{field['name']}",
+                  name: field['name'],
+                  label: field['name'],
                   sticky: true,
                   control_type: 'number',
                   render_input: 'float_conversion',
                   parse_output: 'float_conversion',
                   type: 'number'
                 }.compact
-                else 
+              else
                 {
-                  name: "#{field['name']}",
-                  #name: "f_#{field['id']}",
-                  label: "#{field['name']}",
+                  name: field['name'],
+                  label: field['name'],
                   sticky: true,
                   control_type: 'text',
                   type: 'string'
@@ -510,7 +504,7 @@
         ]
       end
     },
-    
+
     filter: {
       fields: lambda do |_connection, _config_fields|
         [
@@ -532,23 +526,187 @@
       end
     },
 
+    custom_action_input: {
+      fields: lambda do |connection, config_fields|
+        input_schema = parse_json(config_fields.dig('input', 'schema') || '[]')
+
+        [
+          {
+            name: 'path',
+            optional: false,
+            hint: "Base URI is <b>https://#{connection['environment']}" \
+              '.allocadia.com</b> - path will be appended to this URI. ' \
+              'Use absolute URI to override this base URI.'
+          },
+          (
+            if %w[get delete].include?(config_fields['verb'])
+              {
+                name: 'input',
+                type: 'object',
+                control_type: 'form-schema-builder',
+                sticky: input_schema.blank?,
+                label: 'URL parameters',
+                add_field_label: 'Add URL parameter',
+                properties: [
+                  {
+                    name: 'schema',
+                    extends_schema: true,
+                    sticky: input_schema.blank?
+                  },
+                  (
+                    if input_schema.present?
+                      {
+                        name: 'data',
+                        type: 'object',
+                        properties: call('make_schema_builder_fields_sticky',
+                                         input_schema)
+                      }
+                    end
+                  )
+                ].compact
+              }
+            else
+              {
+                name: 'input',
+                type: 'object',
+                properties: [
+                  {
+                    name: 'schema',
+                    extends_schema: true,
+                    schema_neutral: true,
+                    control_type: 'schema-designer',
+                    sample_data_type: 'json_input',
+                    sticky: input_schema.blank?,
+                    label: 'Request body parameters',
+                    add_field_label: 'Add request body parameter'
+                  },
+                  (
+                    if input_schema.present?
+                      {
+                        name: 'data',
+                        type: 'object',
+                        properties: input_schema
+                          .each { |field| field[:sticky] = true }
+                      }
+                    end
+                  )
+                ].compact
+              }
+            end
+          ),
+          {
+            name: 'output',
+            control_type: 'schema-designer',
+            sample_data_type: 'json_http',
+            extends_schema: true,
+            schema_neutral: true,
+            sticky: true
+          }
+        ]
+      end
+    },
+
+    custom_action_output: {
+      fields: lambda do |_connection, config_fields|
+        parse_json(config_fields['output'] || '[]')
+      end
+    },
+
   },
 
   actions: {
 
+    custom_action: {
+      description: "Custom <span class='provider'>http action</span> " \
+        "in <span class='provider'>Allocadia</span>",
+      help: {
+        body: 'Build your own Allocadia action with an HTTP request. The ' \
+          'request will be authorized with your Allocadia connection.',
+        learn_more_url: "https://api-na.allocadia.com/v1/docs/",
+        learn_more_text: 'Allocadia API Documentation'
+      },
+
+      execute: lambda do |_connection, input|
+        verb = input['verb']
+        error("#{verb} not supported") if %w[get post put delete].exclude?(verb)
+        data = input.dig('input', 'data').presence || {}
+
+        case verb
+        when 'get'
+          response =
+            get(input['path'], data)
+            .after_error_response(/.*/) do |_code, body, _header, message|
+              error("#{message}: #{body}")
+            end.compact
+
+          if response.is_a?(Array)
+            array_name = parse_json(input['output'] || '[]')
+                         .dig(0, 'name') || 'array'
+            { array_name.to_s => response }
+          elsif response.is_a?(Hash)
+            response
+          else
+            error('API response is not a JSON')
+          end
+        when 'post'
+          post(input['path'], data)
+            .after_response do |code, body, headers|
+            # if /3\d{2} | 4\d{2} | 5\d{2}/.match?(code)
+            if code.to_s.match?(/[3-5]\d{2}/)
+              error("#{code}: #{body}")
+            else
+              {
+                location: headers['location'],
+                id: headers['location'].split('/').last
+              }
+            end
+            # .after_error_response(/.*/) do |_code, body, _header, message|
+            # error("#{message}: #{body}")
+          end.compact
+        when 'put'
+          put(input['path'], data)
+            .after_error_response(/.*/) do |_code, body, _header, message|
+            error("#{message}: #{body}")
+          end.compact
+        when 'delete'
+          delete(input['path'], data)
+            .after_error_response(/.*/) do |_code, body, _header, message|
+            error("#{message}: #{body}")
+          end.compact
+        end
+      end,
+
+      config_fields: [{
+        name: 'verb',
+        label: 'Request type',
+        hint: 'Select HTTP method of the request',
+        optional: false,
+        control_type: 'select',
+        pick_list: %w[get post put delete].map { |verb| [verb.upcase, verb] }
+      }],
+
+      input_fields: lambda do |object_definitions|
+        object_definitions['custom_action_input']
+      end,
+
+      output_fields: lambda do |object_definitions|
+        object_definitions['custom_action_output']
+      end
+    },
+
     get_choices_by_column_id: {
-      description: "Get <span class='provider'>choices by column ID</span> " \
+      description: "Get <span class='provider'>choices</span> by column ID " \
         "in <span class='provider'>Allocadia</span>",
 
      execute: lambda do |_connection, input|
-       
+
        raw_choices = get("/v1/budgets/#{input['budgetId']}/columns/#{input['columnId']}/choices")
-       { 
+       {
          choices: raw_choices&.map do |field|
            {
-             choiceId: "#{field['id']}",
-             label: "#{field['label']}",
-             externalId: "#{field['externalAssociations'].size > 0 ? field['externalAssociations'][0]['externalId'] : nil}"
+             choiceId: field['id'],
+             label: field['label'],
+             externalId: field.dig('externalAssociations', 0, 'externalId')
            }
          end
        }
@@ -570,34 +728,35 @@
     },
 
     get_choices_by_column_name: {
-      description: "Get <span class='provider'>choices by column name</span> " \
+      description: "Get <span class='provider'>choices</span> by column name " \
         "in <span class='provider'>Allocadia</span>",
 
       execute: lambda do |_connection, input|
-       
-        allColumnsObj = []
-        
+
+        all_columns_obj = []
+
         locationFilter = input['location'] ? "location eq \"#{input['location']}\" and " : ""
-        
-        column_names = input['columnNames']&.map { |item| item['columnName'] } || []
+
+        column_names = input['columnNames'].pluck('columnName')
+
         column_names.each do |columnName|
-          columnObj = get("/v1/budgets/#{input['budgetId']}/columns?$filter=#{locationFilter}name eq \"#{columnName}\"").first || error("Column #{columnName} not found")
-        
-          raw_choices = get("/v1/budgets/#{input['budgetId']}/columns/#{columnObj['id']}/choices")
+          column_obj = get("/v1/budgets/#{input['budgetId']}/columns?$filter=#{locationFilter}name eq \"#{columnName}\"").first || error("Column #{columnName} not found")
+
+          raw_choices = get("/v1/budgets/#{input['budgetId']}/columns/#{column_obj['id']}/choices")
           choices = raw_choices&.map do |choice|
             {
-              choiceId: "#{choice['id']}",
-              label: "#{choice['label']}",
-              externalId: "#{choice['externalAssociations'].size > 0 ? choice['externalAssociations'][0]['externalId'] : nil}"
+              choiceId: choice['id'],
+              label: choice['label'],
+              externalId: choice.dig('externalAssociations', 0, 'externalId')
             }
             end
-     
-          columnObj['choices'] = choices
-          allColumnsObj << columnObj
-        end 
-        
+
+          column_obj['choices'] = choices
+          all_columns_obj << column_obj
+        end
+
         {
-          columns: allColumnsObj
+          columns: all_columns_obj
         }
       end,
 
@@ -623,16 +782,19 @@
       end,
 
     },
-  
+
     add_choice: {
       description: "Add <span class='provider'>column choice</span> " \
         "in <span class='provider'>Allocadia</span>",
 
       execute: lambda do |_connection, input|
 
-        param = '{ "label":"' + input['label'] + '", "externalAssociations": [{ "externalId": "' + input['externalId'] + '", "type": "CAMPAIGN" } ] }'
+        # if the externalId in the first entry is blank, remove the external associations
+        if input.dig('externalAssociations',0,'externalId').blank?
+          input.delete('externalAssociations')
+        end
 
-        post("/v1/budgets/#{input['budgetId']}/columns/#{input['columnId']}/choices", parse_json(param))
+        post("/v1/budgets/#{input.delete('budgetId')}/columns/#{input.delete('columnId')}/choices", input)
           .after_response do |code, body, headers|
           # if /3\d{2} | 4\d{2} | 5\d{2}/.match?(code)
           if code.to_s.match?(/[3-5]\d{2}/)
@@ -645,7 +807,7 @@
       end,
 
       input_fields: lambda do |object_definitions|
-        object_definitions['budget'].only('budgetId').concat(object_definitions['column'].only('columnId')).concat(object_definitions['choice'].ignored('choiceId'))
+        object_definitions['budget'].only('budgetId').concat(object_definitions['column'].only('columnId')).concat(object_definitions['choice_add'])
       end,
 
       output_fields: lambda do |object_definitions|
@@ -657,11 +819,11 @@
     },
 
     get_item_by_id: {
-      description: "Get <span class='provider'>item by ID</span> " \
+      description: "Get <span class='provider'>item</span> by ID " \
         "in <span class='provider'>Allocadia</span>",
 
      execute: lambda do |_connection, input|
-       
+
         item = get("/v1/lineitems/#{input['itemId']}")
         columns = call(:get_line_item_columns_raw, { budgetId: item['budgetId'] })
 
@@ -675,13 +837,13 @@
             item['primaryExternalId'] = externalId
           end
         end
-        
+
         cols = {}
         columns.each do |col|
           cols[col['id']] = col
         end
         item['cells'] = call(:format_item_cells, { columns: cols, cells: item['cells'] })
-       
+        item['itemId'] = item.delete('id')
         item.except('_links')
       end,
 
@@ -713,7 +875,7 @@
       end,
 
     },
-    
+
     get_budget_by_id: {
       description: "Get <span class='provider'>budget by ID</span> " \
         "in <span class='provider'>Allocadia</span>",
@@ -736,14 +898,14 @@
     },
 
     get_all_budgets: {
-      description: "Get <span class='provider'>all budgets by folder ID</span> " \
+      description: "Get <span class='provider'>all budgets</span> by folder ID " \
         "in <span class='provider'>Allocadia</span>",
 
       execute: lambda do |_connection, input|
-        budget_filter = input['filter'] ? "?$filter=#{input['filter']}" : ""    
+        budget_filter = input['filter'] ? "?$filter=#{input['filter']}" : ""
         all_budgets = get("/v1/budgets#{budget_filter}")
         budgets_in_hierarchy = input['folderId'].blank? ? all_budgets : all_budgets.select {|item| call(:item_in_hierarchy, { root_id: input['folderId'], all_items: all_budgets, item: item }) }
-              
+
         budgets_in_hierarchy.each do |budget|
           budget['budgetId'] = budget.delete 'id'
           budget.delete '_links'
@@ -770,18 +932,18 @@
       end,
 
     },
-    
+
     get_line_items_by_budget: {
-      description: "Get <span class='provider'>all line items in budget</span> " \
+      description: "Get <span class='provider'>all line items</span> in budget " \
         "in <span class='provider'>Allocadia</span>",
 
       execute: lambda do |_connection, input|
         filter = input['filter'] ? "?$filter=#{input['filter']}" : ""
         columns = call(:get_line_item_columns_key_id, { budgetId: input['budgetId'] })
         budget_items = get("/v1/budgets/#{input['budgetId']}/lineitems#{filter}")
-        
+
         budget_items&.delete_if { |item| item['parentId'] == nil } # filter out grand total row
-        
+
         budget_items.each do |item|
           item['itemId'] = item.delete 'id'
           item.delete '_links'
@@ -814,7 +976,7 @@
       input_fields: lambda do |object_definitions|
         object_definitions['filter']
       end,
-      
+
       output_fields: lambda do |object_definitions|
         [{
           name: 'items',
@@ -826,7 +988,7 @@
     },
 
     search_line_items: {
-      description: "Search <span class='provider'>line items in folder</span> " \
+      description: "Search <span class='provider'>line items</span> in folder " \
         "in <span class='provider'>Allocadia</span>",
 
       execute: lambda do |_connection, input|
@@ -837,10 +999,10 @@
         columns = call(:get_line_item_columns_key_id, { budgetId: input['folderId'] })
 
         all_items = []
-        
+
         budgets_in_hierarchy.each do |budget|
           budget_items = get("/v1/budgets/#{budget['id']}/lineitems#{item_filter}")
-              
+
           budget_items.each do |item|
             unless item['parentId'] == nil # filter out grand total row
               item['itemId'] = item.delete 'id'
@@ -874,7 +1036,7 @@
       input_fields: lambda do |object_definitions|
         object_definitions['filter']
       end,
-      
+
       output_fields: lambda do |object_definitions|
         [{
           name: 'items',
@@ -887,7 +1049,7 @@
 
     # TODO - this is incomplete - waiting on a "wait" function to be available
     search_line_items_large_hierarchy: {
-      description: "Search <span class='provider'>line items in folder for large hierarchy</span> " \
+      description: "Search <span class='provider'>line items</span> in folder for large hierarchy " \
         "in <span class='provider'>Allocadia</span>",
 
       execute: lambda do |_connection, input|
@@ -900,9 +1062,9 @@
          job = get("/v1/jobs/lineitems/#{job_id}")
          error(job)
         end
-        
+
         all_items = []
-        
+
         budget_items.each do |item|
             unless item['parentId'] == nil # filter out grand total row
               item['itemId'] = item.delete 'id'
@@ -918,7 +1080,7 @@
       input_fields: lambda do |object_definitions|
         object_definitions['filter']
       end,
-      
+
       output_fields: lambda do |object_definitions|
         [{
           name: 'items',
@@ -935,17 +1097,17 @@
 
       execute: lambda do |_connection, input|
         columns = call(:get_line_item_columns_key_name, { budgetId: input.delete('updateBudgetId') })
-        
+
         # handle case where it could be a cells object coming in as a string
         if (input['cells']&.is_a?(String))
           input['cells'] = parse_json(input['cells'])
         end
-        
+
         input['cells'] = input['cells']&.
           compact&.
           map { |key, value| { columns[key]['id'] => { 'value' => call(:format_cell_to_allocadia, { value: value, column: columns[key] } ) } } }&.
           inject(:merge)
-        
+
         put("/v1/lineitems" \
           "/#{input.delete('itemId')}", input.compact)
           .after_error_response(/.*/) do |_code, body, _header, message|
@@ -973,7 +1135,7 @@
       input_fields: lambda do |object_definitions|
         object_definitions['line_item'].only('itemId','name','cells').required('itemId')
       end
-    },    
+    },
 
     add_line_item: {
       description: "Add <span class='provider'>line item" \
@@ -981,17 +1143,17 @@
 
       execute: lambda do |_connection, input|
         columns = call(:get_line_item_columns_key_name, { budgetId: input['updateBudgetId'] })
-        
+
         # handle case where it could be a cells object coming in as a string
         if (input['cells']&.is_a?(String))
           input['cells'] = parse_json(input['cells'])
         end
-        
+
         input['cells'] = input['cells']&.
           compact&.
           map { |key, value| { columns[key]['id'] => { 'value' => call(:format_cell_to_allocadia, { value: value, column: columns[key] } ) } } }&.
           inject(:merge)
- 
+
         post("/v1/budgets/#{input.delete('updateBudgetId')}/lineitems", input.compact)
          .after_response do |code, body, headers|
           if code.to_s.match?(/[3-5]\d{2}/)
@@ -1022,12 +1184,12 @@
       input_fields: lambda do |object_definitions|
         object_definitions['line_item'].only('name','type','parentId','cells').required('name','type')
       end,
-      
+
       output_fields: lambda do |object_definitions|
         object_definitions['line_item'].only('itemId')
       end,
-    },    
-    
+    },
+
   },
 
   pick_lists: {
@@ -1040,7 +1202,7 @@
        %w[Category CATEGORY],
        %w[Placeholder PLACEHOLDER]]
     end,
-    
+
     column_locations: lambda do |_connection|
       [
         ["ACTUAL","ACTUAL"],
