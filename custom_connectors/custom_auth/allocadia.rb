@@ -1156,13 +1156,13 @@
               { 'value' =>
                 call(:format_cell_to_allocadia,
                   value: value, column: columns[key])
+                }
               }
-            }
           }&.
           inject(:merge)
 
         post("/v1/budgets/#{input.delete('updateBudgetId')}/lineitems",
-          input.compact)
+                            input.compact)
           .after_response do |code, body, headers|
           if code.to_s.match?(/[3-5]\d{2}/)
             error("#{code}: #{body}")
@@ -1202,12 +1202,17 @@
   },
 
   pick_lists: {
-    foldersbudgets: ->(_connection) { get('/v1/budgets')&.
-                                        pluck('name', 'id') || [] },
-    budgets: ->(_connection) { get('/v1/budgets?$filter=folder eq false')&.
-                                 pluck('name', 'id') || [] },
-    folders: ->(_connection) { get('/v1/budgets?$filter=folder eq true')&.
-                                 pluck('name', 'id') || [] },
+    foldersbudgets: lambda do |_connection|
+       get('/v1/budgets')&.pluck('name', 'id') || []
+    end,
+
+    budgets: lambda do |_connection|
+       get('/v1/budgets?$filter=folder eq false')&.pluck('name', 'id') || []
+    end,
+
+    folders: lambda do |_connection|
+       get('/v1/budgets?$filter=folder eq true')&.pluck('name', 'id') || []
+    end,
 
     line_item_types: lambda do |_connection|
       [%w[Line\ item LINE_ITEM],
@@ -1217,13 +1222,13 @@
 
     column_locations: lambda do |_connection|
       [
-        %w(ACTUAL ACTUAL),
-        %w(BUDGET BUDGET),
-        %w(DETAILS DETAILS),
-        %w(GRID GRID),
-        %w(OTHER OTHER),
-        %w(PO PO),
-        %w(ROLLUP ROLLUP)
+        %w[ACTUAL ACTUAL],
+        %w[BUDGET BUDGET],
+        %w[DETAILS DETAILS],
+        %w[GRID GRID],
+        %w[OTHER OTHER],
+        %w[PO PO],
+        %w[ROLLUP ROLLUP]
       ]
     end
   }
