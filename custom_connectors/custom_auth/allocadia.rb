@@ -1151,11 +1151,19 @@
 
         input['cells'] = input['cells']&.
           compact&.
-          map { |key, value| { columns[key]['id'] => { 'value' => call(:format_cell_to_allocadia, { value: value, column: columns[key] } ) } } }&.
+          map { |key, value|
+            { columns[key]['id'] =>
+              { 'value' =>
+                call(:format_cell_to_allocadia,
+                  value: value, column: columns[key])
+              }
+            }
+          }&.
           inject(:merge)
 
-        post("/v1/budgets/#{input.delete('updateBudgetId')}/lineitems", input.compact)
-         .after_response do |code, body, headers|
+        post("/v1/budgets/#{input.delete('updateBudgetId')}/lineitems",
+          input.compact)
+          .after_response do |code, body, headers|
           if code.to_s.match?(/[3-5]\d{2}/)
             error("#{code}: #{body}")
           else
@@ -1182,20 +1190,24 @@
       }],
 
       input_fields: lambda do |object_definitions|
-        object_definitions['line_item'].only('name','type','parentId','cells').required('name','type')
+        object_definitions['line_item']
+          .only('name', 'type', 'parentId', 'cells').required('name', 'type')
       end,
 
       output_fields: lambda do |object_definitions|
         object_definitions['line_item'].only('itemId')
-      end,
-    },
+      end
+    }
 
   },
 
   pick_lists: {
-    foldersbudgets: ->(_connection) { get('/v1/budgets')&.pluck('name', 'id') || [] },
-    budgets: ->(_connection) { get('/v1/budgets?$filter=folder eq false')&.pluck('name', 'id') || [] },
-    folders: ->(_connection) { get('/v1/budgets?$filter=folder eq true')&.pluck('name', 'id') || [] },
+    foldersbudgets: ->(_connection) { get('/v1/budgets')&.
+                                        pluck('name', 'id') || [] },
+    budgets: ->(_connection) { get('/v1/budgets?$filter=folder eq false')&.
+                                 pluck('name', 'id') || [] },
+    folders: ->(_connection) { get('/v1/budgets?$filter=folder eq true')&.
+                                 pluck('name', 'id') || [] },
 
     line_item_types: lambda do |_connection|
       [%w[Line\ item LINE_ITEM],
@@ -1205,13 +1217,13 @@
 
     column_locations: lambda do |_connection|
       [
-        ["ACTUAL","ACTUAL"],
-        ["BUDGET","BUDGET"],
-        ["DETAILS","DETAILS"],
-        ["GRID","GRID"],
-        ["OTHER","OTHER"],
-        ["PO","PO"],
-        ["ROLLUP","ROLLUP"]
+        %w(ACTUAL ACTUAL),
+        %w(BUDGET BUDGET),
+        %w(DETAILS DETAILS),
+        %w(GRID GRID),
+        %w(OTHER OTHER),
+        %w(PO PO),
+        %w(ROLLUP ROLLUP)
       ]
     end
   }
