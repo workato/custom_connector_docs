@@ -517,7 +517,7 @@
         fields = call("get_object_fields", object)
         query_params = (input || []).map do |key, value|
           if ["Name"].include?(key)
-            "#{key} = '%#{value}%'"
+            "#{key} like '#{value}'"
           else
             "#{key} = '#{value}'"
           end
