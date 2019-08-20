@@ -84,34 +84,58 @@
     end,
 
     get_api_response_body_element: lambda do |input|
-      endpoint = input.dig('connection', 'server_url')&.to_s ||
-                 'https://login.salesforce.com/services/Soap/c/45.0'
+      endpoint = input.dig('connection', 'server_url') ||
+                 "https://#{input.dig('connection', 'environment')}" \
+                 '.salesforce.com/services/Soap/c' \
+                 "/#{input.dig('connection', 'api_version')}"
+
       post(endpoint, input['payload'])
         .after_error_response(/.*/) do |_code, body, _header, message|
         error("#{message}: #{body}")
       end&.dig('Envelope', 0, 'Body', 0)
+    end,
+
+    validate_response: lambda do |input|
+      if input.is_a?(Array)
+        input.map do |array_value|
+          call('validate_response', array_value)
+        end
+      elsif input.is_a?(Hash)
+        if (error = input['errors'].presence)
+          error("#{error['statusCode']}: #{error['message']}")
+        else
+          input
+        end
+      end
     end
   },
 
   connection: {
     fields: [
       { name: 'username', optional: false },
+      { name: 'password', optional: false, control_type: 'password' },
       {
-        name: 'password',
-        hint: 'Login password followed by your security token. For ' \
-          'example, if your login password is <b>mypassword</b> and your ' \
-          'security token is <b>XXXXXXXXXX</b>, then the password is ' \
-          '<b>mypasswordXXXXXXXXXX</b>.',
+        name: 'security_token',
+        hint: 'In Salesforce Lightning, navigate to the top navigation bar ' \
+        'go to [Your name] > Settings > My Personal Information > ' \
+        'Reset My Security Token.',
         optional: false,
         control_type: 'password'
       },
       {
+        name: 'environment',
+        default: 'login',
+        control_type: 'select',
+        pick_list: [%w[Production login], %w[Sandbox test]],
+        optional: false
+      },
+      {
         name: 'api_version',
         label: 'API version number',
-        hint: 'Goto Setup > Develop > API > Generate Enterprise WSDL -- ' \
-          'the frst couple of lines are comments and it will tell you what ' \
-          'API version you connect with.',
-        default: 45.0,
+        hint: 'In Salesforce Lightning, navigate to Setup > Integrations > ' \
+        'API > Generate Enterprise WSDL -- the first couple of lines are ' \
+        'comments and it will tell you what API version you connect with.',
+        default: 46.0,
         optional: false,
         type: 'number',
         control_type: 'number'
@@ -127,12 +151,13 @@
           'soapenv:Body' => {
             'urn:login' => {
               'urn:username' => connection['username'],
-              "urn:password": connection['password']
+              "urn:password":
+                "#{connection['password']}#{connection['security_token']}"
             }
           }
         }
-        response_data = post('https://login.salesforce.com/services/Soap/c' \
-          "/#{connection['api_version']}", payload)
+        response_data = post("https://#{connection['environment']}" \
+        ".salesforce.com/services/Soap/c/#{connection['api_version']}", payload)
                         .headers('Content-type' => 'text/xml',
                                  'SOAPAction' => 'test')
                         .format_xml('soapenv:Envelope',
@@ -155,9 +180,6 @@
 
       refresh_on: [500, 400, 401, 405, /soapenv:Fault/],
 
-      detect_on: [%r{<success>false</success>},
-                  %r{<errors><message>.*</errors>}],
-
       apply: lambda do |connection|
         payload do |current_payload|
           current_payload&.[]=(
@@ -176,13 +198,7 @@
                    '@xmlns:urn' => 'urn:enterprise.soap.sforce.com',
                    strip_response_namespaces: true)
       end
-    },
-
-    base_uri: lambda do |connection|
-      # connection['server_url']&.scan(%r{https://(\w+\.?)+})&.[](0) ||
-      #   'https://login.salesforce.com'
-      connection['server_url'] || 'https://login.salesforce.com'
-    end
+    }
   },
 
   test: lambda do |connection|
@@ -191,13 +207,14 @@
       'soapenv:Body' => {
         'urn:login' => {
           'urn:username' => connection['username'],
-          "urn:password": connection['password']
+          "urn:password":
+            "#{connection['password']}#{connection['security_token']}"
         }
       }
     }
 
-    post('https://login.salesforce.com/services/Soap/c' \
-      "/#{connection['api_version']}", payload)
+    post("https://#{connection['environment']}" \
+    ".salesforce.com/services/Soap/c/#{connection['api_version']}", payload)
   end,
 
   object_definitions: {
@@ -383,11 +400,12 @@
                              'connection' => connection)
 
         {
-          convert_leads: call('format_api_output_field_names',
-                              call('parse_xml_to_hash',
-                                   'xml' => response_data,
-                                   'array_fields' => ['result']))
-            .dig('convertLeadResponse', 'result')
+          convert_leads: call('validate_response',
+                              call('format_api_output_field_names',
+                                   call('parse_xml_to_hash',
+                                        'xml' => response_data,
+                                        'array_fields' => ['result']))
+                              .dig('convertLeadResponse', 'result'))
         }
       end,
 
