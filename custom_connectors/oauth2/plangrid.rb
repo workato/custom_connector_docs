@@ -1,5 +1,5 @@
 {
-  title: 'Plangrid',
+  title: 'PlanGrid',
   connection: {
     fields: [
       {
