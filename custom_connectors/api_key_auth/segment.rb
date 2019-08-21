@@ -490,8 +490,8 @@
           {
             name: 'path',
             optional: false,
-            hint: 'Base URI is <b>https://www.googleapis.com</b> - path will ' \
-              'be appended to this URI. ' \
+            hint: 'Base URI is <b>https://platform.segmentapis.com</b> - ' \
+              'path will be appended to this URI. ' \
               'Use absolute URI to override this base URI.'
           },
           (
@@ -857,7 +857,7 @@
     # Custom action for Segment
     custom_action: {
       description: "Custom <span class='provider'>action</span> " \
-        "in <span class='provider'>Segment</span>",
+      "in <span class='provider'>Segment</span>",
 
       help: {
         body: 'Build your own Segment action with an HTTP request. The ' \
@@ -932,7 +932,7 @@
     # Destinations
     create_destination: {
       description: "Create <span class='provider'>destination</span> " \
-        "in <span class='provider'>Segment</span>",
+      "in <span class='provider'>Segment</span>",
 
       execute: lambda do |_connection, input|
         post("/v1beta/#{input.delete('source')}/destinations",
@@ -975,12 +975,12 @@
     create_workato_destination: {
       title: 'Create Workato destination',
       description: "Create <span class='provider'>Workato</span> " \
-        "destination in <span class='provider'>Segment</span>",
+      "destination in <span class='provider'>Segment</span>",
 
       execute: lambda do |_connection, input|
         if (api_key = input['api_key']).length < 8
           error("Please double check your API key. It should be at least 8 ' \
-            'characters long.")
+          'characters long.")
         end
         workato_dest = {
           name: "#{input['source']}/destinations/workato",
@@ -1058,7 +1058,7 @@
 
     get_destinations_by_source: {
       description: "Get <span class='provider'>destinations</span> by source " \
-        "in <span class='provider'>Segment</span>",
+      "in <span class='provider'>Segment</span>",
 
       execute: lambda do |_connection, input|
         get("/v1beta/#{input['source']}/destinations")
@@ -1101,7 +1101,7 @@
 
     update_destination: {
       description: "Update <span class='provider'>destination</span> " \
-        "in <span class='provider'>Segment</span>",
+      "in <span class='provider'>Segment</span>",
 
       execute: lambda do |_connection, input|
         input.delete('source')
@@ -1168,7 +1168,7 @@
     # Sources
     list_sources: {
       description: "List <span class='provider'>sources</span> in " \
-        "<span class='provider'>Segment</span>",
+      "<span class='provider'>Segment</span>",
 
       execute: lambda do |connection, _input|
         get("/v1beta/workspaces/#{connection['workspace']}/sources")
@@ -1191,7 +1191,7 @@
 
     get_source_by_name: {
       description: "Get <span class='provider'>source</span> " \
-        "by name in <span class='provider'>Segment</span>",
+      "by name in <span class='provider'>Segment</span>",
 
       execute: lambda do |_connection, input|
         get("/v1beta/#{input['name']}")
@@ -1225,9 +1225,9 @@
   triggers: {
     new_alias_event: {
       description: "New <span class='provider'>alias</span> event " \
-        "in <span class='provider'>Segment</span>",
-      help: 'Make sure you have <b>configured</b> and <b>activated</b> the ' \
-      'Workato as a destination in the Segment app, for this trigger to work.',
+      "in <span class='provider'>Segment</span>",
+      help: 'An <b>active</b> Workato destination is required to use this ' \
+      'trigger',
 
       input_fields: lambda do |_object_definitions|
         [
@@ -1281,9 +1281,9 @@
 
     new_group_event: {
       description: "New <span class='provider'>group</span> event " \
-        "in <span class='provider'>Segment</span>",
-      help: 'Make sure you have <b>configured</b> and <b>activated</b> the ' \
-      'Workato as a destination in the Segment app, for this trigger to work.',
+      "in <span class='provider'>Segment</span>",
+      help: 'An <b>active</b> Workato destination is required to use this ' \
+      'trigger',
 
       input_fields: lambda do |_object_definitions|
         [
@@ -1343,9 +1343,9 @@
 
     new_identify_event: {
       description: "New <span class='provider'>identify</span> event " \
-        "in <span class='provider'>Segment</span>",
-      help: 'Make sure you have <b>configured</b> and <b>activated</b> the ' \
-      'Workato as a destination in the Segment app, for this trigger to work.',
+      "in <span class='provider'>Segment</span>",
+      help: 'An <b>active</b> Workato destination is required to use this ' \
+      'trigger',
 
       input_fields: lambda do |_object_definitions|
         [
@@ -1404,9 +1404,9 @@
 
     new_page_event: {
       description: "New <span class='provider'>page</span> event " \
-        "in <span class='provider'>Segment</span>",
-      help: 'Make sure you have <b>configured</b> and <b>activated</b> the ' \
-      'Workato as a destination in the Segment app, for this trigger to work.',
+      "in <span class='provider'>Segment</span>",
+      help: 'An <b>active</b> Workato destination is required to use this ' \
+      'trigger',
 
       input_fields: lambda do |_object_definitions|
         [
@@ -1463,9 +1463,9 @@
 
     new_track_event: {
       description: "New <span class='provider'>track</span> event " \
-        "in <span class='provider'>Segment</span>",
-      help: 'Make sure you have <b>configured</b> and <b>activated</b> the ' \
-      'Workato as a destination in the Segment app, for this trigger to work.',
+      "in <span class='provider'>Segment</span>",
+      help: 'An <b>active</b> Workato destination is required to use this ' \
+      'trigger',
 
       input_fields: lambda do |_object_definitions|
         [
@@ -1511,22 +1511,20 @@
 
       sample_output: lambda do |_connection, _input|
         call('get_common_fields_sample_data')
-          .merge(
-            'type' => 'track',
-            'event' => 'Registered',
-            'properties' => {
-              'plan' => 'Pro Annual',
-              'accountType' => 'Facebook'
-            }
-          )
+          .merge('type' => 'track',
+                 'event' => 'Registered',
+                 'properties' => {
+                   'plan' => 'Pro Annual',
+                   'accountType' => 'Facebook'
+                 })
       end
     },
 
     new_screen_event: {
       description: "New <span class='provider'>screen</span> event " \
-        "in <span class='provider'>Segment</span>",
-      help: 'Make sure you have <b>configured</b> and <b>activated</b> the ' \
-      'Workato as a destination in the Segment app, for this trigger to work.',
+      "in <span class='provider'>Segment</span>",
+      help: 'An <b>active</b> Workato destination is required to use this ' \
+      'trigger',
 
       input_fields: lambda do |_object_definitions|
         [
@@ -1572,13 +1570,11 @@
 
       sample_output: lambda do |_connection, _input|
         call('get_common_fields_sample_data')
-          .merge(
-            'type' => 'screen',
-            'name' => 'Home',
-            'properties' => {
-              'Feed Type' => 'private'
-            }
-          )
+          .merge('type' => 'screen',
+                 'name' => 'Home',
+                 'properties' => {
+                   'Feed Type' => 'private'
+                 })
       end
     }
   },
