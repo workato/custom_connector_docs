@@ -2755,12 +2755,14 @@
        'gov-state-local', 'other'].map { |type| [type.labelize, type] }
     end,
     project_folders: lambda do |_connection, project_uid:|
-      folders = get("/projects/#{project_uid}/attachments")['data']&.
-                pluck('folder')&.uniq
-      if folders.size > 0
-        folders&.map { |folder| [folder || 'Root', folder || ''] }
-      else
-        [['Root', '']]
+      if project_uid.length === 36
+        folders = get("/projects/#{project_uid}/attachments")['data']&.
+                  pluck('folder')&.uniq
+        if folders.size > 0
+          folders&.map { |folder| [folder || 'Root', folder || ''] }
+        else
+          [['Root', '']]
+        end
       end
     end
   }
