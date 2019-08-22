@@ -2060,11 +2060,11 @@
       end
     },
     get_photo_details: {
-      title: 'Get photo by ID',
+      title: 'Get photo in a project',
       description: 'Get <span class="provider">photo</span> in'\
-        ' a <span class="provider">Plangrid</span> project',
+        ' a <span class="provider">PlanGrid</span> project',
       help: {
-        body: 'Get photo details action uses the ' \
+        body: 'Get photo action uses the ' \
         "<a href='https://developer.plangrid.com/docs/retrieve-sheets-" \
         "in-a-project' target='_blank'>Retrieve Photo in Project</a> API.",
         learn_more_url: 'https://developer.plangrid.com/docs/' \
@@ -2089,12 +2089,12 @@
               hint: 'Provide project ID e.g. ' \
               '0bbb5bdb-3f87-4b46-9975-90e797ee9ff9'
             } },
-          { name: 'photo_uid', type: 'Photo ID', optional: false }
+          { name: 'photo_uid', label: 'Photo ID', optional: false }
         ]
       end,
       execute: lambda do |_connection, input|
         get("/projects/#{input['project_uid']}/photos/" \
-          "#{input['photo_uid']}")
+          "#{input['photo_uid']}")&.merge('project_uid' => input.delete('project_uid'))
       end,
       output_fields: lambda do |object_definitions|
         object_definitions['photo']
