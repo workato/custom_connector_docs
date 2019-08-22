@@ -2459,17 +2459,17 @@
       end
     },
     new_updated_photos: {
-      title: 'New/updated photos in Project',
-      description: 'New/updated <span class="provider">photos</span> '\
-        'in <span class="provider">Plangrid</span> Project',
+      title: 'New or updated photo in a project',
+      description: 'New or updated <span class="provider">photo</span> '\
+        'in a <span class="provider">PlanGrid</span> project',
       help: {
-        body: 'New/updated photos in Project trigger uses the' \
+        body: 'New or updated photo in a project trigger uses the' \
         " <a href='https://developer.plangrid.com/docs/" \
         "retrieve-photos-in-a-project' target='_blank'>Retrieve " \
         ' photos in a Project</a> API.',
         learn_more_url: 'https://developer.plangrid.com/docs/' \
         'retrieve-photos-in-a-project',
-        learn_more_text: 'Retrieve photos in a Project'
+        learn_more_text: 'Retrieve Photos in a Project'
       },
       input_fields: lambda do |_object_definitions|
         [
