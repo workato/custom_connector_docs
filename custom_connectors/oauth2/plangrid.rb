@@ -132,7 +132,7 @@
           { name: 'project_uid',
             control_type: 'select',
             pick_list: 'project_list',
-            label: 'Project',
+            label: 'Project ID',
             sticky: true,
             toggle_hint: 'Select project',
             toggle_field: {
@@ -145,14 +145,14 @@
               hint: 'Provide project ID e.g. ' \
               ' 0bbb5bdb-3f87-4b46-9975-90e797ee9ff9'
             } },
-          { name: 'name', label: 'Document name' },
+          { name: 'name', label: 'Document Name' },
           { name: 'folder' },
           { name: 'url' },
           { name: 'created_at', type: 'date_time',
             render_input: 'parse_iso8601_timestamp',
             parse_output: 'parse_iso8601_timestamp' },
           { name: 'created_by', type: 'object', properties: [
-            { name: 'uid' },
+            { name: 'uid', label: 'UID' },
             { name: 'url' },
             { name: 'email' }
           ] },
