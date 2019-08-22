@@ -996,8 +996,8 @@
     },
     upload_document: {
       title: 'Upload document to a project',
-      description: 'Upload <span class="provider">document</span> to a project'\
-        ' in <span class="provider">Plangrid</span>',
+      description: 'Upload <span class="provider">document</span> to a'\
+        ' <span class="provider">PlanGrid</span> project',
       help: {
         body: 'Upload document to a project action uses the' \
         " <a href='https://developer.plangrid.com/docs/upload-attachment' \
@@ -1045,7 +1045,7 @@
               hint: 'Folder in project to place the document ' \
               '(case-sensitive). Leave blank to select root folder'
             } },
-          { name: 'auto_version', type: 'boolean',
+          { name: 'auto_version', type: 'boolean', sticky: true,
             control_type: 'checkbox',
             toggle_hint: 'Select from options list',
             toggle_field: {
@@ -1061,10 +1061,11 @@
       execute: lambda do |_connection, input|
         file_content = input.delete('file_content')
         project_uid = input['project_uid']
+        payload = input.except(:project_uid)
         file_upload_info = post("/projects/#{project_uid}/" \
                     'attachments/uploads').
                            headers('Content-type': 'application/json').
-                           payload(input)
+                           payload(payload)
         url = file_upload_info&.dig('aws_post_form_arguments', 'action')
         fields = file_upload_info&.dig('aws_post_form_arguments', 'fields')
         # webhook_url = file_upload_info.
