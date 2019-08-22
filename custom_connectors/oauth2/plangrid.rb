@@ -434,7 +434,7 @@
           { name: 'project_uid',
             control_type: 'select',
             pick_list: 'project_list',
-            label: 'Project',
+            label: 'Project ID',
             sticky: true,
             toggle_hint: 'Select project',
             toggle_field: {
@@ -448,24 +448,16 @@
               ' 0bbb5bdb-3f87-4b46-9975-90e797ee9ff9'
             } },
           { name: 'title' },
-          { name: 'url' },
+          { name: 'url', label: 'URL' },
           { name: 'created_at', type: 'date_time',
             render_input: 'parse_iso8601_timestamp',
             parse_output: 'parse_iso8601_timestamp' },
           { name: 'created_by', type: 'object', properties: [
-            { name: 'uid' },
+            { name: 'uid', label: 'UID' },
             { name: 'url' },
             { name: 'email' }
           ] },
-          { name: 'deleted', type: 'boolean', control_type: 'checkbox',
-            toggle_field: {
-              name: 'deleted',
-              label: 'Deleted',
-              type: 'string',
-              control_type: 'text',
-              toggle_hint: 'Use custom value',
-              hint: 'Allowed values are: true, false'
-            } }
+          { name: 'deleted', type: 'boolean' }
         ]
       end
     },
