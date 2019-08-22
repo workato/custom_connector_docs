@@ -2544,16 +2544,16 @@
       end
     },
     new_updated_snapshot: {
-      title: 'New/updated snapshot in a Project',
-      description: 'New/updated <span class="provider">snapshot</span> '\
-        'in a Project  <span class="provider">Plangrid</span>',
+      title: 'New or updated snapshot in a project',
+      description: 'New or updated <span class="provider">snapshot</span> '\
+        'in a <span class="provider">PlanGrid</span> project',
       help: {
-        body: 'New/updated snapshot in a Project trigger uses the' \
+        body: 'New or updated snapshot in a project trigger uses the' \
         " <a href='https://developer.plangrid.com/docs/" \
-        "remove-snapshot-reference-in-rfi' target='_blank'>Retrieve " \
+        "retrieve-snapshots-in-a-project' target='_blank'>Retrieve " \
         ' Snapshots in a Project</a> API.',
         learn_more_url: 'https://developer.plangrid.com/docs/' \
-        'remove-snapshot-reference-in-rfi',
+        'retrieve-snapshots-in-a-project',
         learn_more_text: 'Retrieve Snapshots in a Project'
       },
       input_fields: lambda do |_object_definitions|
