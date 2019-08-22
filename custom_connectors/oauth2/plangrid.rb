@@ -2061,11 +2061,11 @@
       end
     },
     get_document_details: {
-      title: 'Get document by ID',
-      description: 'Get <span class="provider">document</span> in'\
-        ' in <span class="provider">Plangrid</span> project',
+      title: 'Get document in a project',
+      description: 'Get <span class="provider">document</span>'\
+        ' in a <span class="provider">PlanGrid</span> project',
       help: {
-        body: 'Get document details action uses the ' \
+        body: 'Get document in a project action uses the ' \
         "<a href='https://developer.plangrid.com/docs/retrieve-sheets-" \
         "in-a-project' target='_blank'>Retrieve Document in a Project</a> API.",
         learn_more_url: 'https://developer.plangrid.com/docs/' \
@@ -2090,12 +2090,12 @@
               hint: 'Provide project ID e.g. ' \
               '0bbb5bdb-3f87-4b46-9975-90e797ee9ff9'
             } },
-          { name: 'attachment_uid', type: 'Document ID', optional: false }
+          { name: 'attachment_uid', label: 'Document ID', optional: false }
         ]
       end,
       execute: lambda do |_connection, input|
         get("/projects/#{input['project_uid']}/attachments/" \
-          "#{input['attachment_uid']}")
+          "#{input['attachment_uid']}")&.merge('project_uid' => input.delete('project_uid'))
       end,
       output_fields: lambda do |object_definitions|
         object_definitions['document']
