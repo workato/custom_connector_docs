@@ -2169,11 +2169,11 @@
       end
     },
     new_updated_documents: {
-      title: 'New/updated documents in a project',
-      description: 'New/updated <span class="provider">document</span> in '\
-        'Project <span class="provider">Plangrid</span>',
+      title: 'New or updated document in a project',
+      description: 'New or updated <span class="provider">document</span> in '\
+        'a <span class="provider">PlanGrid</span> project',
       help: {
-        body: 'New/updated documents in Project trigger uses the' \
+        body: 'New or updated document in a project trigger uses the' \
         " <a href='https://developer.plangrid.com/docs/retrieve-attachments" \
         "-in-a-project' target='_blank'>Retrieve Documents in a Project" \
         ' </a> API.',
