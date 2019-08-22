@@ -1108,7 +1108,59 @@
           deleted: false
         }
       end
-
+    },
+    update_document: {
+      title: 'Update document in a project',
+      description: 'Update <span class="provider">document</span> in a'\
+        ' <span class="provider">PlanGrid</span> project',
+      help: {
+        body: 'Update document in a project action uses the' \
+        " <a href='https://developer.plangrid.com/docs/update-photo-in-a-" \
+        "project' target='_blank'>Update Document to Project API</a>.",
+        learn_more_url: 'https://developer.plangrid.com/docs/update-attachment-' \
+        'in-a-project',
+        learn_more_text: 'Update Document in a Project API'
+      },
+      summarize_input: %w[file_content],
+      input_fields: lambda do |_object_definitions|
+        [
+          { name: 'project_uid', optional: false,
+            label: 'Project',
+            control_type: 'select', pick_list: 'project_list',
+            toggle_hint: 'Select project',
+            toggle_field: {
+              name: 'project_uid',
+              label: 'Project ID',
+              type: 'string',
+              control_type: 'text',
+              toggle_hint: 'Use project ID',
+              hint: 'Use Project ID e.g. 0bbb5bdb-3f87-4b46-9975-90e797ee9ff9'
+            } },
+          { name: 'attachment_uid', label: 'Document ID', optional: false },
+          { name: 'name', label: 'Document Name',
+            hint: 'New name of the document', sticky: true },
+          { name: 'folder', label: 'Folder',
+            hint: 'New folder of the document', sticky: true }
+        ]
+      end,
+      execute: lambda do |_connection, input|
+        project_uid = input.delete('project_uid')
+        patch("/projects/#{project_uid}/attachments/" \
+              "#{input.delete('attachment_uid')}").
+          headers('Content-type': 'application/json').
+          payload(input).
+          after_error_response(/.*/) do |_code, body, _header, message|
+            error("#{message}: #{body}")
+          end&.merge('project_uid' => project_uid)
+      end,
+      output_fields: lambda do |object_definitions|
+        object_definitions['document']
+      end,
+      sample_output: lambda do |_connection, _input|
+        id = get('projects')&.[]('data', 0)&.[]('uid')
+        get("/projects/#{id}/attachments")&.dig('data', 0)&.
+        merge('project_uid' => id) || {}
+      end
     },
     create_rfi: {
       title: 'Create RFI in a project',
