@@ -1564,7 +1564,7 @@
     get_snapshot_in_project: {
       title: 'Get snapshot in a project',
       description: 'Get <span class="provider">snapshot</span> in'\
-        ' a <span class="provider">Plangrid</span> project',
+        ' a <span class="provider">PlanGrid</span> project',
       help: {
         body: 'Get snapshot in a project action uses the ' \
         "<a href='https://developer.plangrid.com/docs/retrieve-snapshot-" \
@@ -1596,7 +1596,7 @@
       end,
       execute: lambda do |_connection, input|
         get("/projects/#{input['project_uid']}/snapshots/" \
-             "#{input['snapshot_uid']}")
+             "#{input['snapshot_uid']}")&.merge('project_uid' => input['project_uid'])
       end,
       output_fields: lambda do |object_definitions|
         object_definitions['snapshot']
