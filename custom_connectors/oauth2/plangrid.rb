@@ -1931,9 +1931,9 @@
       end
     },
     upload_photo: {
-      title: 'Uplod photo to project',
+      title: 'Upload photo to a project',
       description: 'Upload <span class="provider">photo</span> to '\
-        ' project in <span class="provider">Plangrid</span>',
+        ' a <span class="provider">PlanGrid</span> project',
       help: {
         body: 'Upload photo to a project action uses the' \
         " <a href='https://developer.plangrid.com/docs/upload-photo-" \
@@ -1964,11 +1964,13 @@
         ]
       end,
       execute: lambda do |_connection, input|
+        project_uid = input.delete('project_uid')
         file_content = input.delete('file_content')
-        file_upload_info = post("/projects/#{input.delete('project_uid')}/" \
+        payload = input.except(:project_uid)
+        file_upload_info = post("/projects/#{project_uid}/" \
                     'photos/uploads').
                            headers('Content-type': 'application/json').
-                           payload(input)
+                           payload(payload)
         url = file_upload_info&.dig('aws_post_form_arguments', 'action')
         fields = file_upload_info&.dig('aws_post_form_arguments', 'fields')
         # webhook_url = file_upload_info.
@@ -1988,7 +1990,7 @@
           request_format_multipart_form.
           after_response do |_code, response, _response_headers|
             response
-          end
+          end&.merge('project_uid' => project_uid)
       end,
       output_fields: lambda do |object_definitions|
         object_definitions['photo']
