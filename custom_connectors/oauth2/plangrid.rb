@@ -387,7 +387,7 @@
           { name: 'project_uid',
             control_type: 'select',
             pick_list: 'project_list',
-            label: 'Project',
+            label: 'Project ID',
             sticky: true,
             toggle_hint: 'Select project',
             toggle_field: {
@@ -406,12 +406,12 @@
             render_input: 'parse_iso8601_timestamp',
             parse_output: 'parse_iso8601_timestamp' },
           { name: 'created_by', type: 'object', properties: [
-            { name: 'uid' },
+            { name: 'uid', label: 'UID' },
             { name: 'url' },
             { name: 'email' }
           ] },
           { name: 'sheet', type: 'object', properties: [
-            { name: 'uid' },
+            { name: 'uid', label: 'UID' },
             { name: 'url' }
           ] },
           { name: 'deleted', type: 'boolean',
