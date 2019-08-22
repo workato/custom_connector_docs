@@ -2010,16 +2010,16 @@
       end
     },
     update_photo_metadata: {
-      title: 'Update photo metadata',
-      description: 'Update <span class="provider">photo</span> metadata to '\
-        ' Project in <span class="provider">Plangrid</span>',
+      title: 'Update photo in a project',
+      description: 'Update <span class="provider">photo</span> in'\
+        ' a <span class="provider">PlanGrid</span> project',
       help: {
-        body: 'Update photo metadata action uses the' \
+        body: 'Update photo  action uses the' \
         " <a href='https://developer.plangrid.com/docs/update-photo-in-a-" \
-        "project' target='_blank'>Update Document to Project API</a>.",
+        "project' target='_blank'>Update Photo in a Project API</a>.",
         learn_more_url: 'https://developer.plangrid.com/docs/update-photo-' \
         'in-a-project',
-        learn_more_text: 'Update photo to Project API'
+        learn_more_text: 'Update Photo in a Project API'
       },
       summarize_input: %w[file_content],
       input_fields: lambda do |_object_definitions|
@@ -2036,19 +2036,20 @@
               toggle_hint: 'Use project ID',
               hint: 'Use Project ID e.g. 0bbb5bdb-3f87-4b46-9975-90e797ee9ff9'
             } },
-          { name: 'photo_uid', type: 'Photo ID', optional: false },
+          { name: 'photo_uid', label: 'Photo ID', optional: false },
           { name: 'title', label: 'Photo title',
-            hint: 'New title of the photo' }
+            hint: 'New title of the photo', sticky: true }
         ]
       end,
       execute: lambda do |_connection, input|
-        patch("/projects/#{input.delete('project_uid')}/photos/" \
+        project_uid = input.delete('project_uid')
+        patch("/projects/#{project_uid}/photos/" \
               "#{input.delete('photo_uid')}").
           headers('Content-type': 'application/json').
           payload(input).
           after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message}: #{body}")
-          end
+          end&.merge('project_uid' => project_uid)
       end,
       output_fields: lambda do |object_definitions|
         object_definitions['photo']
