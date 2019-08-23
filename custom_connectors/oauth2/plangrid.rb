@@ -1724,23 +1724,23 @@
       end
     },
     get_roles_on_project: {
-      title: 'Get roles on a project',
-      description: 'Get <span class="provider">roles</span> on '\
-        ' <span class="provider">Plangrid</span> project',
+      title: 'Get roles in a project',
+      description: 'Get <span class="provider">roles</span> in '\
+        ' a <span class="provider">PlanGrid</span> project',
       help: {
-        body: 'Get role on a project action uses the ' \
-        "<a href='https://developer.plangrid.com/docs/retrieve-role-" \
-        "on-a-project' target='_blank'>Retrieve Role on a Project</a> API.",
+        body: 'Get roles in a project action uses the ' \
+        "<a href='https://developer.plangrid.com/docs/retrieve-roles-" \
+        "on-a-project' target='_blank'>Retrieve Roles on a Project</a> API.",
         learn_more_url: 'https://developer.plangrid.com/docs/' \
-        'retrieve-role-on-a-project',
-        learn_more_text: 'Retrieve Role on a Project'
+        'retrieve-roles-on-a-project',
+        learn_more_text: 'Retrieves Role on a Project'
       },
       input_fields: lambda do |_object_definitions|
         [
           { name: 'project_uid',
             control_type: 'select',
             pick_list: 'project_list',
-            label: 'Project',
+            label: 'Project ID',
             optional: false,
             toggle_hint: 'Select project',
             toggle_field: {
@@ -1752,24 +1752,19 @@
               toggle_hint: 'Use project ID',
               hint: 'Provide project ID e.g. ' \
               '0bbb5bdb-3f87-4b46-9975-90e797ee9ff9'
-            } },
-          { name: 'limit', type: 'integer',
-            hint: 'Number of roles to retrieve. Maximum value of 50.' },
-          { name: 'skip', type: 'integer',
-            hint: 'Number of roles to skip in the set of results.' }
+            } }
         ]
       end,
       execute: lambda do |_connection, input|
-        { roles: get("/projects/#{input.delete('project_uid')}/roles", input) }
+        project_uid = input.delete('project_uid')
+          { roles: get("/projects/#{project_uid}/roles")['data'] }
       end,
       output_fields: lambda do |_object_definitions|
         [
-          { name: 'roles', type: 'array', of: 'object', properties: [
-            { name: 'uid' },
-            { name: 'label' }
-          ] },
-          { name: 'total_count' },
-          { name: 'next_page_url' }
+          { name: 'roles', label: 'Roles', type: 'array', of: 'object', properties: [
+            { name: 'uid', label: 'UID' },
+            { name: 'label', label: 'Role' }
+          ] }
         ]
       end,
       sample_output: lambda do |_connection, _input|
