@@ -907,7 +907,7 @@
     create_project: {
       title: 'Create project',
       description: 'Create <span class="provider">project</span> in'\
-        ' <span class="provider">Plangrid</span>',
+        ' <span class="provider">PlanGrid</span>',
       help: {
         body: 'Create project action uses the' \
         " <a href='https://developer.plangrid.com/docs/create-project'" \
@@ -916,13 +916,28 @@
         learn_more_text: 'Create Project'
       },
       input_fields: lambda do |object_definitions|
-        object_definitions['project'].
+        [
+          { name: 'add_to_organization', type: 'boolean',
+            control_type: 'checkbox', toggle_hint: 'Select from options list',
+            toggle_field: {
+              name: 'add_to_organization',
+              label: 'Add to Organization',
+              type: 'string',
+              control_type: 'text',
+              toggle_hint: 'Use custom value',
+              hint: 'Allowed values are: true, false'
+            }
+          }
+        ].concat(object_definitions['project'].
           ignored('uid', 'updated_at', 'latitude', 'longitude',
                   'organization_id').
-          required('name')
+          required('name'))
       end,
       execute: lambda do |_connection, input|
-        post('projects').payload(input).
+        payload = input.each do |key, value|
+            input[key].present? || input[key] = nil
+          end
+        post('projects').payload(payload).
           after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message}: #{body}")
           end
