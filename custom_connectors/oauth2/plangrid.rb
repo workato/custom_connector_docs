@@ -1246,11 +1246,11 @@
     update_rfi: {
       title: 'Update RFI in a project',
       description: 'Update <span class="provider">RFI</span> in'\
-        ' a <span class="provider">Plangrid</span> project',
+        ' a <span class="provider">PlanGrid</span> project',
       help: {
-        body: 'Update RFI in Project action uses the ' \
+        body: 'Update RFI in a project action uses the ' \
         "<a href='https://developer.plangrid.com/docs/update-rfi-in-a-" \
-        "project' target='_blank'>patchUpdate RFI in a Project</a> API.",
+        "project' target='_blank'>Update RFI in a Project</a> API.",
         learn_more_url: 'https://developer.plangrid.com/docs/update-' \
         'rfi-in-a-project',
         learn_more_text: 'Update RFI in a Project'
@@ -1273,8 +1273,7 @@
               hint: 'Provide project ID e.g. ' \
               '0bbb5bdb-3f87-4b46-9975-90e797ee9ff9'
             } },
-          { name: 'status', label: 'Status',
-            hint: 'Use this for create and update rfi status' }
+          { name: 'status', label: 'Status UID' }
         ].concat(object_definitions['rfi'].
           only('uid', 'locked', 'title', 'question', 'answer', 'sent_at',
                'due_at', 'assigned_to_uids').
