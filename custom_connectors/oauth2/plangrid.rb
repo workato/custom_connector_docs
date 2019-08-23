@@ -2398,14 +2398,14 @@
       end
     },
     new_updated_annotations: {
-      title: 'New/updated annotations in Project',
-      description: 'New/updated <span class="provider">annotations</span> '\
-        'in Project  <span class="provider">Plangrid</span>',
+      title: 'New or updated annotation in a project',
+      description: 'New or updated <span class="provider">annotation</span> '\
+        'in a <span class="provider">PlanGrid</span> project',
       help: {
-        body: 'New/updated annotations in Project trigger uses the' \
+        body: 'New or updated annotation in project trigger uses the' \
         " <a href='https://developer.plangrid.com/docs/" \
         "retrieve-annotations-in-a-project' target='_blank'>Retrieve " \
-        ' annotations in a Project</a> API.',
+        ' Annotations in a Project</a> API.',
         learn_more_url: 'https://developer.plangrid.com/docs/' \
         'retrieve-annotations-in-a-project',
         learn_more_text: 'Retrieve Annotations in a Project'
