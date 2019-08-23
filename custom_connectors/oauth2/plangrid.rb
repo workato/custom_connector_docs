@@ -2250,6 +2250,86 @@
         get('/projects')&.dig('data', 0) || {}
       end
     },
+    new_updated_sheets: {
+      title: 'New or updated sheet in a project',
+      description: 'New or updated <span class="provider">sheet</span> in '\
+        'a <span class="provider">PlanGrid</span> project',
+      help: {
+        body: 'New or updated sheet in a project trigger uses the' \
+        " <a href='https://developer.plangrid.com/docs/retrieve-sheets-in-a-project" \
+        " target='_blank'>Retrieve Sheets in a Project" \
+        ' </a> API.',
+        learn_more_url: 'https://developer.plangrid.com/docs/retrieve-' \
+        'sheets-in-a-project',
+        learn_more_text: 'Retrieve Sheets in a Project'
+      },
+      input_fields: lambda do |_object_definitions|
+        [
+          { name: 'project_uid', optional: false,
+            label: 'Project',
+            control_type: 'select', pick_list: 'project_list',
+            toggle_hint: 'Select project',
+            toggle_field: {
+              name: 'project_uid',
+              label: 'Project ID',
+              type: 'string',
+              control_type: 'text',
+              toggle_hint: 'Use project ID',
+              hint: 'Use Project ID e.g. 0bbb5bdb-3f87-4b46-9975-90e797ee9ff9'
+            } },
+          {
+            name: 'since',
+            label: 'When first started, this recipe should pick up events from',
+            hint: 'When you start recipe for the first time, ' \
+            'it picks up trigger events from this specified date and time. ' \
+            'Leave empty to get records created or updated one hour ago',
+            sticky: true,
+            type: 'timestamp'
+          }
+        ]
+      end,
+      poll: lambda do |_connection, input, closure|
+        project_uid = closure&.[]('project_uid') || input['project_uid']
+        updated_after = closure&.[]('updated_after') ||
+                        (input['since'] || 1.hour.ago).to_time.utc.iso8601
+        limit = 5
+        skip = closure&.[]('skip') || 0
+        response = if (next_page_url = closure&.[]('next_page_url')).present?
+                     get(next_page_url)
+                   else
+                     get("/projects/#{project_uid}/sheets").
+                       params(limit: limit,
+                              skip: skip,
+                              updated_after: updated_after)
+                   end
+        closure = if (next_page_url = response['next_page_url']).present?
+                    { 'skip' => skip + limit,
+                      'project_uid' => project_uid,
+                      'next_page_url' => next_page_url }
+                  else
+                    { 'offset' => 0,
+                      'project_uid' => project_uid,
+                      'updated_after' => now.to_time.utc.iso8601 }
+                  end
+        sheets = response['data']&.
+                map { |o| o.merge('project_uid' => project_uid) }
+        {
+          events: sheets || [],
+          next_poll: closure,
+          can_poll_more: response['next_page_url'].present?
+        }
+      end,
+      dedup: lambda do |sheet|
+        "#{sheet['uid']}@#{sheet['created_at']}"
+      end,
+      output_fields: lambda do |object_definitions|
+        object_definitions['sheet']
+      end,
+      sample_output: lambda do |_connection, _input|
+        id = get('projects')&.[]('data', 0)&.[]('uid')
+        get("/projects/#{id}/sheets")&.dig('data', 0) || {}
+      end
+    },
     new_updated_documents: {
       title: 'New or updated document in a project',
       description: 'New or updated <span class="provider">document</span> in '\
