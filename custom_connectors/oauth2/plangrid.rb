@@ -1772,61 +1772,7 @@
                        'label' => 'Admin' } }
       end
     },
-    get_sheets_in_project: {
-      title: 'Get sheets in project',
-      description: 'Get <span class="provider">sheets</span> in'\
-        ' <span class="provider">Plangrid</span> project',
-      help: {
-        body: 'Get sheets in project action uses the ' \
-        "<a href='https://developer.plangrid.com/docs/retrieve-sheets-" \
-        "in-a-project' target='_blank'>Retrieve Sheets in a Project</a>.",
-        learn_more_url: 'https://developer.plangrid.com/docs/' \
-        'retrieve-sheets-in-a-project',
-        learn_more_text: 'Retrieve Sheets in a Project'
-      },
-      input_fields: lambda do |_object_definitions|
-        [
-          { name: 'project_uid',
-            control_type: 'select',
-            pick_list: 'project_list',
-            label: 'Project',
-            optional: false,
-            toggle_hint: 'Select project',
-            toggle_field: {
-              name: 'project_uid',
-              type: 'string',
-              control_type: 'text',
-              optional: false,
-              label: 'Project ID',
-              toggle_hint: 'Use project ID',
-              hint: 'Provide project ID e.g. ' \
-              '0bbb5bdb-3f87-4b46-9975-90e797ee9ff9'
-            } },
-          { name: 'limit', type: 'integer',
-            hint: 'Number of sheets to retrieve. Maximum value of 50.' },
-          { name: 'skip', type: 'integer',
-            hint: 'Number of sheets to skip in the set of results' },
-          { name: 'updated_after', type: 'date_time',
-            hint: 'Only retrieve sheets created/updated after ' \
-            'specified UTC date and time.' }
-        ]
-      end,
-      execute: lambda do |_connection, input|
-        { sheets: get("/projects/#{input.delete('project_uid')}/sheets",
-                      input)['data'] }
-      end,
-      output_fields: lambda do |object_definitions|
-        [{ name: 'sheets', type: 'array', of: 'object',
-           properties: object_definitions['sheet'] }]
-      end,
-      sample_output: lambda do |_connection, _input|
-        id = get('projects')&.[]('data', 0)&.[]('uid')
-        {
-          sheets: get("/projects/#{id}/sheets?limit=1")&.dig('data', 0)&.
-                  merge('project_uid' => id) || {}
-        }
-      end
-    },
+
     get_sheet_in_project: {
       title: 'Get sheet in a project',
       description: 'Get <span class="provider">sheet</span> in '\
