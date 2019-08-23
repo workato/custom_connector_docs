@@ -1471,7 +1471,7 @@
     get_task: {
       title: 'Get task in a project',
       description: 'Get <span class="provider">task</span> in'\
-        ' in a <span class="provider">Plangrid</span> project',
+        ' a <span class="provider">PlanGrid</span> project',
       help: {
         body: 'Get task in a project action uses the ' \
         "<a href='https://developer.plangrid.com/docs/retrieve-issues-in-a-" \
@@ -1498,7 +1498,7 @@
               hint: 'Provide project ID e.g. ' \
               '0bbb5bdb-3f87-4b46-9975-90e797ee9ff9'
             } },
-          { name: 'issue_uid', label: 'Issue ID', optional: false }
+          { name: 'issue_uid', label: 'Task ID', optional: false }
         ]
       end,
       execute: lambda do |_connection, input|
