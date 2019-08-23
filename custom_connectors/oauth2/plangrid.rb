@@ -234,8 +234,8 @@
             parse_output: 'date_time_conversion' },
           { name: 'string', label: 'Stamp',
             hint: 'One to two character stamp associated with task.' },
-          { name: 'issue_list', label: 'Issue List', type: 'object', properties: [
-            { name: 'uid' },
+          { name: 'issue_list', label: 'Task List', type: 'object', properties: [
+            { name: 'uid', label: 'Task List ID' },
             { name: 'url' }
           ] },
           { name: 'description' },
