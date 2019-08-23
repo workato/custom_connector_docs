@@ -592,7 +592,7 @@
           { name: 'project_uid',
             control_type: 'select',
             pick_list: 'project_list',
-            label: 'Project',
+            label: 'Project ID',
             sticky: true,
             toggle_hint: 'Select project',
             toggle_field: {
@@ -607,7 +607,7 @@
             } },
           { name: 'number', type: 'integer' },
           { name: 'status', type: 'object', properties: [
-            { name: 'uid' },
+            { name: 'uid', label: 'UID' },
             { name: 'label' },
             { name: 'color' }
           ] },
@@ -634,12 +634,9 @@
           { name: 'due_at', type: 'date_time',
             render_input: 'parse_iso8601_timestamp',
             parse_output: 'parse_iso8601_timestamp' },
-          { name: 'assigned_to_uids',
-            hint: 'Array of unique identifiers of users who ' \
-            'are RFI assignees.' },
           { name: 'assigned_to', type: 'array', of: 'object',
             properties: [
-              { name: 'uid' },
+              { name: 'uid', label: 'UID' },
               { name: 'url' },
               { name: 'email' }
             ] },
@@ -651,7 +648,7 @@
             "timestamps-and-timezones' target='_blank'>Timestamps and " \
             'Timezones</a> for accepted date formats' },
           { name: 'updated_by', type: 'object', properties: [
-            { name: 'uid' },
+            { name: 'uid', label: 'UID' },
             { name: 'url' },
             { name: 'email' }
           ] },
@@ -659,7 +656,7 @@
             render_input: 'parse_iso8601_timestamp',
             parse_output: 'parse_iso8601_timestamp' },
           { name: 'created_by', type: 'object', properties: [
-            { name: 'uid' },
+            { name: 'uid', label: 'UID' },
             { name: 'url' },
             { name: 'email' }
           ] },
