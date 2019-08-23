@@ -2762,17 +2762,17 @@
       end
     },
     new_updated_field_report: {
-      title: 'New/updated field report in a Project',
-      description: 'New/updated <span class="provider">field report</span> '\
-        'in <span class="provider">Plangrid</span> Project',
+      title: 'New or updated field report in a project',
+      description: 'New or updated <span class="provider">field report</span> '\
+        'in a <span class="provider">PlanGrid</span> project',
       help: {
-        body: 'New/updated field report in Project trigger uses the' \
+        body: 'New or updated field report in a project trigger uses the' \
         " <a href='https://developer.plangrid.com/docs/" \
         "retrieve-field-reports-in-a-project' target='_blank'>Retrieve " \
-        'field reports in a Project</a> API.',
+        'Field Reports in a Project</a> API.',
         learn_more_url: 'https://developer.plangrid.com/docs/' \
         'retrieve-field-reports-in-a-project',
-        learn_more_text: 'Retrieve field reports in a Project'
+        learn_more_text: 'Retrieve Field Reports in a Project'
       },
       input_fields: lambda do |_object_definitions|
         [
