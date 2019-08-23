@@ -1304,10 +1304,10 @@
     },
     get_rfi_in_project: {
       title: 'Get RFI in a project',
-      description: 'Get <span class="provider">RFI</span> by ID in'\
-        ' <span class="provider">Plangrid</span> project',
+      description: 'Get <span class="provider">RFI</span> in '\
+        'a <span class="provider">PlanGrid</span> project',
       help: {
-        body: 'Get RFI by ID in a project action uses the' \
+        body: 'Get RFI in a project action uses the' \
         " <a href='https://developer.plangrid.com/docs/" \
         "retrieve-rfis-in-a-project'" \
         " target='_blank'>Retrieve RFI in a Project</a> API.",
@@ -1316,12 +1316,29 @@
         learn_more_text: 'Retrieve RFI in a Project'
       },
       input_fields: lambda do |object_definitions|
-        object_definitions['rfi'].only('project_uid', 'uid').
-          required('project_uid', 'uid')
+        [
+          { name: 'project_uid',
+            control_type: 'select',
+            pick_list: 'project_list',
+            label: 'Project',
+            optional: false,
+            toggle_hint: 'Select project',
+            toggle_field: {
+              name: 'project_uid',
+              type: 'string',
+              control_type: 'text',
+              optional: false,
+              label: 'Project ID',
+              toggle_hint: 'Use project ID',
+              hint: 'Provide project ID e.g. ' \
+              '0bbb5bdb-3f87-4b46-9975-90e797ee9ff9'
+            } },
+          { name: 'rfi_uid', label: 'RFI ID', optional: false }
+        ]
       end,
       execute: lambda do |_connection, input|
         project_uid = input.delete('project_uid')
-        get("/projects/#{project_uid}/rfis/#{input['uid']}")&.
+        get("/projects/#{project_uid}/rfis/#{input['rfi_uid']}")&.
           merge('project_uid' => project_uid)
       end,
       output_fields: lambda do |object_definitions|
