@@ -1582,14 +1582,14 @@
     get_user_in_project: {
       title: 'Get user in project',
       description: 'Get <span class="provider">user</span> in'\
-        ' <span class="provider">Plangrid</span> project',
+        ' a <span class="provider">PlanGrid</span> project',
       help: {
-        body: 'Get user in project action uses the ' \
+        body: 'Get user in a project action uses the ' \
         "<a href='https://developer.plangrid.com/docs/retrieve-users-on-a-" \
-        "project-team' target='_blank'>Retrieve User on a Project Team</a>.",
+        "project-team' target='_blank'>Retrieve User in a Project</a>.",
         learn_more_url: 'https://developer.plangrid.com/docs/retrieve-' \
         'users-on-a-project-team',
-        learn_more_text: 'Retrieve User on a Project Team'
+        learn_more_text: 'Retrieve User in a Project'
       },
       input_fields: lambda do |_object_definitions|
         [
