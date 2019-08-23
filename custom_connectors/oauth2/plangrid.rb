@@ -2431,11 +2431,11 @@
       end
     },
     new_updated_task: {
-      title: 'New/updated task in a Project',
-      description: 'New/updated <span class="provider">task</span> in a '\
-        'Project <span class="provider">Plangrid</span>',
+      title: 'New or updated task in a project',
+      description: 'New or updated <span class="provider">task</span> in a '\
+        ' <span class="provider">PlanGrid</span> project',
       help: {
-        body: 'New/updated task in a Project trigger uses the' \
+        body: 'New or updated task in a project trigger uses the' \
         " <a href='https://developer.plangrid.com/docs/" \
         "retrieve-issues-in-a-project' target='_blank'>Retrieve Tasks " \
         ' in a Project API</a>.',
