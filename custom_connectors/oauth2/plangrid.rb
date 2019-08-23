@@ -1187,9 +1187,9 @@
     create_rfi: {
       title: 'Create RFI in a project',
       description: 'Create <span class="provider">RFI</span> in'\
-        ' a <span class="provider">Plangrid</span> project ',
+        ' a <span class="provider">PlanGrid</span> project ',
       help: {
-        body: 'Create RFI in project action uses the ' \
+        body: 'Create RFI in a project action uses the ' \
         "<a href='https://developer.plangrid.com/docs/create-" \
         "rfi-in-a-project' target='_blank'>Create RFI in Project</a> API.",
         learn_more_url: 'https://developer.plangrid.com/docs/create-rfi-' \
