@@ -2837,11 +2837,11 @@
       end
     },
     new_updated_rfi: {
-      title: 'New/updated RFI in a Project',
-      description: 'New/updated <span class="provider">RFI</span> '\
-        'in a <span class="provider">Plangrid</span> Project',
+      title: 'New or updated RFI in a project',
+      description: 'New or updated <span class="provider">RFI</span> '\
+        'in a <span class="provider">PlanGrid</span> project',
       help: {
-        body: 'New/updated RFI in a Project trigger uses the' \
+        body: 'New or updated RFI in a project trigger uses the' \
         " <a href='https://developer.plangrid.com/docs/" \
         "retrieve-rfis-in-a-project' target='_blank'>Retrieve " \
         ' RFIs in a Project</a> API.',
