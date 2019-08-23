@@ -121,7 +121,22 @@
           { name: 'updated_at', type: 'date_time',
             render_input: 'date_time_conversion',
             parse_output: 'date_time_conversion',
-            label: 'Updated at' }
+            label: 'Updated at' },
+          { name: 'add_to_organization', type: 'boolean',
+            control_type: 'checkbox',
+            hint: 'Boolean indicating whether to add the project to the ' \
+            'organization that the API user belongs to or not. By default ' \
+            'the project is created as a personal project and not as an ' \
+            'organization-linked project.',
+            toggle_hint: 'Select from options list',
+            toggle_field: {
+              name: 'add_to_organization',
+              label: 'Add to organization',
+              type: 'string',
+              control_type: 'text',
+              toggle_hint: 'Use custom value',
+              hint: 'Allowed values are: true, false'
+            } }
         ]
       end
     },
@@ -1047,6 +1062,9 @@
             } },
           { name: 'auto_version', type: 'boolean',
             control_type: 'checkbox',
+            hint: 'Boolean indicating whether to automatically version the' \
+            ' document if a file with the same name exists within the ' \
+            'specified folder. By default, documents are not versioned.',
             toggle_hint: 'Select from options list',
             toggle_field: {
               name: 'auto_version',
@@ -1470,8 +1488,8 @@
         get("/projects/#{id}/users")&.dig('data', 0) || {}
       end
     },
-    get_user_in_project: {
-      title: 'Get user in project',
+    get_user_by_id: {
+      title: 'Get user in a project',
       description: 'Get <span class="provider">user</span> in'\
         ' <span class="provider">Plangrid</span> project',
       help: {
@@ -1669,7 +1687,7 @@
       end
     },
     get_sheets_in_project: {
-      title: 'Get sheets in project',
+      title: 'Get sheets in a project',
       description: 'Get <span class="provider">sheets</span> in'\
         ' <span class="provider">Plangrid</span> project',
       help: {
@@ -1886,7 +1904,7 @@
       end
     },
     upload_photo: {
-      title: 'Uplod photo to project',
+      title: 'Upload photo to project',
       description: 'Upload <span class="provider">photo</span> to '\
         ' project in <span class="provider">Plangrid</span>',
       help: {
@@ -2014,8 +2032,8 @@
         merge('project_uid' => id) || {}
       end
     },
-    get_photo_details: {
-      title: 'Get photo by ID',
+    get_photo_by_id: {
+      title: 'Get photo in a Project',
       description: 'Get <span class="provider">photo</span> in'\
         ' a <span class="provider">Plangrid</span> project',
       help: {
@@ -2060,8 +2078,8 @@
         merge('project_uid' => id) || {}
       end
     },
-    get_document_details: {
-      title: 'Get document by ID',
+    get_document_by_id: {
+      title: 'Get document in a project',
       description: 'Get <span class="provider">document</span> in'\
         ' in <span class="provider">Plangrid</span> project',
       help: {
