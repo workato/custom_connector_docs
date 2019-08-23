@@ -342,11 +342,11 @@
     annotation: {
       fields: lambda do |_connection, _config_fields|
         [
-          { name: 'uid', label: 'Unique Identifier' },
+          { name: 'uid', label: 'Annotation ID' },
           { name: 'project_uid',
             control_type: 'select',
             pick_list: 'project_list',
-            label: 'Project',
+            label: 'Project ID',
             sticky: true,
             toggle_hint: 'Select project',
             toggle_field: {
@@ -373,9 +373,8 @@
               hint: 'Allowed values are: true, false'
             } },
           { name: 'sheet', type: 'object', properties: [
-            { name: 'uid' },
-            { name: 'label' },
-            { name: 'color' }
+            { name: 'uid', label: 'UID' },
+            { name: 'url' }
           ] }
         ]
       end
