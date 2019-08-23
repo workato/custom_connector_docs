@@ -1529,23 +1529,23 @@
       end
     },
     invite_user_to_project: {
-      title: 'Invite a user to a project',
+      title: 'Invite user to a project',
       description: 'Invite <span class="provider">user</span> to'\
-        ' project team <span class="provider">Plangrid</span>',
+        ' a <span class="provider">PlanGrid</span> project',
       help: {
         body: 'Invite user to a project action uses the ' \
         "<a href='https://developer.plangrid.com/docs/invite-user-to-'" \
-        "project-team' target='_blank'>Invite user in Project team</a> API.",
+        "project-team' target='_blank'>Invite User in Project</a> API.",
         learn_more_url: 'https://developer.plangrid.com/docs/' \
         'invite-user-to-project-team',
-        learn_more_text: 'Invite User to Project Team'
+        learn_more_text: 'Invite User to Project'
       },
       input_fields: lambda do |_object_definitions|
         [
           { name: 'project_uid',
             control_type: 'select',
             pick_list: 'project_list',
-            label: 'Project',
+            label: 'Project ID',
             optional: false,
             toggle_hint: 'Select project',
             toggle_field: {
@@ -1559,16 +1559,17 @@
               '0bbb5bdb-3f87-4b46-9975-90e797ee9ff9'
             } },
           { name: 'email', optional: false },
-          { name: 'role_uid', label: 'Role ID',
+          { name: 'role_uid', label: 'Role ID', sticky: true,
             hint: 'Unique identifier of role to assign user on project team' }
         ]
       end,
       execute: lambda do |_connection, input|
-        post("/projects/#{input.delete('project_uid')}/users/invites").
+        project_uid = input.delete('project_uid')
+        post("/projects/#{project_uid}/users/invites").
           payload(input).
           after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message}: #{body}")
-          end
+          end&.merge('project_uid' => project_uid)
       end,
       output_fields: lambda do |object_definitions|
         object_definitions['user']
