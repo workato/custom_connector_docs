@@ -2258,6 +2258,192 @@
           status: "incomplete"
         }
       end
+    },
+    get_task_list: {
+      title: 'Get task list in a project',
+      description: 'Get <span class="provider">task list</span>'\
+        ' in a <span class="provider">PlanGrid</span> project',
+      help: {
+        body: 'Get task list in a project action uses the ' \
+        "<a href='https://developer.plangrid.com/docs/retrieve-" \
+        "issue-list' target='_blank'>Retrieve Task List in a Project</a> API.",
+        learn_more_url: 'https://developer.plangrid.com/docs/' \
+        'retrieve-issue-list',
+        learn_more_text: 'Retrieve Task List in a Project API'
+      },
+      input_fields: lambda do |_object_definitions|
+        [
+          { name: 'project_uid',
+            control_type: 'select',
+            pick_list: 'project_list',
+            label: 'Project',
+            optional: false,
+            toggle_hint: 'Select project',
+            toggle_field: {
+              name: 'project_uid',
+              type: 'string',
+              control_type: 'text',
+              optional: false,
+              label: 'Project ID',
+              toggle_hint: 'Use project ID',
+              hint: 'Provide project ID e.g. ' \
+              '0bbb5bdb-3f87-4b46-9975-90e797ee9ff9'
+            } },
+          { name: 'issue_list_uid', label: 'Task List ID', optional: false }
+        ]
+      end,
+      execute: lambda do |_connection, input|
+        get("/projects/#{input['project_uid']}/issue_lists/" \
+          "#{input['issue_list_uid']}")
+      end,
+      output_fields: lambda do |object_definitions|
+        [
+          {
+            name: "uid", label: "Task List ID"
+          },
+          {
+            name: "project_uid", label: "Project ID"
+          },
+          {
+            name: "name", label: "Name"
+          },
+          {
+            name: "deleted", label: "Deleted", type: "boolean"
+          }
+        ]
+      end,
+      sample_output: lambda do |_connection, _input|
+        {
+          uid: "31f54967-4eac-4bd7-9b35-57f00a973a1d",
+          name: "QA/QC",
+          deleted: false,
+          project_uid: "11a2b248-fbf5-439e-ab49-34adef8875f8"
+        }
+      end
+    },
+    update_task_list: {
+      title: 'Update task list in a project',
+      description: 'Update <span class="provider">task list</span>'\
+        ' in a <span class="provider">PlanGrid</span> project',
+      help: {
+        body: 'Update task list in a project action uses the ' \
+        "<a href='https://developer.plangrid.com/docs/update-" \
+        "issue-list' target='_blank'>Update Task List in a Project</a> API.",
+        learn_more_url: 'https://developer.plangrid.com/docs/' \
+        'update-issue-list',
+        learn_more_text: 'Update Task List in a Project API'
+      },
+      input_fields: lambda do |_object_definitions|
+        [
+          { name: 'project_uid',
+            control_type: 'select',
+            pick_list: 'project_list',
+            label: 'Project',
+            optional: false,
+            toggle_hint: 'Select project',
+            toggle_field: {
+              name: 'project_uid',
+              type: 'string',
+              control_type: 'text',
+              optional: false,
+              label: 'Project ID',
+              toggle_hint: 'Use project ID',
+              hint: 'Provide project ID e.g. ' \
+              '0bbb5bdb-3f87-4b46-9975-90e797ee9ff9'
+            } },
+          { name: 'issue_list_uid', label: 'Task List ID', optional: false },
+          { name: 'name', optional: false }
+        ]
+      end,
+      execute: lambda do |_connection, input|
+        patch("/projects/#{input['project_uid']}/issue_lists/" \
+          "#{input['issue_list_uid']}").payload({name: input.delete('name')})
+      end,
+      output_fields: lambda do |object_definitions|
+        [
+          {
+            name: "uid", label: "Task List ID"
+          },
+          {
+            name: "project_uid", label: "Project ID"
+          },
+          {
+            name: "name", label: "Name"
+          },
+          {
+            name: "deleted", label: "Deleted", type: "boolean"
+          }
+        ]
+      end,
+      sample_output: lambda do |_connection, _input|
+        {
+          uid: "31f54967-4eac-4bd7-9b35-57f00a973a1d",
+          name: "QA/QC",
+          deleted: false,
+          project_uid: "11a2b248-fbf5-439e-ab49-34adef8875f8"
+        }
+      end
+    },
+    create_task_list: {
+      title: 'Create task list in a project',
+      description: 'Create <span class="provider">task list</span>'\
+        ' in a <span class="provider">PlanGrid</span> project',
+      help: {
+        body: 'Create task list in a project action uses the ' \
+        "<a href='https://developer.plangrid.com/docs/create-" \
+        "issue-list' target='_blank'>Create Task List in a Project</a> API.",
+        learn_more_url: 'https://developer.plangrid.com/docs/' \
+        'create-issue-list',
+        learn_more_text: 'Create Task List in a Project API'
+      },
+      input_fields: lambda do |_object_definitions|
+        [
+          { name: 'project_uid',
+            control_type: 'select',
+            pick_list: 'project_list',
+            label: 'Project',
+            optional: false,
+            toggle_hint: 'Select project',
+            toggle_field: {
+              name: 'project_uid',
+              type: 'string',
+              control_type: 'text',
+              optional: false,
+              label: 'Project ID',
+              toggle_hint: 'Use project ID',
+              hint: 'Provide project ID e.g. ' \
+              '0bbb5bdb-3f87-4b46-9975-90e797ee9ff9'
+            } },
+          { name: 'name', optional: false }
+        ]
+      end,
+      execute: lambda do |_connection, input|
+        post("/projects/#{input.delete('project_uid')}/issue_lists").payload(input) 
+      end,
+      output_fields: lambda do |object_definitions|
+        [
+          {
+            name: "uid", label: "Task List ID"
+          },
+          {
+            name: "project_uid", label: "Project ID"
+          },
+          {
+            name: "name", label: "Name"
+          },
+          {
+            name: "deleted", label: "Deleted", type: "boolean"
+          }
+        ]
+      end,
+      sample_output: lambda do |_connection, _input|
+        {
+          uid: "31f54967-4eac-4bd7-9b35-57f00a973a1d",
+          name: "QA/QC",
+          deleted: false,
+          project_uid: "11a2b248-fbf5-439e-ab49-34adef8875f8"
+        }
+      end
     }
   },
   triggers: {
