@@ -464,11 +464,11 @@
     field_report: {
       fields: lambda do |_connection, _config_fields|
         [
-          { name: 'uid', label: 'File report ID' },
+          { name: 'uid', label: 'Field Report ID' },
           { name: 'project_uid',
             control_type: 'select',
             pick_list: 'project_list',
-            label: 'Project',
+            label: 'Project ID',
             sticky: true,
             toggle_hint: 'Select project',
             toggle_field: {
@@ -483,53 +483,24 @@
             } },
           { name: 'title' },
           { name: 'description' },
-          { name: 'report_date', type: 'date_time',
+          { name: 'report_date', label: 'Report Date', type: 'date_time',
             render_input: 'parse_iso8601_timestamp',
             parse_output: 'parse_iso8601_timestamp' },
-          { name: 'field_report_type', type: 'object', properties: [
+          { name: 'status' },
+          { name: 'field_report_type', label: 'Field Report Type', type: 'object', properties: [
             { name: 'name' },
-            { name: 'project_uid' },
             { name: 'status' },
-            { name: 'uid' }
+            { name: 'uid', label: 'UID' }
           ] },
-          { name: 'pdf_url' },
-          { name: 'pdf_form_values', type: 'array', of: 'object',
+          { name: 'pdf_url', label: 'PDF URL' },
+          { name: 'pdf_form_values', label: 'PDF Form Values', type: 'array', of: 'object',
             properties: [
               { name: 'name' },
               { name: 'value' }
             ] },
-          { name: 'pg_form_values', type: 'array', of: 'object', properties: [
-            { name: 'pg_equipment_entries', type: 'array', of: 'object',
+          { name: 'pg_form_values', label: 'Daily Report Values', type: 'array', of: 'object', properties: [
+            { name: 'pg_worklog_entries', label: 'Work Log Entries', type: 'array', of: 'object',
               properties: [
-                { name: 'uid' },
-                { name: 'timespan' },
-                { name: 'quantity', type: 'integer' },
-                { name: 'item' },
-                { name: 'description' },
-                { name: 'deleted', type: 'boolean',
-                  control_type: 'checkbox',
-                  toggle_hint: 'Select from options list',
-                  toggle_field: {
-                    name: 'deleted',
-                    label: 'Deleted',
-                    type: 'string',
-                    control_type: 'text',
-                    toggle_hint: 'Use custom value',
-                    hint: 'Allowed values are: true, false'
-                  } }
-              ] },
-            { name: 'pg_materials_entries', type: 'array', of: 'object',
-              properties: [
-                { name: 'uid' },
-                { name: 'unit', type: 'integer' },
-                { name: 'quantity', type: 'integer' },
-                { name: 'item' },
-                { name: 'description' },
-                { name: 'deleted' }
-              ] },
-            { name: 'pg_worklog_entries', type: 'array', of: 'object',
-              properties: [
-                { name: 'uid' },
                 { name: 'trade' },
                 { name: 'timespan' },
                 { name: 'headcount', type: 'integer' },
@@ -545,28 +516,51 @@
                     toggle_hint: 'Use custom value',
                     hint: 'Allowed values are: true, false'
                   } }
+              ] },
+            { name: 'pg_materials_entries', label: 'Material Entries', type: 'array', of: 'object',
+              properties: [
+                { name: 'unit', type: 'integer' },
+                { name: 'quantity', type: 'integer' },
+                { name: 'item' },
+                { name: 'description' },
+                { name: 'deleted' }
+              ] },
+            { name: 'pg_equipment_entries', label: 'Equipment Entries', type: 'array', of: 'object',
+              properties: [
+                { name: 'timespan' },
+                { name: 'quantity', type: 'integer' },
+                { name: 'item' },
+                { name: 'description' },
+                { name: 'deleted', type: 'boolean',
+                  control_type: 'checkbox',
+                  toggle_hint: 'Select from options list',
+                  toggle_field: {
+                    name: 'deleted',
+                    label: 'Deleted',
+                    type: 'string',
+                    control_type: 'text',
+                    toggle_hint: 'Use custom value',
+                    hint: 'Allowed values are: true, false'
+                  } }
               ] }
           ] },
-          { name: 'attachments', type: 'object', properties: [
+          { name: 'attachments', label: 'Documents', type: 'object', properties: [
             { name: 'total_count', type: 'integer' },
-            { name: 'url' }
-          ] },
-          { name: 'created_by', type: 'object', properties: [
-            { name: 'email' },
-            { name: 'uid' },
             { name: 'url' }
           ] },
           { name: 'photos', type: 'object', properties: [
             { name: 'total_count', type: 'integer' },
             { name: 'url' }
           ] },
-          { name: 'project_uid', label: 'Project ID' },
-          { name: 'report_date', type: 'date' },
           { name: 'snapshots', type: 'object', properties: [
             { name: 'total_count', type: 'integer' },
             { name: 'url' }
           ] },
-          { name: 'status' },
+          { name: 'created_by', type: 'object', properties: [
+            { name: 'email' },
+            { name: 'uid', label: 'UID' },
+            { name: 'url' }
+          ] },
           { name: 'updated_at', type: 'date_time',
             render_input: 'parse_iso8601_timestamp',
             parse_output: 'parse_iso8601_timestamp' },
