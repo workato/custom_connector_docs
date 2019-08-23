@@ -1655,10 +1655,10 @@
     },
     get_rfi_statuses_in_project: {
       title: 'Get RFI statuses in project',
-      description: 'Get <span class="provider">rfi statuses</span> in'\
-        ' <span class="provider">Plangrid</span> project',
+      description: 'Get <span class="provider">RFI statuses</span> in'\
+        ' a <span class="provider">PlanGrid</span> project',
       help: {
-        body: 'Get rfi statuses in project action uses the ' \
+        body: 'Get RFI statuses in project action uses the ' \
         "<a href='https://developer.plangrid.com/docs/retrieve-rfi-statuses-" \
         "in-a-project' target='_blank'>Retrieve RFI Statuses in a Project</a>.",
         learn_more_url: 'https://developer.plangrid.com/docs/retrieve-' \
