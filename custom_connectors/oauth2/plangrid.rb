@@ -981,11 +981,11 @@
       end
     },
     get_project_details: {
-      title: 'Get project info. by ID',
-      description: 'Get <span class="provider">project</span> info.'\
-        '  by ID in <span class="provider">Plangrid</span>',
+      title: 'Get project',
+      description: 'Get <span class="provider">project</span>'\
+        ' in <span class="provider">PlanGrid</span>',
       help: {
-        body: 'Get project info. by ID action uses the' \
+        body: 'Get project action uses the' \
         " <a href='https://developer.plangrid.com/docs/retrieve-a-project'" \
         " target='_blank'>Retrieve a Project</a> API.",
         learn_more_url: 'https://developer.plangrid.com/docs/retrieve-a-project',
