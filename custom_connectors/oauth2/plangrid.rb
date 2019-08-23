@@ -1354,11 +1354,11 @@
     create_task: {
       title: 'Create task in a project',
       description: 'Create <span class="provider">task</span> in'\
-        ' <span class="provider">Plangrid</span> project',
+        ' a <span class="provider">PlanGrid</span> project',
       help: {
-        body: 'Create task in Project action uses the ' \
+        body: 'Create task in a project action uses the ' \
         "<a href='https://developer.plangrid.com/docs/create-task-in-a-" \
-        "project' target='_blank'>Create task in Project</a> API.",
+        "project' target='_blank'>Create Task in Project</a> API.",
         learn_more_url: 'https://developer.plangrid.com/docs/create-task-in-' \
         'a-project',
         learn_more_text: 'Create Task in a Project'
@@ -1382,10 +1382,11 @@
               ' 0bbb5bdb-3f87-4b46-9975-90e797ee9ff9'
             } }
         ].concat(object_definitions['task'].
-          only('assigned_to_uids', 'cost_impact', 'description', 'due_at',
-               'has_cost_impact', 'has_schedule_impact',
-               'issue_list_uid', 'room', 'schedule_impact', 'start_date',
-               'status', 'title', 'type'))
+          only('title', 'status', 'type', 'assigned_to_uids', 
+                'room', 'start_date', 'due_at', 'issue_list_uid', 
+                'description', 'has_cost_impact', 'cost_impact', 
+                'has_schedule_impact', 'schedule_impact'
+               ))
       end,
       execute: lambda do |_connection, input|
         project_uid = input.delete('project_uid')
