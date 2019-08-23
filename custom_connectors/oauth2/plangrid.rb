@@ -1406,10 +1406,12 @@
               toggle_hint: 'Use project ID',
               hint: 'Provide project ID e.g. ' \
               ' 0bbb5bdb-3f87-4b46-9975-90e797ee9ff9'
-            } }
+            }
+          },
+          { name: 'issue_list_uid', label: 'Task List ID', sticky: true }
         ].concat(object_definitions['task'].
           only('title', 'status', 'type', 'assigned_to_uids', 
-                'room', 'start_date', 'due_at', 'issue_list_uid', 
+                'room', 'start_date', 'due_at', 
                 'description', 'has_cost_impact', 'cost_impact', 
                 'has_schedule_impact', 'schedule_impact'
                ))
@@ -1465,11 +1467,13 @@
               toggle_hint: 'Use project ID',
               hint: 'Provide project ID e.g.' \
               ' 0bbb5bdb-3f87-4b46-9975-90e797ee9ff9'
-            } },
-            { name: 'issue_uid', label: 'Task ID', optional: false }
+            } 
+          },
+          { name: 'issue_uid', label: 'Task ID', optional: false },
+          { name: 'issue_list_uid', label: 'Task List ID', sticky: true }
         ].concat(object_definitions['task'].
           only('title', 'status', 'type', 'assigned_to_uids', 
-                'room', 'start_date', 'due_at', 'issue_list_uid', 
+                'room', 'start_date', 'due_at', 
                 'description', 'has_cost_impact', 'cost_impact', 
                 'has_schedule_impact', 'schedule_impact'
                ))
