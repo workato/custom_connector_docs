@@ -952,20 +952,23 @@
     update_project: {
       title: 'Update project',
       description: 'Update <span class="provider">project</span> in'\
-        ' <span class="provider">Plangrid</span>',
+        ' <span class="provider">PlanGrid</span>',
       help: {
         body: 'Update project action uses the' \
         " <a href='https://developer.plangrid.com/docs/update-project'" \
         " target='_blank'>Update Project</a> API.",
         learn_more_url: 'https://developer.plangrid.com/docs/update-project',
-        learn_more_text: 'Update a Project'
+        learn_more_text: 'Update Project'
       },
       input_fields: lambda do |object_definitions|
         object_definitions['project'].required('uid').
           ignored('updated_at', 'latitude', 'longitude', 'organization_id')
       end,
       execute: lambda do |_connection, input|
-        patch("/projects/#{input.delete('uid')}").payload(input).
+        payload = input.each do |key, value|
+            input[key].present? || input[key] = nil
+          end
+        patch("/projects/#{input.delete('uid')}").payload(payload.except('uid')).
           after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message}: #{body}")
           end
