@@ -682,7 +682,7 @@
     rfi_status: {
       fields: lambda do |_connection, _config_fields|
         [
-          { name: 'uid', label: 'RFI status ID' },
+          { name: 'uid', label: 'Status ID' },
           { name: 'label' },
           { name: 'color' }
         ]
