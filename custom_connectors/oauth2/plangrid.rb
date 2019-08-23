@@ -2183,6 +2183,77 @@
         get("/projects/#{id}/attachments")&.dig('data', 0)&.
         merge('project_uid' => id) || {}
       end
+    },
+    create_sheet_packet: {
+      title: 'Create sheet packet in a project',
+      description: 'Create <span class="provider">sheet packet</span> in '\
+        ' a <span class="provider">PlanGrid</span> project',
+      help: {
+        body: 'Create sheet packet in a project action uses the' \
+        " <a href='https://developer.plangrid.com/docs/create-sheet-packet'" \
+        " target='_blank'>Create Sheet Packet in a Project</a> API.",
+        learn_more_url: 'https://developer.plangrid.com/docs/upload-photo' \
+        '-to-project',
+        learn_more_text: 'Create Sheet Packet in a Project'
+      },
+      input_fields: lambda do |object_definitions|
+        [
+          { name: 'project_uid',
+            control_type: 'select',
+            pick_list: 'project_list',
+            label: 'Project',
+            optional: false,
+            toggle_hint: 'Select project',
+            toggle_field: {
+              name: 'project_uid',
+              type: 'string',
+              control_type: 'text',
+              optional: false,
+              label: 'Project ID',
+              toggle_hint: 'Use project ID',
+              hint: 'Provide project ID e.g. ' \
+              '0bbb5bdb-3f87-4b46-9975-90e797ee9ff9'
+            } },
+          { name: 'sheet_uids', label: 'Sheet IDs', optional: false,
+            type: 'string',
+            hint: 'A comma separated list of sheet IDs.' },
+          { name: 'include_annotations', label: 'Include annotations?', type: 'boolean', sticky: true,
+            control_type: 'checkbox', toggle_hint: 'Select from options list',
+            toggle_field: {
+              name: 'include_annotations',
+              label: 'Include annotations?',
+              type: 'string',
+              control_type: 'text',
+              toggle_hint: 'Use custom value',
+              hint: 'Allowed values are: true, false'
+            } },
+        ]
+      end,
+      execute: lambda do |_connection, input|
+        project_uid = input.delete('project_uid')
+        payload = {
+          sheet_uids: input.delete('sheet_uids').split(','),
+          include_annotations: input.delete('include_annotations')
+        }
+        post("/projects/#{project_uid}/sheets/packets").payload(payload).
+          after_error_response(/.*/) do |_code, body, _header, message|
+            error("#{message}: #{body}")
+          end&.merge('project_uid' => project_uid)
+      end,
+      output_fields: lambda do |object_definitions|
+        object_definitions['sheet_packet']
+      end,
+      sample_output: lambda do |_connection, _input|
+        {
+          uid: "92cf7193-af0c-42fc-a3ab-7ef5149da720",
+          file_url: "https://packet-assets.plangrid.com/92cf7193-af0c-42fc-a3ab-7ef5149da720.pdf",
+          resource: {
+            uid: "92cf7193-af0c-42fc-a3ab-7ef5149da720",
+            url: "https://io.plangrid.com/projects/da48fcc3-7af1-4fd6-a083-70195468718a/sheets/packets/92cf7193-af0c-42fc-a3ab-7ef5149da720"
+          },
+          status: "incomplete"
+        }
+      end
     }
   },
   triggers: {
