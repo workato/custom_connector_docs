@@ -1802,13 +1802,13 @@
       end
     },
     get_sheet_in_project: {
-      title: 'Get sheet by ID in project',
-      description: 'Get <span class="provider">sheet</span> in'\
-        ' <span class="provider">Plangrid</span> project',
+      title: 'Get sheet in a project',
+      description: 'Get <span class="provider">sheet</span> in '\
+        'a <span class="provider">PlanGrid</span> project',
       help: {
-        body: 'Get project sheet details action uses the ' \
+        body: 'Get sheet in a project action uses the ' \
         "<a href='https://developer.plangrid.com/docs/retrieve-a-sheet'" \
-        " target='_blank'>Retrieve Sheets in a Project</a>.",
+        " target='_blank'>Retrieve Sheet in a Project</a>.",
         learn_more_url: 'https://developer.plangrid.com/docs/' \
         'retrieve-a-sheet',
         learn_more_text: 'Retrieve Sheet in a Project'
@@ -1818,7 +1818,7 @@
           { name: 'project_uid',
             control_type: 'select',
             pick_list: 'project_list',
-            label: 'Project',
+            label: 'Project ID',
             optional: false,
             toggle_hint: 'Select project',
             toggle_field: {
@@ -1831,11 +1831,12 @@
               hint: 'Provide project ID e.g. ' \
               '0bbb5bdb-3f87-4b46-9975-90e797ee9ff9'
             } },
-          { name: 'sheet_uid', type: 'Sheet ID', optional: false }
+          { name: 'sheet_uid', label: 'Sheet ID', optional: false }
         ]
       end,
       execute: lambda do |_connection, input|
-        get("/projects/#{input['project_uid']}/sheets/#{input['sheet_uid']}")
+        get("/projects/#{input['project_uid']}/sheets/#{input['sheet_uid']}")&.
+        merge('project_uid' => input['project_uid'])
       end,
       output_fields: lambda do |object_definitions|
         object_definitions['sheet']
