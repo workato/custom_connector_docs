@@ -711,13 +711,29 @@
       fields: lambda do |_connection, _config_fields|
         [
           { name: 'uid', label: 'Sheet ID' },
+          { name: 'project_uid',
+            control_type: 'select',
+            pick_list: 'project_list',
+            label: 'Project ID',
+            sticky: true,
+            toggle_hint: 'Select project',
+            toggle_field: {
+              name: 'project_uid',
+              type: 'string',
+              control_type: 'text',
+              sticky: true,
+              label: 'Project ID',
+              toggle_hint: 'Use project ID',
+              hint: 'Provide project ID e.g. ' \
+              ' 0bbb5bdb-3f87-4b46-9975-90e797ee9ff9'
+            } },
           { name: 'name' },
-          { name: 'version_name' },
+          { name: 'version_name', label: 'Version Name' },
           { name: 'description' },
-          { name: 'tags', hint: 'An array of strings representing the' \
+          { name: 'tags', type: 'array', of: 'string', hint: 'An array of strings representing the' \
             ' tags added to this sheet.' },
           { name: 'published_by', type: 'object', properties: [
-            { name: 'uid' },
+            { name: 'uid', label: 'UID' },
             { name: 'url' },
             { name: 'email' }
           ] },
@@ -736,7 +752,7 @@
               toggle_hint: 'Use custom value',
               hint: 'Allowed values are: true, false'
             } },
-          { name: 'uploaded_file_name' }
+          { name: 'uploaded_file_name', label: 'Uploaded file name' }
         ]
       end
     },
