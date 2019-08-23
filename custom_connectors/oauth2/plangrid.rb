@@ -170,7 +170,7 @@
           { name: 'project_uid',
             control_type: 'select',
             pick_list: 'project_list',
-            label: 'Project',
+            label: 'Project ID',
             sticky: true,
             toggle_hint: 'Select project',
             toggle_field: {
@@ -183,102 +183,8 @@
               hint: 'Provide project ID e.g. ' \
               ' 0bbb5bdb-3f87-4b46-9975-90e797ee9ff9'
             } },
-          { name: 'assignees', type: 'array', of: 'object', properties: [
-            { name: 'assignee' }
-          ] },
-          { name: 'closed_at', type: 'date_time',
-            render_input: 'date_time_conversion',
-            parse_output: 'date_time_conversion' },
-          { name: 'created_at', type: 'date_time',
-            render_input: 'render_iso8601_timestamp',
-            parse_output: 'parse_iso8601_timestamp' },
-          { name: 'created_by', type: 'object', properties: [
-            { name: 'uid' },
-            { name: 'url' },
-            { name: 'email' }
-          ] },
-          { name: 'comments', type: 'object', properties: [
-            { name: 'total_count', type: 'integer' },
-            { name: 'url' }
-          ] },
-          { name: 'cost_impact', type: 'number' },
-          { name: 'has_cost_impact', type: 'boolean',
-            control_type: 'checkbox', toggle_hint: 'Select from options list',
-            toggle_field: {
-              name: 'cost_impact',
-              label: 'Cost impact',
-              type: 'string',
-              control_type: 'text',
-              toggle_hint: 'Use custom value',
-              hint: 'Allowed values are: true, false'
-            } },
-          { name: 'currency_code',
-            hint: 'The ISO-4217 currency code of the cost_impact,' \
-            ' Currently only supports USD. maybe null if cost_impact is ' \
-            'not specified' },
-          { name: 'current_annotation', type: 'object', properties: [
-            { name: 'uid' },
-            { name: 'color' },
-            { name: 'stamp' },
-            { name: 'visibility' },
-            { name: 'deleted', type: 'boolean',
-              control_type: 'checkbox', toggle_hint: 'Select from options list',
-              toggle_field: {
-                name: 'deleted',
-                label: 'Deleted',
-                type: 'string',
-                control_type: 'text',
-                toggle_hint: 'Use custom value',
-                hint: 'Allowed values are: true, false'
-              } },
-            { name: 'sheet', type: 'object', properties: [
-              { name: 'uid' },
-              { name: 'url' }
-            ] }
-          ] },
-          { name: 'deleted', type: 'boolean',
-            control_type: 'checkbox', toggle_hint: 'Select from options list',
-            toggle_field: {
-              name: 'deleted',
-              label: 'Deleted',
-              type: 'string',
-              control_type: 'text',
-              toggle_hint: 'Use custom value',
-              hint: 'Allowed values are: true, false'
-            } },
-          { name: 'description' },
-          { name: 'due_at', type: 'date_time',
-            render_input: 'date_time_conversion',
-            parse_output: 'date_time_conversion' },
-          { name: 'followers', type: 'array', of: 'object', properties: [
-            { name: 'type' },
-            { name: 'uid' }
-          ] },
-          { name: 'issue_list', type: 'object', properties: [
-            { name: 'uid' },
-            { name: 'url' }
-          ] },
           { name: 'number', type: 'number' },
-          { name: 'photos', type: 'object', properties: [
-            { name: 'total_count', type: 'integer' },
-            { name: 'url' }
-          ] },
-          { name: 'room' },
-          { name: 'schedule_impact', type: 'integer' },
-          { name: 'has_schedule_impact', type: 'boolean',
-            control_type: 'checkbox', toggle_hint: 'Select from options list',
-            toggle_field: {
-              name: 'has_schedule_impact',
-              label: 'Has schedule impact',
-              type: 'string',
-              control_type: 'text',
-              toggle_hint: 'Use custom value',
-              hint: 'Allowed values are: true, false'
-            } },
-          { name: 'start_date',
-            type: 'date_time',
-            render_input: 'date_conversion',
-            parse_output: 'date_conversion' },
+          { name: 'title' },
           { name: 'status', control_type: 'select', pick_list:
             %w[open in_review pending closed].select { |op| [op.labelize, op] },
             toggle_hint: 'Select status',
@@ -291,9 +197,6 @@
               hint: 'Allowed values are : <b>"open", "in_review", "pending",' \
               ' "closed"</b>.'
             } },
-          { name: 'string',
-            hint: 'One to two character stamp associated with task.' },
-          { name: 'title' },
           { name: 'type', control_type: 'select',
             pick_list: [
               %w[issue issue],
@@ -310,6 +213,104 @@
               hint: 'Allowed values are: <b>"issue", "planned_work",' \
               ' "other"</b>.'
             } },
+          { name: 'assignees', type: 'array', of: 'object', properties: [
+            { name: 'uid', label: 'UID' },
+            { name: 'type' }
+          ] },
+          { name: 'followers', label: 'Watchers', type: 'array', of: 'object', properties: [
+            { name: 'uid', label: 'UID' },
+            { name: 'type' }
+          ] },
+          { name: 'room', label: 'Location' },
+          { name: 'start_date', label: 'Start Date',
+            type: 'date_time',
+            render_input: 'date_conversion',
+            parse_output: 'date_conversion' },
+          { name: 'closed_at', type: 'date_time',
+            render_input: 'date_time_conversion',
+            parse_output: 'date_time_conversion' },
+          { name: 'due_at', type: 'date_time',
+            render_input: 'date_time_conversion',
+            parse_output: 'date_time_conversion' },
+          { name: 'string', label: 'Stamp',
+            hint: 'One to two character stamp associated with task.' },
+          { name: 'issue_list', label: 'Issue List', type: 'object', properties: [
+            { name: 'uid' },
+            { name: 'url' }
+          ] },
+          { name: 'description' },
+          { name: 'cost_impact', label: 'Cost Impact', type: 'number' },
+          { name: 'has_cost_impact', label: 'Has Cost Impact?', type: 'boolean',
+            control_type: 'checkbox', toggle_hint: 'Select from options list',
+            toggle_field: {
+              name: 'cost_impact',
+              label: 'Cost impact',
+              type: 'string',
+              control_type: 'text',
+              toggle_hint: 'Use custom value',
+              hint: 'Allowed values are: true, false'
+            } },
+          { name: 'currency_code', label: 'Currency Code',
+            hint: 'The ISO-4217 currency code of the cost_impact,' \
+            ' Currently only supports USD. maybe null if cost_impact is ' \
+            'not specified' },
+          { name: 'schedule_impact', label: 'Schedule Impact', type: 'integer' },
+          { name: 'has_schedule_impact', label: 'Has Schedule Impact?', type: 'boolean',
+            control_type: 'checkbox', toggle_hint: 'Select from options list',
+            toggle_field: {
+              name: 'has_schedule_impact',
+              label: 'Has schedule impact',
+              type: 'string',
+              control_type: 'text',
+              toggle_hint: 'Use custom value',
+              hint: 'Allowed values are: true, false'
+            } },
+          { name: 'current_annotation', type: 'object', properties: [
+            { name: 'uid', label: 'UID' },
+            { name: 'color' },
+            { name: 'stamp' },
+            { name: 'visibility' },
+            { name: 'deleted', type: 'boolean',
+              control_type: 'checkbox', toggle_hint: 'Select from options list',
+              toggle_field: {
+                name: 'deleted',
+                label: 'Deleted',
+                type: 'string',
+                control_type: 'text',
+                toggle_hint: 'Use custom value',
+                hint: 'Allowed values are: true, false'
+              } },
+            { name: 'sheet', type: 'object', properties: [
+              { name: 'uid', label: 'UID' },
+              { name: 'url' }
+            ] }
+          ] },
+          { name: 'comments', type: 'object', properties: [
+            { name: 'total_count', type: 'integer' },
+            { name: 'url' }
+          ] },
+          { name: 'photos', type: 'object', properties: [
+            { name: 'total_count', type: 'integer' },
+            { name: 'url' }
+          ] },
+          { name: 'deleted', label: 'Deleted?', type: 'boolean',
+            control_type: 'checkbox', toggle_hint: 'Select from options list',
+            toggle_field: {
+              name: 'deleted',
+              label: 'Deleted',
+              type: 'string',
+              control_type: 'text',
+              toggle_hint: 'Use custom value',
+              hint: 'Allowed values are: true, false'
+            } },
+          { name: 'created_at', type: 'date_time',
+            render_input: 'render_iso8601_timestamp',
+            parse_output: 'parse_iso8601_timestamp' },
+          { name: 'created_by', type: 'object', properties: [
+            { name: 'uid', label: 'UID' },
+            { name: 'url' },
+            { name: 'email' }
+          ] },
           { name: 'updated_at',
             render_input: 'date_time_conversion',
             parse_output: 'date_time_conversion',
