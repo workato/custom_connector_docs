@@ -1903,11 +1903,11 @@
       end
     },
     get_field_reports_in_project: {
-      title: 'Get fields reports in project',
+      title: 'Get field reports in a project',
       description: 'Get <span class="provider">field reports</span> in'\
-        ' in <span class="provider">Plangrid</span> project',
+        ' a <span class="provider">PlanGrid</span> project',
       help: {
-        body: 'Get fields reports in project action uses the ' \
+        body: 'Get field reports in a project action uses the ' \
         "<a href='https://developer.plangrid.com/docs/retrieve-field-reports-" \
         "in-a-project' target='_blank'>Retrieve Field Reports in a" \
         ' Project</a> API.',
@@ -1920,7 +1920,7 @@
           { name: 'project_uid',
             control_type: 'select',
             pick_list: 'project_list',
-            label: 'Project',
+            label: 'Project ID',
             optional: false,
             toggle_hint: 'Select project',
             toggle_field: {
@@ -1933,17 +1933,17 @@
               hint: 'Provide project ID e.g. ' \
               '0bbb5bdb-3f87-4b46-9975-90e797ee9ff9'
             } },
-          { name: 'updated_after', type: 'date_time',
+          { name: 'report_date_min', type: 'date',
+            label: 'Report Start Date',
+            hint: 'Only retrieve field reports between a date range ' \
+            'starting with this date in UTC format.' },
+          { name: 'report_date_max', type: 'date',
+            label: 'Report End Date',
+            hint: 'Only retrieve field reports between a date range ' \
+            'starting with this date in UTC format.' },
+          { name: 'updated_after', label: 'Updated After', type: 'date_time',
             hint: 'Only retrieve field reports created/updated after ' \
             'specified UTC date and time.' },
-          { name: 'report_date_min', type: 'date_time',
-            label: 'Report start date',
-            hint: 'Only retrieve field reports between a date range ' \
-            'starting with this date in UTC format.' },
-          { name: 'report_date_max', type: 'date_time',
-            label: 'Report end date',
-            hint: 'Only retrieve field reports between a date range ' \
-            'starting with this date in UTC format.' },
           { name: 'sort_by', control_type: 'select',
             pick_list:
               %w[report_date updated_at]&.map { |e| [e.labelize, e] },
@@ -1951,6 +1951,14 @@
             toggle_field: {
               name: 'sort_by', type: 'string', control_type: 'text',
               hint: 'Allowed values report_date or updated_at'
+            } },
+          { name: 'sort_order', control_type: 'select',
+            pick_list:
+              %w[asc desc]&.map { |e| [e.labelize, e] },
+            toggle_hint: 'Select sort order',
+            toggle_field: {
+              name: 'sort_by', type: 'string', control_type: 'text',
+              hint: 'Allowed values asc or desc'
             } }
         ]
       end,
@@ -1958,17 +1966,17 @@
         project_uid = input.delete('project_uid')
         query_params = ''
         input&.map do |key, val|
-          if %w[updated_after report_date_min report_date_max].include?(key)
-            query_params = query_params + "#{key}=#{val.to_time.utc.iso8601}"
+          if %w[updated_after].include?(key)
+            query_params = query_params + "&" + "#{key}=#{val.to_time.utc.iso8601}" 
           else
-            query_params = query_params + "#{key}=#{val}"
+            query_params = query_params + "&" + "#{key}=#{val}"
           end
         end
         { field_reports: get("/projects/#{project_uid}/field_reports?" \
           "#{query_params}")['data'] }
       end,
       output_fields: lambda do |object_definitions|
-        { name: 'field_reports', type: 'array', of: 'object',
+        { name: 'field_reports', label: 'Field Reports', type: 'array', of: 'object',
           properties: object_definitions['field_report'] }
       end,
       sample_output: lambda do |_connection, _input|
