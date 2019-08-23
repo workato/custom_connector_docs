@@ -2191,13 +2191,13 @@
   },
   triggers: {
     new_updated_project: {
-      title: 'New/updated project',
-      description: 'New/updated <span class="provider">project</span> in'\
-        ' <span class="provider">Plangrid</span>',
+      title: 'New or updated project',
+      description: 'New or updated <span class="provider">project</span> in'\
+        ' <span class="provider">PlanGrid</span>',
       help: {
-        body: 'New/updated project trigger uses the' \
+        body: 'New or updated project trigger uses the' \
         " <a href='https://developer.plangrid.com/docs/list-all-projects'" \
-        " target='_blank'>List all Projects API</a>.",
+        " target='_blank'>List All Projects API</a>.",
         learn_more_url: 'https://developer.plangrid.com/docs/list-all-projects',
         learn_more_text: 'List All Projects API'
       },
