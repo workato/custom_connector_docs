@@ -2444,6 +2444,219 @@
           project_uid: "11a2b248-fbf5-439e-ab49-34adef8875f8"
         }
       end
+    },
+    create_sheet_version: {
+      title: 'Create sheet version upload in a project',
+      description: 'Create <span class="provider">sheet version upload</span>'\
+        ' in a <span class="provider">PlanGrid</span> project',
+      help: {
+        body: 'Create sheet version in a project action uses the ' \
+        "<a href='https://developer.plangrid.com/docs/upload-" \
+        "version-to-project' target='_blank'>Upload Version to a Project</a> API.",
+        learn_more_url: 'https://developer.plangrid.com/docs/' \
+        'upload-version-to-project',
+        learn_more_text: 'Upload Version to a Project API'
+      },
+      input_fields: lambda do |_object_definitions|
+        [
+          { name: 'project_uid',
+            control_type: 'select',
+            pick_list: 'project_list',
+            label: 'Project',
+            optional: false,
+            toggle_hint: 'Select project',
+            toggle_field: {
+              name: 'project_uid',
+              type: 'string',
+              control_type: 'text',
+              optional: false,
+              label: 'Project ID',
+              toggle_hint: 'Use project ID',
+              hint: 'Provide project ID e.g. ' \
+              '0bbb5bdb-3f87-4b46-9975-90e797ee9ff9'
+            } },
+          { name: 'num_files', label: 'Number of PDFs', type: 'integer', optional: false },
+          { name: 'version_name', label: 'Version Name', optional: false }
+        ]
+      end,
+      execute: lambda do |_connection, input|
+        post("/projects/#{input.delete('project_uid')}/sheets/uploads").payload(input) 
+      end,
+      output_fields: lambda do |object_definitions|
+        [
+          {
+            name: 'uid', label: 'Sheet Version Upload ID'
+          },
+          {
+            name: 'complete_url', label: 'Upload Completion URL'
+          },
+          {
+            name: 'status',
+          },
+          {
+            name: 'file_upload_requests', label: 'File Upload Requests', 
+            type: 'array', of: 'object', properties: [
+              {
+                name: 'uid', label: 'File Upload ID'
+              },
+              {
+                name: 'upload_status', label: 'File Upload Status'
+              },
+              {
+                name: 'url', label: 'File Upload URL'
+              }
+            ]
+          }
+        ]
+      end,
+      sample_output: lambda do |_connection, _input|
+        {
+          uid: "92cf7193-af0c-42fc-a3ab-7ef5149da720",
+          complete_url: "https://io.plangrid.com/projects/da48fcc3-7af1-4fd6-a083-70195468718a/sheets/uploads/92cf7193-af0c-42fc-a3ab-7ef5149da720",
+          status: "incomplete",
+          file_upload_requests: [
+            {
+              uid: "b278fcba-72f0-4161-bfdc-89d5bde4d5e7",
+              upload_status: "issued",
+              url: "https://io.plangrid.com/projects/da48fcc3-7af1-4fd6-a083-70195468718a/sheets/uploads/92cf7193-af0c-42fc-a3ab-7ef5149da720/files/b278fcba-72f0-4161-bfdc-89d5bde4d5e7"
+            },
+            {
+              uid: "727fca7d-385b-4476-b257-4b96c00e879b",
+              upload_status: "issued",
+              url: "https://io.plangrid.com/projects/da48fcc3-7af1-4fd6-a083-70195468718a/sheets/uploads/92cf7193-af0c-42fc-a3ab-7ef5149da720/files/727fca7d-385b-4476-b257-4b96c00e879b"
+            }
+          ]
+        }
+      end
+    },
+    upload_file_to_sheet_version: {
+      title: 'Upload file to sheet version in a project',
+      description: 'Upload file to <span class="provider">sheet version</span>'\
+        ' in a <span class="provider">PlanGrid</span> project',
+      help: {
+        body: 'Upload file to sheet version in a project action uses the ' \
+        "<a href='https://developer.plangrid.com/docs/upload-" \
+        "file_to_version' target='_blank'>Upload File to Version in a Project</a> API.",
+        learn_more_url: 'https://developer.plangrid.com/docs/' \
+        'upload-file-to-version',
+        learn_more_text: 'Upload File to Version in a Project API'
+      },
+      input_fields: lambda do |_object_definitions|
+        [
+          { name: 'project_uid',
+            control_type: 'select',
+            pick_list: 'project_list',
+            label: 'Project',
+            optional: false,
+            toggle_hint: 'Select project',
+            toggle_field: {
+              name: 'project_uid',
+              type: 'string',
+              control_type: 'text',
+              optional: false,
+              label: 'Project ID',
+              toggle_hint: 'Use project ID',
+              hint: 'Provide project ID e.g. ' \
+              '0bbb5bdb-3f87-4b46-9975-90e797ee9ff9'
+            } },
+          { name: 'ver_upload_uid', label: 'Sheet Version Upload ID', optional: false },
+          { name: 'file_upload_request_uid', label: 'File Upload ID', optional: false },
+          { name: 'file_name', label: 'File Name', optional: false },
+          { name: 'file_content', label: 'File Content', optional: false }
+        ]
+      end,
+      execute: lambda do |_connection, input|
+        file_content = input.delete('file_content')
+        project_uid = input.delete('project_uid')
+        file_upload_info = post("/projects/#{project_uid}/sheets/" \
+                        "uploads/#{input.delete('ver_upload_uid')}/" \
+                        "files/#{input.delete('file_upload_request_uid')}").
+                        headers('Content-Type': 'application/json').
+                        payload({file_name: input.delete('file_name')}) 
+        url = file_upload_info&.dig('aws_post_form_arguments', 'action')
+        fields = file_upload_info&.dig('aws_post_form_arguments', 'fields')
+        # webhook_url = file_upload_info.
+        #               dig('aws_post_form_arguments', 'webhook_url')
+        headers = fields.map { |o| { o['name'] => o['value'] } }.inject(:merge)
+        status =
+          post(url).
+          payload(key: headers['key'],
+                  policy: headers['policy'],
+                  signature: headers['signature'],
+                  AWSAccessKeyId: headers['AWSAccessKeyId'],
+                  'content-type': headers['Content-Type'],
+                  'success_action_redirect': headers['success_action_redirect'],
+                  'x-amz-server-side-encryption':
+                    headers['x-amz-server-side-encryption'],
+                  'x-amz-storage-class': headers['x-amz-storage-class'],
+                  file: file_content).
+          request_format_multipart_form.
+          after_response do |_code, response, _response_headers|
+            response
+          end
+      end,
+      output_fields: lambda do |object_definitions|
+
+      end,
+      sample_output: lambda do |_connection, _input|
+
+      end
+    },
+    complete_version_upload: {
+      title: 'Complete sheet version upload to a project',
+      description: 'Complete <span class="provider">sheet version</span> upload '\
+        ' to a <span class="provider">PlanGrid</span> project',
+      help: {
+        body: 'Complete sheet version upload to a project action uses the ' \
+        "<a href='https://developer.plangrid.com/docs/complete-" \
+        "version-upload-to-project' target='_blank'>Complete Version Upload in a Project</a> API.",
+        learn_more_url: 'https://developer.plangrid.com/docs/' \
+        'complete-version-upload-to-project',
+        learn_more_text: 'Complete Version Upload in a Project API'
+      },
+      input_fields: lambda do |_object_definitions|
+        [
+          { name: 'project_uid',
+            control_type: 'select',
+            pick_list: 'project_list',
+            label: 'Project',
+            optional: false,
+            toggle_hint: 'Select project',
+            toggle_field: {
+              name: 'project_uid',
+              type: 'string',
+              control_type: 'text',
+              optional: false,
+              label: 'Project ID',
+              toggle_hint: 'Use project ID',
+              hint: 'Provide project ID e.g. ' \
+              '0bbb5bdb-3f87-4b46-9975-90e797ee9ff9'
+            } },
+          { name: 'ver_upload_uid', label: 'Sheet Version Upload ID', optional: false }
+        ]
+      end,
+      execute: lambda do |_connection, input|
+        project_uid = input.delete('project_uid')
+        post("/projects/#{project_uid}/sheets/" \
+            "uploads/#{input.delete('ver_upload_uid')}/completions")&.merge('project_uid' => project_uid)
+      end,
+      output_fields: lambda do |object_definitions|
+        [
+          {
+            name: 'uid', label: 'Sheet Version ID'
+          },
+          {
+            name: 'status', label: 'Status'
+          }
+        ]
+      end,
+      sample_output: lambda do |_connection, _input|
+        {
+          uid: "92cf7193-af0c-42fc-a3ab-7ef5149da720",
+          complete_url: "https://io.plangrid.com/projects/da48fcc3-7af1-4fd6-a083-70195468718a/sheets/uploads/92cf7193-af0c-42fc-a3ab-7ef5149da720",
+          status: "complete"
+        }
+      end
     }
   },
   triggers: {
