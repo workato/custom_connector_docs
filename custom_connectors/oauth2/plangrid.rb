@@ -1412,13 +1412,13 @@
       end
     },
     update_task: {
-      title: 'Update task in a Project',
+      title: 'Update task in a project',
       description: 'Update <span class="provider">task</span> in'\
-        ' <span class="provider">Plangrid</span> project',
+        ' a <span class="provider">PlanGrid</span> project',
       help: {
-        body: 'Update task in Project action uses the ' \
+        body: 'Update task in a project action uses the ' \
         "<a href='https://developer.plangrid.com/docs/update-issue-in-a-" \
-        "project' target='_blank'>Create task in Project</a> API.",
+        "project' target='_blank'>Update Task in Project</a> API.",
         learn_more_url: 'https://developer.plangrid.com/docs/create-project',
         learn_more_text: 'Update Task in a Project'
       },
@@ -1439,17 +1439,22 @@
               toggle_hint: 'Use project ID',
               hint: 'Provide project ID e.g.' \
               ' 0bbb5bdb-3f87-4b46-9975-90e797ee9ff9'
-            } }
+            } },
+            { name: 'issue_uid', label: 'Task ID', optional: false }
         ].concat(object_definitions['task'].
-          only('uid', 'assigned_to_uids', 'cost_impact', 'description',
-               'due_at', 'has_cost_impact', 'has_schedule_impact',
-               'issue_list_uid', 'room', 'schedule_impact', 'start_date',
-               'status', 'title', 'type').required('uid'))
+          only('title', 'status', 'type', 'assigned_to_uids', 
+                'room', 'start_date', 'due_at', 'issue_list_uid', 
+                'description', 'has_cost_impact', 'cost_impact', 
+                'has_schedule_impact', 'schedule_impact'
+               ))
       end,
       execute: lambda do |_connection, input|
         project_uid = input.delete('project_uid')
+        payload = input.each do |key, value|
+            input[key].present? || input[key] = nil
+          end
         patch("/projects/#{project_uid}/issues/" \
-             "#{input.delete('uid')}").payload(input).
+             "#{input.delete('issue_uid')}").payload(payload).
           after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message}: #{body}")
           end&.merge('project_uid' => project_uid)
