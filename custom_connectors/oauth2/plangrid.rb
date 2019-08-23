@@ -687,15 +687,31 @@
       fields: lambda do |_connection, _config_fields|
         [
           { name: 'uid', label: 'User ID' },
+          { name: 'project_uid',
+            control_type: 'select',
+            pick_list: 'project_list',
+            label: 'Project ID',
+            sticky: true,
+            toggle_hint: 'Select project',
+            toggle_field: {
+              name: 'project_uid',
+              type: 'string',
+              control_type: 'text',
+              sticky: true,
+              label: 'Project ID',
+              toggle_hint: 'Use project ID',
+              hint: 'Provide project ID e.g. ' \
+              ' 0bbb5bdb-3f87-4b46-9975-90e797ee9ff9'
+            } },
           { name: 'email' },
-          { name: 'first_name' },
-          { name: 'last_name' },
-          { name: 'language' },
+          { name: 'first_name', label: 'First Name' },
+          { name: 'last_name', label: 'Last Name' },
+          { name: 'language'},
           { name: 'role', type: 'object', properties: [
-            { name: 'uid' },
+            { name: 'uid', label: 'UID' },
             { name: 'url' }
           ] },
-          { name: 'removed' }
+          { name: 'removed', label: 'Removed?' }
         ]
       end
     },
