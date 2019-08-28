@@ -2044,7 +2044,7 @@
         [
           {
             name: 'hub_id',
-            label: 'Hub name',
+            label: 'Hub Name',
             control_type: 'select',
             pick_list: 'hub_list',
             optional: false,
@@ -2060,19 +2060,19 @@
           },
           {
             name: 'container_id',
-            label: 'Container name',
+            label: 'Project Name',
             control_type: 'select',
             pick_list: 'rfis_container_lists',
             pick_list_params: { hub_id: 'hub_id' },
             optional: false,
-            toggle_hint: 'Select container',
+            toggle_hint: 'Select project',
             toggle_field: {
               name: 'container_id',
               label: 'Container ID',
               type: 'string',
               control_type: 'text',
               toggle_hint: 'Use custom value',
-              hint: 'Provide container id e.g. b.baf-0871-4aca-82e8-3dd6db00'
+              hint: 'Provide container ID e.g. edac0659-639a-4a87-8614-d2c521b246b0'
             }
           },
           { name: 'id', optional: false, label: 'RFI ID' }
@@ -2080,7 +2080,7 @@
           ignored('suggested_answer'))
       end,
       execute: lambda do |_connection, input|
-        input.delete('hub_id')
+        hub_id = input.delete('hub_id')
         container_id = input.delete('container_id')
         id = input.delete('id')
         input_payload = input&.map do |key, value|
@@ -2097,12 +2097,13 @@
         }
         patch("/bim360/rfis/v1/containers/#{container_id}/rfis/#{id}").
           payload({ data: payload }).
+          headers('Content-Type': 'application/vnd.api+json' ).
           after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message}: #{body}")
-          end['data']
+          end['data'].merge({ hub_id: hub_id }).merge({ container_id: container_id })
       end,
       output_fields: lambda do |object_definitions|
-        object_definitions['rfi']
+        [{ name: 'hub_id' }, { name: 'container_id' }].concat(object_definitions['rfi'])
       end,
       sample_output: lambda do |_connection, input|
         get("/bim360/rfis/v1/containers/#{input['container_id']}/rfis")&.
