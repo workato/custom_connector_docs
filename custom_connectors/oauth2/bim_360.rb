@@ -851,11 +851,23 @@
     modify_rfi: {
       fields: lambda do |_connection, _config_fields|
         [
-          { name: 'transition_id',
-            hint: 'This field is mandatory when tranistioning the RFI.' },
+          { name: 'title' },
+          { name: 'description', label: 'Question' },
+          { name: 'suggested_answer', label: 'Suggested Answer' },
+          { name: 'answer', hint: 'An answer for the RFI.' },
           { name: 'assigned_to',
             hint: 'The Autodesk ID of the user you want to assign ' \
             'the RFI to.' },
+          { name: 'location_description' },
+          { name: 'due_date', type: 'date_time',
+            render_input: 'render_iso8601_timestamp',
+            parse_output: 'parse_iso8601_timestamp',
+            hint: 'The timestamp of the due date for the RFI, in the ' \
+            'following format: YYYY-MM-DDThh:mm:ss.sz.' },
+          { name: 'distribution_list',
+            hint: 'Provide comma seaprated list of values multiple values' },
+          { name: 'transition_id',
+            hint: 'This field is mandatory when tranistioning the RFI.' },
           { name: 'co_reviewers',
             hint: 'Add members who can contribute to the RFI response. ' \
             'Note that although you can only add co-reviewers in the UI ' \
@@ -863,12 +875,6 @@
             ' also set up co-reviewers in other statuses.' \
             'To delete all co-reviewers, call the endpoint with an empty' \
             ' array.' },
-          { name: 'description' },
-          { name: 'due_date', type: 'date_time',
-            render_input: 'render_iso8601_timestamp',
-            parse_output: 'parse_iso8601_timestamp',
-            hint: 'The timestamp of the due date for the RFI, in the ' \
-            'following format: YYYY-MM-DDThh:mm:ss.sz.' },
           { name: 'reserve_custom_identifier',
             hint: 'This field allows to reserve a custom identifier for ' \
             'future use (for example, in draft or submitted status). No ' \
@@ -877,13 +883,7 @@
           { name: 'custom_identifier',
             hint: 'Identifier of the RFI given by user. When non-present in' \
             ' transitions to any status, except “draft” or “submitted”, ' \
-            'will be populated automatically.' },
-          { name: 'location_description' },
-          { name: 'answer', hint: 'An answer for the RFI.' },
-          { name: 'suggested_answer' },
-          { name: 'title' },
-          { name: 'distribution_list',
-            hint: 'Provide comma seaprated list of values multiple values' }
+            'will be populated automatically.' }
         ]
       end
     },
