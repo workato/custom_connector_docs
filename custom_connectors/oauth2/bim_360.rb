@@ -2991,7 +2991,7 @@
         [
           {
             name: 'hub_id',
-            label: 'Hub name',
+            label: 'Hub Name',
             control_type: 'select',
             pick_list: 'hub_list',
             optional: false,
@@ -3007,7 +3007,7 @@
           },
           {
             name: 'project_id',
-            label: 'Project name',
+            label: 'Project Name',
             control_type: 'select',
             pick_list: 'project_list',
             pick_list_params: { hub_id: 'hub_id' },
@@ -3034,6 +3034,7 @@
         ]
       end,
       poll: lambda do |_connection, input, closure|
+        hub_id = closure&.[]('hub_id') || input['hub_id']
         project_id = closure&.[]('project_id') || input['project_id']
         container_id = closure&.[]('container_id') ||
                        get("/project/v1/hubs/#{input['hub_id']}" \
@@ -3061,6 +3062,7 @@
                     { 'skip' => skip + limit,
                       'container_id' => container_id,
                       'project_id' => project_id,
+                      'hub_id' => hub_id,
                       'include' => include,
                       'from_date' => from_date,
                       'next_page_url' => next_page_url }
@@ -3070,10 +3072,11 @@
                       'from_date' => now.to_time.
                         strftime('%Y-%m-%dT%H:%M:%H.%s%z'),
                       'container_id' => container_id,
-                      'project_id' => project_id }
+                      'project_id' => project_id,
+                      'hub_id' => hub_id }
                   end
         rfis = response['data']&.
-                 map { |o| o.merge({ project_id: project_id }) }
+                 map { |o| o.merge({ project_id: project_id }).merge({ hub_id: hub_id }).merge({ container_id: container_id }) }
         {
           events: rfis || [],
           next_poll: closure,
@@ -3084,7 +3087,7 @@
         "#{rfi['id']}@#{rfi.dig('attributes', 'created_at')}"
       end,
       output_fields: lambda do |object_definitions|
-        [{ name: 'project_id' }].concat(object_definitions['rfi'])
+        [{ name: 'hub_id' }, { name: 'project_id' }, { name: 'container_id' }].concat(object_definitions['rfi'])
       end,
       sample_output: lambda do |_connection, input|
         project_id = input['project_id']
