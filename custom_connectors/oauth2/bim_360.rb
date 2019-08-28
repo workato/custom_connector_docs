@@ -3062,17 +3062,17 @@
       end
     },
     new_updated_issue_in_project: {
-      title: 'New/updated issue in a project',
-      description: 'New/updated <span class="provider">issue</span> in'\
+      title: 'New or updated issue in a project',
+      description: 'New or updated <span class="provider">issue</span> in'\
         ' a project in <span class="provider">BIM 360</span>',
       help: {
-        body: 'Triggers when a issue in a project is created/updated.'
+        body: 'Triggers when a issue in a project is created or updated.'
       },
       input_fields: lambda do |_object_definitions|
         [
           {
             name: 'hub_id',
-            label: 'Hub name',
+            label: 'Hub Name',
             control_type: 'select',
             pick_list: 'hub_list',
             optional: false,
@@ -3088,7 +3088,7 @@
           },
           {
             name: 'project_id',
-            label: 'Project name',
+            label: 'Project Name',
             control_type: 'select',
             pick_list: 'project_list',
             pick_list_params: { hub_id: 'hub_id' },
@@ -3104,28 +3104,6 @@
             }
           },
           {
-            name: 'include',
-            sticky: true,
-            label: 'Include additional data',
-            hint: 'Include additional data about attachments, comments,' \
-            ' and the project (container) in the response.',
-            control_type: 'multiselect',
-            pick_list: 'issue_child_objects',
-            pick_list_params: {},
-            delimiter: ',',
-            toggle_hint: 'Select from list',
-            toggle_field: {
-              name: 'include',
-              label: 'Include additinal data',
-              type: :string,
-              control_type: 'text',
-              optional: true,
-              hint: 'Multiple values separated by comma.',
-              toggle_hint: 'Comma separated list of values. Allowed values ' \
-               'are: <b>attachments, comments, container'
-            }
-          },
-          {
             name: 'since',
             label: 'When first started, this recipe should pick up events from',
             hint: 'When you start recipe for the first time, ' \
@@ -3137,6 +3115,7 @@
         ]
       end,
       poll: lambda do |_connection, input, closure|
+        hub_id = closure&.[]('hub_id') || input['hub_id']
         project_id = closure&.[]('project_id') || input['project_id']
         container_id = closure&.[]('container_id') ||
                        get("/project/v1/hubs/#{input['hub_id']}" \
@@ -3162,17 +3141,19 @@
                     { 'skip' => skip + limit,
                       'container_id' => container_id,
                       'project_id' => project_id,
+                      'hub_id' => hub_id,
                       'include' => include,
                       'next_page_url' => next_page_url }
                   else
                     { 'offset' => 0,
                       'container_id' => container_id,
                       'project_id' => project_id,
+                      'hub_id' => hub_id,
                       'include' => include,
                       'updated_after' => now.to_time.utc.iso8601 }
                   end
         issues = response['data']&.
-                 map { |o| o.merge({ project_id: project_id }) }
+                 map { |o| o.merge({ project_id: project_id }).merge({ hub_id: hub_id }).merge({ container_id: container_id }) }
         {
           events: issues || [],
           next_poll: closure,
@@ -3183,7 +3164,7 @@
         "#{issue['id']}&#{issue.dig('attributes', 'updated_at')}"
       end,
       output_fields: lambda do |object_definitions|
-        [{ name: 'project_id' }].concat(object_definitions['issue']).compact
+        [{ name: 'hub_id' }, { name: 'project_id' }, { name: 'container_id' }].concat(object_definitions['issue']).compact
       end,
       sample_output: lambda do |_connection, input|
         project_id = input['project_id']
