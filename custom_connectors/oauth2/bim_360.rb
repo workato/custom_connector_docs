@@ -774,14 +774,6 @@
                   { name: 'permitted_actions' }
                 ] }
               ] }
-          ] },
-          { name: 'included', type: 'array', of: 'object' },
-          { name: 'meta', type: 'object', properties: [
-            { name: 'record_count', type: 'integer', control_type: 'number' },
-            { name: 'page', type: 'object', properties: [
-              { name: 'offset', type: 'integer' },
-              { name: 'limit', type: 'integer' }
-            ] }
           ] }
         ]
       end
