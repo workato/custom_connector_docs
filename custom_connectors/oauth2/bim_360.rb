@@ -520,16 +520,7 @@
     rfi: {
       fields: lambda do |_connection, _config_fields|
         [
-          { name: 'id', hint: 'RFI ID' },
-          { name: 'type', label: 'Objec type',
-            hint: 'The type of object; will always be rfis.' },
-          { name: 'links', type: 'object', properties: [
-            { name: 'self' },
-            { name: 'first', hint: 'A link to the first page.' },
-            { name: 'prev', hint: 'A link to the previous page.' },
-            { name: 'next', hint: 'A link to the next page.' },
-            { name: 'last', hint: 'A link to the last page.' }
-          ] },
+          { name: 'id', label: 'RFI ID' },
           { name: 'attributes', type: 'object', properties: [
             { name: 'created_at', type: 'date_time',
               hint: 'The timestamp of the date and time the issue was ' \
