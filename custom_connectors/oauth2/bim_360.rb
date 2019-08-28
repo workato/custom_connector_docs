@@ -203,12 +203,6 @@
       fields: lambda do |_connection, _config_fields|
         [
           { name: 'id', label: 'Issue ID' },
-          { name: 'type',
-            hint: 'The type of the object; will always be' \
-            ' <b>quality_issues</b>' },
-          { name: 'links', type: 'object', properties: [
-            { name: 'self', hint: 'A reference to the issue itself.' }
-          ] },
           { name: 'attributes', type: 'object', properties: [
             { name: 'created_at', type: 'date_time',
               hint: 'The timestamp of the date and time the issue was ' \
@@ -243,14 +237,9 @@
               hint: 'The description of the purpose of the issue.' },
             { name: 'location_description',
               hint: 'The location of the issue.' },
-            { name: 'markup_metadata' },
-            { name: 'tags', type: 'object' },
-            { name: 'resource_urns' },
             { name: 'target_urn',
               hint: 'The item ID of the document associated with the ' \
               'pushpin issue.' },
-            { name: 'target_urn_page' },
-            { name: 'collection_urn' },
             { name: 'due_date', type: 'date_time',
               hint: 'The timestamp of the issue’s specified due date,' \
               ' in the following format: <b>YYYY-MM-DDThh:mm:ss.sz</b>',
@@ -282,9 +271,6 @@
               hint: 'The type and location of the pushpin' },
             { name: 'owner',
               hint: 'The Autodesk ID of the user who owns this issue.' },
-            { name: 'issue_type_id' },
-            { name: 'issue_type' },
-            { name: 'issue_sub_type' },
             { name: 'root_cause_id' },
             { name: 'root_cause' },
             { name: 'quality_urns', type: 'object' },
@@ -302,10 +288,10 @@
             { name: 'lbs_location',
               hint: 'The ID of the location that relates to the issue.' },
             { name: 'sheet_metadata' },
-            { name: 'ng_issue_subtype_id', label: 'Issue subtype ID',
-              hint: 'The ID of the issue subtype' },
             { name: 'ng_issue_type_id', label: 'Issue type ID',
-              hint: 'The ID of the issue type.' }
+              hint: 'The ID of the issue type.' },
+            { name: 'ng_issue_subtype_id', label: 'Issue subtype ID',
+              hint: 'The ID of the issue subtype' }
           ] },
           # To Do
           { name: 'custom_attributes', type: 'array', of: 'object' },
@@ -384,46 +370,7 @@
                 { name: 'urn_version' },
                 { name: 'permitted_actions' }
               ] }
-            ] },
-          { name: 'snapshot_urn' },
-          { name: 'relationships', type: 'object', properties: [
-            { name: 'container', type: 'object', properties: [
-              { name: 'links', type: 'object', properties: [
-                { name: 'self' },
-                { name: 'related' }
-              ] }
-            ] },
-            { name: 'activity_batches', type: 'object', properties: [
-              { name: 'links', type: 'object', properties: [
-                { name: 'self' },
-                { name: 'related' }
-              ] }
-            ] },
-            { name: 'comments', type: 'object', properties: [
-              { name: 'links', type: 'object', properties: [
-                { name: 'self' },
-                { name: 'related' }
-              ] }
-            ] },
-            { name: 'attachments', type: 'object', properties: [
-              { name: 'links', type: 'object', properties: [
-                { name: 'self' },
-                { name: 'related' }
-              ] }
-            ] },
-            { name: 'root_cause_obj', type: 'object', properties: [
-              { name: 'links', type: 'object', properties: [
-                { name: 'self' },
-                { name: 'related' }
-              ] }
-            ] },
-            { name: 'issue_type_obj', type: 'object', properties: [
-              { name: 'links', type: 'object', properties: [
-                { name: 'self' },
-                { name: 'related' }
-              ] }
             ] }
-          ] }
         ]
       end
     },
