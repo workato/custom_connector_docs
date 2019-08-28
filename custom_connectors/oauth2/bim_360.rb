@@ -1536,7 +1536,7 @@
     update_issue_in_project: {
       title: 'Updated issue in a project',
       description: 'Update <span class="provider">issue</span> in'\
-        ' <span class="provider">BIM 360</span>',
+        ' a project in <span class="provider">BIM 360</span>',
       help: {
         body: 'BIM 360 issues are managed either in the BIM 360 Document' \
         ' Management module or the BIM 360 Field Management module.</br>' \
