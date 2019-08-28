@@ -1446,10 +1446,14 @@
                            "/projects/#{project_id}")&.
                        dig('data', 'relationships', 'issues', 'data', 'id')
         { issues: get("/issues/v1/containers/#{container_id}/quality-issues",
-                      filter_criteria)['data'] }
+                      filter_criteria)['data'] }.merge({ hub_id: hub_id }).merge({ container_id: container_id }).merge({ project_id: project_id })
       end,
       output_fields: lambda do |object_definitions|
-        [{ name: 'issues', type: 'array', of: 'object',
+        [ 
+          {name: 'hub_id' }, 
+          { name: 'project_id' }, 
+          { name: 'container_id' }, 
+          { name: 'issues', type: 'array', of: 'object',
            properties: object_definitions['issue'] }]
       end,
       sample_output: lambda do |_connection, input|
