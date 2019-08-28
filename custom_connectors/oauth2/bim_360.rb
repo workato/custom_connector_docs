@@ -3427,9 +3427,11 @@
       end
     end,
     rfis_container_lists: lambda do |_connection, hub_id:|
-      get("project/v1/hubs/#{hub_id}/projects")['data']&.map do |project|
-        [project.dig('attributes', 'name'),
-         project.dig('relationships', 'rfis', 'data', 'id')]
+      if hub_id.length === 38
+        get("project/v1/hubs/#{hub_id}/projects")['data']&.map do |project|
+          [project.dig('attributes', 'name'),
+           project.dig('relationships', 'rfis', 'data', 'id')]
+        end
       end
     end,
     rfi_objects: lambda do |_connection|
