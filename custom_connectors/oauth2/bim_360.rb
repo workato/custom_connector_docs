@@ -3416,8 +3416,10 @@
       map { |option| [option.labelize, option] }
     end,
     project_list: lambda do |_connection, hub_id:|
-      get("project/v1/hubs/#{hub_id}/projects")['data']&.map do |project|
-        [project.dig('attributes', 'name'), project['id']]
+      if hub_id.length === 38
+        get("project/v1/hubs/#{hub_id}/projects")['data']&.map do |project|
+          [project.dig('attributes', 'name'), project['id']]
+        end
       end
     end,
     issue_container_lists: lambda do |_connection, hub_id:|
