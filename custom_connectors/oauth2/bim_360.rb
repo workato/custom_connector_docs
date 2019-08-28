@@ -1872,15 +1872,19 @@
         ].concat(object_definitions['rfis_criteria'])
       end,
       execute: lambda do |_connection, input|
-        input.delete('hub_id')
+        hub_id = input.delete('hub_id')
         container_id = input.delete('container_id')
         filter_criteria = call('format_search', input)
         { rfis: get("/bim360/rfis/v1/containers/#{container_id}/rfis",
-                    filter_criteria)['data'] }
+                    filter_criteria)['data'] }.merge({ hub_id: hub_id }).merge({ container_id: container_id })
       end,
       output_fields: lambda do |object_definitions|
-        [{ name: 'rfis', type: 'array', of: 'object',
-           properties: object_definitions['rfi'] }]
+        [
+          { name: 'hub_id' }, 
+          { name: 'container_id' },
+          { name: 'rfis', label: 'RFIs', type: 'array', of: 'object',
+           properties: object_definitions['rfi'] }
+         ]
       end,
       sample_output: lambda do |_connection, input|
         { rfis:
