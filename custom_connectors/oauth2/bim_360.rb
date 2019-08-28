@@ -1592,25 +1592,30 @@
             name: 'id', label: 'Issue ID',
             optional: false
           }
-        ].concat(object_definitions['update_issue'])
+        ].concat(object_definitions['update_issue'].ignored('id'))
       end,
       execute: lambda do |_connection, input|
-        input.delete('hub_id')
+        hub_id = input.delete('hub_id')
+        container_id = input.delete('container_id')
         id = input.delete('id')
         payload = {
           id: id,
           type: 'quality_issues',
           attributes: input
         }
-        patch("/issues/v1/containers/#{input.delete('container_id')}/" \
+        patch("/issues/v1/containers/#{container_id}/" \
               "quality-issues/#{id}").
           payload({ data: payload }).
+          headers('Content-Type': 'application/vnd.api+json').
           after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message}: #{body}")
-          end['data']
+          end['data']&.merge({ hub_id: hub_id }).merge({ container_id: container_id })
       end,
       output_fields: lambda do |object_definitions|
-        object_definitions['issue']
+        [
+          { name: 'hub_id' },
+          { name: 'container_id' }
+        ].concat( object_definitions['issue'] )
       end,
       sample_output: lambda do |_connection, input|
         project_id = input['project_id']
