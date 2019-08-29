@@ -3250,20 +3250,22 @@
       hub_id = args[:hub_id]
       project_id = args[:project_id]
       parent_id = args&.[](:__parent_id)
-      if parent_id.present?
-        get("/data/v1/projects/#{project_id}/folders/#{parent_id}/" \
-            'contents?filter[type]=folders')['data']&.
-          map do |folder|
-            [folder.dig('attributes', 'displayName'),
-             folder['id'], folder['id'], true]
-          end
-      else
-        get("project/v1/hubs/#{hub_id}/projects/#{project_id}/" \
-            'topFolders?filter[type]=folders')['data']&.
-          map do |folder|
-            [folder.dig('attributes', 'displayName'),
-             folder['id'], folder['id'], true]
-          end || []
+      if project_id.length === 38
+        if parent_id.present?
+          get("/data/v1/projects/#{project_id}/folders/#{parent_id}/" \
+              'contents?filter[type]=folders')['data']&.
+            map do |folder|
+              [folder.dig('attributes', 'displayName'),
+               folder['id'], folder['id'], true]
+            end
+        else
+          get("project/v1/hubs/#{hub_id}/projects/#{project_id}/" \
+              'topFolders?filter[type]=folders')['data']&.
+            map do |folder|
+              [folder.dig('attributes', 'displayName'),
+               folder['id'], folder['id'], true]
+            end || []
+        end
       end
     end,
     rfi_child_objects: lambda do |_connection|
