@@ -2572,7 +2572,7 @@
         [
           {
             name: 'hub_id',
-            label: 'Hub name',
+            label: 'Hub Name',
             control_type: 'select',
             pick_list: 'hub_list',
             optional: false,
@@ -2588,7 +2588,7 @@
           },
           {
             name: 'project_id',
-            label: 'Project name',
+            label: 'Project Name',
             control_type: 'select',
             pick_list: 'project_list',
             pick_list_params: { hub_id: 'hub_id' },
@@ -2604,26 +2604,9 @@
               'Provide project id e.g. <b>b.baf-0871-4aca-82e8-3dd6db00</b>'
             }
           },
-          { name: 'folder_id',
-            label: 'Folder',
-            control_type: 'tree',
-            hint: 'Select folder',
-            toggle_hint: 'Select Folder',
-            pick_list_params: { hub_id: 'hub_id', project_id: 'project_id' },
-            tree_options: { selectable_folder: true },
-            pick_list: :folders_list,
-            optional: false,
-            toggle_field: {
-              name: 'folder_id',
-              type: 'string',
-              control_type: 'text',
-              label: 'Folder ID',
-              toggle_hint: 'Use Folder ID',
-              hint: 'Use Folder ID'
-            } },
           {
             name: 'item_id',
-            label: 'File name',
+            label: 'File Name',
             control_type: 'select',
             pick_list: 'folder_items',
             pick_list_params: { project_id: 'project_id',
@@ -2636,26 +2619,7 @@
               control_type: 'text',
               label: 'File ID',
               toggle_hint: 'Use file ID',
-              hint: 'Use file ID'
-            }
-          },
-          {
-            name: 'version_urn',
-            control_type: 'select',
-            label: 'Version number',
-            pick_list: 'item_versions',
-            sticky: true,
-            pick_list_params: { project_id: 'project_id', item_id: 'item_id' },
-            optional: true,
-            toggle_hint: 'Select version',
-            toggle_field: {
-              name: 'version_urn',
-              label: 'Version URN',
-              type: 'string',
-              control_type: 'text',
-              optional: true,
-              toggle_hint: 'Use custom value',
-              hint: 'Use version number e.g. e7e2a39a-2ead-4dcd-9760-5f7af'
+              hint: 'Use File/Item ID'
             }
           }
         ],
@@ -2672,10 +2636,17 @@
         # version_url = version_number.encode_url
         project_id = input['project_id'].split('.').last
         get("/bim360/docs/v1/projects/#{project_id}/versions/" \
-          "#{version_url}/exports/#{input['export_id']}")
+          "#{version_url}/exports/#{input['export_id']}").
+          merge({ hub_id: input['hub_id'] }).
+          merge({ project_id: input['project_id'] }).
+          merge({ item_id: input['item_id'] })
       end,
       output_fields: lambda do |object_definitions|
-        object_definitions['export_status']
+        [
+          { name: 'hub_id' },
+          { name: 'project_id' },
+          { name: 'item_id' }
+        ].concat(object_definitions['export_status'])
       end,
       sample_output: lambda do |_connection, _input|
         call('sample_data_export_job')
