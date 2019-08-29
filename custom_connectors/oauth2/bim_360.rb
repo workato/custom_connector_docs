@@ -2605,7 +2605,6 @@
             pick_list_params: { hub_id: 'hub_id', project_id: 'project_id' },
             tree_options: { selectable_folder: true },
             pick_list: :folders_list,
-            optional: false,
             toggle_field: {
               name: 'folder_id',
               type: 'string',
@@ -2638,11 +2637,16 @@
                        "#{input['item_id']}")&.
                    dig('included', 0, 'relationships', 'storage', 'meta',
                        'link', 'href')
-        file_content =
-          get(file_url).response_format_raw.
-          after_error_response(/.*/) do |_code, body, _header, message|
-            error("#{message}: #{body}")
-          end
+        if file_url.present?
+          file_content =
+            get(file_url).headers('Accept-Encoding': 'Accept-Encoding:gzip').
+            response_format_raw.
+            after_error_response(/.*/) do |_code, body, _header, message|
+              error("#{message}: #{body}")
+            end
+        else
+          error("Invalid URL" )
+        end
         { content: file_content }
       end,
       output_fields: lambda do |_object_definitions|
