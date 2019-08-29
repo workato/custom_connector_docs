@@ -875,7 +875,7 @@
         [
           {
             name: 'hub_id',
-            label: 'Hub name',
+            label: 'Hub Name',
             control_type: 'select',
             pick_list: 'hub_list',
             optional: false,
@@ -891,7 +891,7 @@
           },
           {
             name: 'project_id',
-            label: 'Project name',
+            label: 'Project Name',
             control_type: 'select',
             pick_list: 'project_list',
             pick_list_params: { hub_id: 'hub_id' },
@@ -1067,7 +1067,7 @@
         [
           {
             name: 'hub_id',
-            label: 'Hub name',
+            label: 'Hub Name',
             control_type: 'select',
             pick_list: 'hub_list',
             optional: false,
@@ -1083,7 +1083,7 @@
           },
           {
             name: 'container_id',
-            label: 'Project name',
+            label: 'Project Name',
             control_type: 'select',
             pick_list: 'issue_container_lists',
             pick_list_params: { hub_id: 'hub_id' },
@@ -1613,7 +1613,7 @@
         [
           {
             name: 'hub_id',
-            label: 'Hub name',
+            label: 'Hub Name',
             control_type: 'select',
             pick_list: 'hub_list',
             optional: false,
@@ -1629,7 +1629,7 @@
           },
           {
             name: 'container_id',
-            label: 'Container name',
+            label: 'Container Name',
             control_type: 'select',
             pick_list: 'issue_container_lists',
             pick_list_params: { hub_id: 'hub_id' },
@@ -1696,7 +1696,7 @@
         [
           {
             name: 'hub_id',
-            label: 'Hub name',
+            label: 'Hub Name',
             control_type: 'select',
             pick_list: 'hub_list',
             optional: false,
@@ -1831,7 +1831,7 @@
         [
           {
             name: 'hub_id',
-            label: 'Hub name',
+            label: 'Hub Name',
             control_type: 'select',
             pick_list: 'hub_list',
             optional: false,
@@ -1847,7 +1847,7 @@
           },
           {
             name: 'container_id',
-            label: 'Container name',
+            label: 'Container Name',
             control_type: 'select',
             pick_list: 'rfis_container_lists',
             pick_list_params: { hub_id: 'hub_id' },
@@ -2199,7 +2199,7 @@
             } },
           {
             name: 'item_id',
-            label: 'File name',
+            label: 'File Name',
             control_type: 'select',
             pick_list: 'folder_items',
             pick_list_params: { project_id: 'project_id',
@@ -2547,7 +2547,7 @@
               hint: 'Use Folder ID'
             } },
           { name: 'item_id',
-            label: 'File name',
+            label: 'File Name',
             control_type: 'tree',
             hint: 'Select folder',
             toggle_hint: 'Select Item',
@@ -2680,7 +2680,7 @@
         [
           {
             name: 'hub_id',
-            label: 'Hub name',
+            label: 'Hub Name',
             control_type: 'select',
             pick_list: 'hub_list',
             optional: false,
@@ -2696,7 +2696,7 @@
           },
           {
             name: 'project_id',
-            label: 'Project name',
+            label: 'Project Name',
             control_type: 'select',
             pick_list: 'project_list',
             pick_list_params: { hub_id: 'hub_id' },
@@ -2729,7 +2729,7 @@
               hint: 'Use Folder ID'
             } },
           { name: 'item_id',
-            label: 'File name',
+            label: 'File Name',
             control_type: 'tree',
             hint: 'Select folder',
             toggle_hint: 'Select Folder',
