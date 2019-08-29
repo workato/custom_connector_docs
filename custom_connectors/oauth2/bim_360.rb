@@ -3090,17 +3090,17 @@
       end
     },
     new_updated_document_in_project: {
-      title: 'New/updated document in a project',
-      description: 'New/updated <span class="provider">document</span> in'\
-        ' a project in <span class="provider">BIM 360</span>',
+      title: 'New or updated document in a project folder',
+      description: 'New or updated <span class="provider">document</span> in'\
+        ' a project folder in <span class="provider">BIM 360</span>',
       help: {
-        body: 'Triggers when a document in a project is created/updated.'
+        body: 'Triggers when a document in a project is created or updated in the specified folder.'
       },
       input_fields: lambda do |_object_definitions|
         [
           {
             name: 'hub_id',
-            label: 'Hub name',
+            label: 'Hub Name',
             control_type: 'select',
             pick_list: 'hub_list',
             optional: false,
@@ -3116,7 +3116,7 @@
           },
           {
             name: 'project_id',
-            label: 'Project name',
+            label: 'Project Name',
             control_type: 'select',
             pick_list: 'project_list',
             pick_list_params: { hub_id: 'hub_id' },
@@ -3160,6 +3160,7 @@
         ]
       end,
       poll: lambda do |_connection, input, closure|
+        hub_id = closure&.[]('hub_id') || input['hub_id']
         project_id = closure&.[]('project_id') || input['project_id']
         folder_id = closure&.[]('folder_id') || input['folder_id']
 
@@ -3181,17 +3182,19 @@
                    end
 
         items = response['data']&.
-                 map { |o| o.merge({ project_id: project_id }) }
+                 map { |o| o.merge({ project_id: project_id }).merge({ hub_id: hub_id }).merge({ folder_id: folder_id }) }
         closure = if (next_page_url = response.dig('links', 'next')).present?
                     { 'skip' => skip + limit,
                       'folder_id' => folder_id,
                       'project_id' => project_id,
+                      'hub_id' => hub_id,
                       'include' => include,
                       'next_page_url' => next_page_url }
                   else
                     { 'offset' => 0,
                       'folder_id' => folder_id,
                       'project_id' => project_id,
+                      'hub_id' => hub_id,
                       'include' => include,
                       'updated_after' => now.to_time.utc.iso8601 }
                   end
@@ -3205,7 +3208,7 @@
         "#{item['id']}&#{item.dig('attributes', 'lastModifiedTime')}"
       end,
       output_fields: lambda do |object_definitions|
-        [{ name: 'project_id' }].concat(object_definitions['folder_file']).
+        [{ name: 'hub_id' }, { name: 'project_id' }, { name: 'folder_id' }].concat(object_definitions['folder_file']).
           compact
       end,
       sample_output: lambda do |_connection, input|
