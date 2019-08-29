@@ -3230,11 +3230,13 @@
       ]
     end,
     folder_items: lambda do |_connection, project_id:, folder_id:|
-      get("/data/v1/projects/#{project_id}/folders/#{folder_id}/" \
-          'contents?filter[type]=items')['data']&.
-        map do |item|
-          [item.dig('attributes', 'displayName'), item['id']]
-        end
+      if project_id.length === 38 && folder_id.present?
+        get("/data/v1/projects/#{project_id}/folders/#{folder_id}/" \
+            'contents?filter[type]=items')['data']&.
+          map do |item|
+            [item.dig('attributes', 'displayName'), item['id']]
+          end
+      end
     end,
     item_versions: lambda do |_connection, project_id:, item_id:|
       get("/data/v1/projects/#{project_id}/items/#{item_id}/" \
