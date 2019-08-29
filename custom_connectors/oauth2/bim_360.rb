@@ -2657,10 +2657,15 @@
       title: 'Upload document to a project',
       description: 'Upload <span class="provider">document</span> to a project'\
         ' in <span class="provider">BIM 360</span>',
+      help: {
+        body: 'Note that you cannot upload documents to the root folder in ' \
+        'BIM 360 Docs; you can only upload documents to the Project Files ' \
+        'folder or to a folder nested under the Project Files folder'
+      },
       config_fields: [
         {
           name: 'hub_id',
-          label: 'Hub name',
+          label: 'Hub Name',
           control_type: 'select',
           pick_list: 'hub_list',
           optional: false,
@@ -2676,7 +2681,7 @@
         },
         {
           name: 'project_id',
-          label: 'Project name',
+          label: 'Project Name',
           control_type: 'select',
           pick_list: 'project_list',
           pick_list_params: { hub_id: 'hub_id' },
@@ -2712,35 +2717,10 @@
       ],
       input_fields: lambda do |_object_definitions|
         [
-          { name: 'file_name', optional: false,
+          { name: 'file_name', optional: false, label: 'File Name',
             hint: 'File name should include extension of the file. e.g. ' \
             '<b>my_file.jpg</b>' },
-          { name: 'file_content', optional: false },
-          { name: 'object_type', label: 'File type',
-            optional: false,
-            control_type: 'select',
-            pick_list: 'file_types',
-            toggle_hint: 'Select type',
-            toggle_field: {
-              name: 'object_type',
-              label: 'File type',
-              type: 'string',
-              control_type: 'text',
-              toggle_hint: 'File type ID',
-              hint: 'Only relevant for creating files - the type of file ' \
-              'extension. For BIM 360 Docs files, use <b>items:autodesk.' \
-              'bim360:File</b>, For all other services, use'  \
-              '<b>items:autodesk.core:File</b>'
-            },
-            hint: 'Only relevant for creating files - the type of file ' \
-            'extension. For BIM 360 Docs files, use <b>items:autodesk.' \
-            'bim360:File</b>, For all other services, use'  \
-            ' <b>items:autodesk.core:File</b>' },
-          { name: 'parent_folder_id',
-            hint: 'The URN of the parent folder in which you want to create' \
-            ' a version of a file or to copy a file to.' },
-          { name: 'extension_version',
-            hint: 'The version of the version extension type ' }
+          { name: 'file_content', optional: false }
         ]
       end,
       execute: lambda do |_connection, input|
@@ -2762,23 +2742,28 @@
             }
           }
         }
+        hub_id = input.delete('hub_id')
         project_id = input.delete('project_id').gsub('b:', '')
-        object_id =
+        response_storage =
           post('https://developer.api.autodesk.com/data/v1/' \
                "projects/#{project_id}/storage").
+          headers('Content-Type': 'application/vnd.api+json',
+                  'Accept': 'application/vnd.api+json').
           payload(payload).
           after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message}: #{body}")
-          end&.dig('data', 'id')
+          end
+        object_id = response_storage&.dig('data', 'id')
+
         # 2 Upload file to storage location
         bucket_key = object_id.split('/').first.split('object:').last
         object_name = object_id.split('/').last
         response = put('https://developer.api.autodesk.com/oss/v2/buckets/' \
-                       "#{bucket_key}/objects/#{object_name}").
+                       "#{bucket_key}/objects/#{object_name}", input['file_content'] ).
                    after_error_response(/.*/) do |_code, body, _header, message|
                      error("#{message}: #{body}")
                    end
-        storage_object_id = response['objectId']
+        object_urn = response['objectId']
         # 3 create a first version of the File
         version_payload = {
           'jsonapi' => { 'version' => '1.0' },
@@ -2787,7 +2772,7 @@
             'attributes' => {
               'displayName' => input['file_name'],
               'extension' =>
-              { 'type' => input['object_type'], 'version' => '1.0' }
+              { 'type' => 'items:autodesk.bim360:File', 'version' => '1.0' }
             },
             'relationships' => {
               'tip' => {
@@ -2808,7 +2793,7 @@
               'attributes' => {
                 'name' => input['file_name'],
                 'extension' => {
-                  'type' => input['object_type'],
+                  'type' => 'versions:autodesk.bim360:File', #input['object_type'],
                   'version' => '1.0'
                 }
               },
@@ -2816,73 +2801,58 @@
                 'storage' => {
                   'data' => {
                     'type' => 'objects',
-                    'id' => storage_object_id
+                    'id' => object_urn
                   }
                 }
-                # ,
-                # 'refs' => {
-                #   'data' => {
-                #     'type' => 'versions',
-                #     'id' => '1.0'
-                #   },
-                #   'meta' => {
-                #     'refType' => 'xrefs',
-                #     'direction' => '',
-                #     'extension' => {
-                #       'type' => 'xrefs:autodesk.core:Xref',
-                #       'version' => '1.1.0.',
-                #       'data' => {
-                #         'nestedType' => 'attachment'
-                #       }
-                #     }
-                #   }
-                # }
               }
             }
           ]
         }
         item_id =
           post("/data/v1/projects/#{project_id}/items").
-          request_body(version_payload.to_json).
-          headers(Accept: 'application/vnd.api+json').
+          payload(version_payload).
+          headers('Content-Type': 'application/vnd.api+json').
           after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message}: #{body}")
-          end.dig('data', 'id')
+          end&.dig('data').merge({ hub_id: hub_id }).merge({ project_id: project_id })
         # 4 Update version of the file
-        update_version = {
-          'jsonapi' => '1.0',
-          'data' => {
-            'type' => 'versions',
-            'attributes': {
-              'extension' => {
-                'type' => 'versions:autodesk.core:File"',
-                'version' => '1.0'
-              }
-            },
-            'relationships' => {
-              'item' => {
-                'data' => {
-                  'type' => 'items',
-                  'id' => item_id
-                }
-              },
-              'storage' => {
-                'data' => {
-                  'type' => 'objects',
-                  'id' => storage_object_id
-                }
-              }
-            }
-          }
-        }
-        post("/data/v1/projects/#{project_id}/versions").
-          payload(update_version).
-          after_error_response(/.*/) do |_code, body, _header, message|
-            error("#{message}: #{body}")
-          end
+        # update_version = {
+        #   'jsonapi' => '1.0',
+        #   'data' => {
+        #     'type' => 'versions',
+        #     'attributes': {
+        #       'extension' => {
+        #         'type' => 'versions:autodesk.core:File"',
+        #         'version' => '1.0'
+        #       }
+        #     },
+        #     'relationships' => {
+        #       'item' => {
+        #         'data' => {
+        #           'type' => 'items',
+        #           'id' => item_id
+        #         }
+        #       },
+        #       'storage' => {
+        #         'data' => {
+        #           'type' => 'objects',
+        #           'id' => object_urn
+        #         }
+        #       }
+        #     }
+        #   }
+        # }
+        # post("/data/v1/projects/#{project_id}/versions").
+        #   payload(update_version).
+        #   after_error_response(/.*/) do |_code, body, _header, message|
+        #     error("#{message}: #{body}")
+        #   end
       end,
       output_fields: lambda do |object_definitions|
-        object_definitions['folder_file']
+        [
+          { name: 'hub_id' },
+          { name: 'project_id' }
+        ].concat(object_definitions['folder_file'])
       end
     }
   },
