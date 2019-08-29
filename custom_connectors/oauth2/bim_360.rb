@@ -2112,6 +2112,27 @@
           dig('data', 0) || {}
       end
     },
+    download_drawing_export: {
+      description: 'Download <span class="provider">drawing export</span> in'\
+        ' a project in <span class="provider">BIM 360</span>',
+      input_fields: lambda do |object_definitions|
+        [
+          { name: 'export_link', label: 'Export Link', optional: false}
+        ]
+      end,
+      execute: lambda do |_connection, input|
+        file_content =
+          get(input['export_link']).headers('Accept-Encoding': 'Accept-Encoding:gzip').
+          response_format_raw.
+          after_error_response(/.*/) do |_code, body, _header, message|
+            error("#{message}: #{body}")
+          end
+        { content: file_content }
+      end,
+      output_fields: lambda do |_object_definitions|
+        [{ name: 'content' }]
+      end
+    },
     export_project_plan: {
       title: 'Export drawing in a project',
       description: 'Export <span class="provider">drawing</span> in'\
