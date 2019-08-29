@@ -2927,11 +2927,12 @@
         bucket_key = object_id.split('/').first.split('object:').last
         object_name = object_id.split('/').last
         response = put('https://developer.api.autodesk.com/oss/v2/buckets/' \
-                       "#{bucket_key}/objects/#{object_name}",
-                       input['file_content']).
-                   after_error_response(/.*/) do |_code, body, _header, message|
-                     error("#{message}: #{body}")
-                   end
+                       "#{bucket_key}/objects/#{object_name}").
+                    request_body(input['file_content']).
+                    headers('Content-Type': 'application/octet-stream').
+                    after_error_response(/.*/) do |_code, body, _header, message|
+                      error("#{message}: #{body}")
+                    end
         object_urn = response['objectId']
         # 3 create a first version of the File
         # folder_urn = get("/data/v1/projects/#{input['project_id']}/folders" \
@@ -3000,13 +3001,12 @@
             }
           ]
         }
-        user_id = get('/userprofile/v1/users/@me')['userId']
+
         # item_id =
         post("/data/v1/projects/#{project_id}/items").
           payload(version_payload).
           headers('Content-Type': 'application/vnd.api+json',
-                  Accept: 'application/vnd.api+json',
-                  'x-user-id': user_id).
+                  Accept: 'application/vnd.api+json').
           after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message}: #{body}")
           end&.dig('data')&.merge({ hub_id: hub_id, project_id: project_id })
