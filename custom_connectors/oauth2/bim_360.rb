@@ -1100,122 +1100,124 @@
     item: {
       fields: lambda do |_connection, _config_fields|
         [
-          { name: 'included', type: 'array', of: 'object',
-            properties: [
-              { name: 'type' },
-              { name: 'id' },
-              { name: 'relationships', type: 'object', properties: [
-                { name: 'item', type: 'object', properties: [
-                  { name: 'data', type: 'object', properties: [
-                    { name: 'type' },
-                    { name: 'id' }
-                  ] },
-                  { name: 'links', type: 'object', properties: [
-                    { name: 'related', type: 'object', properties: [
-                      { name: 'href' }
-                    ] }
-                  ] }
-                ] },
-                { name: 'refs', type: 'object', properties: [
-                  { name: 'links', type: 'object', properties: [
-                    { name: 'self', type: 'object', properties: [
-                      { name: 'href' }
-                    ] },
-                    { name: 'related', type: 'object', properties: [
-                      { name: 'href' }
-                    ] }
-                  ] }
-                ] },
-                { name: 'storage', type: 'object', properties: [
-                  { name: 'meta', type: 'object', properties: [
-                    { name: 'link', type: 'object', properties: [
-                      { name: 'href' }
-                    ] }
-                  ] },
-                  { name: 'data', type: 'object', properties: [
-                    { name: 'type' },
-                    { name: 'id' }
-                  ] }
-                ] },
-                { name: 'links', type: 'object', properties: [
-                  { name: 'self', type: 'object', properties: [
-                    { name: 'href' }
-                  ] }
-                ] }
-              ] }
-            ] },
+          #{ name: 'included', type: 'array', of: 'object',
+          #  properties: [
+          #    { name: 'type' },
+          #    { name: 'id' },
+          #    { name: 'relationships', type: 'object', properties: [
+          #      { name: 'item', type: 'object', properties: [
+          #        { name: 'data', type: 'object', properties: [
+          #          { name: 'type' },
+          #          { name: 'id' }
+          #        ] },
+          #        { name: 'links', type: 'object', properties: [
+          #          { name: 'related', type: 'object', properties: [
+          #            { name: 'href' }
+          #          ] }
+          #        ] }
+          #      ] },
+          #      { name: 'refs', type: 'object', properties: [
+          #        { name: 'links', type: 'object', properties: [
+          #          { name: 'self', type: 'object', properties: [
+          #            { name: 'href' }
+          #          ] },
+          #          { name: 'related', type: 'object', properties: [
+          #            { name: 'href' }
+          #          ] }
+          #        ] }
+          #      ] },
+          #      { name: 'storage', type: 'object', properties: [
+          #        { name: 'meta', type: 'object', properties: [
+          #          { name: 'link', type: 'object', properties: [
+          #            { name: 'href' }
+          #          ] }
+          #        ] },
+          #        { name: 'data', type: 'object', properties: [
+          #          { name: 'type' },
+          #          { name: 'id' }
+          #        ] }
+          #      ] },
+          #      { name: 'links', type: 'object', properties: [
+          #        { name: 'self', type: 'object', properties: [
+          #          { name: 'href' }
+          #        ] }
+          #      ] }
+          #    ] }
+          #  ] },
           { name: 'data', type: 'object', properties: [
-            { name: 'id' },
-            { name: 'type' },
-            { name: 'relationships', type: 'object', properties: [
-              { name: 'refs', type: 'object', properties: [
-                { name: 'links', type: 'object', properties: [
-                  { name: 'self', type: 'object', properties: [
-                    { name: 'href' }
-                  ] },
-                  { name: 'related', type: 'object', properties: [
-                    { name: 'href' }
-                  ] }
-                ] }
-              ] },
-              { name: 'tip', type: 'object', properties: [
-                { name: 'data', type: 'object', properties: [
-                  { name: 'type' },
-                  { name: 'id' }
-                ] },
-                { name: 'links', type: 'object', properties: [
-                  { name: 'related', type: 'object', properties: [
-                    { name: 'href' }
-                  ] }
-                ] }
-              ] },
-              { name: 'links', type: 'object', properties: [
-                { name: 'self', type: 'object', properties: [
-                  { name: 'href' }
-                ] }
-              ] },
-              { name: 'parent', type: 'object', properties: [
-                { name: 'data', properties: [
-                  { name: 'type' },
-                  { name: 'id' }
-                ] },
-                { name: 'links', type: 'object', properties: [
-                  { name: 'related', type: 'object', properties: [
-                    { name: 'href' }
-                  ] }
-                ] }
-              ] },
-              { name: 'versions', type: 'object', properties: [
-                { name: 'links', type: 'object', properties: [
-                  { name: 'related', type: 'object', properties: [
-                    { name: 'href' }
-                  ] }
-                ] }
-              ] }
-            ] },
+            { name: 'id', label: 'Item ID' },
+            # { name: 'type' },
+            # { name: 'relationships', type: 'object', properties: [
+            #   { name: 'refs', type: 'object', properties: [
+            #     { name: 'links', type: 'object', properties: [
+            #       { name: 'self', type: 'object', properties: [
+            #         { name: 'href' }
+            #       ] },
+            #       { name: 'related', type: 'object', properties: [
+            #         { name: 'href' }
+            #       ] }
+            #     ] }
+            #   ] },
+            #   { name: 'tip', type: 'object', properties: [
+            #     { name: 'data', type: 'object', properties: [
+            #       { name: 'type' },
+            #       { name: 'id' }
+            #     ] },
+            #     { name: 'links', type: 'object', properties: [
+            #       { name: 'related', type: 'object', properties: [
+            #         { name: 'href' }
+            #       ] }
+            #     ] }
+            #   ] },
+            #   { name: 'links', type: 'object', properties: [
+            #     { name: 'self', type: 'object', properties: [
+            #       { name: 'href' }
+            #     ] }
+            #   ] },
+            #   { name: 'parent', type: 'object', properties: [
+            #     { name: 'data', properties: [
+            #       { name: 'type' },
+            #       { name: 'id' }
+            #     ] },
+            #     { name: 'links', type: 'object', properties: [
+            #       { name: 'related', type: 'object', properties: [
+            #         { name: 'href' }
+            #       ] }
+            #     ] }
+            #   ] },
+            #   { name: 'versions', type: 'object', properties: [
+            #     { name: 'links', type: 'object', properties: [
+            #       { name: 'related', type: 'object', properties: [
+            #         { name: 'href' }
+            #       ] }
+            #     ] }
+            #   ] }
+            # ] },
+
             { name: 'attributes', type: 'object', properties: [
-              { name: 'type' },
-              { name: 'name' },
-              { name: 'displayName' },
-              { name: 'createTime', type: 'date_time' },
-              { name: 'createUserId' },
-              { name: 'createUserName' },
-              { name: 'lastModifiedTime', type: 'date_time' },
-              { name: 'lastModifiedUserId' },
-              { name: 'lastModifiedUserName' },
-              { name: 'lastModifiedTimeRollup', type: 'date_time' },
-              { name: 'objectCount', type: 'integer' },
+              #{ name: 'type' },
+              #{ name: 'name' },
+              { name: 'displayName', label: 'Name' },
+              { name: 'createTime', label: 'Created at', type: 'date_time' },
+              { name: 'createUserId', label: 'Created by (User ID)' },
+              { name: 'createUserName', label: 'Created by (User Name)' },
+              { name: 'lastModifiedTime', label: 'Last modified at', type: 'date_time' },
+              { name: 'lastModifiedUserId', label: 'Last modified by (User ID)' },
+              { name: 'lastModifiedUserName', label: 'Last modified by (User Name)' },
+              #{ name: 'lastModifiedTimeRollup', type: 'date_time' },
+              #{ name: 'objectCount', type: 'integer' },
               { name: 'hidden', type: 'boolean', control_type: 'checkbox' },
               { name: 'reserved', type: 'boolean', control_type: 'checkbox' },
+              # { name: 'pathInProject', label: 'Path' },
               { name: 'extension', type: 'object', properties: [
-                { name: 'type' },
-                { name: 'version' },
-                { name: 'data', type: 'object', properties: [
-                  { name: 'sourceFileName', hint: 'Applicable for file' },
-                  { name: 'visibleTypes', hint: 'Array of strings' },
-                  { name: 'actions', hint: 'Array of strings' },
-                  { name: 'allowedTypes', hint: 'Array of strings' }
-                ] }
+                #{ name: 'type' },
+                { name: 'version' } #,
+                #{ name: 'data', type: 'object', properties: [
+                  #{ name: 'sourceFileName', hint: 'Applicable for file' },
+                  #{ name: 'visibleTypes', hint: 'Array of strings' },
+                  #{ name: 'actions', hint: 'Array of strings' },
+                  #{ name: 'allowedTypes', hint: 'Array of strings' }
+                #] }
               ] }
             ] }
           ] }
