@@ -30,7 +30,7 @@
       type: 'oauth2',
       authorization_url: lambda do |connection|
         scopes = 'user:read account:read data:write data:write data:read' \
-        ' account:write'
+        ' data:create account:write'
         'https://developer.api.autodesk.com/authentication/v1/authorize?' \
         'response_type=' \
         "code&client_id=#{connection['client_id']}&" \
@@ -62,8 +62,8 @@
       end,
       apply: lambda do |_connection, access_token|
         headers(Authorization: "Bearer #{access_token}")
-#         headers(Authorization: "Bearer #{access_token}",
-#                 'Content-Type': 'application/vnd.api+json')
+        # headers(Authorization: "Bearer #{access_token}",
+        #         'Content-Type': 'application/vnd.api+json')
       end
     },
     base_uri: lambda do |_connection|
@@ -1077,22 +1077,24 @@
             { name: 'createTime', label: 'Created at', type: 'date_time' },
             { name: 'createUserId', label: 'Created by (User ID)' },
             { name: 'createUserName', label: 'Created by (User Name)' },
-            { name: 'lastModifiedTime', label: 'Last modified at', type: 'date_time' },
+            { name: 'lastModifiedTime',
+              label: 'Last modified at', type: 'date_time' },
             { name: 'lastModifiedUserId', label: 'Last modified by (User ID)' },
-            { name: 'lastModifiedUserName', label: 'Last modified by (User Name)' },
-            #{ name: 'lastModifiedTimeRollup', type: 'date_time' },
-            #{ name: 'objectCount', type: 'integer' },
+            { name: 'lastModifiedUserName',
+              label: 'Last modified by (User Name)' },
+            # { name: 'lastModifiedTimeRollup', type: 'date_time' },
+            # { name: 'objectCount', type: 'integer' },
             { name: 'hidden', type: 'boolean', control_type: 'checkbox' },
             { name: 'reserved', type: 'boolean', control_type: 'checkbox' },
             { name: 'extension', type: 'object', properties: [
-              #{ name: 'type' },
-              { name: 'version' } #,
-              #{ name: 'data', type: 'object', properties: [
-                #{ name: 'sourceFileName', hint: 'Applicable for file' },
-                #{ name: 'visibleTypes', hint: 'Array of strings' },
-                #{ name: 'actions', hint: 'Array of strings' },
-                #{ name: 'allowedTypes', hint: 'Array of strings' }
-              #] }
+              # { name: 'type' },
+              { name: 'version' } # ,
+              # { name: 'data', type: 'object', properties: [
+              #   { name: 'sourceFileName', hint: 'Applicable for file' },
+              #   { name: 'visibleTypes', hint: 'Array of strings' },
+              #   { name: 'actions', hint: 'Array of strings' },
+              #   { name: 'allowedTypes', hint: 'Array of strings' }
+              # ] }
             ] }
           ] }
         ]
@@ -1101,7 +1103,7 @@
     item: {
       fields: lambda do |_connection, _config_fields|
         [
-          #{ name: 'included', type: 'array', of: 'object',
+          # { name: 'included', type: 'array', of: 'object',
           #  properties: [
           #    { name: 'type' },
           #    { name: 'id' },
@@ -1196,29 +1198,32 @@
             # ] },
 
             { name: 'attributes', type: 'object', properties: [
-              #{ name: 'type' },
-              #{ name: 'name' },
+              # { name: 'type' },
+              # { name: 'name' },
               { name: 'displayName', label: 'Name' },
               { name: 'createTime', label: 'Created at', type: 'date_time' },
               { name: 'createUserId', label: 'Created by (User ID)' },
               { name: 'createUserName', label: 'Created by (User Name)' },
-              { name: 'lastModifiedTime', label: 'Last modified at', type: 'date_time' },
-              { name: 'lastModifiedUserId', label: 'Last modified by (User ID)' },
-              { name: 'lastModifiedUserName', label: 'Last modified by (User Name)' },
-              #{ name: 'lastModifiedTimeRollup', type: 'date_time' },
-              #{ name: 'objectCount', type: 'integer' },
+              { name: 'lastModifiedTime',
+                label: 'Last modified at', type: 'date_time' },
+              { name: 'lastModifiedUserId',
+                label: 'Last modified by (User ID)' },
+              { name: 'lastModifiedUserName',
+                label: 'Last modified by (User Name)' },
+              # { name: 'lastModifiedTimeRollup', type: 'date_time' },
+              # { name: 'objectCount', type: 'integer' },
               { name: 'hidden', type: 'boolean', control_type: 'checkbox' },
               { name: 'reserved', type: 'boolean', control_type: 'checkbox' },
               # { name: 'pathInProject', label: 'Path' },
               { name: 'extension', type: 'object', properties: [
-                #{ name: 'type' },
-                { name: 'version' } #,
-                #{ name: 'data', type: 'object', properties: [
-                  #{ name: 'sourceFileName', hint: 'Applicable for file' },
-                  #{ name: 'visibleTypes', hint: 'Array of strings' },
-                  #{ name: 'actions', hint: 'Array of strings' },
-                  #{ name: 'allowedTypes', hint: 'Array of strings' }
-                #] }
+                # { name: 'type' },
+                { name: 'version' } # ,
+                # { name: 'data', type: 'object', properties: [
+                #   { name: 'sourceFileName', hint: 'Applicable for file' },
+                #   { name: 'visibleTypes', hint: 'Array of strings' },
+                #   { name: 'actions', hint: 'Array of strings' },
+                #   { name: 'allowedTypes', hint: 'Array of strings' }
+                # ] }
               ] }
             ] }
           ] }
@@ -1441,15 +1446,18 @@
                            "/projects/#{project_id}")&.
                        dig('data', 'relationships', 'issues', 'data', 'id')
         { issues: get("/issues/v1/containers/#{container_id}/quality-issues",
-                      filter_criteria)['data'] }.merge({ hub_id: hub_id }).merge({ container_id: container_id }).merge({ project_id: project_id })
+                      filter_criteria)['data'] }&.
+                  merge({ hub_id: hub_id, container_id: container_id,
+                          project_id: project_id })
       end,
       output_fields: lambda do |object_definitions|
-        [ 
-          {name: 'hub_id' }, 
-          { name: 'project_id' }, 
-          { name: 'container_id' }, 
+        [
+          { name: 'hub_id' },
+          { name: 'project_id' },
+          { name: 'container_id' },
           { name: 'issues', type: 'array', of: 'object',
-           properties: object_definitions['issue'] }]
+            properties: object_definitions['issue'] }
+        ]
       end,
       sample_output: lambda do |_connection, input|
         project_id = input['project_id']
@@ -1501,7 +1509,8 @@
               type: 'string',
               control_type: 'text',
               toggle_hint: 'Use custom value',
-              hint: 'Provide container id e.g. edac0659-639a-4a87-8614-d2c521b246b0'
+              hint: 'Provide container id e.g. ' \
+              'edac0659-639a-4a87-8614-d2c521b246b0'
             }
           }
         ].concat(object_definitions['create_issue'].
@@ -1519,7 +1528,7 @@
           headers('Content-Type': 'application/vnd.api+json').
           after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message}: #{body}")
-          end['data']&.merge({ container_id: container_id }).merge({ hub_id: hub_id })
+          end['data']&.merge({ container_id: container_id, hub_id: hub_id })
       end,
       output_fields: lambda do |object_definitions|
         [
@@ -1604,13 +1613,13 @@
           headers('Content-Type': 'application/vnd.api+json').
           after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message}: #{body}")
-          end['data']&.merge({ hub_id: hub_id }).merge({ container_id: container_id })
+          end['data']&.merge({ hub_id: hub_id, container_id: container_id })
       end,
       output_fields: lambda do |object_definitions|
         [
           { name: 'hub_id' },
           { name: 'container_id' }
-        ].concat( object_definitions['issue'] )
+        ].concat(object_definitions['issue'])
       end,
       sample_output: lambda do |_connection, input|
         project_id = input['project_id']
@@ -1663,7 +1672,8 @@
               type: 'string',
               control_type: 'text',
               toggle_hint: 'Use custom value',
-              hint: 'Provide container id e.g. edac0659-639a-4a87-8614-d2c521b246b0'
+              hint: 'Provide container id e.g. ' \
+              'edac0659-639a-4a87-8614-d2c521b246b0'
             }
           },
           { name: 'issue_id', optional: false }
@@ -1674,13 +1684,15 @@
             "quality-issues/#{input['issue_id']}").
           after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message}: #{body}")
-          end['data'].merge({ hub_id: input['hub_id'] }).merge({ container_id: input['container_id'] })
+          end['data'].
+          merge({ hub_id: input['hub_id'],
+                  container_id: input['container_id'] })
       end,
       output_fields: lambda do |object_definitions|
         [
           { name: 'hub_id' },
           { name: 'container_id' }
-        ].concat( object_definitions['issue'] )
+        ].concat(object_definitions['issue'])
       end,
       sample_output: lambda do |_connection, input|
         project_id = input['project_id']
@@ -1805,15 +1817,16 @@
         container_id = input.delete('container_id')
         filter_criteria = call('format_search', input)
         { rfis: get("/bim360/rfis/v1/containers/#{container_id}/rfis",
-                    filter_criteria)['data'] }.merge({ hub_id: hub_id }).merge({ container_id: container_id })
+                    filter_criteria)['data'] }&.
+                merge({ hub_id: hub_id, container_id: container_id })
       end,
       output_fields: lambda do |object_definitions|
         [
-          { name: 'hub_id' }, 
+          { name: 'hub_id' },
           { name: 'container_id' },
           { name: 'rfis', label: 'RFIs', type: 'array', of: 'object',
-           properties: object_definitions['rfi'] }
-         ]
+            properties: object_definitions['rfi'] }
+        ]
       end,
       sample_output: lambda do |_connection, input|
         { rfis:
@@ -1861,7 +1874,8 @@
               type: 'string',
               control_type: 'text',
               toggle_hint: 'Use custom value',
-              hint: 'Provide container ID e.g. edac0659-639a-4a87-8614-d2c521b246b0'
+              hint: 'Provide container ID e.g. ' \
+              'edac0659-639a-4a87-8614-d2c521b246b0'
             }
           },
           { name: 'id', optional: false, label: 'RFI ID' }
@@ -1872,10 +1886,13 @@
             "#{input['id']}").
           after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message}: #{body}")
-          end['data'].merge({ hub_id: input['hub_id'] }).merge({ container_id: input['container_id'] })
+          end['data']&.
+          merge({ hub_id: input['hub_id'],
+                  container_id: input['container_id'] })
       end,
       output_fields: lambda do |object_definitions|
-        [{ name: 'hub_id' }, { name: 'container_id' }].concat(object_definitions['rfi'])
+        [{ name: 'hub_id' }, { name: 'container_id' }].
+          concat(object_definitions['rfi'])
       end,
       sample_output: lambda do |_connection, input|
         get("/bim360/rfis/v1/containers/#{input['container_id']}/rfis")&.
@@ -1924,7 +1941,8 @@
               type: 'string',
               control_type: 'text',
               toggle_hint: 'Use custom value',
-              hint: 'Provide container ID e.g. edac0659-639a-4a87-8614-d2c521b246b0'
+              hint: 'Provide container ID e.g. ' \
+              'edac0659-639a-4a87-8614-d2c521b246b0'
             }
           }
         ].concat(object_definitions['modify_rfi'].
@@ -1946,13 +1964,14 @@
         }
         post("/bim360/rfis/v1/containers/#{container_id}/rfis").
           payload({ data: payload }).
-          headers('Content-Type': 'application/vnd.api+json' ).
+          headers('Content-Type': 'application/vnd.api+json').
           after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message}: #{body}")
-          end['data'].merge({ hub_id: hub_id }).merge({ container_id: container_id })
+          end['data']&.merge({ hub_id: hub_id, container_id: container_id })
       end,
       output_fields: lambda do |object_definitions|
-        [{ name: 'hub_id' }, { name: 'container_id' }].concat(object_definitions['rfi'])
+        [{ name: 'hub_id' }, { name: 'container_id' }]&.
+          concat(object_definitions['rfi'])
       end,
       sample_output: lambda do |_connection, input|
         get("/bim360/rfis/v1/containers/#{input['container_id']}/rfis")&.
@@ -2001,7 +2020,8 @@
               type: 'string',
               control_type: 'text',
               toggle_hint: 'Use custom value',
-              hint: 'Provide container ID e.g. edac0659-639a-4a87-8614-d2c521b246b0'
+              hint: 'Provide container ID e.g. ' \
+              'edac0659-639a-4a87-8614-d2c521b246b0'
             }
           },
           { name: 'id', optional: false, label: 'RFI ID' }
@@ -2026,13 +2046,14 @@
         }
         patch("/bim360/rfis/v1/containers/#{container_id}/rfis/#{id}").
           payload({ data: payload }).
-          headers('Content-Type': 'application/vnd.api+json' ).
+          headers('Content-Type': 'application/vnd.api+json').
           after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message}: #{body}")
-          end['data'].merge({ hub_id: hub_id }).merge({ container_id: container_id })
+          end['data'].merge({ hub_id: hub_id, container_id: container_id })
       end,
       output_fields: lambda do |object_definitions|
-        [{ name: 'hub_id' }, { name: 'container_id' }].concat(object_definitions['rfi'])
+        [{ name: 'hub_id' }, { name: 'container_id' }]&.
+          concat(object_definitions['rfi'])
       end,
       sample_output: lambda do |_connection, input|
         get("/bim360/rfis/v1/containers/#{input['container_id']}/rfis")&.
@@ -2235,13 +2256,15 @@
       end,
       execute: lambda do |_connection, input|
         get("/data/v1/projects/#{input['project_id']}/folders" \
-            "/#{input['folder_id']}")['data'].merge({ hub_id: input['hub_id']} ).merge({ project_id: input['project_id'] }).merge({ folder_id: input['folder_id'] })
+            "/#{input['folder_id']}")['data']&.
+          merge({ hub_id: input['hub_id'], project_id: input['project_id'],
+                  folder_id: input['folder_id'] })
       end,
       output_fields: lambda do |object_definitions|
         [
           { name: 'hub_id' },
           { name: 'project_id' },
-          { name: 'folder_id' },
+          { name: 'folder_id' }
         ].concat(object_definitions['folder_file'])
       end,
       sample_output: lambda do |_connection, input|
@@ -2314,14 +2337,17 @@
           { name: 'filters',
             label: 'Filters',
             control_type: 'text',
-            hint: 'Enter filters for the search. A list of filters can be found at https://forge.autodesk.com/en/docs/data/v2/developers_guide/filtering.',
-            optional: true
-          }
+            sticky: true,
+            hint: 'Enter filters for the search. A list of filters can be' \
+            ' found at https://forge.autodesk.com/en/docs/data/v2/' \
+            'developers_guide/filtering.' }
         ]
       end,
       execute: lambda do |_connection, input|
         get("/data/v1/projects/#{input['project_id']}/folders" \
-            "/#{input['folder_id']}/contents?#{input['filters']}").merge({ hub_id: input['hub_id'] }).merge({ project_id: input['project_id'] }).merge({ folder_id: input['folder_id']})
+            "/#{input['folder_id']}/contents?#{input['filters']}")&.
+          merge({ hub_id: input['hub_id'], project_id: input['project_id'],
+                  folder_id: input['folder_id'] })
       end,
       output_fields: lambda do |object_definitions|
         [
@@ -2422,12 +2448,13 @@
         ],
       execute: lambda do |_connection, input|
         get("/data/v1/projects/#{input['project_id']}/items/" \
-            "#{input['item_id']}").merge({ project_id: input['project_id'] }).merge({ hub_id: input['hub_id'] })
+            "#{input['item_id']}")&.
+          merge({ project_id: input['project_id'], hub_id: input['hub_id'] })
       end,
       output_fields: lambda do |object_definitions|
         [
           { name: 'hub_id' },
-          { name: 'project_id' },
+          { name: 'project_id' }
         ].concat(object_definitions['item'])
       end,
       sample_output: lambda do |_connection, input|
@@ -2644,7 +2671,7 @@
               error("#{message}: #{body}")
             end
         else
-          error("Invalid URL" )
+          error('Invalid URL')
         end
         { content: file_content }
       end,
@@ -2718,8 +2745,61 @@
         [
           { name: 'file_name', optional: false, label: 'File Name',
             hint: 'File name should include extension of the file. e.g. ' \
-            '<b>my_file.jpg</b>' },
-          { name: 'file_content', optional: false }
+            '<b>my_file.jpg</b>. The name of the file (1-255 characters). ' \
+            'Reserved characters: <, >, :, ", /, \, |, ?, *, `, \n, \r, \t,' \
+            ' \0, \f, ¢, ™, $, ®' },
+          { name: 'file_content', optional: false },
+          { name: 'file_extension', control_type: 'select',
+            pick_list: 'file_types',
+            toggle_hint: 'Select file extension',
+            toggle_field: {
+              name: 'file_extension',
+              type: 'string',
+              control_type: 'text',
+              label: 'File extension',
+              toggle_hint: 'Use custom value',
+              hint: 'Only relevant for creating files - the type of file ' \
+              'extension. <br/>. For BIM 360 Docs files, use ' \
+              'items:autodesk.bim360:File.<br/>' \
+              'For all other services, use items:autodesk.core:File.'
+            } },
+          # { name: 'resource_type', label: 'Type of the resource',
+          #   control_type: 'select', pick_list: 'resource_types',
+          #   toggle_hint: 'Select resource type',
+          #   toggle_field: {
+          #     name: 'resource_type',
+          #     label: 'Resource type',
+          #     type: 'string',
+          #     control_type: 'text',
+          #     toggle_hint: 'Use custom value',
+          #     hint: 'The type of the resource. Possible values: attachment,' \
+          #     ' overlay'
+          #   } },
+          # { name: 'file_extension_version',
+          #   hint: 'The version of the file extension type. The current ' \
+          #   'version is 1.0.' },
+          { name: 'version_type', label: 'Type of version',
+            hint: 'Only relevant for creating files - the type of version.',
+            control_type: 'select',
+            pick_list: 'version_types',
+            toggle_hint: 'Select version type',
+            toggle_field: {
+              name: 'version_type',
+              label: 'Type of version',
+              type: 'string',
+              control_type: 'text',
+              toggle_hint: 'Use custom value',
+              hint: 'Only relevant for creating files - the type of version.' \
+              '<br/>For BIM 360 Docs files, use versions:autodesk.bim360:File' \
+              '<br/>For A360 composite design files, use versions:autodesk.' \
+              'a360:CompositeDesign<br/>' \
+              'For A360 Personal, Fusion Team, or BIM 360 Team files, use' \
+              ' versions:autodesk.core:File.'
+            } },
+          { name: 'extension_type_version',
+            hint: 'The version of the version extension type. The current ' \
+            'version is 1.0 ' }
+
         ]
       end,
       execute: lambda do |_connection, input|
@@ -2758,30 +2838,47 @@
         bucket_key = object_id.split('/').first.split('object:').last
         object_name = object_id.split('/').last
         response = put('https://developer.api.autodesk.com/oss/v2/buckets/' \
-                       "#{bucket_key}/objects/#{object_name}", input['file_content'] ).
+                       "#{bucket_key}/objects/#{object_name}",
+                       input['file_content']).
                    after_error_response(/.*/) do |_code, body, _header, message|
                      error("#{message}: #{body}")
                    end
         object_urn = response['objectId']
         # 3 create a first version of the File
+        # folder_urn = get("/data/v1/projects/#{input['project_id']}/folders" \
+        #                  "/#{input['folder_id']}")['data']
         version_payload = {
           'jsonapi' => { 'version' => '1.0' },
           'data' => {
+            # type of the resource
             'type' => 'items',
+            # The attributes of the data object.
             'attributes' => {
               'displayName' => input['file_name'],
+              # Extended information on the resource.
               'extension' =>
-              { 'type' => 'items:autodesk.bim360:File', 'version' => '1.0' }
+              {
+                # relevant for creating files
+                'type' => input['file_extension'],
+                'version' => '1.0'
+              }
             },
             'relationships' => {
+              # The information on the tip version of this resource.
               'tip' => {
                 'data' => {
                   'type' => 'versions',
                   'id' => '1'
                 }
               },
+              # Information on the parent resource of this resource.
               'parent' => {
-                'data' => { 'type' => 'folders', 'id' => input['folder_id'] }
+                'data' => {
+                  'type' => 'folders',
+                  # The URN of the parent folder in which you want to create
+                  # a version of a file or to copy a file to.
+                  'id' => input['folder_id']
+                }
               }
             }
           },
@@ -2792,8 +2889,9 @@
               'attributes' => {
                 'name' => input['file_name'],
                 'extension' => {
-                  'type' => 'versions:autodesk.bim360:File', #input['object_type'],
-                  'version' => '1.0'
+                  # input['object_type']
+                  'type' => input['version_type'],
+                  'version' => input['extension_type_version'] || '1.0'
                 }
               },
               'relationships' => {
@@ -2802,18 +2900,25 @@
                     'type' => 'objects',
                     'id' => object_urn
                   }
-                }
+                } # ,
+                # 'refs' => {
+                #   'data' => {
+                #     'type' => 'versions',
+                #     'id' => 'version_urn'
+                #   }
+                # }
               }
             }
           ]
         }
-        item_id =
-          post("/data/v1/projects/#{project_id}/items").
+        # item_id =
+        post("/data/v1/projects/#{project_id}/items").
           payload(version_payload).
-          headers('Content-Type': 'application/vnd.api+json').
+          headers('Content-Type': 'application/vnd.api+json',
+                  Accept: 'application/vnd.api+json').
           after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message}: #{body}")
-          end&.dig('data').merge({ hub_id: hub_id }).merge({ project_id: project_id })
+          end&.dig('data')&.merge({ hub_id: hub_id, project_id: project_id })
         # 4 Update version of the file
         # update_version = {
         #   'jsonapi' => '1.0',
@@ -2952,7 +3057,10 @@
                       'hub_id' => hub_id }
                   end
         rfis = response['data']&.
-                 map { |o| o.merge({ project_id: project_id }).merge({ hub_id: hub_id }).merge({ container_id: container_id }) }
+               map do |o|
+                 o.merge({ project_id: project_id, hub_id: hub_id,
+                           container_id: container_id })
+               end
         {
           events: rfis || [],
           next_poll: closure,
@@ -2963,7 +3071,8 @@
         "#{rfi['id']}@#{rfi.dig('attributes', 'created_at')}"
       end,
       output_fields: lambda do |object_definitions|
-        [{ name: 'hub_id' }, { name: 'project_id' }, { name: 'container_id' }].concat(object_definitions['rfi'])
+        [{ name: 'hub_id' }, { name: 'project_id' }, { name: 'container_id' }].
+          concat(object_definitions['rfi'])
       end,
       sample_output: lambda do |_connection, input|
         project_id = input['project_id']
@@ -3066,7 +3175,10 @@
                       'updated_after' => now.to_time.utc.iso8601 }
                   end
         issues = response['data']&.
-                 map { |o| o.merge({ project_id: project_id }).merge({ hub_id: hub_id }).merge({ container_id: container_id }) }
+                 map do |o|
+                   o.merge({ project_id: project_id, hub_id: hub_id,
+                             container_id: container_id })
+                 end
         {
           events: issues || [],
           next_poll: closure,
@@ -3077,7 +3189,11 @@
         "#{issue['id']}&#{issue.dig('attributes', 'updated_at')}"
       end,
       output_fields: lambda do |object_definitions|
-        [{ name: 'hub_id' }, { name: 'project_id' }, { name: 'container_id' }].concat(object_definitions['issue']).compact
+        [
+          { name: 'hub_id' },
+          { name: 'project_id' },
+          { name: 'container_id' }
+        ].concat(object_definitions['issue']).compact
       end,
       sample_output: lambda do |_connection, input|
         project_id = input['project_id']
@@ -3093,7 +3209,8 @@
       description: 'New or updated <span class="provider">document</span> in'\
         ' a project folder in <span class="provider">BIM 360</span>',
       help: {
-        body: 'Triggers when a document in a project is created or updated in the specified folder.'
+        body: 'Triggers when a document in a project is created or updated' \
+        ' in the specified folder.'
       },
       input_fields: lambda do |_object_definitions|
         [
@@ -3181,7 +3298,10 @@
                    end
 
         items = response['data']&.
-                 map { |o| o.merge({ project_id: project_id }).merge({ hub_id: hub_id }).merge({ folder_id: folder_id }) }
+          map do |o|
+            o.merge({ project_id: project_id, hub_id: hub_id,
+                      folder_id: folder_id })
+          end
         closure = if (next_page_url = response.dig('links', 'next')).present?
                     { 'skip' => skip + limit,
                       'folder_id' => folder_id,
@@ -3207,7 +3327,8 @@
         "#{item['id']}&#{item.dig('attributes', 'lastModifiedTime')}"
       end,
       output_fields: lambda do |object_definitions|
-        [{ name: 'hub_id' }, { name: 'project_id' }, { name: 'folder_id' }].concat(object_definitions['folder_file']).
+        [{ name: 'hub_id' }, { name: 'project_id' }, { name: 'folder_id' }].
+          concat(object_definitions['folder_file']).
           compact
       end,
       sample_output: lambda do |_connection, input|
@@ -3229,7 +3350,7 @@
       ]
     end,
     folder_items: lambda do |_connection, project_id:, folder_id:|
-      if project_id.length === 38 && folder_id.present?
+      if project_id.length == 38 && folder_id.present?
         get("/data/v1/projects/#{project_id}/folders/#{folder_id}/" \
             'contents?filter[type]=items')['data']&.
           map do |item|
@@ -3245,11 +3366,23 @@
          version.dig('id')]
       end
     end,
+    version_types: lambda do |_connection|
+      [
+        ['BIM 360 Docs files', 'versions:autodesk.bim360:File'],
+        ['A360 composite design files',
+         'versions:autodesk.a360:CompositeDesign'],
+        ['A360 Personal, Fusion Team', 'versions:autodesk.core:File'],
+        ['BIM 360 Team files', 'versions:autodesk.core:File']
+      ]
+    end,
+    resource_types: lambda do |_connection|
+      %w[attachment overlay].map { |type| [type.labelize, type] }
+    end,
     folders_list: lambda do |_connection, **args|
       hub_id = args[:hub_id]
       project_id = args[:project_id]
       parent_id = args&.[](:__parent_id)
-      if project_id.length === 38
+      if project_id.length == 38
         if parent_id.present?
           get("/data/v1/projects/#{project_id}/folders/#{parent_id}/" \
               'contents?filter[type]=folders')['data']&.
@@ -3280,14 +3413,14 @@
       map { |option| [option.labelize, option] }
     end,
     project_list: lambda do |_connection, hub_id:|
-      if hub_id.length === 38
+      if hub_id.length == 38
         get("project/v1/hubs/#{hub_id}/projects")['data']&.map do |project|
           [project.dig('attributes', 'name'), project['id']]
         end
       end
     end,
     issue_container_lists: lambda do |_connection, hub_id:|
-      if hub_id.length === 38
+      if hub_id.length == 38
         get("project/v1/hubs/#{hub_id}/projects")['data']&.map do |project|
           [project.dig('attributes', 'name'),
            project.dig('relationships', 'issues', 'data', 'id')]
@@ -3295,7 +3428,7 @@
       end
     end,
     rfis_container_lists: lambda do |_connection, hub_id:|
-      if hub_id.length === 38
+      if hub_id.length == 38
         get("project/v1/hubs/#{hub_id}/projects")['data']&.map do |project|
           [project.dig('attributes', 'name'),
            project.dig('relationships', 'rfis', 'data', 'id')]
