@@ -2911,11 +2911,13 @@
             }
           ]
         }
+        user_id = get('/userprofile/v1/users/@me')['userId']
         # item_id =
         post("/data/v1/projects/#{project_id}/items").
           payload(version_payload).
           headers('Content-Type': 'application/vnd.api+json',
-                  Accept: 'application/vnd.api+json').
+                  Accept: 'application/vnd.api+json',
+                  'x-user-id': user_id).
           after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message}: #{body}")
           end&.dig('data')&.merge({ hub_id: hub_id, project_id: project_id })
