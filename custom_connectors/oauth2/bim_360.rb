@@ -2261,7 +2261,7 @@
         [
           {
             name: 'hub_id',
-            label: 'Hub name',
+            label: 'Hub Name',
             control_type: 'select',
             pick_list: 'hub_list',
             optional: false,
@@ -2277,7 +2277,7 @@
           },
           {
             name: 'project_id',
-            label: 'Project name',
+            label: 'Project Name',
             control_type: 'select',
             pick_list: 'project_list',
             pick_list_params: { hub_id: 'hub_id' },
@@ -2309,19 +2309,26 @@
               label: 'Folder ID',
               toggle_hint: 'Use Folder ID',
               hint: 'Use Folder ID'
-            } }
+            } },
+          { name: 'filters',
+            label: 'Filters',
+            control_type: 'text',
+            hint: 'Enter filters for the search. A list of filters can be found at https://forge.autodesk.com/en/docs/data/v2/developers_guide/filtering.',
+            optional: true
+          }
         ]
       end,
       execute: lambda do |_connection, input|
         get("/data/v1/projects/#{input['project_id']}/folders" \
-            "/#{input['folder_id']}/contents")
+            "/#{input['folder_id']}/contents?#{input['filters']}").merge({ hub_id: input['hub_id'] }).merge({ project_id: input['project_id'] }).merge({ folder_id: input['folder_id']})
       end,
       output_fields: lambda do |object_definitions|
         [
+          { name: 'hub_id' },
+          { name: 'project_id' },
+          { name: 'folder_id' },
           { name: 'data', type: 'array', of: 'object',
-            properties: object_definitions['folder_file'] },
-          { name: 'included', type: 'array', of: 'object',
-            properties: object_definitions['version'] }
+            properties: object_definitions['folder_file'] }
         ]
       end,
       sample_output: lambda do |_connection, input|
