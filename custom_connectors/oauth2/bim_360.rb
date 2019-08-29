@@ -2181,7 +2181,7 @@
         [
           {
             name: 'hub_id',
-            label: 'Hub name',
+            label: 'Hub Name',
             control_type: 'select',
             pick_list: 'hub_list',
             optional: false,
@@ -2197,7 +2197,7 @@
           },
           {
             name: 'project_id',
-            label: 'Project name',
+            label: 'Project Name',
             control_type: 'select',
             pick_list: 'project_list',
             pick_list_params: { hub_id: 'hub_id' },
@@ -2234,10 +2234,14 @@
       end,
       execute: lambda do |_connection, input|
         get("/data/v1/projects/#{input['project_id']}/folders" \
-            "/#{input['folder_id']}")['data']
+            "/#{input['folder_id']}")['data'].merge({ hub_id: input['hub_id']} ).merge({ project_id: input['project_id'] }).merge({ folder_id: input['folder_id'] })
       end,
       output_fields: lambda do |object_definitions|
-        object_definitions['folder_file']
+        [
+          { name: 'hub_id' },
+          { name: 'project_id' },
+          { name: 'folder_id' },
+        ].concat(object_definitions['folder_file'])
       end,
       sample_output: lambda do |_connection, input|
         get("project/v1/hubs/#{input['hub_id']}/projects/" \
