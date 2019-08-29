@@ -132,71 +132,123 @@
       fields: lambda do |_connection, _config_fields|
         [
           { name: 'id', label: 'Project ID' },
-          { name: 'account_id', label: 'Account ID' },
-          { name: 'name', label: 'Project name' },
-          { name: 'start_date', type: 'date' },
-          { name: 'end_date', type: 'date' },
-          { name: 'project_type',
-            control_type: 'select', pick_list: 'project_types',
-            toggle_hint: 'Select project type',
-            toggle_field: {
-              name: 'project_type',
-              type: 'string',
-              control_type: 'text',
-              label: 'Project type',
-              toggle_hint: 'Use custom value'
-            },
-            hint: 'Refer to the preconfigured ' \
-            "project_type list in the <a href='https://forge.autodesk." \
-            "com/en/docs/bim360/v1/overview/parameters' target= '_blank'>" \
-            'Parameters</a> guide' },
-          { name: 'value', label: 'Monetary value' },
-          { name: 'currency', control_type: 'select',
-            pick_list: 'currency_list',
-            toggle_hint: 'Select currency',
-            toggle_field: {
-              name: 'currency',
-              type: 'string',
-              control_type: 'text',
-              label: 'Project type',
-              toggle_hint: 'Use custom value'
-            } },
-          { name: 'status', control_type: 'select',
-            pick_list: 'status_list',
-            toggle_hint: 'Select status',
-            toggle_field: {
-              name: 'status',
-              type: 'string',
-              control_type: 'text',
-              label: 'Status',
-              toggle_hint: 'Use custom value'
-            } },
-          { name: 'job_number' },
-          { name: 'address_line_1' },
-          { name: 'address_line_2' },
-          { name: 'city' },
-          { name: 'state_or_province' },
-          { name: 'postal_code' },
-          { name: 'country' },
-          { name: 'postal_code' },
-          { name: 'country' },
-          { name: 'business_unit_id' },
-          { name: 'timezone', hint: 'Refer to the preconfigured ' \
-          "project_type list in the <a href='https://forge.autodesk." \
-          "com/en/docs/bim360/v1/overview/parameters' target= '_blank'>" \
-          'Parameters</a> guide' },
-          { name: 'language', control_type: 'select', pick_list:
-            [%w[English en], %w[German de]] },
-          { name: 'construction_type', hint: 'Refer to the preconfigured ' \
-            "project_type list in the <a href='https://forge.autodesk." \
-            "com/en/docs/bim360/v1/overview/parameters' target= '_blank'>" \
-            'Parameters</a> guide' },
-          { name: 'contract_type', hint: 'Refer to the preconfigured ' \
-            "project_type list in the <a href='https://forge.autodesk." \
-            "com/en/docs/bim360/v1/overview/parameters' target= '_blank'>" \
-            'Parameters</a> guide' },
-          { name: 'last_sign_in', hint: 'Timestamp of the last sign in,' \
-            ' YYYY-MM-DDThh:mm:ss.sssZ format' }
+          { name: 'type' },
+          { name: 'attributes', type: 'object', properties: [
+            { name: 'name' }
+          ]},
+          { name: 'relationships', type: 'object', properties: [
+            { name: 'hub', type: 'object', properties: [
+              { name: 'data', type: 'object', properties: [
+                { name: 'id', label: 'Hub ID' }
+              ]}
+            ]},
+            { name: 'rootFolder', type: 'object', properties: [
+              { name: 'data', type: 'object', properties: [
+                { name: 'id', label: 'Root Folder ID' }
+              ]}
+            ]},
+            { name: 'issues', type: 'object', properties: [
+              { name: 'data', type: 'object', properties: [
+                { name: 'id', label: 'Issues Container ID' }
+              ]}
+            ]},
+            { name: 'submittals', type: 'object', properties: [
+              { name: 'data', type: 'object', properties: [
+                { name: 'id', label: 'Submittals Container ID' }
+              ]}
+            ]},
+            { name: 'rfis', type: 'object', properties: [
+              { name: 'data', type: 'object', properties: [
+                { name: 'id', label: 'RFIs Container ID' }
+              ]}
+            ]},
+            { name: 'markups', type: 'object', properties: [
+              { name: 'data', type: 'object', properties: [
+                { name: 'id', label: 'Markups Container ID' }
+              ]}
+            ]},
+            { name: 'checklists', type: 'object', properties: [
+              { name: 'data', type: 'object', properties: [
+                { name: 'id', label: 'Checklists Container ID' }
+              ]}
+            ]},
+            { name: 'cost', type: 'object', properties: [
+              { name: 'data', type: 'object', properties: [
+                { name: 'id', label: 'Cost Container ID' }
+              ]}
+            ]},
+            { name: 'location', type: 'object', properties: [
+              { name: 'data', type: 'object', properties: [
+                { name: 'id', label: 'Locations Container ID' }
+              ]}
+            ]}
+          ]}
+
+          # These are not correct
+          # { name: 'name', label: 'Project name' },
+          # { name: 'start_date', type: 'date' },
+          # { name: 'end_date', type: 'date' },
+          # { name: 'project_type',
+          #   control_type: 'select', pick_list: 'project_types',
+          #   toggle_hint: 'Select project type',
+          #   toggle_field: {
+          #     name: 'project_type',
+          #     type: 'string',
+          #     control_type: 'text',
+          #     label: 'Project type',
+          #     toggle_hint: 'Use custom value'
+          #   },
+          #   hint: 'Refer to the preconfigured ' \
+          #   "project_type list in the <a href='https://forge.autodesk." \
+          #   "com/en/docs/bim360/v1/overview/parameters' target= '_blank'>" \
+          #   'Parameters</a> guide' },
+          # { name: 'value', label: 'Monetary value' },
+          # { name: 'currency', control_type: 'select',
+          #   pick_list: 'currency_list',
+          #   toggle_hint: 'Select currency',
+          #   toggle_field: {
+          #     name: 'currency',
+          #     type: 'string',
+          #     control_type: 'text',
+          #     label: 'Project type',
+          #     toggle_hint: 'Use custom value'
+          #   } },
+          # { name: 'status', control_type: 'select',
+          #   pick_list: 'status_list',
+          #   toggle_hint: 'Select status',
+          #   toggle_field: {
+          #     name: 'status',
+          #     type: 'string',
+          #     control_type: 'text',
+          #     label: 'Status',
+          #     toggle_hint: 'Use custom value'
+          #   } },
+          # { name: 'job_number' },
+          # { name: 'address_line_1' },
+          # { name: 'address_line_2' },
+          # { name: 'city' },
+          # { name: 'state_or_province' },
+          # { name: 'postal_code' },
+          # { name: 'country' },
+          # { name: 'postal_code' },
+          # { name: 'country' },
+          # { name: 'business_unit_id' },
+          # { name: 'timezone', hint: 'Refer to the preconfigured ' \
+          # "project_type list in the <a href='https://forge.autodesk." \
+          # "com/en/docs/bim360/v1/overview/parameters' target= '_blank'>" \
+          # 'Parameters</a> guide' },
+          # { name: 'language', control_type: 'select', pick_list:
+          #   [%w[English en], %w[German de]] },
+          # { name: 'construction_type', hint: 'Refer to the preconfigured ' \
+          #   "project_type list in the <a href='https://forge.autodesk." \
+          #   "com/en/docs/bim360/v1/overview/parameters' target= '_blank'>" \
+          #   'Parameters</a> guide' },
+          # { name: 'contract_type', hint: 'Refer to the preconfigured ' \
+          #   "project_type list in the <a href='https://forge.autodesk." \
+          #   "com/en/docs/bim360/v1/overview/parameters' target= '_blank'>" \
+          #   'Parameters</a> guide' },
+          # { name: 'last_sign_in', hint: 'Timestamp of the last sign in,' \
+          #   ' YYYY-MM-DDThh:mm:ss.sssZ format' }
         ]
       end
     },
