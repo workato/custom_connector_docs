@@ -61,8 +61,9 @@
           request_format_www_form_urlencoded
       end,
       apply: lambda do |_connection, access_token|
-        headers(Authorization: "Bearer #{access_token}",
-                'Content-Type': 'application/vnd.api+json')
+        headers(Authorization: "Bearer #{access_token}")
+#         headers(Authorization: "Bearer #{access_token}",
+#                 'Content-Type': 'application/vnd.api+json')
       end
     },
     base_uri: lambda do |_connection|
@@ -2435,17 +2436,13 @@
       end
     },
     get_drawing_export_status: {
-      title: 'Get drwaing export status in a project',
+      title: 'Get drawaing export status in a project',
       description: 'Get <span class="provider">drwaing export status</span> in'\
         ' a project in <span class="provider">BIM 360</span>',
       help: {
         body: 'This action returns the status of a PDF export job, as well' \
         '  as data you need to download the exported file when the export is ' \
-        'complete. Get export job status action uses the' \
-        " <a href='https://forge.autodesk.com/en/docs/bim360/v1/reference/" \
-        'http/document-management-projects-project_id-versions-version_id' \
-        "-exports-export_id-GET/' " \
-        "target='_blank'>Get export job</a> API."
+        'complete.'
       },
       config_fields:
         [
@@ -2519,21 +2516,22 @@
             }
           },
           {
-            name: 'version_number',
+            name: 'version_urn',
             control_type: 'select',
+            label: 'Version number',
             pick_list: 'item_versions',
             sticky: true,
             pick_list_params: { project_id: 'project_id', item_id: 'item_id' },
             optional: true,
             toggle_hint: 'Select version',
             toggle_field: {
-              name: 'version_number',
-              label: 'Version number',
-              type: 'integer',
-              control_type: 'number',
+              name: 'version_urn',
+              label: 'Version URN',
+              type: 'string',
+              control_type: 'text',
               optional: true,
               toggle_hint: 'Use custom value',
-              hint: 'Use version number'
+              hint: 'Use version number e.g. e7e2a39a-2ead-4dcd-9760-5f7af'
             }
           }
         ],
@@ -2543,12 +2541,13 @@
         ]
       end,
       execute: lambda do |_connection, input|
-        version_number = input['version_number'] || get('/data/v1/projects/' \
+        version_number = input['version_urn'] || get('/data/v1/projects/' \
           "#{input['project_id']}/items/#{input['item_id']}/" \
             'versions')&.dig('data', 0, 'id')
-        version_url = version_number.encode_url
+        version_url = version_number.split('?').first.encode_url
         # version_url = version_number.encode_url
-        get("/bim360/docs/v1/projects/#{input['project_id']}/versions/" \
+        project_id = input['project_id'].split('.').last
+        get("/bim360/docs/v1/projects/#{project_id}/versions/" \
           "#{version_url}/exports/#{input['export_id']}")
       end,
       output_fields: lambda do |object_definitions|
