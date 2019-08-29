@@ -2127,7 +2127,7 @@
         [
           {
             name: 'hub_id',
-            label: 'Hub name',
+            label: 'Hub Name',
             control_type: 'select',
             pick_list: 'hub_list',
             optional: false,
@@ -2143,7 +2143,7 @@
           },
           {
             name: 'project_id',
-            label: 'Project name',
+            label: 'Project Name',
             control_type: 'select',
             pick_list: 'project_list',
             pick_list_params: { hub_id: 'hub_id' },
@@ -2160,7 +2160,7 @@
             }
           },
           { name: 'folder_id',
-            label: 'Folder name',
+            label: 'Folder Name',
             control_type: 'tree',
             hint: 'Select folder',
             toggle_hint: 'Select Folder',
@@ -2211,11 +2211,41 @@
               toggle_hint: 'Use custom value',
               hint: 'Use version number'
             }
+          },
+          {
+            name: 'includeMarkups', control_type: 'checkbox',
+            type: 'boolean', label: 'Include Markups',
+            sticky: true,
+            hint: 'Include markups in the export',
+            toggle_hint: 'Select from options list',
+            toggle_field: {
+              name: 'includeMarkups',
+              label: 'Include Markups',
+              type: 'string',
+              control_type: 'text',
+              toggle_hint: 'Use custom value',
+              hint: 'Allowed values are <b>true, false</b>.'
+            }
+          },
+          {
+            name: 'includeHyperlinks', control_type: 'checkbox',
+            type: 'boolean', label: 'Include Hyperlinks',
+            sticky: true,
+            hint: 'Include hyperlinks in the export',
+            toggle_hint: 'Select from options list',
+            toggle_field: {
+              name: 'includeHyperlinks',
+              label: 'Include Hyperlinks',
+              type: 'string',
+              control_type: 'text',
+              toggle_hint: 'Use custom value',
+              hint: 'Allowed values are <b>true, false</b>.'
+            }
           }
         ],
       execute: lambda do |_connection, input|
         #  Step 1 find the version id of the file to export
-        input.delete('hub_id')
+        hub_id = input.delete('hub_id')
         input.delete('folder_id')
         version_number = input['version_number'] || get('/data/v1/projects/' \
           "#{input['project_id']}/items/#{input['item_id']}/" \
@@ -2223,14 +2253,29 @@
         version_url = version_number.encode_url
         # Step 2 upload the file
         project_id = input.delete('project_id').gsub('b.', '')
+          item_id = input.delete('item_id')
+        # create payload with `true`/`false` booleans
+        input_payload = {}
+        input&.map do |key, value|
+            if value.to_s.downcase === 'true'
+              input_payload[key] = true
+            else
+              input_payload[key] = false
+            end
+          end
         post("/bim360/docs/v1/projects/#{project_id}/versions" \
           "/#{version_url}/exports").
+          payload(input_payload).
+          headers('content-type': 'application/json').
           after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message}: #{body}")
-          end
+          end&.merge({ hub_id: hub_id }).merge({ project_id: 'b.' + project_id }).merge({ item_id: item_id })
       end,
       output_fields: lambda do |_object_definitions|
         [
+          { name: 'hub_id' },
+          { name: 'project_id' },
+          { name: 'item_id' },
           { name: 'id', label: 'Export ID' },
           { name: 'status' }
         ]
