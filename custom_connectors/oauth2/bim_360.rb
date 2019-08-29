@@ -1702,7 +1702,7 @@
         [
           {
             name: 'hub_id',
-            label: 'Hub name',
+            label: 'Hub Name',
             control_type: 'select',
             pick_list: 'hub_list',
             optional: false,
@@ -1718,7 +1718,7 @@
           },
           {
             name: 'project_id',
-            label: 'Project name',
+            label: 'Project Name',
             control_type: 'select',
             pick_list: 'project_list',
             pick_list_params: { hub_id: 'hub_id' },
@@ -1749,80 +1749,6 @@
       sample_output: lambda do |_connection, _input|
         id = get('/project/v1/hubs')&.dig('data', 0)&.[]('id')
         get("/project/v1/hubs/#{id}/projects")&.dig('data', 0) || {}
-      end
-    },
-    search_projects_in_account: {
-      title: 'Search projects in account',
-      description: 'Search <span class="provider">projects</span> details in'\
-        ' <span class="provider">BIM 360</span>',
-      help: {
-        body: 'Returns a collection of projects for a given hub_id. A ' \
-        'project represents a BIM 360 Team project, a Fusion Team project,' \
-        ' a BIM 360 Docs project, or an A360 Personal project. Multiple ' \
-        'projects can be created within a single hub.<br/>' \
-        'Note that for BIM 360 Docs, a hub ID corresponds to an account ID' \
-        ' in the BIM 360 API. To convert an account ID into a hub ID you need' \
-        ' to add a “b.” prefix. For example, an account ID of c8b0c73d-3ae9' \
-        ' translates to a hub ID of b.c8b0c73d-3ae9.'
-      },
-      input_fields: lambda do |_object_definitions|
-        [
-          {
-            name: 'hub_id',
-            label: 'Hub name',
-            control_type: 'select',
-            pick_list: 'hub_list',
-            optional: false,
-            toggle_hint: 'Select hub',
-            toggle_field: {
-              name: 'hub_id',
-              label: 'Hub ID',
-              type: 'string',
-              control_type: 'text',
-              toggle_hint: 'Use custom value',
-              hint: 'Provide hub id e.g. b.baf-0871-4aca-82e8-3dd6db00'
-            }
-          },
-          {
-            name: 'id',
-            label: 'Project name',
-            control_type: 'multiselect',
-            pick_list: 'project_list',
-            pick_list_params: { hub_id: 'hub_id' },
-            optional: false,
-            toggle_hint: 'Select project',
-            toggle_field: {
-              name: 'id',
-              label: 'Project IDs',
-              type: 'string',
-              control_type: 'text',
-              toggle_hint: 'Use custom value',
-              hint:
-              'Provide multiple ID\'s as comma separated e.g. ' \
-              '<b>b.baf-0871-4aca-82e8-3dd6db00,b.baf-0871-4aca-' \
-              '82e8-3dd6db01</b>'
-            }
-          },
-          { name: 'type', label: 'Project type',
-            sticky: true,
-            hint: 'Provide the project type e.g. for Project i.e. ' \
-            '<b>projects:autodesk.bim360:Project</b>' }
-        ]
-      end,
-      execute: lambda do |_connection, input|
-        filter = { 'filter[id]' => input['id'],
-                   'filter[extension.type]' => input['type'] }.compact
-        { projects: get("/project/v1/hubs/#{input.delete('hub_id')}/projects/",
-                        filter)['data'] }
-      end,
-      output_fields: lambda do |object_definitions|
-        [{ name: 'projects', type: 'array', of: 'object',
-           properties: object_definitions['project'] }]
-      end,
-      sample_output: lambda do |_connection, _input|
-        id = get('/project/v1/hubs')&.dig('data', 0)&.[]('id')
-        { projects: get("/project/v1/hubs/#{id}/projects")&.
-          dig('data', 0) || {} }
       end
     },
     search_rfis_in_project: {
