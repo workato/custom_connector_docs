@@ -1067,31 +1067,31 @@
     folder_file: {
       fields: lambda do |_connection, _config_fields|
         [
-          { name: 'type' },
-          { name: 'id' },
+          { name: 'id', label: 'Item ID' },
+          { name: 'type', label: 'Item Type' },
           { name: 'attributes', type: 'object', properties: [
-            { name: 'type' },
-            { name: 'name' },
-            { name: 'displayName' },
-            { name: 'createTime', type: 'date_time' },
-            { name: 'createUserId' },
-            { name: 'createUserName' },
-            { name: 'lastModifiedTime', type: 'date_time' },
-            { name: 'lastModifiedUserId' },
-            { name: 'lastModifiedUserName' },
-            { name: 'lastModifiedTimeRollup', type: 'date_time' },
-            { name: 'objectCount', type: 'integer' },
+            # { name: 'type' },
+            # { name: 'name' },
+            { name: 'displayName', label: 'Name' },
+            { name: 'createTime', label: 'Created at', type: 'date_time' },
+            { name: 'createUserId', label: 'Created by (User ID)' },
+            { name: 'createUserName', label: 'Created by (User Name)' },
+            { name: 'lastModifiedTime', label: 'Last modified at', type: 'date_time' },
+            { name: 'lastModifiedUserId', label: 'Last modified by (User ID)' },
+            { name: 'lastModifiedUserName', label: 'Last modified by (User Name)' },
+            #{ name: 'lastModifiedTimeRollup', type: 'date_time' },
+            #{ name: 'objectCount', type: 'integer' },
             { name: 'hidden', type: 'boolean', control_type: 'checkbox' },
             { name: 'reserved', type: 'boolean', control_type: 'checkbox' },
             { name: 'extension', type: 'object', properties: [
-              { name: 'type' },
-              { name: 'version' },
-              { name: 'data', type: 'object', properties: [
-                { name: 'sourceFileName', hint: 'Applicable for file' },
-                { name: 'visibleTypes', hint: 'Array of strings' },
-                { name: 'actions', hint: 'Array of strings' },
-                { name: 'allowedTypes', hint: 'Array of strings' }
-              ] }
+              #{ name: 'type' },
+              { name: 'version' } #,
+              #{ name: 'data', type: 'object', properties: [
+                #{ name: 'sourceFileName', hint: 'Applicable for file' },
+                #{ name: 'visibleTypes', hint: 'Array of strings' },
+                #{ name: 'actions', hint: 'Array of strings' },
+                #{ name: 'allowedTypes', hint: 'Array of strings' }
+              #] }
             ] }
           ] }
         ]
