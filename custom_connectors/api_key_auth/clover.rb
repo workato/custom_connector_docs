@@ -121,8 +121,8 @@
                       {
                         name: 'data',
                         type: 'object',
-                        properties: input_schema
-                          .each { |field| field[:sticky] = true }
+                        properties: input_schema.
+                          each { |field| field[:sticky] = true }
                       }
                     end
                   )
@@ -152,43 +152,21 @@
       fields: lambda do |_connection, _config_fields|
         [
           {
-            control_type: 'text',
-            label: 'ID',
-            type: 'string',
             name: 'id',
-            sticky: true
+            sticky: true,
+            hint: 'Employee ID'
           },
           {
-            control_type: 'text',
-            label: 'Name',
-            type: 'string',
             name: 'name',
             sticky: true
           },
-          {
-            control_type: 'text',
-            label: 'Nickname',
-            type: 'string',
-            name: 'nickname'
-          },
-          {
-            control_type: 'text',
-            label: 'Custom ID',
-            type: 'string',
-            name: 'customId'
-          },
-          {
-            control_type: 'email',
-            label: 'Email',
-            type: 'string',
-            name: 'email'
-          },
+          { name: 'nickname' },
+          { name: 'customId', hint: 'Custom ID of the employee' },
+          { name: 'email' },
           {
             control_type: 'checkbox',
-            label: 'Invite sent',
             toggle_hint: 'Select from option list',
             toggle_field: {
-              label: 'Invite sent',
               control_type: 'text',
               toggle_hint: 'Use custom value',
               type: 'boolean',
@@ -198,33 +176,27 @@
             name: 'inviteSent'
           },
           {
-            label: 'Claimed time',
             name: 'claimedTime',
             control_type: 'date_time',
             hint: 'Timestamp of when this employee claimed their account',
             type: 'number'
           },
           {
-            control_type: 'text',
             label: 'PIN',
-            type: 'string',
             hint: 'Employee PIN',
             name: 'pin'
           },
           {
             control_type: 'select',
             pick_list: 'roles',
-            label: 'Role',
             toggle_hint: 'Select from option list',
             toggle_field: {
-              label: 'Role',
               hint: "Valid values: 'EMPLOYEE', 'ADMIN', 'MANAGER', 'OWNER'",
               control_type: 'text',
               toggle_hint: 'Use custom value',
               type: 'string',
               name: 'role'
             },
-            type: 'string',
             name: 'role'
           },
           {
@@ -233,37 +205,16 @@
                 name: 'elements',
                 type: 'array',
                 of: 'object',
-                label: 'Elements',
                 properties: [
                   {
-                    control_type: 'text',
                     label: 'HREF',
-                    type: 'string',
                     name: 'href'
                   },
-                  {
-                    control_type: 'text',
-                    label: 'ID',
-                    type: 'string',
-                    name: 'id'
-                  },
-                  {
-                    control_type: 'text',
-                    label: 'Name',
-                    type: 'string',
-                    name: 'name'
-                  },
-                  {
-                    control_type: 'text',
-                    label: 'System role',
-                    type: 'string',
-                    name: 'systemRole'
-                  },
+                  { name: 'id' },
+                  { name: 'name' },
+                  { name: 'systemRole' },
                   {
                     properties: [{
-                      control_type: 'text',
-                      label: 'ID',
-                      type: 'string',
                       name: 'id',
                       sticky: true
                     }],
@@ -274,16 +225,13 @@
                 ]
               }
             ],
-            label: 'Roles',
             type: 'object',
             name: 'roles'
           },
           {
             control_type: 'checkbox',
-            label: 'Is owner',
             toggle_hint: 'Select from option list',
             toggle_field: {
-              label: 'Is owner',
               control_type: 'text',
               toggle_hint: 'Use custom value',
               type: 'boolean',
@@ -295,26 +243,19 @@
           },
           {
             properties: [{
-              control_type: 'text',
-              label: 'ID',
-              type: 'string',
               name: 'id',
               sticky: true
             }],
-            label: 'Shifts',
             type: 'object',
             name: 'shifts'
           },
           {
             properties: [
               {
-                control_type: 'text',
                 label: 'HREF',
-                type: 'string',
                 name: 'href'
               }
             ],
-            label: 'Orders',
             type: 'object',
             name: 'orders'
           }
@@ -325,47 +266,32 @@
     shift: {
       fields: lambda do |_connection, _config_fields|
         [
-          {
-            control_type: 'text',
-            label: 'ID',
-            type: 'string',
-            name: 'id'
-          },
+          { name: 'id' },
           {
             properties: [
               {
-                control_type: 'text',
                 label: 'HREF',
-                type: 'string',
                 name: 'href'
               },
               {
-                control_type: 'text',
-                label: 'ID',
-                type: 'string',
                 name: 'id',
                 sticky: true
               },
               {
                 properties: [
                   {
-                    control_type: 'text',
                     label: 'HREF',
-                    type: 'string',
                     name: 'href'
                   }
                 ],
-                label: 'Orders',
                 type: 'object',
                 name: 'orders'
               }
             ],
-            label: 'Employee',
             type: 'object',
             name: 'employee'
           },
           {
-            label: 'In time',
             name: 'inTime',
             control_type: 'date_time',
             type: 'number'
@@ -426,46 +352,23 @@
           },
           {
             properties: [
-              {
-                control_type: 'text',
-                label: 'Role',
-                type: 'string',
-                name: 'role'
-              },
+              { name: 'role' },
               {
                 name: 'roles',
                 type: 'array',
                 of: 'object',
-                label: 'Roles',
-                properties: [
-                  {
-                    control_type: 'text',
-                    label: 'ID',
-                    type: 'string',
-                    name: 'id'
-                  }
-                ]
+                properties: [{ name: 'id' }]
               },
               {
                 name: 'payments',
                 type: 'array',
                 of: 'object',
-                label: 'Payments',
-                properties: [
-                  {
-                    control_type: 'text',
-                    label: 'ID',
-                    type: 'string',
-                    name: 'id'
-                  }
-                ]
+                properties: [{ name: 'id' }]
               },
               {
                 control_type: 'checkbox',
-                label: 'Invite sent',
                 toggle_hint: 'Select from option list',
                 toggle_field: {
-                  label: 'Invite sent',
                   control_type: 'text',
                   toggle_hint: 'Use custom value',
                   type: 'boolean',
@@ -475,22 +378,12 @@
                 name: 'inviteSent'
               },
               {
-                properties: [
-                  {
-                    control_type: 'text',
-                    label: 'ID',
-                    type: 'string',
-                    name: 'id'
-                  }
-                ],
-                label: 'Merchant',
+                properties: [{ name: 'id' }],
                 type: 'object',
                 name: 'merchant'
               },
               {
-                control_type: 'text',
                 label: 'Custom ID',
-                type: 'string',
                 name: 'customId'
               },
               {
@@ -508,17 +401,13 @@
                 ]
               },
               {
-                control_type: 'text',
                 label: 'PIN',
-                type: 'string',
                 name: 'pin'
               },
               {
                 control_type: 'checkbox',
-                label: 'Is owner',
                 toggle_hint: 'Select from option list',
                 toggle_field: {
-                  label: 'Is owner',
                   control_type: 'text',
                   toggle_hint: 'Use custom value',
                   type: 'boolean',
@@ -530,121 +419,55 @@
               },
               {
                 control_type: 'date_time',
-                label: 'Claimed time',
                 type: 'number',
                 name: 'claimedTime'
               },
-              {
-                control_type: 'text',
-                label: 'name',
-                type: 'string',
-                name: 'name'
-              },
-              {
-                control_type: 'text',
-                label: 'Nickname',
-                type: 'string',
-                name: 'nickname'
-              },
+              { name: 'name' },
+              { name: 'nickname' },
               {
                 name: 'shifts',
                 type: 'array',
                 of: 'object',
-                label: 'Shifts',
-                properties: [
-                  {
-                    control_type: 'text',
-                    label: 'ID',
-                    type: 'string',
-                    name: 'id'
-                  }
-                ]
+                properties: [{ name: 'id' }]
               },
-              {
-                control_type: 'text',
-                label: 'Unhashed PIN',
-                type: 'string',
-                name: 'unhashedPin'
-              },
+              { name: 'unhashedPin', label: 'Unhashed PIN' },
               {
                 name: 'orders',
                 type: 'array',
                 of: 'object',
-                label: 'Orders',
-                properties: [
-                  {
-                    control_type: 'text',
-                    label: 'ID',
-                    type: 'string',
-                    name: 'id'
-                  }
-                ]
+                properties: [{ name: 'id' }]
               },
-              {
-                control_type: 'text',
-                label: 'ID',
-                type: 'string',
-                name: 'id'
-              },
+              { name: 'id' },
               {
                 control_type: 'date_time',
-                label: 'Deleted time',
                 type: 'number',
                 name: 'deletedTime'
               },
-              {
-                control_type: 'text',
-                label: 'Email',
-                type: 'string',
-                name: 'email'
-              }
+              { name: 'email' }
             ],
-            label: 'Override in employee',
             type: 'object',
-            name: 'overrideInEmployee'
+            name: 'overrideInEmployee',
+            hint: 'The employee who overrode the clock in time'
           },
           {
             properties: [
-              {
-                control_type: 'text',
-                label: 'Role',
-                type: 'string',
-                name: 'role'
-              },
+              { name: 'role' },
               {
                 name: 'roles',
                 type: 'array',
                 of: 'object',
-                label: 'Roles',
-                properties: [
-                  {
-                    control_type: 'text',
-                    label: 'ID',
-                    type: 'string',
-                    name: 'id'
-                  }
-                ]
+                properties: [{ name: 'id' }]
               },
               {
                 name: 'payments',
                 type: 'array',
                 of: 'object',
-                label: 'Payments',
-                properties: [
-                  {
-                    control_type: 'text',
-                    label: 'ID',
-                    type: 'string',
-                    name: 'id'
-                  }
-                ]
+                properties: [{ name: 'id' }]
               },
               {
                 control_type: 'checkbox',
-                label: 'Invite sent',
                 toggle_hint: 'Select from option list',
                 toggle_field: {
-                  label: 'Invite sent',
                   control_type: 'text',
                   toggle_hint: 'Use custom value',
                   type: 'boolean',
@@ -654,50 +477,22 @@
                 name: 'inviteSent'
               },
               {
-                properties: [
-                  {
-                    control_type: 'text',
-                    label: 'ID',
-                    type: 'string',
-                    name: 'id'
-                  }
-                ],
-                label: 'Merchant',
+                properties: [{ name: 'id' }],
                 type: 'object',
                 name: 'merchant'
               },
-              {
-                control_type: 'text',
-                label: 'Custom ID',
-                type: 'string',
-                name: 'customId'
-              },
+              { name: 'customId' },
               {
                 name: 'employeeCards',
                 type: 'array',
                 of: 'object',
-                label: 'Employee cards',
-                properties: [
-                  {
-                    control_type: 'text',
-                    label: 'ID',
-                    type: 'string',
-                    name: 'id'
-                  }
-                ]
+                properties: [{ name: 'id' }]
               },
-              {
-                control_type: 'text',
-                label: 'PIN',
-                type: 'string',
-                name: 'pin'
-              },
+              { name: 'pin' },
               {
                 control_type: 'checkbox',
-                label: 'Is owner',
                 toggle_hint: 'Select from option list',
                 toggle_field: {
-                  label: 'Is owner',
                   control_type: 'text',
                   toggle_hint: 'Use custom value',
                   type: 'boolean',
@@ -709,121 +504,55 @@
               },
               {
                 control_type: 'date_time',
-                label: 'Claimed time',
                 type: 'number',
                 name: 'claimedTime'
               },
-              {
-                control_type: 'text',
-                label: 'name',
-                type: 'string',
-                name: 'name'
-              },
-              {
-                control_type: 'text',
-                label: 'Nickname',
-                type: 'string',
-                name: 'nickname'
-              },
+              { name: 'name' },
+              { name: 'nickname' },
               {
                 name: 'shifts',
                 type: 'array',
                 of: 'object',
-                label: 'Shifts',
-                properties: [
-                  {
-                    control_type: 'text',
-                    label: 'ID',
-                    type: 'string',
-                    name: 'id'
-                  }
-                ]
+                properties: [{ name: 'id' }]
               },
-              {
-                control_type: 'text',
-                label: 'Unhashed PIN',
-                type: 'string',
-                name: 'unhashedPin'
-              },
+              { name: 'unhashedPin' },
               {
                 name: 'orders',
                 type: 'array',
                 of: 'object',
-                label: 'Orders',
-                properties: [
-                  {
-                    control_type: 'text',
-                    label: 'ID',
-                    type: 'string',
-                    name: 'id'
-                  }
-                ]
+                properties: [{ name: 'id' }]
               },
-              {
-                control_type: 'text',
-                label: 'ID',
-                type: 'string',
-                name: 'id'
-              },
+              { name: 'id' },
               {
                 control_type: 'date_time',
-                label: 'Deleted time',
                 type: 'number',
                 name: 'deletedTime'
               },
-              {
-                control_type: 'text',
-                label: 'Email',
-                type: 'string',
-                name: 'email'
-              }
+              { name: 'email' }
             ],
-            label: 'Override out employee',
             type: 'object',
-            name: 'overrideOutEmployee'
+            name: 'overrideOutEmployee',
+            hint: 'The employee who overrode the clock out time'
           },
           {
             properties: [
-              {
-                control_type: 'text',
-                label: 'Role',
-                type: 'string',
-                name: 'role'
-              },
+              { name: 'role' },
               {
                 name: 'roles',
                 type: 'array',
                 of: 'object',
-                label: 'Roles',
-                properties: [
-                  {
-                    control_type: 'text',
-                    label: 'ID',
-                    type: 'string',
-                    name: 'id'
-                  }
-                ]
+                properties: [{ name: 'id' }]
               },
               {
                 name: 'payments',
                 type: 'array',
                 of: 'object',
-                label: 'Payments',
-                properties: [
-                  {
-                    control_type: 'text',
-                    label: 'ID',
-                    type: 'string',
-                    name: 'id'
-                  }
-                ]
+                properties: [{ name: 'id' }]
               },
               {
                 control_type: 'checkbox',
-                label: 'Invite sent',
                 toggle_hint: 'Select from option list',
                 toggle_field: {
-                  label: 'Invite sent',
                   control_type: 'text',
                   toggle_hint: 'Use custom value',
                   type: 'boolean',
@@ -833,50 +562,22 @@
                 name: 'inviteSent'
               },
               {
-                properties: [
-                  {
-                    control_type: 'text',
-                    label: 'ID',
-                    type: 'string',
-                    name: 'id'
-                  }
-                ],
-                label: 'Merchant',
+                properties: [{ name: 'id' }],
                 type: 'object',
                 name: 'merchant'
               },
-              {
-                control_type: 'text',
-                label: 'Custom ID',
-                type: 'string',
-                name: 'customId'
-              },
+              { name: 'customId' },
               {
                 name: 'employeeCards',
                 type: 'array',
                 of: 'object',
-                label: 'Employee cards',
-                properties: [
-                  {
-                    control_type: 'text',
-                    label: 'ID',
-                    type: 'string',
-                    name: 'id'
-                  }
-                ]
+                properties: [{ name: 'id' }]
               },
-              {
-                control_type: 'text',
-                label: 'PIN',
-                type: 'string',
-                name: 'pin'
-              },
+              { name: 'pin' },
               {
                 control_type: 'checkbox',
-                label: 'Is owner',
                 toggle_hint: 'Select from option list',
                 toggle_field: {
-                  label: 'Is owner',
                   control_type: 'text',
                   toggle_hint: 'Use custom value',
                   type: 'boolean',
@@ -888,40 +589,19 @@
               },
               {
                 control_type: 'date_time',
-                label: 'Claimed time',
                 type: 'number',
                 name: 'claimedTime'
               },
-              {
-                control_type: 'text',
-                label: 'name',
-                type: 'string',
-                name: 'name'
-              },
-              {
-                control_type: 'text',
-                label: 'Nickname',
-                type: 'string',
-                name: 'nickname'
-              },
+              { name: 'name' },
+              { name: 'nickname' },
               {
                 name: 'shifts',
                 type: 'array',
                 of: 'object',
-                label: 'Shifts',
-                properties: [
-                  {
-                    control_type: 'text',
-                    label: 'ID',
-                    type: 'string',
-                    name: 'id'
-                  }
-                ]
+                properties: [{ name: 'id' }]
               },
               {
-                control_type: 'text',
                 label: 'Unhashed PIN',
-                type: 'string',
                 name: 'unhashedPin'
               },
               {
@@ -938,59 +618,45 @@
                   }
                 ]
               },
-              {
-                control_type: 'text',
-                label: 'ID',
-                type: 'string',
-                name: 'id'
-              },
+              { name: 'id' },
               {
                 control_type: 'date_time',
-                label: 'Deleted time',
                 type: 'number',
                 name: 'deletedTime'
               },
-              {
-                control_type: 'text',
-                label: 'Email',
-                type: 'string',
-                name: 'email'
-              }
+              { name: 'email' }
             ],
-            label: 'Employee',
             type: 'object',
-            name: 'employee'
+            name: 'employee',
+            hint: 'The employee that worked this shift'
           },
           {
-            label: 'In time',
             name: 'inTime',
             sticky: true,
             control_type: 'date_time',
             type: 'number'
           },
           {
-            label: 'Override In time',
             name: 'overrideInTime',
             sticky: true,
             control_type: 'date_time',
-            type: 'number'
+            type: 'number',
+            hint: 'Overridden clock in time'
           },
           {
-            label: 'Out time',
             name: 'outTime',
             sticky: true,
             control_type: 'date_time',
             type: 'number'
           },
           {
-            label: 'Override Out time',
             name: 'overrideOutTime',
             sticky: true,
             control_type: 'date_time',
-            type: 'number'
+            type: 'number',
+            hint: 'Overridden clock out time'
           },
           {
-            label: 'Cash tips collected',
             name: 'cashTipsCollected',
             sticky: true,
             control_type: 'integer',
@@ -999,10 +665,8 @@
           },
           {
             control_type: 'checkbox',
-            label: 'Server banking',
             toggle_hint: 'Select from option list',
             toggle_field: {
-              label: 'Server banking',
               control_type: 'text',
               toggle_hint: 'Use custom value',
               type: 'boolean',
@@ -1011,6 +675,138 @@
             type: 'boolean',
             hint: 'Whether the employee used server banking',
             name: 'serverBanking'
+          }
+        ]
+      end
+    },
+
+    orders: {
+      fields: lambda do |_connection, _config_fields|
+        [
+          {
+            control_type: 'number', type: 'integer',
+            name: 'clientCreatedTime'
+          },
+          {
+            control_type: 'number', type: 'integer',
+            name: 'createdTime'
+          },
+          { name: 'currency' },
+          {
+            properties: [{ name: 'id' }],
+            type: 'object',
+            name: 'employee'
+          },
+          {
+            name: 'groupLineItems',
+            type: 'boolean',
+            control_type: 'checkbox',
+            render_input: 'boolean_conversion',
+            parse_output: 'boolean_conversion',
+            toggle_hint: 'Select from list',
+            toggle_field:
+              { name: 'groupLineItems',
+                type: 'boolean',
+                control_type: 'text',
+                optional: true,
+                render_input: 'boolean_conversion',
+                parse_output: 'boolean_conversion',
+                toggle_hint: 'Use custom value',
+                hint: 'Allowed values are true or false' }
+          },
+          { name: 'href', label: 'HREF' },
+          { name: 'id' },
+          {
+            name: 'isVat',
+            type: 'boolean',
+            control_type: 'checkbox',
+            render_input: 'boolean_conversion',
+            parse_output: 'boolean_conversion',
+            toggle_hint: 'Select from list',
+            toggle_field:
+              { name: 'isVat',
+                type: 'boolean',
+                control_type: 'text',
+                optional: true,
+                render_input: 'boolean_conversion',
+                parse_output: 'boolean_conversion',
+                toggle_hint: 'Use custom value',
+                hint: 'Allowed values are true or false' }
+          },
+          {
+            name: 'manualTransaction',
+            type: 'boolean',
+            control_type: 'checkbox',
+            render_input: 'boolean_conversion',
+            parse_output: 'boolean_conversion',
+            toggle_hint: 'Select from list',
+            toggle_field:
+              { name: 'manualTransaction',
+                type: :boolean,
+                control_type: 'text',
+                optional: true,
+                render_input: 'boolean_conversion',
+                parse_output: 'boolean_conversion',
+                toggle_hint: 'Use custom value',
+                hint: 'Allowed values are true or false' }
+          },
+          {
+            control_type: 'number',
+            type: 'integer',
+            name: 'modifiedTime'
+          },
+          {
+            name: 'payType',
+            control_type: 'select',
+            pick_list: 'pay_type',
+            toggle_hint: 'Select from list',
+            toggle_field:
+              { name: 'payType',
+                label: 'Pay type',
+                type: :string,
+                control_type: 'text',
+                toggle_hint: 'Use custom value' }
+          },
+          { name: 'state' },
+          {
+            name: 'taxRemoved',
+            type: 'boolean',
+            control_type: 'checkbox',
+            render_input: 'boolean_conversion',
+            parse_output: 'boolean_conversion',
+            toggle_hint: 'Select from list',
+            toggle_field:
+              { name: 'taxRemoved',
+                type: :boolean,
+                control_type: 'text',
+                optional: true,
+                render_input: 'boolean_conversion',
+                parse_output: 'boolean_conversion',
+                toggle_hint: 'Use custom value',
+                hint: 'Allowed values are true or false' }
+          },
+          {
+            name: 'testMode',
+            type: 'boolean',
+            control_type: 'checkbox',
+            render_input: 'boolean_conversion',
+            parse_output: 'boolean_conversion',
+            toggle_hint: 'Select from list',
+            toggle_field:
+              { name: 'testMode',
+                type: :boolean,
+                control_type: 'text',
+                optional: true,
+                render_input: 'boolean_conversion',
+                parse_output: 'boolean_conversion',
+                toggle_hint: 'Use custom value',
+                hint: 'Allowed values are true or false' }
+          },
+          {
+            control_type: 'number',
+            parse_output: 'float_conversion',
+            type: 'number',
+            name: 'total'
           }
         ]
       end
@@ -1038,14 +834,14 @@
         case verb
         when 'get'
           response =
-            get(input['path'], data)
-            .after_error_response(/.*/) do |_code, body, _header, message|
+            get(input['path'], data).
+            after_error_response(/.*/) do |_code, body, _header, message|
               error("#{message}: #{body}")
             end.compact
 
           if response.is_a?(Array)
-            array_name = parse_json(input['output'] || '[]')
-                         .dig(0, 'name') || 'array'
+            array_name = parse_json(input['output'] || '[]').
+                         dig(0, 'name') || 'array'
             { array_name.to_s => response }
           elsif response.is_a?(Hash)
             response
@@ -1053,18 +849,18 @@
             error('API response is not a JSON')
           end
         when 'post'
-          post(input['path'], data)
-            .after_error_response(/.*/) do |_code, body, _header, message|
+          post(input['path'], data).
+            after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message}: #{body}")
           end.compact
         when 'put'
-          put(input['path'], data)
-            .after_error_response(/.*/) do |_code, body, _header, message|
+          put(input['path'], data).
+            after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message}: #{body}")
           end.compact
         when 'delete'
-          delete(input['path'], data)
-            .after_error_response(/.*/) do |_code, body, _header, message|
+          delete(input['path'], data).
+            after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message}: #{body}")
           end.compact
         end
@@ -1095,10 +891,10 @@
         'Returns a maximum of 100 records.',
 
       execute: lambda do |connection, input|
-        filter = input.map { |key, value| { key => (key + '=' + value).to_s } }
-                      .inject(:merge)
-                      &.to_param
-                      &.gsub(/\w+\=/, 'filter=')
+        filter = input.map { |key, value| { key => (key + '=' + value).to_s } }.
+                 inject(:merge)&.
+                 to_param&.
+                 gsub(/\w+\=/, 'filter=')
 
         {
           employees: get("/v3/merchants/#{connection['merchant_id']}/employees",
@@ -1107,8 +903,8 @@
       end,
 
       input_fields: lambda do |object_definitions|
-        object_definitions['employee']
-          .ignored('employeeCards', 'roles', 'payments', 'shifts', 'orders')
+        object_definitions['employee'].
+          ignored('employeeCards', 'roles', 'payments', 'shifts', 'orders')
       end,
 
       output_fields: lambda do |object_definitions|
@@ -1154,22 +950,22 @@
         "in <span class='provider'>Clover</span>",
 
       execute: lambda do |connection, input|
-        input['claimedTime'] = if (claim_time = input['claimedTime']
-                                                  &.to_time&.to_i).present?
+        input['claimedTime'] = if (claim_time = input['claimedTime']&.
+        to_time&.to_i).present?
                                  claim_time * 1000
                                end
         post("/v3/merchants/#{connection['merchant_id']}/employees",
-             input.compact)
-          .after_error_response(/.*/) do |_code, body, _header, message|
+             input.compact).
+          after_error_response(/.*/) do |_code, body, _header, message|
           error("#{message}: #{body}")
         end
       end,
 
       input_fields: lambda do |object_definitions|
-        object_definitions['employee']
-          .ignored('employeeCards', 'id', 'roles', 'payments', 'shifts',
-                   'orders')
-          .required('name')
+        object_definitions['employee'].
+          ignored('employeeCards', 'id', 'roles', 'payments', 'shifts',
+                  'orders').
+          required('name')
       end,
 
       output_fields: ->(object_definitions) { object_definitions['employee'] },
@@ -1186,16 +982,16 @@
 
       execute: lambda do |connection, input|
         post("/v3/merchants/#{connection['merchant_id']}/employees" \
-             "/#{input['id']}", input)
-          .after_error_response(/.*/) do |_code, body, _header, message|
+             "/#{input['id']}", input).
+          after_error_response(/.*/) do |_code, body, _header, message|
           error("#{message}: #{body}")
         end
       end,
 
       input_fields: lambda do |object_definitions|
-        object_definitions['employee']
-          .ignored('roles', 'payments', 'employeeCards', 'shifts', 'orders')
-          .required('id', 'name')
+        object_definitions['employee'].
+          ignored('roles', 'payments', 'employeeCards', 'shifts', 'orders').
+          required('id', 'name')
       end,
 
       output_fields: ->(object_definitions) { object_definitions['employee'] },
@@ -1213,12 +1009,12 @@
         'Returns a maximum of 100 records.',
 
       execute: lambda do |connection, input|
-        in_time = if (in_time = input&.delete('in_time')&.to_time&.to_i)
-                     .present?
+        in_time = if (in_time = input&.delete('in_time')&.to_time&.to_i).
+                     present?
                     in_time * 1000
                   end
-        out_time = if (out_time = input&.delete('out_time')&.to_time&.to_i)
-                      .present?
+        out_time = if (out_time = input&.delete('out_time')&.to_time&.to_i).
+                      present?
                      out_time * 1000
                    end
         filter = input.map do |key, value|
@@ -1232,8 +1028,8 @@
 
         {
           shifts: get("/v3/merchants/#{connection['merchant_id']}/shifts",
-                      filter)
-            .after_error_response(/.*/) do |_code, body, _header, message|
+                      filter).
+            after_error_response(/.*/) do |_code, body, _header, message|
               error("#{message}: #{body}")
             end['elements']
         }
@@ -1271,13 +1067,13 @@
                            time_field * 1000
                          end
         end
-        input['outTime'] = if (out_time = input['outTime']&.to_time&.to_i)
-                              .present?
+        input['outTime'] = if (out_time = input['outTime']&.to_time&.to_i).
+                              present?
                              out_time * 1000
                            end
         post("/v3/merchants/#{connection['merchant_id']}/employees/" \
-             "#{employee_id}/shifts", input.compact)
-          .after_error_response(/.*/) do |_code, body, _header, message|
+             "#{employee_id}/shifts", input.compact).
+          after_error_response(/.*/) do |_code, body, _header, message|
           error("#{message}: #{body}")
         end
       end,
@@ -1290,8 +1086,8 @@
 
       sample_output: lambda do |connection, input|
         get("/v3/merchants/#{connection['merchant_id']}/employees/" \
-            "#{input['employee_id']}/shifts", limit: 1)
-          .dig('elements', 0) || {}
+            "#{input['employee_id']}/shifts", limit: 1).
+          dig('elements', 0) || {}
       end
     }
   },
@@ -1358,16 +1154,129 @@
 
       sample_output: lambda do |connection, input|
         get("/v3/merchants/#{connection['merchant_id']}/employees/" \
-            "#{input['employee_id']}/shifts", limit: 1)
-          .dig('elements', 0) || {}
+            "#{input['employee_id']}/shifts", limit: 1).
+          dig('elements', 0) || {}
+      end
+    },
+
+    new_updated_employee: {
+      title: 'New/updated employee',
+      description: "New/updated <span class='provider'>employee" \
+        "</span> in <span class='provider'>Clover</span>",
+
+      input_fields: lambda do |_object_definitions|
+        [
+          {
+            name: 'since',
+            label: 'When first started, this recipe should pick up events from',
+            hint: 'When you start recipe for the first time, it picks up ' \
+              'trigger events from this specified date and time. Leave ' \
+              'empty to get events created one hour ago',
+            sticky: true,
+            optional: true,
+            type: 'date_time'
+          }
+        ]
+      end,
+
+      poll: lambda do |connection, input, closure|
+        offset = closure&.[]('offset') || 0
+        page_size = 100
+        since = closure&.[]('since') || ((input['since'] || 1.hour.ago)&.
+                  to_time&.to_i) * 1000
+        employees = get("/v3/merchants/#{connection['merchant_id']}/employees/",
+                        limit: page_size,
+                        orderBy: 'modifiedTime',
+                        filter: "modifiedTime>=#{since}",
+                        offset: offset)['elements'] || []
+
+        more_pages = employees.length >= page_size
+        closure = if more_pages
+                    { 'offset' =>  offset + page_size, 'since' => since }
+                  else
+                    { 'offset' =>  0, 'since' => now }
+                  end
+        {
+          events: employees,
+          next_poll: closure,
+          can_poll_more: more_pages
+        }
+      end,
+
+      dedup: lambda do |employee|
+        "#{employee['id']}@#{employee['modifiedTime'] ||
+        Time.now.to_time.to_i * 1000}"
+      end,
+      output_fields: lambda do |object_definitions|
+        object_definitions['employee']
+      end,
+      sample_output: lambda do |connection, _input|
+        get("/v3/merchants/#{connection['merchant_id']}/employees/", limit: 1).
+          dig('elements', 0) || {}
+      end
+    },
+
+    new_updated_order: {
+      title: 'New/updated order',
+      description: "New or updated <span class='provider'>order" \
+        "</span> in <span class='provider'>Clover</span>",
+
+      input_fields: lambda do |_object_definitions|
+        [
+          {
+            name: 'since',
+            label: 'When first started, this recipe should pick up events from',
+            hint: 'When you start recipe for the first time, it picks up ' \
+              'trigger events from this specified date and time. Leave ' \
+              'empty to get events created one hour ago',
+            sticky: true,
+            optional: true,
+            type: 'date_time'
+          }
+        ]
+      end,
+
+      poll: lambda do |connection, input, closure|
+        offset = closure&.[]('offset') || 0
+        page_size = 100
+        since = closure&.[]('since') || ((input['since'] || 1.hour.ago)&.
+                  to_time&.to_i) * 1000
+        orders = get("/v3/merchants/#{connection['merchant_id']}/orders",
+                     limit: page_size,
+                     orderBy: 'modifiedTime',
+                     filter: "modifiedTime>=#{since}",
+                     offset: offset)['elements'] || []
+
+        more_pages = orders.length >= page_size
+        closure = if more_pages
+                    { 'offset' =>  offset + page_size, 'since' => since }
+                  else
+                    { 'offset' =>  0, 'since' => now }
+                  end
+        {
+          events: orders,
+          next_poll: closure,
+          can_poll_more: more_pages
+        }
+      end,
+
+      dedup: lambda do |orders|
+        "#{orders['id']}@#{orders['modifiedTime']}"
+      end,
+      output_fields: lambda do |object_definitions|
+        object_definitions['orders']
+      end,
+      sample_output: lambda do |connection, _input|
+        get("/v3/merchants/#{connection['merchant_id']}/orders", limit: 1).
+          dig('elements', 0) || {}
       end
     }
   },
 
   pick_lists: {
     employees: lambda do |connection|
-      get("/v3/merchants/#{connection['merchant_id']}/employees")['elements']
-        &.pluck('name', 'id')
+      get("/v3/merchants/#{connection['merchant_id']}/employees")['elements']&.
+        pluck('name', 'id')
     end,
     roles: lambda do |_connection|
       [
@@ -1376,6 +1285,10 @@
         %w[Manager MANAGER],
         %w[Owner OWNER]
       ]
+    end,
+    pay_type: lambda do |_connection|
+      [%w[Split\ guest SPLIT_GUEST], %w[Split\ item SPLIT_ITEM],
+       %w[Split\ custom SPLIT_CUSTOM], %w[Full FULL]]
     end
   }
 }
