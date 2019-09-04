@@ -1,607 +1,696 @@
 {
-  title: 'DoubleClick',
+  title: 'Duo Security',
+
+  methods: {
+    make_schema_builder_fields_sticky: lambda do |input|
+      input.map do |field|
+        if field[:properties].present?
+          field[:properties] = call('make_schema_builder_fields_sticky',
+                                    field[:properties])
+        elsif field['properties'].present?
+          field['properties'] = call('make_schema_builder_fields_sticky',
+                                     field['properties'])
+        end
+        field[:sticky] = true
+        field
+      end
+    end,
+
+    get_formatted_date: lambda do |input|
+      # format date to RFC2822 format
+      input['date'].strftime('%a, %d %b %Y %T %z')
+    end,
+
+    genarate_signature: lambda do |input|
+      connection = input['connection']
+      signature = [
+        input['date'],
+        input['method'],
+        "api-#{connection['subdomain']}.duosecurity.com",
+        input['endpoint'],
+        input['data'].to_param
+      ]
+                  .join("\n")
+                  .hmac_sha1(connection['secret_key'])
+                  .encode_hex
+
+      "#{connection['integration_key']}:#{signature}".encode_base64
+    end
+  },
 
   connection: {
     fields: [
       {
-        name: 'client_id',
-        hint: 'Get your <b>client ID</b> from Google API Console -> '\
-          'Credentials.',
-        optional: false
+        name: 'subdomain',
+        optional: true,
+        hint: 'Find subdomain from instance URL, e.g. if instance URL' \
+          'is https://admin-<b>12345dc5</b>.duosecurity.com,' \
+          ' subdomain is 12345dc5'
       },
       {
-        name: 'client_secret',
-        hint: 'Get your <b>client secret</b> from Google API Console -> '\
-          'Credentials.',
-        optional: false,
-        control_type: 'password'
+        name: 'integration_key',
+        control_type: 'password',
+        hint: "Find integration key from 'Admin API' application page, ' \
+          'Go to applications page (https://admin-12345dc5.duosecurity.com/' \
+          'applications) and then select Admin API"
+      },
+      {
+        name: 'secret_key',
+        control_type: 'password',
+        hint: "Find secret key from 'Admin API' application page, ' \
+          'Go to applications page (https://admin-12345dc5.duosecurity.com/' \
+          'applications) and then select Admin API"
       }
     ],
 
+    base_uri: lambda do |connection|
+      "https://api-#{connection['subdomain']}.duosecurity.com"
+    end,
+
     authorization: {
-      type: 'oauth2',
+      type: 'custom_auth',
 
-      authorization_url: lambda do |connection|
-        scopes = [
-          'https://www.googleapis.com/auth/dfareporting',
-          'https://www.googleapis.com/auth/doubleclicksearch',
-          'https://www.googleapis.com/auth/dfatrafficking',
-          'https://www.googleapis.com/auth/ddmconversions'
-        ].join(' ')
+      acquire: ->(_connection) { {} },
 
-        'https://accounts.google.com/o/oauth2/auth?client_id=' \
-        "#{connection['client_id']}&response_type=code&scope=#{scopes}" \
-        '&access_type=offline&approval_prompt=force&response_type=code'
-      end,
-
-      acquire: lambda do |connection, auth_code, redirect_uri|
-        response = post('https://accounts.google.com/o/oauth2/token').
-                   payload(client_id: connection['client_id'],
-                           client_secret: connection['client_secret'],
-                           grant_type: 'authorization_code',
-                           code: auth_code,
-                           redirect_uri: redirect_uri).
-                   request_format_www_form_urlencoded
-        [response, nil, nil]
-      end,
-
-      refresh: lambda do |connection, refresh_token|
-        post('https://accounts.google.com/o/oauth2/token').
-          payload(client_id: connection['client_id'],
-                  client_secret: connection['client_secret'],
-                  grant_type: 'refresh_token',
-                  refresh_token: refresh_token).
-          request_format_www_form_urlencoded
-      end,
-
-      refresh_on: [401],
-
-      detect_on: [/"errors"\:\s*\[/],
-
-      apply: lambda do |_connection, access_token|
-        headers(Authorization: "Bearer #{access_token}")
-      end
-    },
-
-    base_uri: lambda do |_connection|
-      'https://www.googleapis.com/dfareporting/v3.3/'
-    end
+      apply: ->(_connection) {}
+    }
   },
 
   object_definitions: {
-    report: {
-      fields: lambda do |_connection|
+    authlog: {
+      fields: lambda do |_connection, _config_fields|
         [
-          { name: 'kind' },
-          { name: 'id', type: 'integer', label: 'Report ID' },
-          { name: 'etag' },
-          { name: 'lastModifiedTime', type: 'integer' },
-          { name: 'ownerProfileId', type: 'integer' },
-          { name: 'accountId', type: 'integer' },
-          { name: 'subAccountId', type: 'integer' },
-          { name: 'name', label: 'Report name' },
-          { name: 'fileName' },
-          { name: 'format' },
-          { name: 'type' },
-          { name: 'criteria', type: :object, properties: [
-            { name: 'dateRange', type: :object, properties: [
-              { name: 'kind' },
-              { name: 'startDate', type: 'date_time' },
-              { name: 'endDate', type: 'date_time' },
-              { name: 'relativeDateRange' }
-            ] },
-            { name: 'dimensions', type: :array, of: :object, properties: [
-              { name: 'kind' },
-              { name: 'name' },
-              { name: 'sortOrder' }
-            ] },
-            { name: 'metricNames' },
-            { name: 'dimensionFilters', type: :array, of: :object,
-              properties: [
-                { name: 'kind' },
-                { name: 'etag' },
-                { name: 'dimensionName' },
-                { name: 'value' },
-                { name: 'id' },
-                { name: 'matchType' }
-              ] },
-            { name: 'activities', type: :object, properties: [
-              { name: 'kind' },
-              { name: 'filters', type: :array, of: :object, properties: [
-                { name: 'kind' },
-                { name: 'etag' },
-                { name: 'dimensionName' },
-                { name: 'value' },
-                { name: 'id' },
-                { name: 'matchType' }
-              ] },
-              { name: 'metricNames' }
-            ] },
-            { name: 'customRichMediaEvents', type: :object, properties: [
-              { name: 'kind' },
-              { name: 'filteredEventIds', type: :array, of: :object,
+          {
+            name: 'access_device',
+            type: 'object',
+            properties: [
+              { name: 'browser' },
+              { name: 'browser_version' },
+              { name: 'flash_version' },
+              { name: 'ip', label: 'IP' },
+              { name: 'java_version' },
+              {
+                name: 'location',
+                type: 'object',
                 properties: [
-                  { name: 'kind' },
-                  { name: 'etag' },
-                  { name: 'dimensionName' },
-                  { name: 'value' },
-                  { name: 'id' },
-                  { name: 'matchType' }
-                ] },
-              { name: 'metricNames' }
-            ] }
-          ] },
-          { name: 'pathToConversionCriteria', type: :object, properties: [
-            { name: 'dateRange', type: :object, properties: [
-              { name: 'kind' },
-              { name: 'startDate', type: 'date_time' },
-              { name: 'endDate', type: 'date_time' },
-              { name: 'relativeDateRange' }
-            ] },
-            { name: 'floodlightConfigId', type: :object, properties: [
-              { name: 'kind' },
-              { name: 'etag' },
-              { name: 'dimensionName' },
-              { name: 'value' },
-              { name: 'id' },
-              { name: 'matchType' }
-            ] },
-            { name: 'activityFilters', type: :array, of: :object,
-              properties: [
-                { name: 'kind' },
-                { name: 'etag' },
-                { name: 'dimensionName' },
-                { name: 'value' },
-                { name: 'id' },
-                { name: 'matchType' }
-              ] },
-            { name: 'conversionDimensions', type: :array, of: :object,
-              properties: [
-                { name: 'kind' },
-                { name: 'name' },
-                { name: 'sortOrder' }
-              ] },
-            { name: 'perInteractionDimensions', type: :array, of: :object,
-              properties: [
-                { name: 'kind' },
-                { name: 'name' },
-                { name: 'sortOrder' }
-              ] },
-            { name: 'metricNames' },
-            { name: 'customFloodlightVariables', type: :array, of: :object,
-              properties: [
-                { name: 'kind' },
-                { name: 'name' },
-                { name: 'sortOrder' }
-              ] },
-            { name: 'customRichMediaEvents', type: :array, of: :object,
-              properties: [
-                { name: 'kind' },
-                { name: 'etag' },
-                { name: 'dimensionName' },
-                { name: 'value' },
-                { name: 'id' },
-                { name: 'matchType' }
-              ] },
-            { name: 'reportProperties', type: :object, properties: [
-              { name: 'clicksLookbackWindow', type: 'integer' },
-              { name: 'maximumInteractionGap', type: 'integer' },
-              { name: 'maximumClickInteractions', type: 'integer' },
-              { name: 'maximumImpressionInteractions', type: 'integer' },
-              { name: 'includeAttributedIPConversions', type: 'boolean' },
-              { name: 'includeUnattributedIPConversions', type: 'boolean' },
-              { name: 'includeUnattributedCookieConversions', type: 'boolean' },
-              { name: 'pivotOnInteractionPath', type: 'boolean' }
-            ] }
-          ] },
-          { name: 'reachCriteria', type: :object, properties: [
-            { name: 'enableAllDimensionCombinations', type: :boolean },
-            { name: 'dateRange', type: :object, properties: [
-              { name: 'kind' },
-              { name: 'startDate', type: 'date_time' },
-              { name: 'endDate', type: 'date_time' },
-              { name: 'relativeDateRange' }
-            ] },
-            { name: 'dimensions', type: :array, of: :object, properties: [
-              { name: 'kind' },
-              { name: 'name' },
-              { name: 'sortOrder' }
-            ] },
-            { name: 'metricNames' },
-            { name: 'reachByFrequencyMetricNames' },
-            { name: 'dimensionFilters', type: :array, of: :object,
-              properties: [
-                { name: 'kind' },
-                { name: 'etag' },
-                { name: 'dimensionName' },
-                { name: 'value' },
-                { name: 'id' },
-                { name: 'matchType' }
-              ] },
-            { name: 'activities', type: :object, properties: [
-              { name: 'kind' },
-              { name: 'filters', type: :array, of: :object, properties: [
-                { name: 'kind' },
-                { name: 'etag' },
-                { name: 'dimensionName' },
-                { name: 'value' },
-                { name: 'id' },
-                { name: 'matchType' }
-              ] },
-              { name: 'metricNames' }
-            ] },
-            { name: 'customRichMediaEvents', type: :object, properties: [
-              { name: 'kind' },
-              { name: 'filteredEventIds', type: :array, of: :object,
+                  { name: 'city' },
+                  { name: 'country' },
+                  { name: 'state' }
+                ]
+              },
+              { name: 'os', label: 'Operating system' },
+              { name: 'os_version', label: 'Operating system version' }
+            ]
+          },
+          {
+            name: 'application',
+            type: 'object',
+            properties: [{ name: 'key' }, { name: 'name' }]
+          },
+          {
+            name: 'auth_device',
+            type: 'object',
+            properties: [
+              { name: 'ip', label: 'Internet protocol' },
+              {
+                name: 'location',
+                type: 'object',
                 properties: [
-                  { name: 'kind' },
-                  { name: 'etag' },
-                  { name: 'dimensionName' },
-                  { name: 'value' },
-                  { name: 'id' },
-                  { name: 'matchType' }
-                ] }
-            ] }
-          ] },
-          { name: 'crossDimensionReachCriteria', type: :object, properties: [
-            { name: 'dateRange', type: :object, properties: [
-              { name: 'kind' },
-              { name: 'startDate', type: 'date_time' },
-              { name: 'endDate', type: 'date_time' },
-              { name: 'relativeDateRange' }
-            ] },
-            { name: 'dimension' },
-            { name: 'pivoted', type: 'boolean' },
-            { name: 'dimensionFilters', type: :array, of: :object,
-              properties: [
-                { name: 'kind' },
-                { name: 'etag' },
-                { name: 'dimensionName' },
-                { name: 'value' },
-                { name: 'id' },
-                { name: 'matchType' }
-              ] },
-            { name: 'breakdown', type: :array, of: :object, properties: [
-              { name: 'kind' },
-              { name: 'name' },
-              { name: 'sortOrder' }
-            ] },
-            { name: 'metricNames' },
-            { name: 'overlapMetricNames' }
-          ] },
-          { name: 'floodlightCriteria', type: :object, properties: [
-            { name: 'dateRange', type: :object, properties: [
-              { name: 'kind' },
-              { name: 'startDate', type: 'date_time' },
-              { name: 'endDate', type: 'date_time' },
-              { name: 'relativeDateRange' }
-            ] },
-            { name: 'floodlightConfigId', type: :object, properties: [
-              { name: 'kind' },
-              { name: 'etag' },
-              { name: 'dimensionName' },
-              { name: 'value' },
-              { name: 'id' },
-              { name: 'matchType' }
-            ] },
-            { name: 'dimensionFilters', type: :array, of: :object,
-              properties: [
-                { name: 'kind' },
-                { name: 'etag' },
-                { name: 'dimensionName' },
-                { name: 'value' },
-                { name: 'id' },
-                { name: 'matchType' }
-              ] },
-            { name: 'reportProperties', type: :object, properties: [
-              { name: 'includeAttributedIPConversions', type: 'boolean' },
-              { name: 'includeUnattributedIPConversions', type: 'boolean' },
-              { name: 'includeUnattributedCookieConversions', type: 'boolean' }
-            ] },
-            { name: 'dimensions', type: :array, of: :object, properties: [
-              { name: 'kind' },
-              { name: 'name' },
-              { name: 'sortOrder' }
-            ] },
-            { name: 'metricNames' },
-            { name: 'customRichMediaEvents', type: :array, of: :object,
-              properties: [
-                { name: 'kind' },
-                { name: 'etag' },
-                { name: 'dimensionName' },
-                { name: 'value' },
-                { name: 'id' },
-                { name: 'matchType' }
-              ] }
-          ] },
-          { name: 'schedule', type: :object, properties: [
-            { name: 'active', type: 'boolean' },
-            { name: 'repeats' },
-            { name: 'every', type: 'integer' },
-            { name: 'repeatsOnWeekDays' },
-            { name: 'startDate', type: 'date_time' },
-            { name: 'expirationDate', type: 'date_time' },
-            { name: 'runsOnDayOfMonth' }
-          ] },
-          { name: 'delivery', type: :object, properties: [
-            { name: 'emailOwner', type: 'boolean' },
-            { name: 'emailOwnerDeliveryType' },
-            { name: 'message' },
-            { name: 'recipients', type: :array, of: :object, properties: [
-              { name: 'kind' },
-              { name: 'email' },
-              { name: 'deliveryType' }
-            ] }
-          ] }
+                  { name: 'city' },
+                  { name: 'country' },
+                  { name: 'state' }
+                ]
+              },
+              { name: 'name' }
+            ]
+          },
+          { name: 'event_type' },
+          { name: 'factor' },
+          { name: 'reason' },
+          { name: 'result' },
+          {
+            control_type: 'number',
+            parse_output: 'float_conversion',
+            type: 'number',
+            name: 'timestamp'
+          },
+          { name: 'trusted_endpoint_status' },
+          { name: 'txid', label: 'Transaction ID' },
+          {
+            name: 'user',
+            type: 'object',
+            properties: [{ name: 'key' }, { name: 'name' }]
+          }
         ]
       end
     },
-    report_file: {
-      fields: lambda do |_connection|
+
+    custom_action_input: {
+      fields: lambda do |connection, config_fields|
+        input_schema = parse_json(config_fields.dig('input', 'schema') || '[]')
+
         [
-          { name: 'kind' },
-          { name: 'etag' },
-          { name: 'reportId', type: 'integer' },
-          { name: 'id', type: 'integer' },
-          { name: 'lastModifiedTime', type: 'integer' },
-          { name: 'status' },
-          { name: 'dateRange', type: :object, properties: [
-            { name: 'kind' },
-            { name: 'startDate', type: 'date_time' },
-            { name: 'endDate', type: 'date_time' },
-            { name: 'relativeDateRange' }
-          ] },
-          { name: 'urls', type: :object, properties: [
-            { name: 'browserUrl', label: 'Browser URL' },
-            { name: 'apiUrl', label: 'API URL' }
-          ] }
+          {
+            name: 'path',
+            optional: false,
+            hint: "Base URI is <b>https://api-#{connection['subdomain']}." \
+              'duosecurity.com</b> - path will be appended to this URI.' \
+              'Use absolute URI to override this base URI.'
+          },
+          (
+            if %w[get delete].include?(config_fields['verb'])
+              {
+                name: 'input',
+                type: 'object',
+                control_type: 'form-schema-builder',
+                sticky: input_schema.blank?,
+                label: 'URL parameters',
+                add_field_label: 'Add URL parameter',
+                properties: [
+                  {
+                    name: 'schema',
+                    extends_schema: true,
+                    sticky: input_schema.blank?
+                  },
+                  (
+                    if input_schema.present?
+                      {
+                        name: 'data',
+                        type: 'object',
+                        properties: call('make_schema_builder_fields_sticky',
+                                         input_schema)
+                      }
+                    end
+                  )
+                ].compact
+              }
+            else
+              {
+                name: 'input',
+                type: 'object',
+                properties: [
+                  {
+                    name: 'schema',
+                    extends_schema: true,
+                    schema_neutral: true,
+                    control_type: 'schema-designer',
+                    sample_data_type: 'json_input',
+                    sticky: input_schema.blank?,
+                    label: 'Request body parameters',
+                    add_field_label: 'Add request body parameter'
+                  },
+                  (
+                    if input_schema.present?
+                      {
+                        name: 'data',
+                        type: 'object',
+                        properties: input_schema
+                          .each { |field| field[:sticky] = true }
+                      }
+                    end
+                  )
+                ].compact
+              }
+            end
+          ),
+          {
+            name: 'output',
+            control_type: 'schema-designer',
+            sample_data_type: 'json_http',
+            extends_schema: true,
+            schema_neutral: true,
+            sticky: true
+          }
+        ]
+      end
+    },
+
+    custom_action_output: {
+      fields: lambda do |_connection, config_fields|
+        parse_json(config_fields['output'] || '[]')
+      end
+    },
+
+    user: {
+      fields: lambda do |_connection, _config_fields|
+        [
+          { name: 'alias1' },
+          { name: 'alias2' },
+          { name: 'alias3' },
+          { name: 'alias4' },
+          {
+            control_type: 'number',
+            parse_output: 'float_conversion',
+            type: 'number',
+            name: 'created',
+            label: 'Date created'
+          },
+          { name: 'email' },
+          { name: 'firstname' },
+          {
+            name: 'groups',
+            type: 'array',
+            of: 'object',
+            properties: [
+              { name: 'desc', label: 'Description' },
+              { name: 'name', label: 'Group name' }
+            ]
+          },
+          {
+            control_type: 'number',
+            parse_output: 'float_conversion',
+            type: 'number',
+            name: 'last_directory_sync'
+          },
+          {
+            control_type: 'number',
+            parse_output: 'float_conversion',
+            type: 'number',
+            name: 'last_login'
+          },
+          { name: 'lastname' },
+          { name: 'notes' },
+          {
+            name: 'phones',
+            type: 'array',
+            of: 'object',
+            properties: [
+              { name: 'phone_id', hint: 'Unique ID for phone number' },
+              { name: 'number', hint: 'Phone number' },
+              { name: 'extension', hint: 'Phone extension' },
+              { name: 'name' },
+              { name: 'postdelay', label: 'Post-delay' },
+              { name: 'predelay', label: 'Pre-delay' },
+              { name: 'type' },
+              {
+                name: 'capabilities',
+                type: 'array',
+                of: 'string',
+                control_type: 'text'
+              },
+              { name: 'platform' },
+              {
+                name: 'activated',
+                control_type: 'checkbox',
+                type: 'boolean',
+                toggle_hint: 'Select from option list',
+                toggle_field: {
+                  control_type: 'text',
+                  toggle_hint: 'Use custom value',
+                  type: 'boolean',
+                  name: 'activated'
+                }
+              },
+              {
+                name: 'sms_passcodes_sent',
+                control_type: 'checkbox',
+                type: 'boolean',
+                toggle_hint: 'Select from option list',
+                toggle_field: {
+                  control_type: 'text',
+                  toggle_hint: 'Use custom value',
+                  type: 'boolean',
+                  name: 'sms_passcodes_sent'
+                }
+              }
+            ]
+          },
+          { name: 'realname', label: 'Real name' },
+          {
+            name: 'status',
+            hint: '<b>"active"</b> - The user must complete ' \
+              'secondary authentication.  <br/> <b>"bypass"</b> - '\
+              'The user will bypass secondary authentication after completing '\
+              'primary authentication. <br/> <b>"disabled"</b>  - The user  '\
+              'will not be able to log in. <br/> <b>"locked out"</b> - '\
+              'The user has been automatically locked out due to excessive '\
+              'authentication attempts.',
+            control_type: 'select',
+            pick_list: 'statuses',
+            toggle_hint: 'Select from list',
+            toggle_field: {
+              control_type: 'text',
+              toggle_hint: 'Use custom value',
+              type: 'string',
+              name: 'status',
+              hint: 'Any one of these - "active", "bypass", "disabled" or ' \
+              '"locked out".<br/> <b>"active"</b> - The user must complete ' \
+              'secondary authentication.  <br/> <b>"bypass"</b> - '\
+              'The user will bypass secondary authentication after completing '\
+              'primary authentication. <br/> <b>"disabled"</b>  - '\
+              'The user will not be able to log in. <br/> <b>"locked out"</b> '\
+              '- The user has been automatically locked out due to excessive '\
+              'authentication attempts.'
+            }
+          },
+          {
+            name: 'tokens',
+            type: 'array',
+            of: 'object',
+            properties: [
+              { name: 'serial' },
+              { name: 'token_id' },
+              { name: 'type' }
+            ]
+          },
+          { name: 'user_id' },
+          { name: 'username' }
         ]
       end
     }
   },
 
-  test: lambda do |_connection|
-    get('userprofiles')
+  test: lambda do |connection|
+    endpoint = '/admin/v1/users'
+    data = { limit: 1 }
+    formatted_date = call('get_formatted_date', 'date' => now)
+    basic_auth_header = call('genarate_signature',
+                             'connection' => connection,
+                             'endpoint' => endpoint,
+                             'method' => 'GET',
+                             'data' => data,
+                             'date' => formatted_date)
+
+    get(endpoint, data)
+      .headers('Date' => formatted_date,
+               'Authorization' => "Basic #{basic_auth_header}")
   end,
 
   actions: {
-    list_reports: {
-      description: "List all <span class='provider'>reports</span> in " \
-      'DoubleClick',
-      help: {
-        body: 'Retrieves a list of reports.',
-        learn_more_text: 'List Reports API',
-        learn_more_url: 'https://developers.google.com/doubleclick-adver' \
-        'tisers/v3.3/reports/list?apix_params=%7B%22profileId%22%3A1%7D'
-      },
-      input_fields: lambda { |_object_definitions|
-        [
-          { name: 'profileId', optional: false, type: 'integer',
-            control_type: 'integer', hint: 'The DFA user profile ID.' },
-          { name: 'scope', control_type: 'select', optional: false,
-            pick_list: [%w[ALL ALL], %w[MINE MINE]],
-            toggle_hint: 'Select from options',
-            hint: 'The scope that defines which results are returned. ',
-            toggle_field: {
-              name: 'scope',
-              label: 'Scope',
-              type: 'string',
-              control_type: 'text',
-              toggle_hint: 'Enter custom value',
-              hint: 'Allowed vallues are: "ALL": All reports in account. '\
-              '"MINE": My reports. (default)'
-            } }
-        ]
-      },
-      execute: lambda { |_connection, input|
-        reports = get("userprofiles/#{input['profileId']}/reports?" \
-            "scope=#{input['scope']}")['items']
-        { reports: reports }
-      },
-      output_fields: lambda { |object_definitions|
-        [
-          { name: 'reports', type: :array, of: :object,
-            properties: object_definitions['report'] }
-        ]
-      },
-      sample_output: lambda { |_connection, _input|
-        { reports: call('sample_report') }
-      }
+    # Custom action for Duo Security
+    custom_action: {
+      description: "Custom <span class='provider'>action</span> " \
+        "in <span class='provider'>Duo Security</span>",
+      help: 'Build your own Duo Security action with a HTTP request. <br>' \
+        " <br> <a href='https://duo.com/docs/adminapi'" \
+        " target='_blank'>Duo Security API Documentation</a>.",
+
+      execute: lambda do |connection, input|
+        verb = input['verb']
+        error("#{verb} not supported") if %w[get post delete].exclude?(verb)
+        data = input.dig('input', 'data').presence || {}
+
+        case verb
+        when 'get'
+          endpoint = input['path']
+          formatted_date = call('get_formatted_date', 'date' => now)
+          basic_auth_header = call('genarate_signature',
+                                   'connection' => connection,
+                                   'endpoint' => endpoint,
+                                   'method' => 'GET',
+                                   'data' => data,
+                                   'date' => formatted_date)
+
+          response =
+            get(endpoint, data)
+            .headers('Date' => formatted_date,
+                     'Authorization' => "Basic #{basic_auth_header}")
+            .after_error_response(/.*/) do |_code, body, _header, message|
+              error("#{message}: #{body}")
+            end.compact
+
+          if response.is_a?(Array)
+            array_name = parse_json(input['output'] || '[]')
+                         .dig(0, 'name') || 'array'
+            { array_name.to_s => response }
+          elsif response.is_a?(Hash)
+            response
+          else
+            error('API response is not a JSON')
+          end
+        when 'post'
+          endpoint = input['path']
+          formatted_date = call('get_formatted_date', 'date' => now)
+          basic_auth_header = call('genarate_signature',
+                                   'connection' => connection,
+                                   'endpoint' => endpoint,
+                                   'method' => 'POST',
+                                   'data' => data,
+                                   'date' => formatted_date)
+
+          post(endpoint, data)
+            .headers('Date' => formatted_date,
+                     'Authorization' => "Basic #{basic_auth_header}")
+            .request_format_www_form_urlencoded
+            .after_error_response(/.*/) do |_code, body, _header, message|
+            error("#{message}: #{body}")
+          end.compact
+        when 'delete'
+          endpoint = input['path']
+          formatted_date = call('get_formatted_date', 'date' => now)
+          basic_auth_header = call('genarate_signature',
+                                   'connection' => connection,
+                                   'endpoint' => endpoint,
+                                   'method' => 'DELETE',
+                                   'data' => data,
+                                   'date' => formatted_date)
+
+          delete(endpoint, data)
+            .headers('Date' => formatted_date,
+                     'Authorization' => "Basic #{basic_auth_header}")
+            .after_error_response(/.*/) do |_code, body, _header, message|
+            error("#{message}: #{body}")
+          end.compact
+        end
+      end,
+
+      config_fields: [{
+        name: 'verb',
+        label: 'Request type',
+        hint: 'Select HTTP method of the request',
+        optional: false,
+        control_type: 'select',
+        pick_list: %w[get post delete].map { |verb| [verb.upcase, verb] }
+      }],
+
+      input_fields: lambda do |object_definitions|
+        object_definitions['custom_action_input']
+      end,
+
+      output_fields: lambda do |object_definitions|
+        object_definitions['custom_action_output']
+      end
     },
-    get_report_by_id: {
-      description: "Get <span class='provider'>report</span> by ID in " \
-      'DoubleClick',
-      help: {
-        body: 'Retrieves report details for given profile and report ID.',
-        learn_more_text: 'Get Report API',
-        learn_more_url: 'https://developers.google.com/doubleclick-' \
-        'advertisers/v3.3/reports/get'
-      },
-      input_fields: lambda { |_object_definitions|
-        [
-          { name: 'profileId', optional: false, type: 'integer',
-            control_type: 'integer', hint: 'The DFA user profile ID.' },
-          { name: 'reportId', optional: false, type: 'integer',
-            control_type: 'integer', hint: 'The ID of the report.' }
-        ]
-      },
-      execute: lambda { |_connection, input|
-        get("userprofiles/#{input['profileId']}/reports/#{input['reportId']}")
-      },
-      output_fields: lambda { |object_definitions|
-        object_definitions['report']
-      },
-      sample_output: lambda { |_connection, _input|
-        call('sample_report')
-      }
-    },
-    list_report_files: {
-      description: "List <span class='provider'>report files</span> in " \
-      'DoubleClick',
-      help: {
-        body: 'Returns a list of files for a report ID.',
-        learn_more_text: 'List Report files API',
-        learn_more_url: 'https://developers.google.com/doubleclick-' \
-        'advertisers/v3.3/reports/files/list'
-      },
-      input_fields: lambda { |_object_definitions|
-        [
-          { name: 'profileId', optional: false, type: 'integer',
-            control_type: 'integer', hint: 'The DFA user profile ID.' },
-          { name: 'reportId', optional: false, type: 'integer',
-            control_type: 'integer', hint: 'The ID of the report.' }
-        ]
-      },
-      execute: lambda { |_connection, input|
-        response = get("userprofiles/#{input['profileId']}/reports/" \
-          "#{input['reportId']}/files")
-        { kind: response['kind'],
-          etag: response['etag'],
-          nextPageToken: response['nextPageToken'],
-          report_files: response['items'] }
-      },
-      output_fields: lambda { |object_definitions|
-        [
-          { name: 'kind' },
-          { name: 'etag' },
-          { name: 'nextPageToken' },
-          { name: 'report_files', type: :array, of: :object,
-            properties: object_definitions['report_file'] }
-        ]
-      },
-      sample_output: lambda { |_connection, _input|
+
+    search_users: {
+      description: "Search <span class='provider'>users</span> " \
+        "in <span class='provider'>Duo Security</span>",
+      help: "Fetches the users that match the search criteria. Returns a \
+        maximum of 100 records.<br/>
+        <b> Note: Check if you have required permissions enabled under Settings
+        section of Admin API application page</b>",
+
+      execute: lambda do |connection, input|
+        endpoint = '/admin/v1/users'
+        formatted_date = call('get_formatted_date', 'date' => now)
+        basic_auth_header = call('genarate_signature',
+                                 'connection' => connection,
+                                 'endpoint' => endpoint,
+                                 'method' => 'GET',
+                                 'data' => input,
+                                 'date' => formatted_date)
+
         {
-          'kind': 'dfareporting#fileList',
-          'etag': '\"mD-6LEJOy1ZTRjP0qj4BvgI6FwY/BwsiycFliDsV0dzODs5DSSzdTyU\"',
-          'nextPageToken': '',
-          'report_files': [
-            {
-              'kind': 'dfareporting#file',
-              'etag': '\"mD-6LEJOy1ZTRjP0qj4BvgI6FwY/MTU2NDY0NTY3NjAwMA\"',
-              'reportId': '622792256',
-              'id': '2608851427',
-              'lastModifiedTime': '1564645676000',
-              'status': 'REPORT_AVAILABLE',
-              'fileName': 'Doubleclick_Browser_Mobile_Platform',
-              'format': 'CSV',
-              'dateRange': {
-                'kind': 'dfareporting#dateRange',
-                'startDate': '2019-07-31',
-                'endDate': '2019-07-31'
-              },
-              'urls': {
-                'browserUrl': 'https://www.google.com/analytics/dfa/' \
-                'downloadFile?id=622792256:2608851427',
-                'apiUrl': 'https://www.googleapis.com/dfareporting/v3.3/' \
-                'reports/622792256/files/2608851427?alt=media'
-              }
-            }
-          ]
+          users: get(endpoint, input)
+            .headers('Date' => formatted_date,
+                     'Authorization' => "Basic #{basic_auth_header}")
+            .[]('response')
         }
-      }
+      end,
+
+      input_fields: lambda do |_object_definitions|
+        [{
+          name: 'username',
+          hint: 'Specify a username to look up a single user',
+          sticky: true
+        }]
+      end,
+
+      output_fields: lambda do |object_definitions|
+        [{
+          name: 'users',
+          type: 'array',
+          of: 'object',
+          properties: object_definitions['user']
+        }]
+      end,
+
+      sample_output: lambda do |connection, _input|
+        endpoint = '/admin/v1/users'
+        data = { limit: 1 }
+        formatted_date = call('get_formatted_date', 'date' => now)
+        basic_auth_header = call('genarate_signature',
+                                 'connection' => connection,
+                                 'endpoint' => endpoint,
+                                 'method' => 'GET',
+                                 'data' => data,
+                                 'date' => formatted_date)
+
+        {
+          users: get(endpoint, data)
+            .headers('Date' => formatted_date,
+                     'Authorization' => "Basic #{basic_auth_header}")
+            .[]('response')
+        }
+      end
     },
-    download_report_file: {
-      description: "Download <span class='provider'>report file</span> " \
-      'in DoubleClick',
-      help: {
-        body: 'Performs a direct download to download the contents of a ' \
-        'report file.',
-        learn_more_text: 'Download Report files API',
-        learn_more_url: 'https://developers.google.com/doubleclick-' \
-        'advertisers/guides/download_reports#direct_download'
-      },
-      input_fields: lambda { |_object_definitions|
-        [
-          { name: 'fileId', optional: false, type: 'integer',
-            control_type: 'integer', hint: 'The ID of the report file.' },
-          { name: 'reportId', optional: false, type: 'integer',
-            control_type: 'integer', hint: 'The ID of the report.' }
-        ]
-      },
-      execute: lambda { |_connection, input|
-        file = get("reports/#{input['reportId']}/files/" \
-            		"#{input['fileId']}?alt=media").response_format_raw
-        { content: file }
-      },
-      output_fields: lambda { |_object_definitions|
-        [
-          { name: 'content' }
-        ]
-      },
-      summarize_output: ['content'],
-      sample_output: lambda { |_connection, _input|
-        { 'content': 'test' }
-      }
+
+    update_user: {
+      description: "Update <span class='provider'>user</span> " \
+        "in <span class='provider'>Duo Security</span>",
+
+      input_fields: lambda do |object_definitions|
+        object_definitions['user']
+          .only('user_id', 'username', 'alias1', 'alias2', 'alias3', 'alias4',
+                'realname', 'email', 'status', 'notes', 'firstname', 'lastname')
+          .required('user_id')
+      end,
+
+      execute: lambda do |connection, input|
+        user_id = input.delete('user_id')
+        endpoint = "/admin/v1/users/#{user_id}"
+        formatted_date = call('get_formatted_date', 'date' => now)
+        basic_auth_header = call('genarate_signature',
+                                 'connection' => connection,
+                                 'endpoint' => endpoint,
+                                 'method' => 'POST',
+                                 'data' => input,
+                                 'date' => formatted_date)
+
+        post(endpoint, input)
+          .headers('Date' => formatted_date,
+                   'Authorization' => "Basic #{basic_auth_header}")
+          .request_format_www_form_urlencoded
+          .[]('response')
+      end,
+
+      output_fields: ->(object_definitions) { object_definitions['user'] },
+
+      sample_output: lambda do |connection, _input|
+        endpoint = '/admin/v1/users'
+        data = { limit: 1 }
+        formatted_date = call('get_formatted_date', 'date' => now)
+        basic_auth_header = call('genarate_signature',
+                                 'connection' => connection,
+                                 'endpoint' => endpoint,
+                                 'method' => 'GET',
+                                 'data' => data,
+                                 'date' => formatted_date)
+
+        get(endpoint, data)
+          .headers('Date' => formatted_date,
+                   'Authorization' => "Basic #{basic_auth_header}")
+          .dig('response', 0)
+      end
     }
   },
 
   triggers: {
-  },
-  methods: {
-    sample_report: lambda do
-      {
-        'kind': 'dfareporting#report',
-        'id': '622792256',
-        'etag': '\"mD-6LEJOy1ZTRjP0qj4BvgI6FwY/MTU2NDYxMDA4NzAwMA\"',
-        'lastModifiedTime': '1564610087000',
-        'ownerProfileId': '5353087',
-        'accountId': '481802',
-        'name': 'Doubleclick_Browser_Mobile_Platform',
-        'fileName': 'Doubleclick_Browser_Mobile_Platform',
-        'format': 'CSV',
-        'type': 'STANDARD',
-        'criteria': {
-          'dateRange': {
-            'kind': 'dfareporting#dateRange',
-            'relativeDateRange': 'YESTERDAY'
+    new_authentication_event: {
+      description: "New <span class='provider'>authentication</span> event " \
+        "in <span class='provider'>Duo Security</span>",
+      type: 'paging_desc',
+
+      input_fields: lambda do |_object_definitions|
+        [
+          {
+            name: 'since',
+            label: 'When first started, this recipe should pick up events from',
+            hint: 'When you start recipe for the first time, it picks up ' \
+              'trigger events from this specified date and time. Leave ' \
+              'empty to get events created one hour ago',
+            sticky: true,
+            optional: true,
+            type: 'timestamp'
           },
-          'dimensions': [
-            {
-              'kind': 'dfareporting#sortedDimension',
-              'name': 'dfa:date'
-            }
-          ],
-          'metricNames': [
-            'dfa:impressions',
-            'dfa:clicks'
-          ],
-          'activities': {
-            'kind': 'dfareporting#activities',
-            'filters': [
-              {
-                'kind': 'dfareporting#dimensionValue',
-                'etag': '\"mD-6LEJOy1ZTRjP0qj4BvgI6FwY/' \
-                'lee6nVba2h4PI6U6yjz0z0Feb-M\"',
-                'dimensionName': 'dfa:activity',
-                'id': '8354964'
-              }
-            ],
-            'metricNames': [
-              'dfa:totalConversions'
-            ]
+          {
+            name: 'results',
+            hint: 'The result of an authentication attempt. One of:' \
+            '<b>"sucess"</b> - Return “successful“ authentication '\
+            'events.  <br/> <b>"denied"</b>  - Return “denied“ authentication '\
+            'events. <br/> <b>"fraud"</b> - Return “fraudulent“ ' \
+            'authentication events.',
+            sticky: true,
+            control_type: 'select',
+            pick_list: 'results'
           }
-        },
-        'schedule': {
-          'active': true,
-          'repeats': 'DAILY',
-          'every': 1,
-          'startDate': '2019-07-10',
-          'expirationDate': '2025-10-08'
-        },
-        'delivery': {
-          'emailOwner': true,
-          'emailOwnerDeliveryType': 'ATTACHMENT',
-          'recipients': [
-            {
-              'kind': 'dfareporting#recipient',
-              'email': 'workato@sofi.org',
-              'deliveryType': 'ATTACHMENT'
-            }
-          ]
+        ]
+      end,
+
+      poll: lambda do |connection, input, next_offset|
+        page_size = 1000
+        data = {
+          limit: page_size,
+          sort: 'ts:desc',
+          mintime: (input['since'] || 1.hour.ago).to_i * 1000,
+          maxtime: next_offset.presence || (now.to_i * 1000 - 1),
+          results: input['results'],
+          event_types: 'authentication'
+        }.compact
+        endpoint = '/admin/v2/logs/authentication'
+        formatted_date = call('get_formatted_date', 'date' => now)
+        basic_auth_header = call('genarate_signature',
+                                 'connection' => connection,
+                                 'endpoint' => endpoint,
+                                 'method' => 'GET',
+                                 'data' => data,
+                                 'date' => formatted_date)
+
+        response = get(endpoint, data)
+                   .headers('Date' => formatted_date,
+                            'Authorization' => "Basic #{basic_auth_header}")
+                   .[]('response')
+        next_page_exist = (response.dig('metadata', 'total_objects') || 0) >
+                          page_size
+
+        {
+          events: response['authlogs'],
+          next_page: if next_page_exist
+                       response.dig('metadata', 'next_offset', 0)
+                     end
         }
-      }
-    end
+      end,
+
+      document_id: ->(authlog) { authlog['txid'] },
+
+      sort_by: ->(authlog) { authlog['timestamp'] },
+
+      output_fields: ->(object_definitions) { object_definitions['authlog'] },
+
+      sample_output: lambda do |connection, input|
+        data = {
+          limit: 1,
+          sort: 'ts:desc',
+          mintime: (input['since'] || 1.hour.ago).to_i * 1000,
+          maxtime: (now.to_i * 1000 - 1),
+          results: 'success',
+          event_types: 'authentication'
+        }.compact
+        endpoint = '/admin/v2/logs/authentication'
+        formatted_date = call('get_formatted_date', 'date' => now)
+        basic_auth_header = call('genarate_signature',
+                                 'connection' => connection,
+                                 'endpoint' => endpoint,
+                                 'method' => 'GET',
+                                 'data' => data,
+                                 'date' => formatted_date)
+
+        get('/admin/v2/logs/authentication', data)
+          .headers('Date' => formatted_date,
+                   'Authorization' => "Basic #{basic_auth_header}")
+          .dig('response', 'authlogs', 0) || {}
+      end
+    }
   },
+
   pick_lists: {
+    statuses: lambda do |_connection|
+      [%w[Active active], %w[Bypass bypass],
+       %w[Disabled disabled], %w[Locked\ out locked\ out]]
+    end,
+
+    results: lambda do |_connection|
+      [%w[Sucess sucess], %w[Denied denied], %w[Fraud fraud]]
+    end
   }
 }
