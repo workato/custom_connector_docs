@@ -62,8 +62,6 @@
       end,
       apply: lambda do |_connection, access_token|
         headers(Authorization: "Bearer #{access_token}")
-        # headers(Authorization: "Bearer #{access_token}",
-        #         'Content-Type': 'application/vnd.api+json')
       end
     },
     base_uri: lambda do |_connection|
@@ -2852,21 +2850,6 @@
               'items:autodesk.bim360:File.<br/>' \
               'For all other services, use items:autodesk.core:File.'
             } },
-          # { name: 'resource_type', label: 'Type of the resource',
-          #   control_type: 'select', pick_list: 'resource_types',
-          #   toggle_hint: 'Select resource type',
-          #   toggle_field: {
-          #     name: 'resource_type',
-          #     label: 'Resource type',
-          #     type: 'string',
-          #     control_type: 'text',
-          #     toggle_hint: 'Use custom value',
-          #     hint: 'The type of the resource. Possible values: attachment,' \
-          #     ' overlay'
-          #   } },
-          # { name: 'file_extension_version',
-          #   hint: 'The version of the file extension type. The current ' \
-          #   'version is 1.0.' },
           { name: 'version_type', label: 'Type of version',
             hint: 'Only relevant for creating files - the type of version.',
             control_type: 'select',
@@ -2979,7 +2962,6 @@
               'attributes' => {
                 'name' => input['file_name'],
                 'extension' => {
-                  # input['object_type']
                   'type' => input['version_type'],
                   'version' => input['extension_type_version'] || '1.0'
                 }
@@ -2990,13 +2972,7 @@
                     'type' => 'objects',
                     'id' => object_urn
                   }
-                } # ,
-                # 'refs' => {
-                #   'data' => {
-                #     'type' => 'versions',
-                #     'id' => 'version_urn'
-                #   }
-                # }
+                }
               }
             }
           ]
@@ -3010,38 +2986,6 @@
           after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message}: #{body}")
           end&.dig('data')&.merge({ hub_id: hub_id, project_id: project_id })
-        # 4 Update version of the file
-        # update_version = {
-        #   'jsonapi' => '1.0',
-        #   'data' => {
-        #     'type' => 'versions',
-        #     'attributes': {
-        #       'extension' => {
-        #         'type' => 'versions:autodesk.core:File"',
-        #         'version' => '1.0'
-        #       }
-        #     },
-        #     'relationships' => {
-        #       'item' => {
-        #         'data' => {
-        #           'type' => 'items',
-        #           'id' => item_id
-        #         }
-        #       },
-        #       'storage' => {
-        #         'data' => {
-        #           'type' => 'objects',
-        #           'id' => object_urn
-        #         }
-        #       }
-        #     }
-        #   }
-        # }
-        # post("/data/v1/projects/#{project_id}/versions").
-        #   payload(update_version).
-        #   after_error_response(/.*/) do |_code, body, _header, message|
-        #     error("#{message}: #{body}")
-        #   end
       end,
       output_fields: lambda do |object_definitions|
         [
