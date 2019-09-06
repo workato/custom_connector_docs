@@ -2791,7 +2791,7 @@
                       'updated_after' => now.to_time.utc.iso8601 }
                   end
         sheets = response['data']&.
-                map { |o| o.merge('project_uid' => project_uid) }
+                map { |o| o.merge('project_uid' => input['project_uid']) }
         {
           events: sheets || [],
           next_poll: closure,
@@ -2953,7 +2953,7 @@
                       'updated_after' => now.to_time.utc.iso8601 }
                   end
         tasks = response['data']&.
-          map { |o| o.merge('project_uid' => project_uid) }
+          map { |o| o.merge('project_uid' => input['project_uid']) }
         {
           events: tasks || [],
           next_poll: closure,
@@ -3035,7 +3035,7 @@
                       'updated_after' => now.to_time.utc.iso8601 }
                   end
         annotations = response['data']&.
-          map { |o| o.merge('project_uid' => project_uid) }
+          map { |o| o.merge('project_uid' => input['project_uid']) }
         {
           events: annotations || [],
           next_poll: closure,
@@ -3117,7 +3117,7 @@
                       'updated_after' => now.to_time.utc.iso8601 }
                   end
         photos = response['data']&.
-          map { |o| o.merge('project_uid' => project_uid) }
+          map { |o| o.merge('project_uid' => input['project_uid']) }
         {
           events: photos || [],
           next_poll: closure,
@@ -3199,7 +3199,7 @@
                       'updated_after' => now.to_time.utc.iso8601 }
                   end
         snapshots = response['data']&.
-          map { |o| o.merge('project_uid' => project_uid) }
+          map { |o| o.merge('project_uid' => input['project_uid']) }
         {
           events: snapshots || [],
           next_poll: closure,
@@ -3369,7 +3369,7 @@
                       'updated_after' => now.to_time.utc.iso8601 }
                   end
         rfis = response['data']&.
-          map { |o| o.merge('project_uid' => project_uid) }
+          map { |o| o.merge('project_uid' => input['project_uid']) }
         {
           events: rfis || [],
           next_poll: closure,
