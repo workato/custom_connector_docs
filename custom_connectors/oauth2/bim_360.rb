@@ -2581,8 +2581,8 @@
       end
     },
     get_drawing_export_status: {
-      title: 'Get drawaing export status in a project',
-      description: 'Get <span class="provider">drwaing export status</span> in'\
+      title: 'Get drawing export status in a project',
+      description: 'Get <span class="provider">drawing export status</span> in'\
         ' a project in <span class="provider">BIM 360</span>',
       help: {
         body: 'This action returns the status of a PDF export job, as well' \
