@@ -2936,7 +2936,7 @@
         response = if (next_page_url = closure&.[]('next_page_url')).present?
                      get(next_page_url)
                    else
-                     get("/projects/#{input.delete('project_uid')}/" \
+                     get("/projects/#{project_uid}/" \
                      'issues').
                        params(limit: limit,
                               skip: skip,
@@ -3019,7 +3019,7 @@
         response = if (next_page_url = closure&.[]('next_page_url')).present?
                      get(next_page_url)
                    else
-                     get("/projects/#{input.delete('project_uid')}/" \
+                     get("/projects/#{project_uid}/" \
                      'annotations').
                        params(limit: limit,
                               skip: skip,
@@ -3101,7 +3101,7 @@
         response = if (next_page_url = closure&.[]('next_page_url')).present?
                      get(next_page_url)
                    else
-                     get("/projects/#{input.delete('project_uid')}/" \
+                     get("/projects/#{project_uid}/" \
                      'photos').
                        params(limit: limit,
                               skip: skip,
@@ -3183,7 +3183,7 @@
         response = if (next_page_url = closure&.[]('next_page_url')).present?
                      get(next_page_url)
                    else
-                     get("/projects/#{input.delete('project_uid')}/" \
+                     get("/projects/#{project_uid}/" \
                      'snapshots').
                        params(limit: limit,
                               skip: skip,
@@ -3265,7 +3265,7 @@
         response = if (next_page_url = closure&.[]('next_page_url')).present?
                      get(next_page_url)
                    else
-                     get("/projects/#{input.delete('project_uid')}/" \
+                     get("/projects/#{project_uid}/" \
                      'field_reports').
                        params(limit: limit,
                               skip: skip,
@@ -3353,7 +3353,7 @@
         response = if (next_page_url = closure&.[]('next_page_url')).present?
                      get(next_page_url)
                    else
-                     get("/projects/#{input.delete('project_uid')}/" \
+                     get("/projects/#{project_uid}/" \
                      'rfis').
                        params(limit: limit,
                               skip: skip,
