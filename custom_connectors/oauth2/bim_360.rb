@@ -2134,7 +2134,7 @@
         project_id = closure&.[]('project_id') || input['project_id']
         container_id = closure&.[]('container_id') ||
                        get("/project/v1/hubs/#{input['hub_id']}" \
-                           "/projects/#{project_id}")&.
+                           "/projects/#{input['project_id']}")&.
                        dig('data', 'relationships', 'issues', 'data', 'id')
         updated_after = closure&.[]('updated_after') ||
                         (input['since'] || 1.hour.ago).to_time.utc.iso8601
@@ -2169,8 +2169,11 @@
                   end
         issues = response['data']&.
                  map do |o|
-                   o.merge({ project_id: project_id, hub_id: hub_id,
-                             container_id: container_id })
+                   o.merge({
+                   		project_id: input['project_id'],
+                   		hub_id: input['hub_id'],
+                        container_id: container_id
+                    })
                  end
         {
           events: issues || [],
@@ -2286,14 +2289,14 @@
                        'filter[type]=items&filter[lastModifiedTimeRollup]-ge=' \
                        "#{last_modified_time}&" \
                        "page[limit]=#{limit}&page[skip]=#{skip}"
-                     get("/data/v1/projects/#{project_id}/folders/" \
-                       "#{folder_id}/contents", query_params)
+                     get("/data/v1/projects/#{input['project_id']}/folders/" \
+                       "#{input['folder_id']}/contents", query_params)
                    end
 
         items = response['data']&.
           map do |o|
-            o.merge({ project_id: project_id, hub_id: hub_id,
-                      folder_id: folder_id })
+            o.merge({ project_id: input['project_id'], hub_id: input['hub_id'],
+                      folder_id: input['folder_id'] })
           end
         closure = if (next_page_url = response.dig('links', 'next')).present?
                     { 'skip' => skip + limit,
