@@ -30,7 +30,7 @@
       type: 'oauth2',
       authorization_url: lambda do |connection|
         scopes = 'user:read account:read data:write data:write data:read' \
-        ' account:write'
+        ' data:create account:write'
         'https://developer.api.autodesk.com/authentication/v1/authorize?' \
         'response_type=' \
         "code&client_id=#{connection['client_id']}&" \
@@ -61,8 +61,7 @@
           request_format_www_form_urlencoded
       end,
       apply: lambda do |_connection, access_token|
-        headers(Authorization: "Bearer #{access_token}",
-                'Content-Type': 'application/vnd.api+json')
+        headers(Authorization: "Bearer #{access_token}")
       end
     },
     base_uri: lambda do |_connection|
@@ -131,71 +130,57 @@
       fields: lambda do |_connection, _config_fields|
         [
           { name: 'id', label: 'Project ID' },
-          { name: 'account_id', label: 'Account ID' },
-          { name: 'name', label: 'Project name' },
-          { name: 'start_date', type: 'date' },
-          { name: 'end_date', type: 'date' },
-          { name: 'project_type',
-            control_type: 'select', pick_list: 'project_types',
-            toggle_hint: 'Select project type',
-            toggle_field: {
-              name: 'project_type',
-              type: 'string',
-              control_type: 'text',
-              label: 'Project type',
-              toggle_hint: 'Use custom value'
-            },
-            hint: 'Refer to the preconfigured ' \
-            "project_type list in the <a href='https://forge.autodesk." \
-            "com/en/docs/bim360/v1/overview/parameters' target= '_blank'>" \
-            'Parameters</a> guide' },
-          { name: 'value', label: 'Monetary value' },
-          { name: 'currency', control_type: 'select',
-            pick_list: 'currency_list',
-            toggle_hint: 'Select currency',
-            toggle_field: {
-              name: 'currency',
-              type: 'string',
-              control_type: 'text',
-              label: 'Project type',
-              toggle_hint: 'Use custom value'
-            } },
-          { name: 'status', control_type: 'select',
-            pick_list: 'status_list',
-            toggle_hint: 'Select status',
-            toggle_field: {
-              name: 'status',
-              type: 'string',
-              control_type: 'text',
-              label: 'Status',
-              toggle_hint: 'Use custom value'
-            } },
-          { name: 'job_number' },
-          { name: 'address_line_1' },
-          { name: 'address_line_2' },
-          { name: 'city' },
-          { name: 'state_or_province' },
-          { name: 'postal_code' },
-          { name: 'country' },
-          { name: 'postal_code' },
-          { name: 'country' },
-          { name: 'business_unit_id' },
-          { name: 'timezone', hint: 'Refer to the preconfigured ' \
-          "project_type list in the <a href='https://forge.autodesk." \
-          "com/en/docs/bim360/v1/overview/parameters' target= '_blank'>" \
-          'Parameters</a> guide' },
-          { name: 'language', control_type: 'select', pick_list:
-            [%w[English en], %w[German de]] },
-          { name: 'construction_type', hint: 'Refer to the preconfigured ' \
-            "project_type list in the <a href='https://forge.autodesk." \
-            "com/en/docs/bim360/v1/overview/parameters' target= '_blank'>" \
-            'Parameters</a> guide' },
-          { name: 'contract_type', hint: 'Refer to the preconfigured ' \
-            "project_type list in the <a href='https://forge.autodesk." \
-            "com/en/docs/bim360/v1/overview/parameters' target= '_blank'>" \
-            'Parameters</a> guide' },
-          { name: 'last_sign_in', hint: 'Timestamp of the last sign in,' \
-            ' YYYY-MM-DDThh:mm:ss.sssZ format' }
+          { name: 'type' },
+          { name: 'attributes', type: 'object', properties: [
+            { name: 'name' }
+          ]},
+          { name: 'relationships', type: 'object', properties: [
+            { name: 'hub', type: 'object', properties: [
+              { name: 'data', type: 'object', properties: [
+                { name: 'id', label: 'Hub ID' }
+              ]}
+            ]},
+            { name: 'rootFolder', type: 'object', properties: [
+              { name: 'data', type: 'object', properties: [
+                { name: 'id', label: 'Root folder ID' }
+              ]}
+            ]},
+            { name: 'issues', type: 'object', properties: [
+              { name: 'data', type: 'object', properties: [
+                { name: 'id', label: 'Issues container ID' }
+              ]}
+            ]},
+            { name: 'submittals', type: 'object', properties: [
+              { name: 'data', type: 'object', properties: [
+                { name: 'id', label: 'Submittals container ID' }
+              ]}
+            ]},
+            { name: 'rfis', type: 'object', properties: [
+              { name: 'data', type: 'object', properties: [
+                { name: 'id', label: 'RFIs container ID' }
+              ]}
+            ]},
+            { name: 'markups', type: 'object', properties: [
+              { name: 'data', type: 'object', properties: [
+                { name: 'id', label: 'Markups container ID' }
+              ]}
+            ]},
+            { name: 'checklists', type: 'object', properties: [
+              { name: 'data', type: 'object', properties: [
+                { name: 'id', label: 'Checklists container ID' }
+              ]}
+            ]},
+            { name: 'cost', type: 'object', properties: [
+              { name: 'data', type: 'object', properties: [
+                { name: 'id', label: 'Cost container ID' }
+              ]}
+            ]},
+            { name: 'location', type: 'object', properties: [
+              { name: 'data', type: 'object', properties: [
+                { name: 'id', label: 'Locations container ID' }
+              ]}
+            ]}
+          ]}
         ]
       end
     },
@@ -203,12 +188,6 @@
       fields: lambda do |_connection, _config_fields|
         [
           { name: 'id', label: 'Issue ID' },
-          { name: 'type',
-            hint: 'The type of the object; will always be' \
-            ' <b>quality_issues</b>' },
-          { name: 'links', type: 'object', properties: [
-            { name: 'self', hint: 'A reference to the issue itself.' }
-          ] },
           { name: 'attributes', type: 'object', properties: [
             { name: 'created_at', type: 'date_time',
               hint: 'The timestamp of the date and time the issue was ' \
@@ -243,14 +222,9 @@
               hint: 'The description of the purpose of the issue.' },
             { name: 'location_description',
               hint: 'The location of the issue.' },
-            { name: 'markup_metadata' },
-            { name: 'tags', type: 'object' },
-            { name: 'resource_urns' },
             { name: 'target_urn',
               hint: 'The item ID of the document associated with the ' \
               'pushpin issue.' },
-            { name: 'target_urn_page' },
-            { name: 'collection_urn' },
             { name: 'due_date', type: 'date_time',
               hint: 'The timestamp of the issue’s specified due date,' \
               ' in the following format: <b>YYYY-MM-DDThh:mm:ss.sz</b>',
@@ -282,9 +256,6 @@
               hint: 'The type and location of the pushpin' },
             { name: 'owner',
               hint: 'The Autodesk ID of the user who owns this issue.' },
-            { name: 'issue_type_id' },
-            { name: 'issue_type' },
-            { name: 'issue_sub_type' },
             { name: 'root_cause_id' },
             { name: 'root_cause' },
             { name: 'quality_urns', type: 'object' },
@@ -302,10 +273,10 @@
             { name: 'lbs_location',
               hint: 'The ID of the location that relates to the issue.' },
             { name: 'sheet_metadata' },
-            { name: 'ng_issue_subtype_id', label: 'Issue subtype ID',
-              hint: 'The ID of the issue subtype' },
             { name: 'ng_issue_type_id', label: 'Issue type ID',
-              hint: 'The ID of the issue type.' }
+              hint: 'The ID of the issue type.' },
+            { name: 'ng_issue_subtype_id', label: 'Issue subtype ID',
+              hint: 'The ID of the issue subtype' }
           ] },
           # To Do
           { name: 'custom_attributes', type: 'array', of: 'object' },
@@ -384,46 +355,7 @@
                 { name: 'urn_version' },
                 { name: 'permitted_actions' }
               ] }
-            ] },
-          { name: 'snapshot_urn' },
-          { name: 'relationships', type: 'object', properties: [
-            { name: 'container', type: 'object', properties: [
-              { name: 'links', type: 'object', properties: [
-                { name: 'self' },
-                { name: 'related' }
-              ] }
-            ] },
-            { name: 'activity_batches', type: 'object', properties: [
-              { name: 'links', type: 'object', properties: [
-                { name: 'self' },
-                { name: 'related' }
-              ] }
-            ] },
-            { name: 'comments', type: 'object', properties: [
-              { name: 'links', type: 'object', properties: [
-                { name: 'self' },
-                { name: 'related' }
-              ] }
-            ] },
-            { name: 'attachments', type: 'object', properties: [
-              { name: 'links', type: 'object', properties: [
-                { name: 'self' },
-                { name: 'related' }
-              ] }
-            ] },
-            { name: 'root_cause_obj', type: 'object', properties: [
-              { name: 'links', type: 'object', properties: [
-                { name: 'self' },
-                { name: 'related' }
-              ] }
-            ] },
-            { name: 'issue_type_obj', type: 'object', properties: [
-              { name: 'links', type: 'object', properties: [
-                { name: 'self' },
-                { name: 'related' }
-              ] }
             ] }
-          ] }
         ]
       end
     },
@@ -514,376 +446,6 @@
             hint: 'The ID of the type of root cause for this issue.' },
           { name: 'quality_urns', type: 'object' },
           { name: 'close_version' }
-        ]
-      end
-    },
-    rfi: {
-      fields: lambda do |_connection, _config_fields|
-        [
-          { name: 'id', hint: 'RFI ID' },
-          { name: 'type', label: 'Objec type',
-            hint: 'The type of object; will always be rfis.' },
-          { name: 'links', type: 'object', properties: [
-            { name: 'self' },
-            { name: 'first', hint: 'A link to the first page.' },
-            { name: 'prev', hint: 'A link to the previous page.' },
-            { name: 'next', hint: 'A link to the next page.' },
-            { name: 'last', hint: 'A link to the last page.' }
-          ] },
-          { name: 'attributes', type: 'object', properties: [
-            { name: 'created_at', type: 'date_time',
-              hint: 'The timestamp of the date and time the issue was ' \
-              'created, in the following format: <b>YYYY-MM-DDThh:mm:ss.sz</b>',
-              render_input: 'render_iso8601_timestamp',
-              parse_output: 'parse_iso8601_timestamp' },
-            { name: 'synced_at', type: 'date_time',
-              hint: 'The date and time the issue was synced with BIM 360, ' \
-              'in the following format: <b>YYYY-MM-DDThh:mm:ss.sz</b>',
-              render_input: 'render_iso8601_timestamp',
-              parse_output: 'parse_iso8601_timestamp' },
-            { name: 'updated_at', type: 'date_time',
-              hint: 'The last time the issue’s attributes were updated, in '\
-              '<b>the following format: <b>YYYY-MM-DDThh:mm:ss.sz</b>',
-              render_input: 'render_iso8601_timestamp',
-              parse_output: 'parse_iso8601_timestamp' },
-            { name: 'answer', hint: 'An answer for the RFI.' },
-            { name: 'answered_at', type: 'date_time',
-              render_input: 'render_iso8601_timestamp',
-              parse_output: 'parse_iso8601_timestamp',
-              hint: 'The last time the RFI answer attribute was updated, ' \
-              'in the following format: <b>YYYY-MM-DDThh:mm:ss.sz<\b>.' },
-            { name: 'answered_by',
-              hint: 'The Autodesk ID of the user who updated the RFI answer' \
-              ' attribute' },
-            { name: 'manager',
-              hint: 'The last actual manager (GC) of the RFI' },
-            { name: 'reviewer',
-              hint: 'The last actual reviewer (CM or Arch) of the RFI.' },
-            { name: 'assigned_to', hint: 'The Autodesk ID of the user' },
-            { name: 'assigned_to_type',
-              control_type: 'select',
-              pick_list: 'assigned_type_list',
-              toggle_hint: 'Select assigned type',
-              toggle_field: {
-                name: 'assigned_to_type',
-                type: 'string',
-                control_type: 'text',
-                label: 'Assigned Type',
-                toggle_hint: 'Use custom value',
-                hint: 'The type of assignee the RFI is assigned to. ' \
-                'Possible values: <b>user, company, role</b>'
-              } },
-            { name: 'assignees', type: 'array', of: 'object', properties: [
-              { name: 'id' },
-              { name: 'type' }
-            ] },
-            { name: 'attachment_count',
-              hint: 'The number of attachments associated with the RFI.' },
-            { name: 'close_version' },
-            { name: 'closed_at', type: 'date_time',
-              render_input: 'render_iso8601_timestamp',
-              parse_output: 'parse_iso8601_timestamp',
-              hint: 'The timestamp of the date and time the RFI was closed' },
-            { name: 'closed_by',
-              hint: 'The Autodesk ID of the user who closed the RFI.' },
-            { name: 'co_reviewers', hint: 'A list of alternative reviewers.' \
-              ' Provide comma separated list of values.' },
-            { name: 'collection_urn' },
-            { name: 'comment_count',
-              hint: 'The number of comments added to the RFI.' },
-            { name: 'created_by',
-              hint: 'The Autodesk ID of the user who created the RFI.' },
-            { name: 'description' },
-            { name: 'due_date', type: 'date_time',
-              render_input: 'render_iso8601_timestamp',
-              parse_output: 'parse_iso8601_timestamp',
-              hint: 'The timestamp of the due date for the RFI, in the ' \
-              'following format: <b>YYYY-MM-DDThh:mm:ss.sz</b>' },
-            { name: 'identifier',
-              hint: 'The identifier of the RFI. This corresponds to the RFI' \
-              ' ID number in the UI' },
-            { name: 'custom_identifier',
-              hint: 'A custom identifier of the RFI selected by the user.' },
-            { name: 'identifier_minor', type: 'integer' },
-            { name: 'location_description',
-              hint: 'A description of the location of the RFI in the ' \
-              'construction project.' },
-            { name: 'markup_metadata' },
-            { name: 'permitted_actions', hint: 'A list of actions that are' \
-              ' permitted for the user.' },
-            { name: 'permitted_attributes',
-              hint: 'A list of attributes the user can modify.' },
-            { name: 'permitted_statuses', hint: 'array of strings' },
-            { name: 'permitted_transitions', type: 'array', of: 'object',
-              hint: 'A list of potential transitions.',
-              properties: [
-                { name: 'id' },
-                { name: 'is_specific_assignee', control_type: 'checkbox',
-                  hint: 'Is the RFI can be assigned to a specific user',
-                  type: 'boolean', toggle_hint: 'Select from options list',
-                  toggle_field: {
-                    name: 'is_specific_assignee',
-                    type: 'string',
-                    control_type: 'text',
-                    label: 'Specific assignee',
-                    hint: 'Is the RFI can be assigned to a specific user',
-                    toggle_hint: 'Provide custom vlaue. ' \
-                    'Allowed values are <b>true, false</b>'
-                  } },
-                { name: 'status', control_type: 'select',
-                  pick_list: 'rfi_transaction_status_list',
-                  hint: 'The status of the RFI after the transition',
-                  toggle_hint: 'Select status',
-                  toggle_field: {
-                    name: 'status',
-                    label: 'Status',
-                    type: 'string',
-                    control_type: 'text',
-                    toggle_hint: 'Provie custom value',
-                    hint: 'Possible values: <b>draft, submitted, open, ' \
-                    'rejected, answered, closed, void</b>'
-                  } },
-                { name: 'title' },
-                { name: 'assignees', type: 'array', of: 'object', properties: [
-                  { name: 'id' },
-                  { name: 'type' }
-                ] },
-                { name: 'pushpin_attributes', type: 'object' },
-                { name: 'resource_urns', hint: 'List of urns' },
-                { name: 'sheet_metadata', type: 'object' },
-                { name: 'starting_version',
-                  hint: 'The first version of the RFI' },
-                { name: 'suggested_answer',
-                  hint: 'The suggested answer for the RFI.' },
-                { name: 'tags' },
-                { name: 'target_urn' },
-                { name: 'target_urn_page' },
-                { name: 'title' }
-              ] },
-            { name: 'pushpin_attributes', type: 'object', properties: [
-              { name: 'type' },
-              { name: 'location', type: 'object', properties: [
-                { name: 'x', type: 'number' },
-                { name: 'y', type: 'number' },
-                { name: 'z', type: 'number' }
-              ] },
-              { name: 'resource_urns' },
-              { name: 'sheet_metadata', type: 'object' },
-              { name: 'starting_version',
-                hint: 'The first version of the RFI.' },
-              { name: 'transition_attributes', type: 'array', of: 'object',
-                properties: [
-                  { name: 'id' },
-                  { name: 'is_specific_assignee', control_type: 'checkbox',
-                    hint: 'Is the RFI can be assigned to a specific user',
-                    type: 'boolean', toggle_hint: 'Select from options list',
-                    toggle_field: {
-                      name: 'is_specific_assignee',
-                      type: 'string',
-                      control_type: 'text',
-                      label: 'Specific assignee',
-                      hint: 'Is the RFI can be assigned to a specific user',
-                      toggle_hint: 'Provide custom vlaue. ' \
-                      'Allowed values are <b>true, false</b>'
-                    } },
-                  { name: 'status', control_type: 'select',
-                    pick_list: 'rfi_transaction_status_list',
-                    hint: 'The status of the RFI after the transition',
-                    toggle_hint: 'Select status',
-                    toggle_field: {
-                      name: 'status',
-                      label: 'Status',
-                      type: 'string',
-                      control_type: 'text',
-                      toggle_hint: 'Provie custom value',
-                      hint: 'Possible values: <b>draft, submitted, open, ' \
-                      'rejected, answered, closed, void</b>'
-                    } },
-                  { name: 'title' },
-                  { name: 'is_required', control_type: 'checkbox',
-                    type: 'boolean', toggle_hint: 'Select from options list',
-                    toggle_field: {
-                      name: 'is_required',
-                      type: 'string',
-                      control_type: 'text',
-                      label: 'Is required',
-                      toggle_hint: 'Provide custom vlaue. ' \
-                      'Allowed values are <b>true, false</b>'
-                    } }
-                ] },
-              { name: 'workflow_state', type: 'object', properties: [
-                { name: 'id' },
-                { name: 'title' },
-                { name: 'short_title' },
-                { name: 'name' }
-              ] },
-              { name: 'is_specific_assignee' },
-              { name: 'object_id' },
-              { name: 'viewer_state' },
-              { name: 'created_at', type: 'date_time' },
-              { name: 'created_by' },
-              { name: 'created_doc_version', type: 'integer' },
-              { name: 'hidden_at', type: 'date_time' },
-              { name: 'hidden_by' },
-              { name: 'hidden_doc_version', type: 'integer' }
-            ] },
-            { name: 'resource_urns', hint: 'array of strings' },
-            # TO UPDATE
-            { name: 'resource_urns' },
-            { name: 'sheet_metadata', type: 'object' },
-            { name: 'starting_version' },
-            { name: 'status', control_type: 'select',
-              pick_list: 'rfi_transaction_status_list',
-              hint: 'The status of the RFI after the transition',
-              toggle_hint: 'Select status',
-              toggle_field: {
-                name: 'status',
-                label: 'Status',
-                type: 'string',
-                control_type: 'text',
-                toggle_hint: 'Provie custom value',
-                hint: 'Possible values: <b>draft, submitted, open, ' \
-                'rejected, answered, closed, void</b>'
-              } },
-            { name: 'suggested_answer' },
-            { name: 'tags', hint: 'array of strings' },
-            { name: 'target_urn' },
-            { name: 'target_urn_page' },
-            { name: 'title' },
-            { name: 'workflow_state', type: 'object', properties: [
-              { name: 'id' },
-              { name: 'title' },
-              { name: 'short_title' },
-              { name: 'name' }
-            ] },
-            { name: 'current_allowed_assignees', type: 'array', of: 'object',
-              properties: [
-                { name: 'id' },
-                { name: 'type' }
-              ] },
-            { name: 'distribution_list',
-              hint: 'Provide comma separated list of IDs' },
-            { name: 'comments_attributes', type: 'array', of: 'object',
-              properties: [
-                { name: 'id', label: 'Attachment ID' },
-                { name: 'type' },
-                { name: 'attributes', type: 'object', properties: [
-                  { name: 'created_at', type: 'date_time',
-                    hint: 'The timestamp of the date and time the issue was ' \
-                    'created, in the following format: ' \
-                    '<b>YYYY-MM-DDThh:mm:ss.sz</b>',
-                    render_input: 'render_iso8601_timestamp',
-                    parse_output: 'parse_iso8601_timestamp' },
-                  { name: 'created_by' },
-                  { name: 'synced_at', type: 'date_time',
-                    hint: 'The timestamp of the date and time the issue was ' \
-                    'synced, in the following format: ' \
-                    '<b>YYYY-MM-DDThh:mm:ss.sz</b>',
-                    render_input: 'render_iso8601_timestamp',
-                    parse_output: 'parse_iso8601_timestamp' },
-                  { name: 'updated_at', type: 'date_time',
-                    hint: 'The timestamp of the date and time the issue was ' \
-                    'updated, in the following format: ' \
-                    '<b>YYYY-MM-DDThh:mm:ss.sz</b>',
-                    render_input: 'render_iso8601_timestamp',
-                    parse_output: 'parse_iso8601_timestamp' },
-                  { name: 'rfi_id' },
-                  { name: 'body' }
-                ] }
-              ] },
-            { name: 'attachments_attributes', type: 'array', of: 'object',
-              properties: [
-                { name: 'id', label: 'Comment ID' },
-                { name: 'type' },
-                { name: 'attributes', type: 'object', properties: [
-                  { name: 'created_at', type: 'date_time',
-                    hint: 'The timestamp of the date and time the issue was ' \
-                    'created, in the following format: ' \
-                    '<b>YYYY-MM-DDThh:mm:ss.sz</b>',
-                    render_input: 'render_iso8601_timestamp',
-                    parse_output: 'parse_iso8601_timestamp' },
-                  { name: 'created_by' },
-                  { name: 'synced_at', type: 'date_time',
-                    hint: 'The timestamp of the date and time the issue was ' \
-                    'synced, in the following format: ' \
-                    '<b>YYYY-MM-DDThh:mm:ss.sz</b>',
-                    render_input: 'render_iso8601_timestamp',
-                    parse_output: 'parse_iso8601_timestamp' },
-                  { name: 'updated_at', type: 'date_time',
-                    hint: 'The timestamp of the date and time the issue was ' \
-                    'updated, in the following format: ' \
-                    '<b>YYYY-MM-DDThh:mm:ss.sz</b>',
-                    render_input: 'render_iso8601_timestamp',
-                    parse_output: 'parse_iso8601_timestamp' },
-                  { name: 'attachment_type' },
-                  { name: 'deleted_at', type: 'date_time',
-                    hint: 'The timestamp of the date and time the issue was ' \
-                    'deleted, in the following format: ' \
-                    '<b>YYYY-MM-DDThh:mm:ss.sz</b>',
-                    render_input: 'render_iso8601_timestamp',
-                    parse_output: 'parse_iso8601_timestamp' },
-                  { name: 'deleted_by', hint: 'The ID of the user who deleted' \
-                    ' the attachment. This is only relevant for deleted' \
-                    ' attachments.' },
-                  { name: 'rfi_id' },
-                  { name: 'name' },
-                  { name: 'resource_urns', type: 'array', of: 'string' },
-                  { name: 'url' },
-                  { name: 'urn' },
-                  { name: 'urn_page' },
-                  { name: 'urn_type' },
-                  { name: 'urn_version' },
-                  { name: 'permitted_actions' }
-                ] }
-              ] }
-          ] },
-          { name: 'included', type: 'array', of: 'object' },
-          { name: 'meta', type: 'object', properties: [
-            { name: 'record_count', type: 'integer', control_type: 'number' },
-            { name: 'page', type: 'object', properties: [
-              { name: 'offset', type: 'integer' },
-              { name: 'limit', type: 'integer' }
-            ] }
-          ] }
-        ]
-      end
-    },
-    modify_rfi: {
-      fields: lambda do |_connection, _config_fields|
-        [
-          { name: 'transition_id',
-            hint: 'This field is mandatory when tranistioning the RFI.' },
-          { name: 'assigned_to',
-            hint: 'The Autodesk ID of the user you want to assign ' \
-            'the RFI to.' },
-          { name: 'co_reviewers',
-            hint: 'Add members who can contribute to the RFI response. ' \
-            'Note that although you can only add co-reviewers in the UI ' \
-            'when the RFI is in open status, you can use the endpoint to' \
-            ' also set up co-reviewers in other statuses.' \
-            'To delete all co-reviewers, call the endpoint with an empty' \
-            ' array.' },
-          { name: 'description' },
-          { name: 'due_date', type: 'date_time',
-            render_input: 'render_iso8601_timestamp',
-            parse_output: 'parse_iso8601_timestamp',
-            hint: 'The timestamp of the due date for the RFI, in the ' \
-            'following format: YYYY-MM-DDThh:mm:ss.sz.' },
-          { name: 'reserve_custom_identifier',
-            hint: 'This field allows to reserve a custom identifier for ' \
-            'future use (for example, in draft or submitted status). No ' \
-            'other RFI will be able to use or reserve this identifier for' \
-            ' 2 minutes.' },
-          { name: 'custom_identifier',
-            hint: 'Identifier of the RFI given by user. When non-present in' \
-            ' transitions to any status, except “draft” or “submitted”, ' \
-            'will be populated automatically.' },
-          { name: 'location_description' },
-          { name: 'answer', hint: 'An answer for the RFI.' },
-          { name: 'suggested_answer' },
-          { name: 'title' },
-          { name: 'distribution_list',
-            hint: 'Provide comma seaprated list of values multiple values' }
         ]
       end
     },
@@ -988,97 +550,6 @@
         ]
       end
     },
-    rfis_criteria: {
-      fields: lambda do |_connection, _config_fields|
-        [
-          {
-            name: 'status', control_type: 'select',
-            pick_list: 'rfi_status_list',
-            sticky: true,
-            hint: 'Retrieves RFIs with the specified status',
-            toggle_hint: 'Select status',
-            toggle_field: {
-              name: 'status',
-              label: 'Status',
-              type: 'string',
-              control_type: 'text',
-              toggle_hint: 'Use custom value',
-              hint: 'Allowed values are <br>draft, open, close</b>.'
-            }
-          },
-          {
-            name: 'include_voided', control_type: 'checkbox',
-            type: 'boolean',
-            sticky: true,
-            hint: 'Include voided RFIs in the response. true returns ' \
-            'voided RFIs; false does not return voided RFIs',
-            toggle_hint: 'Select from options list',
-            toggle_field: {
-              name: 'include_voided',
-              label: 'Include voided',
-              type: 'string',
-              control_type: 'text',
-              toggle_hint: 'Use custom value',
-              hint: 'Allowed values are <b>true, false</b>.' \
-              ' Note that <b>status</b> overrides this filter'
-            }
-          },
-          { name: 'target_urn', sticky: true,
-            hint: 'Retrieves RFIs in the project that' \
-            ' were linked to the specified document or documents, using' \
-            'the documents`s URN. e.g. <b>urn:adsk.wipprod:dm.lineage:' \
-            'tFbo9zuDTW-nPh45gnM4gA</b>' },
-          { name: 'assigned_to', sticky: true,
-            hint: 'Retrieves RFIs in the project that' \
-            " were assigned to the specified user, using the user's " \
-            ' Autodesk ID. e.g <b>PER8KQPK2JRT</b>' },
-          { name: 'created_at', sticky: true,
-            hint: 'Retrieves RFIs created at the specfied date. matchValue ' \
-            'is the timestamp of the date in the following format: ' \
-            'YYYY-MM-DDThh:mm:ss.sz, or a date range in the following' \
-            ' format: YYYY-MM-DDThh:mm:ss.sz...YYYY-MM-DDThh:mm:ss.sz.' },
-          { name: 'due_date', sticky: true,
-            hint: 'Retrieves RFIs due by the specified due date. matchValue' \
-            ' is the timestamp of the due date in the following format' \
-            ' : YYYY-MM-DDThh:mm:ss.sz, or a date range in the following' \
-            ' format: YYYY-MM-DDThh:mm:ss.sz...YYYY-MM-DDThh:mm:ss.sz.' },
-          { name: 'search', sticky: true,
-            hint: 'Free search in RFIs of the current container. The search' \
-            ' is been performed in identifier, title, description and ' \
-            'answer fields.' },
-          { name: 'sort', sticky: true,
-            hint: 'Sort the issues by <b>status, due_date,' \
-            ' and title, target_urn, location_description, identifier,' \
-            ' created_at, updated_at</b>. To sort in descending order add a ' \
-            '<b>-</b> before the sort criteria. Separate multiple values' \
-            ' with commas' },
-          { name: 'limit', type: 'integer', sticky: true,
-            hint: 'The number of RFIs to return in the response payload.' \
-            ' Acceptable values: 1-100. Default value: 10' },
-          { name: 'offset', sticky: true,
-            hint: 'the page number that you want to begin RFI results from.' },
-          {
-            name: 'include', sticky: true,
-            label: 'Include additional data',
-            control_type: 'multiselect',
-            pick_list: 'rfi_child_objects',
-            pick_list_params: {},
-            delimiter: ',',
-            toggle_hint: 'Select from list',
-            toggle_field: {
-              name: 'include',
-              label: 'Include additinal data',
-              type: :string,
-              control_type: 'text',
-              optional: true,
-              hint: 'Multiple values separated by comma.',
-              toggle_hint: 'Comma separated list of values. Allowed values ' \
-               'are: <b>attachments, comments,activity_batches, container'
-            }
-          }
-        ]
-      end
-    },
     hub_container_ids: {
       fields: lambda do |_connection, _config_fields|
         [
@@ -1137,31 +608,22 @@
     folder_file: {
       fields: lambda do |_connection, _config_fields|
         [
-          { name: 'type' },
-          { name: 'id' },
+          { name: 'id', label: 'Item ID' },
+          { name: 'type', label: 'Item type' },
           { name: 'attributes', type: 'object', properties: [
-            { name: 'type' },
-            { name: 'name' },
-            { name: 'displayName' },
-            { name: 'createTime', type: 'date_time' },
-            { name: 'createUserId' },
-            { name: 'createUserName' },
-            { name: 'lastModifiedTime', type: 'date_time' },
-            { name: 'lastModifiedUserId' },
-            { name: 'lastModifiedUserName' },
-            { name: 'lastModifiedTimeRollup', type: 'date_time' },
-            { name: 'objectCount', type: 'integer' },
+            { name: 'displayName', label: 'Name' },
+            { name: 'createTime', label: 'Created at', type: 'date_time' },
+            { name: 'createUserId', label: 'Created by (User ID)' },
+            { name: 'createUserName', label: 'Created by (User name)' },
+            { name: 'lastModifiedTime',
+              label: 'Last modified at', type: 'date_time' },
+            { name: 'lastModifiedUserId', label: 'Last modified by (User ID)' },
+            { name: 'lastModifiedUserName',
+              label: 'Last modified by (User Name)' },
             { name: 'hidden', type: 'boolean', control_type: 'checkbox' },
             { name: 'reserved', type: 'boolean', control_type: 'checkbox' },
             { name: 'extension', type: 'object', properties: [
-              { name: 'type' },
-              { name: 'version' },
-              { name: 'data', type: 'object', properties: [
-                { name: 'sourceFileName', hint: 'Applicable for file' },
-                { name: 'visibleTypes', hint: 'Array of strings' },
-                { name: 'actions', hint: 'Array of strings' },
-                { name: 'allowedTypes', hint: 'Array of strings' }
-              ] }
+              { name: 'version' }
             ] }
           ] }
         ]
@@ -1170,122 +632,23 @@
     item: {
       fields: lambda do |_connection, _config_fields|
         [
-          { name: 'included', type: 'array', of: 'object',
-            properties: [
-              { name: 'type' },
-              { name: 'id' },
-              { name: 'relationships', type: 'object', properties: [
-                { name: 'item', type: 'object', properties: [
-                  { name: 'data', type: 'object', properties: [
-                    { name: 'type' },
-                    { name: 'id' }
-                  ] },
-                  { name: 'links', type: 'object', properties: [
-                    { name: 'related', type: 'object', properties: [
-                      { name: 'href' }
-                    ] }
-                  ] }
-                ] },
-                { name: 'refs', type: 'object', properties: [
-                  { name: 'links', type: 'object', properties: [
-                    { name: 'self', type: 'object', properties: [
-                      { name: 'href' }
-                    ] },
-                    { name: 'related', type: 'object', properties: [
-                      { name: 'href' }
-                    ] }
-                  ] }
-                ] },
-                { name: 'storage', type: 'object', properties: [
-                  { name: 'meta', type: 'object', properties: [
-                    { name: 'link', type: 'object', properties: [
-                      { name: 'href' }
-                    ] }
-                  ] },
-                  { name: 'data', type: 'object', properties: [
-                    { name: 'type' },
-                    { name: 'id' }
-                  ] }
-                ] },
-                { name: 'links', type: 'object', properties: [
-                  { name: 'self', type: 'object', properties: [
-                    { name: 'href' }
-                  ] }
-                ] }
-              ] }
-            ] },
           { name: 'data', type: 'object', properties: [
-            { name: 'id' },
-            { name: 'type' },
-            { name: 'relationships', type: 'object', properties: [
-              { name: 'refs', type: 'object', properties: [
-                { name: 'links', type: 'object', properties: [
-                  { name: 'self', type: 'object', properties: [
-                    { name: 'href' }
-                  ] },
-                  { name: 'related', type: 'object', properties: [
-                    { name: 'href' }
-                  ] }
-                ] }
-              ] },
-              { name: 'tip', type: 'object', properties: [
-                { name: 'data', type: 'object', properties: [
-                  { name: 'type' },
-                  { name: 'id' }
-                ] },
-                { name: 'links', type: 'object', properties: [
-                  { name: 'related', type: 'object', properties: [
-                    { name: 'href' }
-                  ] }
-                ] }
-              ] },
-              { name: 'links', type: 'object', properties: [
-                { name: 'self', type: 'object', properties: [
-                  { name: 'href' }
-                ] }
-              ] },
-              { name: 'parent', type: 'object', properties: [
-                { name: 'data', properties: [
-                  { name: 'type' },
-                  { name: 'id' }
-                ] },
-                { name: 'links', type: 'object', properties: [
-                  { name: 'related', type: 'object', properties: [
-                    { name: 'href' }
-                  ] }
-                ] }
-              ] },
-              { name: 'versions', type: 'object', properties: [
-                { name: 'links', type: 'object', properties: [
-                  { name: 'related', type: 'object', properties: [
-                    { name: 'href' }
-                  ] }
-                ] }
-              ] }
-            ] },
+            { name: 'id', label: 'Item ID' },
             { name: 'attributes', type: 'object', properties: [
-              { name: 'type' },
-              { name: 'name' },
-              { name: 'displayName' },
-              { name: 'createTime', type: 'date_time' },
-              { name: 'createUserId' },
-              { name: 'createUserName' },
-              { name: 'lastModifiedTime', type: 'date_time' },
-              { name: 'lastModifiedUserId' },
-              { name: 'lastModifiedUserName' },
-              { name: 'lastModifiedTimeRollup', type: 'date_time' },
-              { name: 'objectCount', type: 'integer' },
+              { name: 'displayName', label: 'Name' },
+              { name: 'createTime', label: 'Created at', type: 'date_time' },
+              { name: 'createUserId', label: 'Created by (User ID)' },
+              { name: 'createUserName', label: 'Created by (User name)' },
+              { name: 'lastModifiedTime',
+                label: 'Last modified at', type: 'date_time' },
+              { name: 'lastModifiedUserId',
+                label: 'Last modified by (User ID)' },
+              { name: 'lastModifiedUserName',
+                label: 'Last modified by (User Name)' },
               { name: 'hidden', type: 'boolean', control_type: 'checkbox' },
               { name: 'reserved', type: 'boolean', control_type: 'checkbox' },
               { name: 'extension', type: 'object', properties: [
-                { name: 'type' },
-                { name: 'version' },
-                { name: 'data', type: 'object', properties: [
-                  { name: 'sourceFileName', hint: 'Applicable for file' },
-                  { name: 'visibleTypes', hint: 'Array of strings' },
-                  { name: 'actions', hint: 'Array of strings' },
-                  { name: 'allowedTypes', hint: 'Array of strings' }
-                ] }
+                { name: 'version' }
               ] }
             ] }
           ] }
@@ -1418,7 +781,6 @@
         ]
       end
     },
-
     custom_action_output: {
       fields: lambda do |_connection, config_fields|
         parse_json(config_fields['output'] || '[]')
@@ -1508,11 +870,18 @@
                            "/projects/#{project_id}")&.
                        dig('data', 'relationships', 'issues', 'data', 'id')
         { issues: get("/issues/v1/containers/#{container_id}/quality-issues",
-                      filter_criteria)['data'] }
+                      filter_criteria)['data'] }&.
+                  merge({ hub_id: hub_id, container_id: container_id,
+                          project_id: project_id })
       end,
       output_fields: lambda do |object_definitions|
-        [{ name: 'issues', type: 'array', of: 'object',
-           properties: object_definitions['issue'] }]
+        [
+          { name: 'hub_id' },
+          { name: 'project_id' },
+          { name: 'container_id' },
+          { name: 'issues', type: 'array', of: 'object',
+            properties: object_definitions['issue'] }
+        ]
       end,
       sample_output: lambda do |_connection, input|
         project_id = input['project_id']
@@ -1552,26 +921,27 @@
           },
           {
             name: 'container_id',
-            label: 'Container name',
+            label: 'Project name',
             control_type: 'select',
             pick_list: 'issue_container_lists',
             pick_list_params: { hub_id: 'hub_id' },
             optional: false,
-            toggle_hint: 'Select container',
+            toggle_hint: 'Select project',
             toggle_field: {
               name: 'container_id',
               label: 'Container ID',
               type: 'string',
               control_type: 'text',
               toggle_hint: 'Use custom value',
-              hint: 'Provide container id e.g. b.baf-0871-4aca-82e8-3dd6db00'
+              hint: 'Provide container id e.g. ' \
+              'edac0659-639a-4a87-8614-d2c521b246b0'
             }
           }
         ].concat(object_definitions['create_issue'].
           required('title', 'ng_issue_type_id', 'ng_issue_subtype_id'))
       end,
       execute: lambda do |_connection, input|
-        input.delete('hub_id')
+        hub_id = input.delete('hub_id')
         container_id = input.delete('container_id')
         payload = {
           type: 'quality_issues',
@@ -1579,12 +949,16 @@
         }
         post("/issues/v1/containers/#{container_id}/quality-issues").
           payload({ data: payload }).
+          headers('Content-Type': 'application/vnd.api+json').
           after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message}: #{body}")
-          end['data']
+          end['data']&.merge({ container_id: container_id, hub_id: hub_id })
       end,
       output_fields: lambda do |object_definitions|
-        object_definitions['issue']
+        [
+          { name: 'hub_id' },
+          { name: 'container_id' }
+        ].concat(object_definitions['issue'])
       end,
       sample_output: lambda do |_connection, input|
         project_id = input['project_id']
@@ -1598,7 +972,7 @@
     update_issue_in_project: {
       title: 'Updated issue in a project',
       description: 'Update <span class="provider">issue</span> in'\
-        ' <span class="provider">BIM 360</span>',
+        ' a project in <span class="provider">BIM 360</span>',
       help: {
         body: 'BIM 360 issues are managed either in the BIM 360 Document' \
         ' Management module or the BIM 360 Field Management module.</br>' \
@@ -1646,25 +1020,30 @@
             name: 'id', label: 'Issue ID',
             optional: false
           }
-        ].concat(object_definitions['update_issue'])
+        ].concat(object_definitions['update_issue'].ignored('id'))
       end,
       execute: lambda do |_connection, input|
-        input.delete('hub_id')
+        hub_id = input.delete('hub_id')
+        container_id = input.delete('container_id')
         id = input.delete('id')
         payload = {
           id: id,
           type: 'quality_issues',
           attributes: input
         }
-        patch("/issues/v1/containers/#{input.delete('container_id')}/" \
+        patch("/issues/v1/containers/#{container_id}/" \
               "quality-issues/#{id}").
           payload({ data: payload }).
+          headers('Content-Type': 'application/vnd.api+json').
           after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message}: #{body}")
-          end['data']
+          end['data']&.merge({ hub_id: hub_id, container_id: container_id })
       end,
       output_fields: lambda do |object_definitions|
-        object_definitions['issue']
+        [
+          { name: 'hub_id' },
+          { name: 'container_id' }
+        ].concat(object_definitions['issue'])
       end,
       sample_output: lambda do |_connection, input|
         project_id = input['project_id']
@@ -1705,19 +1084,20 @@
           },
           {
             name: 'container_id',
-            label: 'Container name',
+            label: 'Project name',
             control_type: 'select',
             pick_list: 'issue_container_lists',
             pick_list_params: { hub_id: 'hub_id' },
             optional: false,
-            toggle_hint: 'Select container',
+            toggle_hint: 'Select project',
             toggle_field: {
               name: 'container_id',
               label: 'Container ID',
               type: 'string',
               control_type: 'text',
               toggle_hint: 'Use custom value',
-              hint: 'Provide container id e.g. b.baf-0871-4aca-82e8-3dd6db00'
+              hint: 'Provide container id e.g. ' \
+              'edac0659-639a-4a87-8614-d2c521b246b0'
             }
           },
           { name: 'issue_id', optional: false }
@@ -1728,10 +1108,15 @@
             "quality-issues/#{input['issue_id']}").
           after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message}: #{body}")
-          end['data']
+          end['data'].
+          merge({ hub_id: input['hub_id'],
+                  container_id: input['container_id'] })
       end,
       output_fields: lambda do |object_definitions|
-        object_definitions['issue']
+        [
+          { name: 'hub_id' },
+          { name: 'container_id' }
+        ].concat(object_definitions['issue'])
       end,
       sample_output: lambda do |_connection, input|
         project_id = input['project_id']
@@ -1805,357 +1190,25 @@
         get("/project/v1/hubs/#{id}/projects")&.dig('data', 0) || {}
       end
     },
-    search_projects_in_account: {
-      title: 'Search projects in account',
-      description: 'Search <span class="provider">projects</span> details in'\
-        ' <span class="provider">BIM 360</span>',
-      help: {
-        body: 'Returns a collection of projects for a given hub_id. A ' \
-        'project represents a BIM 360 Team project, a Fusion Team project,' \
-        ' a BIM 360 Docs project, or an A360 Personal project. Multiple ' \
-        'projects can be created within a single hub.<br/>' \
-        'Note that for BIM 360 Docs, a hub ID corresponds to an account ID' \
-        ' in the BIM 360 API. To convert an account ID into a hub ID you need' \
-        ' to add a “b.” prefix. For example, an account ID of c8b0c73d-3ae9' \
-        ' translates to a hub ID of b.c8b0c73d-3ae9.'
-      },
-      input_fields: lambda do |_object_definitions|
+    download_drawing_export: {
+      description: 'Download <span class="provider">drawing export</span> in'\
+        ' a project in <span class="provider">BIM 360</span>',
+      input_fields: lambda do |object_definitions|
         [
-          {
-            name: 'hub_id',
-            label: 'Hub name',
-            control_type: 'select',
-            pick_list: 'hub_list',
-            optional: false,
-            toggle_hint: 'Select hub',
-            toggle_field: {
-              name: 'hub_id',
-              label: 'Hub ID',
-              type: 'string',
-              control_type: 'text',
-              toggle_hint: 'Use custom value',
-              hint: 'Provide hub id e.g. b.baf-0871-4aca-82e8-3dd6db00'
-            }
-          },
-          {
-            name: 'id',
-            label: 'Project name',
-            control_type: 'multiselect',
-            pick_list: 'project_list',
-            pick_list_params: { hub_id: 'hub_id' },
-            optional: false,
-            toggle_hint: 'Select project',
-            toggle_field: {
-              name: 'id',
-              label: 'Project IDs',
-              type: 'string',
-              control_type: 'text',
-              toggle_hint: 'Use custom value',
-              hint:
-              'Provide multiple ID\'s as comma separated e.g. ' \
-              '<b>b.baf-0871-4aca-82e8-3dd6db00,b.baf-0871-4aca-' \
-              '82e8-3dd6db01</b>'
-            }
-          },
-          { name: 'type', label: 'Project type',
-            sticky: true,
-            hint: 'Provide the project type e.g. for Project i.e. ' \
-            '<b>projects:autodesk.bim360:Project</b>' }
+          { name: 'export_link', label: 'Export link', optional: false}
         ]
       end,
       execute: lambda do |_connection, input|
-        filter = { 'filter[id]' => input['id'],
-                   'filter[extension.type]' => input['type'] }.compact
-        { projects: get("/project/v1/hubs/#{input.delete('hub_id')}/projects/",
-                        filter)['data'] }
-      end,
-      output_fields: lambda do |object_definitions|
-        [{ name: 'projects', type: 'array', of: 'object',
-           properties: object_definitions['project'] }]
-      end,
-      sample_output: lambda do |_connection, _input|
-        id = get('/project/v1/hubs')&.dig('data', 0)&.[]('id')
-        { projects: get("/project/v1/hubs/#{id}/projects")&.
-          dig('data', 0) || {} }
-      end
-    },
-    search_rfis_in_project: {
-      title: 'Search RFIs in project',
-      description: 'Search <span class="provider">RFIs</span> in a project in'\
-        ' <span class="provider">BIM 360</span>',
-      help: {
-        body: 'Retrieves information about all the BIM 360 RFIs (requests ' \
-        'for information) in a project, including details about their ' \
-        'associated comments and attachments.'
-      },
-      input_fields: lambda do |object_definitions|
-        [
-          {
-            name: 'hub_id',
-            label: 'Hub name',
-            control_type: 'select',
-            pick_list: 'hub_list',
-            optional: false,
-            toggle_hint: 'Select hub',
-            toggle_field: {
-              name: 'hub_id',
-              label: 'Hub ID',
-              type: 'string',
-              control_type: 'text',
-              toggle_hint: 'Use custom value',
-              hint: 'Provide hub id e.g. b.baf-0871-4aca-82e8-3dd6db00'
-            }
-          },
-          {
-            name: 'container_id',
-            label: 'Container name',
-            control_type: 'select',
-            pick_list: 'rfis_container_lists',
-            pick_list_params: { hub_id: 'hub_id' },
-            optional: false,
-            toggle_hint: 'Select container',
-            toggle_field: {
-              name: 'container_id',
-              label: 'Container ID',
-              type: 'string',
-              control_type: 'text',
-              toggle_hint: 'Use custom value',
-              hint: 'Provide container id e.g. b.baf-0871-4aca-82e8-3dd6db00'
-            }
-          }
-        ].concat(object_definitions['rfis_criteria'])
-      end,
-      execute: lambda do |_connection, input|
-        input.delete('hub_id')
-        container_id = input.delete('container_id')
-        filter_criteria = call('format_search', input)
-        { rfis: get("/bim360/rfis/v1/containers/#{container_id}/rfis",
-                    filter_criteria)['data'] }
-      end,
-      output_fields: lambda do |object_definitions|
-        [{ name: 'rfis', type: 'array', of: 'object',
-           properties: object_definitions['rfi'] }]
-      end,
-      sample_output: lambda do |_connection, input|
-        { rfis:
-          get("/bim360/rfis/v1/containers/#{input['container_id']}/rfis")&.
-          dig('data', 0) || {} }
-      end
-    },
-    get_rfi_in_project: {
-      title: 'Get RFI in a project',
-      description: 'Get <span class="provider">RFI</span> in'\
-        ' a project in <span class="provider">BIM 360</span>',
-      help: {
-        body: 'Retrieves detailed information about a single BIM 360 RFI' \
-        ' (request for information).'
-      },
-      input_fields: lambda do |_object_definitions|
-        [
-          {
-            name: 'hub_id',
-            label: 'Hub name',
-            control_type: 'select',
-            pick_list: 'hub_list',
-            optional: false,
-            toggle_hint: 'Select hub',
-            toggle_field: {
-              name: 'hub_id',
-              label: 'Hub ID',
-              type: 'string',
-              control_type: 'text',
-              toggle_hint: 'Use custom value',
-              hint: 'Provide hub id e.g. b.baf-0871-4aca-82e8-3dd6db00'
-            }
-          },
-          {
-            name: 'container_id',
-            label: 'Container name',
-            control_type: 'select',
-            pick_list: 'rfis_container_lists',
-            pick_list_params: { hub_id: 'hub_id' },
-            optional: false,
-            toggle_hint: 'Select container',
-            toggle_field: {
-              name: 'container_id',
-              label: 'Container ID',
-              type: 'string',
-              control_type: 'text',
-              toggle_hint: 'Use custom value',
-              hint: 'Provide container id e.g. b.baf-0871-4aca-82e8-3dd6db00'
-            }
-          },
-          { name: 'id', optional: false, label: 'RFI ID' }
-        ]
-      end,
-      execute: lambda do |_connection, input|
-        get("/bim360/rfis/v1/containers/#{input['container_id']}/rfis/" \
-            "#{input['id']}").
+        file_content =
+          get(input['export_link']).headers('Accept-Encoding': 'Accept-Encoding:gzip').
+          response_format_raw.
           after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message}: #{body}")
-          end['data']
-      end,
-      output_fields: lambda do |object_definitions|
-        object_definitions['rfi']
-      end,
-      sample_output: lambda do |_connection, input|
-        get("/bim360/rfis/v1/containers/#{input['container_id']}/rfis")&.
-          dig('data', 0) || {}
-      end
-    },
-    create_rfi_in_project: {
-      title: 'Create RFI in a project',
-      description: 'Create <span class="provider">RFI</span> in'\
-        ' a project in <span class="provider">BIM 360</span>',
-      help: {
-        body: 'Adds a BIM 360 RFI (request for information) to a project. ' \
-        'Users can create RFIs if they have been assigned either creator ' \
-        '(sc) or manager (gc) workflow roles. Project admins are ' \
-        'automatically assigned the creator workflow role.'
-      },
-      input_fields: lambda do |object_definitions|
-        [
-          {
-            name: 'hub_id',
-            label: 'Hub name',
-            control_type: 'select',
-            pick_list: 'hub_list',
-            optional: false,
-            toggle_hint: 'Select hub',
-            toggle_field: {
-              name: 'hub_id',
-              label: 'Hub ID',
-              type: 'string',
-              control_type: 'text',
-              toggle_hint: 'Use custom value',
-              hint: 'Provide hub id e.g. b.baf-0871-4aca-82e8-3dd6db00'
-            }
-          },
-          {
-            name: 'container_id',
-            label: 'Container name',
-            control_type: 'select',
-            pick_list: 'rfis_container_lists',
-            pick_list_params: { hub_id: 'hub_id' },
-            optional: false,
-            toggle_hint: 'Select container',
-            toggle_field: {
-              name: 'container_id',
-              label: 'Container ID',
-              type: 'string',
-              control_type: 'text',
-              toggle_hint: 'Use custom value',
-              hint: 'Provide container id e.g. b.baf-0871-4aca-82e8-3dd6db00'
-            }
-          }
-        ].concat(object_definitions['modify_rfi'].
-          ignored('transition_id', 'assigned_to', 'answer'))
-      end,
-      execute: lambda do |_connection, input|
-        input.delete('hub_id')
-        container_id = input.delete('container_id')
-        input_payload = input&.map do |key, value|
-          if %w[distribution_list co_reviewers].include?(key)
-            { key => value.split(',') }
-          else
-            { key => value }
           end
-        end&.inject(:merge)
-        payload = {
-          type: 'rfis',
-          attributes: input_payload
-        }
-        post("/bim360/rfis/v1/containers/#{container_id}/rfis").
-          payload({ data: payload }).
-          after_error_response(/.*/) do |_code, body, _header, message|
-            error("#{message}: #{body}")
-          end['data']
+        { content: file_content }
       end,
-      output_fields: lambda do |object_definitions|
-        object_definitions['rfi']
-      end,
-      sample_output: lambda do |_connection, input|
-        get("/bim360/rfis/v1/containers/#{input['container_id']}/rfis")&.
-          dig('data', 0) || {}
-      end
-    },
-    update_rfi_in_project: {
-      title: 'Updated RFI in a project',
-      description: 'Update <span class="provider">RFI</span> in a project in'\
-        ' <span class="provider">BIM 360</span>',
-      help: {
-        body: 'Updates a BIM 360 Project Management RFI. If the RFI is in ' \
-        'Draft status, it can only be updated by the user who created the ' \
-        'RFI. For all other statuses, it can only be updated by the user who' \
-        ' was assigned to the RFI.'
-      },
-      input_fields: lambda do |object_definitions|
-        [
-          {
-            name: 'hub_id',
-            label: 'Hub name',
-            control_type: 'select',
-            pick_list: 'hub_list',
-            optional: false,
-            toggle_hint: 'Select hub',
-            toggle_field: {
-              name: 'hub_id',
-              label: 'Hub ID',
-              type: 'string',
-              control_type: 'text',
-              toggle_hint: 'Use custom value',
-              hint: 'Provide hub id e.g. b.baf-0871-4aca-82e8-3dd6db00'
-            }
-          },
-          {
-            name: 'container_id',
-            label: 'Container name',
-            control_type: 'select',
-            pick_list: 'rfis_container_lists',
-            pick_list_params: { hub_id: 'hub_id' },
-            optional: false,
-            toggle_hint: 'Select container',
-            toggle_field: {
-              name: 'container_id',
-              label: 'Container ID',
-              type: 'string',
-              control_type: 'text',
-              toggle_hint: 'Use custom value',
-              hint: 'Provide container id e.g. b.baf-0871-4aca-82e8-3dd6db00'
-            }
-          },
-          { name: 'id', optional: false, label: 'RFI ID' }
-        ].concat(object_definitions['modify_rfi'].
-          ignored('suggested_answer'))
-      end,
-      execute: lambda do |_connection, input|
-        input.delete('hub_id')
-        container_id = input.delete('container_id')
-        id = input.delete('id')
-        input_payload = input&.map do |key, value|
-          if %w[distribution_list co_reviewers].include?(key)
-            { key => value.split(',') }
-          else
-            { key => value }
-          end
-        end&.inject(:merge)
-        payload = {
-          id: id,
-          type: 'rfis',
-          attributes: input_payload
-        }
-        patch("/bim360/rfis/v1/containers/#{container_id}/rfis/#{id}").
-          payload({ data: payload }).
-          after_error_response(/.*/) do |_code, body, _header, message|
-            error("#{message}: #{body}")
-          end['data']
-      end,
-      output_fields: lambda do |object_definitions|
-        object_definitions['rfi']
-      end,
-      sample_output: lambda do |_connection, input|
-        get("/bim360/rfis/v1/containers/#{input['container_id']}/rfis")&.
-          dig('data', 0) || {}
+      output_fields: lambda do |_object_definitions|
+        [{ name: 'content' }]
       end
     },
     export_project_plan: {
@@ -2257,11 +1310,41 @@
               toggle_hint: 'Use custom value',
               hint: 'Use version number'
             }
+          },
+          {
+            name: 'includeMarkups', control_type: 'checkbox',
+            type: 'boolean', label: 'Include markups',
+            sticky: true,
+            hint: 'Include markups in the export',
+            toggle_hint: 'Select from options list',
+            toggle_field: {
+              name: 'includeMarkups',
+              label: 'Include markups',
+              type: 'string',
+              control_type: 'text',
+              toggle_hint: 'Use custom value',
+              hint: 'Allowed values are <b>true, false</b>.'
+            }
+          },
+          {
+            name: 'includeHyperlinks', control_type: 'checkbox',
+            type: 'boolean', label: 'Include hyperlinks',
+            sticky: true,
+            hint: 'Include hyperlinks in the export',
+            toggle_hint: 'Select from options list',
+            toggle_field: {
+              name: 'includeHyperlinks',
+              label: 'Include hyperlinks',
+              type: 'string',
+              control_type: 'text',
+              toggle_hint: 'Use custom value',
+              hint: 'Allowed values are <b>true, false</b>.'
+            }
           }
         ],
       execute: lambda do |_connection, input|
         #  Step 1 find the version id of the file to export
-        input.delete('hub_id')
+        hub_id = input.delete('hub_id')
         input.delete('folder_id')
         version_number = input['version_number'] || get('/data/v1/projects/' \
           "#{input['project_id']}/items/#{input['item_id']}/" \
@@ -2269,14 +1352,29 @@
         version_url = version_number.encode_url
         # Step 2 upload the file
         project_id = input.delete('project_id').gsub('b.', '')
+          item_id = input.delete('item_id')
+        # create payload with `true`/`false` booleans
+        input_payload = {}
+        input&.map do |key, value|
+            if value.to_s.downcase === 'true'
+              input_payload[key] = true
+            else
+              input_payload[key] = false
+            end
+          end
         post("/bim360/docs/v1/projects/#{project_id}/versions" \
           "/#{version_url}/exports").
+          payload(input_payload).
+          headers('content-type': 'application/json').
           after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message}: #{body}")
-          end
+          end&.merge({ hub_id: hub_id, project_id: 'b.' + project_id, item_id: item_id })
       end,
       output_fields: lambda do |_object_definitions|
         [
+          { name: 'hub_id' },
+          { name: 'project_id' },
+          { name: 'item_id' },
           { name: 'id', label: 'Export ID' },
           { name: 'status' }
         ]
@@ -2354,10 +1452,16 @@
       end,
       execute: lambda do |_connection, input|
         get("/data/v1/projects/#{input['project_id']}/folders" \
-            "/#{input['folder_id']}")['data']
+            "/#{input['folder_id']}")['data']&.
+          merge({ hub_id: input['hub_id'], project_id: input['project_id'],
+                  folder_id: input['folder_id'] })
       end,
       output_fields: lambda do |object_definitions|
-        object_definitions['folder_file']
+        [
+          { name: 'hub_id' },
+          { name: 'project_id' },
+          { name: 'folder_id' }
+        ].concat(object_definitions['folder_file'])
       end,
       sample_output: lambda do |_connection, input|
         get("project/v1/hubs/#{input['hub_id']}/projects/" \
@@ -2425,19 +1529,29 @@
               label: 'Folder ID',
               toggle_hint: 'Use Folder ID',
               hint: 'Use Folder ID'
-            } }
+            } },
+          { name: 'filters',
+            label: 'Filters',
+            control_type: 'text',
+            sticky: true,
+            hint: 'Enter filters for the search. A list of filters can be' \
+            ' found <a href="https://forge.autodesk.com/en/docs/data/v2/' \
+            'developers_guide/filtering" target_blank">here</a>.' }
         ]
       end,
       execute: lambda do |_connection, input|
         get("/data/v1/projects/#{input['project_id']}/folders" \
-            "/#{input['folder_id']}/contents")
+            "/#{input['folder_id']}/contents?#{input['filters']}")&.
+          merge({ hub_id: input['hub_id'], project_id: input['project_id'],
+                  folder_id: input['folder_id'] })
       end,
       output_fields: lambda do |object_definitions|
         [
+          { name: 'hub_id' },
+          { name: 'project_id' },
+          { name: 'folder_id' },
           { name: 'data', type: 'array', of: 'object',
-            properties: object_definitions['folder_file'] },
-          { name: 'included', type: 'array', of: 'object',
-            properties: object_definitions['version'] }
+            properties: object_definitions['folder_file'] }
         ]
       end,
       sample_output: lambda do |_connection, input|
@@ -2514,7 +1628,7 @@
             label: 'File name',
             control_type: 'tree',
             hint: 'Select folder',
-            toggle_hint: 'Select Folder',
+            toggle_hint: 'Select Item',
             pick_list: :folder_items,
             pick_list_params: { project_id: 'project_id',
                                 folder_id: 'folder_id' },
@@ -2530,10 +1644,14 @@
         ],
       execute: lambda do |_connection, input|
         get("/data/v1/projects/#{input['project_id']}/items/" \
-            "#{input['item_id']}")
+            "#{input['item_id']}")&.
+          merge({ project_id: input['project_id'], hub_id: input['hub_id'] })
       end,
       output_fields: lambda do |object_definitions|
-        object_definitions['item']
+        [
+          { name: 'hub_id' },
+          { name: 'project_id' }
+        ].concat(object_definitions['item'])
       end,
       sample_output: lambda do |_connection, input|
         get("/data/v1/projects/#{input['project_id']}/items/" \
@@ -2541,17 +1659,13 @@
       end
     },
     get_drawing_export_status: {
-      title: 'Get drwaing export status in a project',
-      description: 'Get <span class="provider">drwaing export status</span> in'\
+      title: 'Get drawing export status in a project',
+      description: 'Get <span class="provider">drawing export status</span> in'\
         ' a project in <span class="provider">BIM 360</span>',
       help: {
         body: 'This action returns the status of a PDF export job, as well' \
         '  as data you need to download the exported file when the export is ' \
-        'complete. Get export job status action uses the' \
-        " <a href='https://forge.autodesk.com/en/docs/bim360/v1/reference/" \
-        'http/document-management-projects-project_id-versions-version_id' \
-        "-exports-export_id-GET/' " \
-        "target='_blank'>Get export job</a> API."
+        'complete.'
       },
       config_fields:
         [
@@ -2589,23 +1703,6 @@
               'Provide project id e.g. <b>b.baf-0871-4aca-82e8-3dd6db00</b>'
             }
           },
-          { name: 'folder_id',
-            label: 'Folder',
-            control_type: 'tree',
-            hint: 'Select folder',
-            toggle_hint: 'Select Folder',
-            pick_list_params: { hub_id: 'hub_id', project_id: 'project_id' },
-            tree_options: { selectable_folder: true },
-            pick_list: :folders_list,
-            optional: false,
-            toggle_field: {
-              name: 'folder_id',
-              type: 'string',
-              control_type: 'text',
-              label: 'Folder ID',
-              toggle_hint: 'Use Folder ID',
-              hint: 'Use Folder ID'
-            } },
           {
             name: 'item_id',
             label: 'File name',
@@ -2621,25 +1718,7 @@
               control_type: 'text',
               label: 'File ID',
               toggle_hint: 'Use file ID',
-              hint: 'Use file ID'
-            }
-          },
-          {
-            name: 'version_number',
-            control_type: 'select',
-            pick_list: 'item_versions',
-            sticky: true,
-            pick_list_params: { project_id: 'project_id', item_id: 'item_id' },
-            optional: true,
-            toggle_hint: 'Select version',
-            toggle_field: {
-              name: 'version_number',
-              label: 'Version number',
-              type: 'integer',
-              control_type: 'number',
-              optional: true,
-              toggle_hint: 'Use custom value',
-              hint: 'Use version number'
+              hint: 'Use file or item ID'
             }
           }
         ],
@@ -2649,16 +1728,22 @@
         ]
       end,
       execute: lambda do |_connection, input|
-        version_number = input['version_number'] || get('/data/v1/projects/' \
+        version_number = input['version_urn'] || get('/data/v1/projects/' \
           "#{input['project_id']}/items/#{input['item_id']}/" \
             'versions')&.dig('data', 0, 'id')
-        version_url = version_number.encode_url
+        version_url = version_number.split('?').first.encode_url
         # version_url = version_number.encode_url
-        get("/bim360/docs/v1/projects/#{input['project_id']}/versions/" \
-          "#{version_url}/exports/#{input['export_id']}")
+        project_id = input['project_id'].split('.').last
+        get("/bim360/docs/v1/projects/#{project_id}/versions/" \
+          "#{version_url}/exports/#{input['export_id']}").
+          merge({ hub_id: input['hub_id'], project_id: input['project_id'], item_id: input['item_id'] })
       end,
       output_fields: lambda do |object_definitions|
-        object_definitions['export_status']
+        [
+          { name: 'hub_id' },
+          { name: 'project_id' },
+          { name: 'item_id' }
+        ].concat(object_definitions['export_status'])
       end,
       sample_output: lambda do |_connection, _input|
         call('sample_data_export_job')
@@ -2711,7 +1796,6 @@
             pick_list_params: { hub_id: 'hub_id', project_id: 'project_id' },
             tree_options: { selectable_folder: true },
             pick_list: :folders_list,
-            optional: false,
             toggle_field: {
               name: 'folder_id',
               type: 'string',
@@ -2744,11 +1828,16 @@
                        "#{input['item_id']}")&.
                    dig('included', 0, 'relationships', 'storage', 'meta',
                        'link', 'href')
-        file_content =
-          get(file_url).response_format_raw.
-          after_error_response(/.*/) do |_code, body, _header, message|
-            error("#{message}: #{body}")
-          end
+        if file_url.present?
+          file_content =
+            get(file_url).headers('Accept-Encoding': 'Accept-Encoding:gzip').
+            response_format_raw.
+            after_error_response(/.*/) do |_code, body, _header, message|
+              error("#{message}: #{body}")
+            end
+        else
+          error('Invalid URL')
+        end
         { content: file_content }
       end,
       output_fields: lambda do |_object_definitions|
@@ -2759,6 +1848,11 @@
       title: 'Upload document to a project',
       description: 'Upload <span class="provider">document</span> to a project'\
         ' in <span class="provider">BIM 360</span>',
+      help: {
+        body: 'Note that you cannot upload documents to the root folder in ' \
+        'BIM 360 Docs; you can only upload documents to the Project Files ' \
+        'folder or to a folder nested under the Project Files folder'
+      },
       config_fields: [
         {
           name: 'hub_id',
@@ -2814,35 +1908,48 @@
       ],
       input_fields: lambda do |_object_definitions|
         [
-          { name: 'file_name', optional: false,
+          { name: 'file_name', optional: false, label: 'File name',
             hint: 'File name should include extension of the file. e.g. ' \
-            '<b>my_file.jpg</b>' },
+            '<b>my_file.jpg</b>. The name of the file (1-255 characters). ' \
+            'Reserved characters: <, >, :, ", /, \, |, ?, *, `, \n, \r, \t,' \
+            ' \0, \f, ¢, ™, $, ®' },
           { name: 'file_content', optional: false },
-          { name: 'object_type', label: 'File type',
-            optional: false,
-            control_type: 'select',
+          { name: 'file_extension', control_type: 'select',
             pick_list: 'file_types',
-            toggle_hint: 'Select type',
+            toggle_hint: 'Select file extension',
             toggle_field: {
-              name: 'object_type',
-              label: 'File type',
+              name: 'file_extension',
               type: 'string',
               control_type: 'text',
-              toggle_hint: 'File type ID',
+              label: 'File extension',
+              toggle_hint: 'Use custom value',
               hint: 'Only relevant for creating files - the type of file ' \
-              'extension. For BIM 360 Docs files, use <b>items:autodesk.' \
-              'bim360:File</b>, For all other services, use'  \
-              '<b>items:autodesk.core:File</b>'
-            },
-            hint: 'Only relevant for creating files - the type of file ' \
-            'extension. For BIM 360 Docs files, use <b>items:autodesk.' \
-            'bim360:File</b>, For all other services, use'  \
-            ' <b>items:autodesk.core:File</b>' },
-          { name: 'parent_folder_id',
-            hint: 'The URN of the parent folder in which you want to create' \
-            ' a version of a file or to copy a file to.' },
-          { name: 'extension_version',
-            hint: 'The version of the version extension type ' }
+              'extension. <br/>. For BIM 360 Docs files, use ' \
+              'items:autodesk.bim360:File.<br/>' \
+              'For all other services, use items:autodesk.core:File.'
+            } },
+          { name: 'version_type', label: 'Type of version',
+            hint: 'Only relevant for creating files - the type of version.',
+            control_type: 'select',
+            pick_list: 'version_types',
+            toggle_hint: 'Select version type',
+            toggle_field: {
+              name: 'version_type',
+              label: 'Type of version',
+              type: 'string',
+              control_type: 'text',
+              toggle_hint: 'Use custom value',
+              hint: 'Only relevant for creating files - the type of version.' \
+              '<br/>For BIM 360 Docs files, use versions:autodesk.bim360:File' \
+              '<br/>For A360 composite design files, use versions:autodesk.' \
+              'a360:CompositeDesign<br/>' \
+              'For A360 Personal, Fusion Team, or BIM 360 Team files, use' \
+              ' versions:autodesk.core:File.'
+            } },
+          { name: 'extension_type_version',
+            hint: 'The version of the version extension type. The current ' \
+            'version is 1.0 ' }
+
         ]
       end,
       execute: lambda do |_connection, input|
@@ -2864,42 +1971,65 @@
             }
           }
         }
+        hub_id = input.delete('hub_id')
         project_id = input.delete('project_id').gsub('b:', '')
-        object_id =
+        response_storage =
           post('https://developer.api.autodesk.com/data/v1/' \
                "projects/#{project_id}/storage").
+          headers('Content-Type': 'application/vnd.api+json',
+                  'Accept': 'application/vnd.api+json').
           payload(payload).
           after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message}: #{body}")
-          end&.dig('data', 'id')
+          end
+        object_id = response_storage&.dig('data', 'id')
+
         # 2 Upload file to storage location
         bucket_key = object_id.split('/').first.split('object:').last
         object_name = object_id.split('/').last
         response = put('https://developer.api.autodesk.com/oss/v2/buckets/' \
                        "#{bucket_key}/objects/#{object_name}").
-                   after_error_response(/.*/) do |_code, body, _header, message|
-                     error("#{message}: #{body}")
-                   end
-        storage_object_id = response['objectId']
+                    request_body(input['file_content']).
+                    headers('Content-Type': 'application/octet-stream').
+                    after_error_response(/.*/) do |_code, body, _header, message|
+                      error("#{message}: #{body}")
+                    end
+        object_urn = response['objectId']
         # 3 create a first version of the File
+        # folder_urn = get("/data/v1/projects/#{input['project_id']}/folders" \
+        #                  "/#{input['folder_id']}")['data']
         version_payload = {
           'jsonapi' => { 'version' => '1.0' },
           'data' => {
+            # type of the resource
             'type' => 'items',
+            # The attributes of the data object.
             'attributes' => {
               'displayName' => input['file_name'],
+              # Extended information on the resource.
               'extension' =>
-              { 'type' => input['object_type'], 'version' => '1.0' }
+              {
+                # relevant for creating files
+                'type' => input['file_extension'],
+                'version' => '1.0'
+              }
             },
             'relationships' => {
+              # The information on the tip version of this resource.
               'tip' => {
                 'data' => {
                   'type' => 'versions',
                   'id' => '1'
                 }
               },
+              # Information on the parent resource of this resource.
               'parent' => {
-                'data' => { 'type' => 'folders', 'id' => input['folder_id'] }
+                'data' => {
+                  'type' => 'folders',
+                  # The URN of the parent folder in which you want to create
+                  # a version of a file or to copy a file to.
+                  'id' => input['folder_id']
+                }
               }
             }
           },
@@ -2910,206 +2040,46 @@
               'attributes' => {
                 'name' => input['file_name'],
                 'extension' => {
-                  'type' => input['object_type'],
-                  'version' => '1.0'
+                  'type' => input['version_type'],
+                  'version' => input['extension_type_version'] || '1.0'
                 }
               },
               'relationships' => {
                 'storage' => {
                   'data' => {
                     'type' => 'objects',
-                    'id' => storage_object_id
+                    'id' => object_urn
                   }
                 }
-                # ,
-                # 'refs' => {
-                #   'data' => {
-                #     'type' => 'versions',
-                #     'id' => '1.0'
-                #   },
-                #   'meta' => {
-                #     'refType' => 'xrefs',
-                #     'direction' => '',
-                #     'extension' => {
-                #       'type' => 'xrefs:autodesk.core:Xref',
-                #       'version' => '1.1.0.',
-                #       'data' => {
-                #         'nestedType' => 'attachment'
-                #       }
-                #     }
-                #   }
-                # }
               }
             }
           ]
         }
-        item_id =
-          post("/data/v1/projects/#{project_id}/items").
-          request_body(version_payload.to_json).
-          headers(Accept: 'application/vnd.api+json').
+
+        # item_id =
+        post("/data/v1/projects/#{project_id}/items").
+          payload(version_payload).
+          headers('Content-Type': 'application/vnd.api+json',
+                  Accept: 'application/vnd.api+json').
           after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message}: #{body}")
-          end.dig('data', 'id')
-        # 4 Update version of the file
-        update_version = {
-          'jsonapi' => '1.0',
-          'data' => {
-            'type' => 'versions',
-            'attributes': {
-              'extension' => {
-                'type' => 'versions:autodesk.core:File"',
-                'version' => '1.0'
-              }
-            },
-            'relationships' => {
-              'item' => {
-                'data' => {
-                  'type' => 'items',
-                  'id' => item_id
-                }
-              },
-              'storage' => {
-                'data' => {
-                  'type' => 'objects',
-                  'id' => storage_object_id
-                }
-              }
-            }
-          }
-        }
-        post("/data/v1/projects/#{project_id}/versions").
-          payload(update_version).
-          after_error_response(/.*/) do |_code, body, _header, message|
-            error("#{message}: #{body}")
-          end
+          end&.dig('data')&.merge({ hub_id: hub_id, project_id: project_id })
       end,
       output_fields: lambda do |object_definitions|
-        object_definitions['folder_file']
+        [
+          { name: 'hub_id' },
+          { name: 'project_id' }
+        ].concat(object_definitions['folder_file'])
       end
     }
   },
   triggers: {
-    new_rfi_in_project: {
-      title: 'New RFI in a project',
-      description: 'New <span class="provider">RFI</span> in'\
-        ' a project in <span class="provider">BIM 360</span>',
-      help: {
-        body: 'Triggers when a RFI in a project is created.'
-      },
-      input_fields: lambda do |_object_definitions|
-        [
-          {
-            name: 'hub_id',
-            label: 'Hub name',
-            control_type: 'select',
-            pick_list: 'hub_list',
-            optional: false,
-            toggle_hint: 'Select hub',
-            toggle_field: {
-              name: 'hub_id',
-              label: 'Hub ID',
-              type: 'string',
-              control_type: 'text',
-              toggle_hint: 'Use custom value',
-              hint: 'Provide hub id e.g. b.baf-0871-4aca-82e8-3dd6db00'
-            }
-          },
-          {
-            name: 'project_id',
-            label: 'Project name',
-            control_type: 'select',
-            pick_list: 'project_list',
-            pick_list_params: { hub_id: 'hub_id' },
-            optional: false,
-            toggle_hint: 'Select project',
-            toggle_field: {
-              name: 'project_id',
-              label: 'Project ID',
-              type: 'string',
-              control_type: 'text',
-              toggle_hint: 'Use custom value',
-              hint: 'Provide project id e.g. b.baf-0871-4aca-82e8-3dd6db00'
-            }
-          },
-          {
-            name: 'since',
-            label: 'When first started, this recipe should pick up events from',
-            hint: 'When you start recipe for the first time, ' \
-            'it picks up trigger events from this specified date and time. ' \
-            'Leave empty to get records created or updated one hour ago',
-            sticky: true,
-            type: 'timestamp'
-          }
-        ]
-      end,
-      poll: lambda do |_connection, input, closure|
-        project_id = closure&.[]('project_id') || input['project_id']
-        container_id = closure&.[]('container_id') ||
-                       get("/project/v1/hubs/#{input['hub_id']}" \
-                           "/projects/#{project_id}")&.
-                       dig('data', 'relationships', 'issues', 'data', 'id')
-        from_date = closure&.[]('from_date') ||
-                    (input['since'] || 1.hour.ago).
-                    to_time.strftime('%Y-%m-%dT%H:%M:%H.%s%z')
-        limit = 10
-        skip = closure&.[]('skip') || 0
-        include = closure&.[]('include') || input['include']
-        response = if (next_page_url = closure&.[]('next_page_url')).present?
-                     get(next_page_url)
-                   else
-                     get("/bim360/rfis/v1/containers/#{container_id}/rfis").
-                       params(page: { limit: limit,
-                                      skip: skip },
-                              filter: {
-                                created_at: from_date
-                              },
-                              include: 'attachments,comments',
-                              sort: 'created_at')
-                   end
-        closure = if (next_page_url = response.dig('links', 'next')).present?
-                    { 'skip' => skip + limit,
-                      'container_id' => container_id,
-                      'project_id' => project_id,
-                      'include' => include,
-                      'from_date' => from_date,
-                      'next_page_url' => next_page_url }
-                  else
-                    { 'offset' => 0,
-                      'include' => include,
-                      'from_date' => now.to_time.
-                        strftime('%Y-%m-%dT%H:%M:%H.%s%z'),
-                      'container_id' => container_id,
-                      'project_id' => project_id }
-                  end
-        rfis = response['data']&.
-                 map { |o| o.merge({ project_id: project_id }) }
-        {
-          events: rfis || [],
-          next_poll: closure,
-          can_poll_more: response.dig('links', 'next').present?
-        }
-      end,
-      dedup: lambda do |rfi|
-        "#{rfi['id']}@#{rfi.dig('attributes', 'created_at')}"
-      end,
-      output_fields: lambda do |object_definitions|
-        [{ name: 'project_id' }].concat(object_definitions['rfi'])
-      end,
-      sample_output: lambda do |_connection, input|
-        project_id = input['project_id']
-        container_id = get("/project/v1/hubs/#{input['hub_id']}" \
-                           "/projects/#{project_id}")&.
-                       dig('data', 'relationships', 'issues', 'data', 'id')
-        get("/bim360/rfis/v1/containers/#{container_id}/rfis")&.
-          dig('data', 0) || {}
-      end
-    },
     new_updated_issue_in_project: {
-      title: 'New/updated issue in a project',
-      description: 'New/updated <span class="provider">issue</span> in'\
+      title: 'New or updated issue in a project',
+      description: 'New or updated <span class="provider">issue</span> in'\
         ' a project in <span class="provider">BIM 360</span>',
       help: {
-        body: 'Triggers when a issue in a project is created/updated.'
+        body: 'Triggers when a issue in a project is created or updated.'
       },
       input_fields: lambda do |_object_definitions|
         [
@@ -3147,28 +2117,6 @@
             }
           },
           {
-            name: 'include',
-            sticky: true,
-            label: 'Include additional data',
-            hint: 'Include additional data about attachments, comments,' \
-            ' and the project (container) in the response.',
-            control_type: 'multiselect',
-            pick_list: 'issue_child_objects',
-            pick_list_params: {},
-            delimiter: ',',
-            toggle_hint: 'Select from list',
-            toggle_field: {
-              name: 'include',
-              label: 'Include additinal data',
-              type: :string,
-              control_type: 'text',
-              optional: true,
-              hint: 'Multiple values separated by comma.',
-              toggle_hint: 'Comma separated list of values. Allowed values ' \
-               'are: <b>attachments, comments, container'
-            }
-          },
-          {
             name: 'since',
             label: 'When first started, this recipe should pick up events from',
             hint: 'When you start recipe for the first time, ' \
@@ -3180,10 +2128,11 @@
         ]
       end,
       poll: lambda do |_connection, input, closure|
+        hub_id = closure&.[]('hub_id') || input['hub_id']
         project_id = closure&.[]('project_id') || input['project_id']
         container_id = closure&.[]('container_id') ||
                        get("/project/v1/hubs/#{input['hub_id']}" \
-                           "/projects/#{project_id}")&.
+                           "/projects/#{input['project_id']}")&.
                        dig('data', 'relationships', 'issues', 'data', 'id')
         updated_after = closure&.[]('updated_after') ||
                         (input['since'] || 1.hour.ago).to_time.utc.iso8601
@@ -3205,17 +2154,25 @@
                     { 'skip' => skip + limit,
                       'container_id' => container_id,
                       'project_id' => project_id,
+                      'hub_id' => hub_id,
                       'include' => include,
                       'next_page_url' => next_page_url }
                   else
                     { 'offset' => 0,
                       'container_id' => container_id,
                       'project_id' => project_id,
+                      'hub_id' => hub_id,
                       'include' => include,
                       'updated_after' => now.to_time.utc.iso8601 }
                   end
         issues = response['data']&.
-                 map { |o| o.merge({ project_id: project_id }) }
+                 map do |o|
+                   o.merge({
+                   		project_id: input['project_id'],
+                   		hub_id: input['hub_id'],
+                        container_id: container_id
+                    })
+                 end
         {
           events: issues || [],
           next_poll: closure,
@@ -3226,7 +2183,11 @@
         "#{issue['id']}&#{issue.dig('attributes', 'updated_at')}"
       end,
       output_fields: lambda do |object_definitions|
-        [{ name: 'project_id' }].concat(object_definitions['issue']).compact
+        [
+          { name: 'hub_id' },
+          { name: 'project_id' },
+          { name: 'container_id' }
+        ].concat(object_definitions['issue']).compact
       end,
       sample_output: lambda do |_connection, input|
         project_id = input['project_id']
@@ -3238,11 +2199,12 @@
       end
     },
     new_updated_document_in_project: {
-      title: 'New/updated document in a project',
-      description: 'New/updated <span class="provider">document</span> in'\
-        ' a project in <span class="provider">BIM 360</span>',
+      title: 'New or updated document in a project folder',
+      description: 'New or updated <span class="provider">document</span> in'\
+        ' a project folder in <span class="provider">BIM 360</span>',
       help: {
-        body: 'Triggers when a document in a project is created/updated.'
+        body: 'Triggers when a document in a project is created or updated' \
+        ' in the specified folder.'
       },
       input_fields: lambda do |_object_definitions|
         [
@@ -3308,6 +2270,7 @@
         ]
       end,
       poll: lambda do |_connection, input, closure|
+        hub_id = closure&.[]('hub_id') || input['hub_id']
         project_id = closure&.[]('project_id') || input['project_id']
         folder_id = closure&.[]('folder_id') || input['folder_id']
 
@@ -3324,22 +2287,27 @@
                        'filter[type]=items&filter[lastModifiedTimeRollup]-ge=' \
                        "#{last_modified_time}&" \
                        "page[limit]=#{limit}&page[skip]=#{skip}"
-                     get("/data/v1/projects/#{project_id}/folders/" \
-                       "#{folder_id}/contents", query_params)
+                     get("/data/v1/projects/#{input['project_id']}/folders/" \
+                       "#{input['folder_id']}/contents", query_params)
                    end
 
         items = response['data']&.
-                 map { |o| o.merge({ project_id: project_id }) }
+          map do |o|
+            o.merge({ project_id: input['project_id'], hub_id: input['hub_id'],
+                      folder_id: input['folder_id'] })
+          end
         closure = if (next_page_url = response.dig('links', 'next')).present?
                     { 'skip' => skip + limit,
                       'folder_id' => folder_id,
                       'project_id' => project_id,
+                      'hub_id' => hub_id,
                       'include' => include,
                       'next_page_url' => next_page_url }
                   else
                     { 'offset' => 0,
                       'folder_id' => folder_id,
                       'project_id' => project_id,
+                      'hub_id' => hub_id,
                       'include' => include,
                       'updated_after' => now.to_time.utc.iso8601 }
                   end
@@ -3353,7 +2321,8 @@
         "#{item['id']}&#{item.dig('attributes', 'lastModifiedTime')}"
       end,
       output_fields: lambda do |object_definitions|
-        [{ name: 'project_id' }].concat(object_definitions['folder_file']).
+        [{ name: 'hub_id' }, { name: 'project_id' }, { name: 'folder_id' }].
+          concat(object_definitions['folder_file']).
           compact
       end,
       sample_output: lambda do |_connection, input|
@@ -3375,11 +2344,13 @@
       ]
     end,
     folder_items: lambda do |_connection, project_id:, folder_id:|
-      get("/data/v1/projects/#{project_id}/folders/#{folder_id}/" \
-          'contents?filter[type]=items')['data']&.
-        map do |item|
-          [item.dig('attributes', 'displayName'), item['id']]
-        end
+      if project_id.length == 38 && folder_id.present?
+        get("/data/v1/projects/#{project_id}/folders/#{folder_id}/" \
+            'contents?filter[type]=items')['data']&.
+          map do |item|
+            [item.dig('attributes', 'displayName'), item['id']]
+          end
+      end
     end,
     item_versions: lambda do |_connection, project_id:, item_id:|
       get("/data/v1/projects/#{project_id}/items/#{item_id}/" \
@@ -3389,58 +2360,58 @@
          version.dig('id')]
       end
     end,
+    version_types: lambda do |_connection|
+      [
+        ['BIM 360 Docs files', 'versions:autodesk.bim360:File'],
+        ['A360 composite design files',
+         'versions:autodesk.a360:CompositeDesign'],
+        ['A360 Personal, Fusion Team', 'versions:autodesk.core:File'],
+        ['BIM 360 Team files', 'versions:autodesk.core:File']
+      ]
+    end,
+    resource_types: lambda do |_connection|
+      %w[attachment overlay].map { |type| [type.labelize, type] }
+    end,
     folders_list: lambda do |_connection, **args|
       hub_id = args[:hub_id]
       project_id = args[:project_id]
       parent_id = args&.[](:__parent_id)
-      if parent_id.present?
-        get("/data/v1/projects/#{project_id}/folders/#{parent_id}/" \
-            'contents?filter[type]=folders')['data']&.
-          map do |folder|
-            [folder.dig('attributes', 'displayName'),
-             folder['id'], folder['id'], true]
-          end
-      else
-        get("project/v1/hubs/#{hub_id}/projects/#{project_id}/" \
-            'topFolders?filter[type]=folders')['data']&.
-          map do |folder|
-            [folder.dig('attributes', 'displayName'),
-             folder['id'], folder['id'], true]
-          end || []
+      if project_id.length == 38
+        if parent_id.present?
+          get("/data/v1/projects/#{project_id}/folders/#{parent_id}/" \
+              'contents?filter[type]=folders')['data']&.
+            map do |folder|
+              [folder.dig('attributes', 'displayName'),
+               folder['id'], folder['id'], true]
+            end
+        else
+          get("project/v1/hubs/#{hub_id}/projects/#{project_id}/" \
+              'topFolders?filter[type]=folders')['data']&.
+            map do |folder|
+              [folder.dig('attributes', 'displayName'),
+               folder['id'], folder['id'], true]
+            end || []
+        end
       end
-    end,
-    rfi_child_objects: lambda do |_connection|
-      %w[attachments comments activity_batches container]&.
-      map { |option| [option.labelize, option] }
-    end,
-    rfi_transaction_status_list: lambda do |_connection|
-      %w[draft submitted open rejected answered closed void]&.
-      map { |option| [option.labelize, option] }
     end,
     issue_child_objects: lambda do |_connection|
       %w[attachments comments container]&.
       map { |option| [option.labelize, option] }
     end,
     project_list: lambda do |_connection, hub_id:|
-      get("project/v1/hubs/#{hub_id}/projects")['data']&.map do |project|
-        [project.dig('attributes', 'name'), project['id']]
+      if hub_id.length == 38
+        get("project/v1/hubs/#{hub_id}/projects")['data']&.map do |project|
+          [project.dig('attributes', 'name'), project['id']]
+        end
       end
     end,
     issue_container_lists: lambda do |_connection, hub_id:|
-      get("project/v1/hubs/#{hub_id}/projects")['data']&.map do |project|
-        [project.dig('attributes', 'name'),
-         project.dig('relationships', 'issues', 'data', 'id')]
+      if hub_id.length == 38
+        get("project/v1/hubs/#{hub_id}/projects")['data']&.map do |project|
+          [project.dig('attributes', 'name'),
+           project.dig('relationships', 'issues', 'data', 'id')]
+        end
       end
-    end,
-    rfis_container_lists: lambda do |_connection, hub_id:|
-      get("project/v1/hubs/#{hub_id}/projects")['data']&.map do |project|
-        [project.dig('attributes', 'name'),
-         project.dig('relationships', 'rfis', 'data', 'id')]
-      end
-    end,
-    rfi_objects: lambda do |_connection|
-      %w[attachments comments activity_batches container]&.
-      map { |option| [option.labelize, option] }
     end,
     project_types: lambda do
       [
@@ -3490,9 +2461,6 @@
     end,
     assigned_type_list: lambda do |_connection|
       %w[user company role]&.map { |el| [el.labelize, el] }
-    end,
-    rfi_status_list: lambda do |_connection|
-      %w[draft open close]&.map { |el| [el.labelize, el] }
     end,
     status_list: lambda do |_connection|
       %w[active pending inactive archived]&.map { |el| [el.labelize, el] }
