@@ -181,72 +181,6 @@
               ]}
             ]}
           ]}
-
-          # These are not correct
-          # { name: 'name', label: 'Project name' },
-          # { name: 'start_date', type: 'date' },
-          # { name: 'end_date', type: 'date' },
-          # { name: 'project_type',
-          #   control_type: 'select', pick_list: 'project_types',
-          #   toggle_hint: 'Select project type',
-          #   toggle_field: {
-          #     name: 'project_type',
-          #     type: 'string',
-          #     control_type: 'text',
-          #     label: 'Project type',
-          #     toggle_hint: 'Use custom value'
-          #   },
-          #   hint: 'Refer to the preconfigured ' \
-          #   "project_type list in the <a href='https://forge.autodesk." \
-          #   "com/en/docs/bim360/v1/overview/parameters' target= '_blank'>" \
-          #   'Parameters</a> guide' },
-          # { name: 'value', label: 'Monetary value' },
-          # { name: 'currency', control_type: 'select',
-          #   pick_list: 'currency_list',
-          #   toggle_hint: 'Select currency',
-          #   toggle_field: {
-          #     name: 'currency',
-          #     type: 'string',
-          #     control_type: 'text',
-          #     label: 'Project type',
-          #     toggle_hint: 'Use custom value'
-          #   } },
-          # { name: 'status', control_type: 'select',
-          #   pick_list: 'status_list',
-          #   toggle_hint: 'Select status',
-          #   toggle_field: {
-          #     name: 'status',
-          #     type: 'string',
-          #     control_type: 'text',
-          #     label: 'Status',
-          #     toggle_hint: 'Use custom value'
-          #   } },
-          # { name: 'job_number' },
-          # { name: 'address_line_1' },
-          # { name: 'address_line_2' },
-          # { name: 'city' },
-          # { name: 'state_or_province' },
-          # { name: 'postal_code' },
-          # { name: 'country' },
-          # { name: 'postal_code' },
-          # { name: 'country' },
-          # { name: 'business_unit_id' },
-          # { name: 'timezone', hint: 'Refer to the preconfigured ' \
-          # "project_type list in the <a href='https://forge.autodesk." \
-          # "com/en/docs/bim360/v1/overview/parameters' target= '_blank'>" \
-          # 'Parameters</a> guide' },
-          # { name: 'language', control_type: 'select', pick_list:
-          #   [%w[English en], %w[German de]] },
-          # { name: 'construction_type', hint: 'Refer to the preconfigured ' \
-          #   "project_type list in the <a href='https://forge.autodesk." \
-          #   "com/en/docs/bim360/v1/overview/parameters' target= '_blank'>" \
-          #   'Parameters</a> guide' },
-          # { name: 'contract_type', hint: 'Refer to the preconfigured ' \
-          #   "project_type list in the <a href='https://forge.autodesk." \
-          #   "com/en/docs/bim360/v1/overview/parameters' target= '_blank'>" \
-          #   'Parameters</a> guide' },
-          # { name: 'last_sign_in', hint: 'Timestamp of the last sign in,' \
-          #   ' YYYY-MM-DDThh:mm:ss.sssZ format' }
         ]
       end
     },
@@ -677,8 +611,6 @@
           { name: 'id', label: 'Item ID' },
           { name: 'type', label: 'Item Type' },
           { name: 'attributes', type: 'object', properties: [
-            # { name: 'type' },
-            # { name: 'name' },
             { name: 'displayName', label: 'Name' },
             { name: 'createTime', label: 'Created at', type: 'date_time' },
             { name: 'createUserId', label: 'Created by (User ID)' },
@@ -688,19 +620,10 @@
             { name: 'lastModifiedUserId', label: 'Last modified by (User ID)' },
             { name: 'lastModifiedUserName',
               label: 'Last modified by (User Name)' },
-            # { name: 'lastModifiedTimeRollup', type: 'date_time' },
-            # { name: 'objectCount', type: 'integer' },
             { name: 'hidden', type: 'boolean', control_type: 'checkbox' },
             { name: 'reserved', type: 'boolean', control_type: 'checkbox' },
             { name: 'extension', type: 'object', properties: [
-              # { name: 'type' },
-              { name: 'version' } # ,
-              # { name: 'data', type: 'object', properties: [
-              #   { name: 'sourceFileName', hint: 'Applicable for file' },
-              #   { name: 'visibleTypes', hint: 'Array of strings' },
-              #   { name: 'actions', hint: 'Array of strings' },
-              #   { name: 'allowedTypes', hint: 'Array of strings' }
-              # ] }
+              { name: 'version' }
             ] }
           ] }
         ]
@@ -709,103 +632,9 @@
     item: {
       fields: lambda do |_connection, _config_fields|
         [
-          # { name: 'included', type: 'array', of: 'object',
-          #  properties: [
-          #    { name: 'type' },
-          #    { name: 'id' },
-          #    { name: 'relationships', type: 'object', properties: [
-          #      { name: 'item', type: 'object', properties: [
-          #        { name: 'data', type: 'object', properties: [
-          #          { name: 'type' },
-          #          { name: 'id' }
-          #        ] },
-          #        { name: 'links', type: 'object', properties: [
-          #          { name: 'related', type: 'object', properties: [
-          #            { name: 'href' }
-          #          ] }
-          #        ] }
-          #      ] },
-          #      { name: 'refs', type: 'object', properties: [
-          #        { name: 'links', type: 'object', properties: [
-          #          { name: 'self', type: 'object', properties: [
-          #            { name: 'href' }
-          #          ] },
-          #          { name: 'related', type: 'object', properties: [
-          #            { name: 'href' }
-          #          ] }
-          #        ] }
-          #      ] },
-          #      { name: 'storage', type: 'object', properties: [
-          #        { name: 'meta', type: 'object', properties: [
-          #          { name: 'link', type: 'object', properties: [
-          #            { name: 'href' }
-          #          ] }
-          #        ] },
-          #        { name: 'data', type: 'object', properties: [
-          #          { name: 'type' },
-          #          { name: 'id' }
-          #        ] }
-          #      ] },
-          #      { name: 'links', type: 'object', properties: [
-          #        { name: 'self', type: 'object', properties: [
-          #          { name: 'href' }
-          #        ] }
-          #      ] }
-          #    ] }
-          #  ] },
           { name: 'data', type: 'object', properties: [
             { name: 'id', label: 'Item ID' },
-            # { name: 'type' },
-            # { name: 'relationships', type: 'object', properties: [
-            #   { name: 'refs', type: 'object', properties: [
-            #     { name: 'links', type: 'object', properties: [
-            #       { name: 'self', type: 'object', properties: [
-            #         { name: 'href' }
-            #       ] },
-            #       { name: 'related', type: 'object', properties: [
-            #         { name: 'href' }
-            #       ] }
-            #     ] }
-            #   ] },
-            #   { name: 'tip', type: 'object', properties: [
-            #     { name: 'data', type: 'object', properties: [
-            #       { name: 'type' },
-            #       { name: 'id' }
-            #     ] },
-            #     { name: 'links', type: 'object', properties: [
-            #       { name: 'related', type: 'object', properties: [
-            #         { name: 'href' }
-            #       ] }
-            #     ] }
-            #   ] },
-            #   { name: 'links', type: 'object', properties: [
-            #     { name: 'self', type: 'object', properties: [
-            #       { name: 'href' }
-            #     ] }
-            #   ] },
-            #   { name: 'parent', type: 'object', properties: [
-            #     { name: 'data', properties: [
-            #       { name: 'type' },
-            #       { name: 'id' }
-            #     ] },
-            #     { name: 'links', type: 'object', properties: [
-            #       { name: 'related', type: 'object', properties: [
-            #         { name: 'href' }
-            #       ] }
-            #     ] }
-            #   ] },
-            #   { name: 'versions', type: 'object', properties: [
-            #     { name: 'links', type: 'object', properties: [
-            #       { name: 'related', type: 'object', properties: [
-            #         { name: 'href' }
-            #       ] }
-            #     ] }
-            #   ] }
-            # ] },
-
             { name: 'attributes', type: 'object', properties: [
-              # { name: 'type' },
-              # { name: 'name' },
               { name: 'displayName', label: 'Name' },
               { name: 'createTime', label: 'Created at', type: 'date_time' },
               { name: 'createUserId', label: 'Created by (User ID)' },
@@ -816,20 +645,10 @@
                 label: 'Last modified by (User ID)' },
               { name: 'lastModifiedUserName',
                 label: 'Last modified by (User Name)' },
-              # { name: 'lastModifiedTimeRollup', type: 'date_time' },
-              # { name: 'objectCount', type: 'integer' },
               { name: 'hidden', type: 'boolean', control_type: 'checkbox' },
               { name: 'reserved', type: 'boolean', control_type: 'checkbox' },
-              # { name: 'pathInProject', label: 'Path' },
               { name: 'extension', type: 'object', properties: [
-                # { name: 'type' },
-                { name: 'version' } # ,
-                # { name: 'data', type: 'object', properties: [
-                #   { name: 'sourceFileName', hint: 'Applicable for file' },
-                #   { name: 'visibleTypes', hint: 'Array of strings' },
-                #   { name: 'actions', hint: 'Array of strings' },
-                #   { name: 'allowedTypes', hint: 'Array of strings' }
-                # ] }
+                { name: 'version' }
               ] }
             ] }
           ] }
