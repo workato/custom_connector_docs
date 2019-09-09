@@ -142,42 +142,42 @@
             ]},
             { name: 'rootFolder', type: 'object', properties: [
               { name: 'data', type: 'object', properties: [
-                { name: 'id', label: 'Root Folder ID' }
+                { name: 'id', label: 'Root folder ID' }
               ]}
             ]},
             { name: 'issues', type: 'object', properties: [
               { name: 'data', type: 'object', properties: [
-                { name: 'id', label: 'Issues Container ID' }
+                { name: 'id', label: 'Issues container ID' }
               ]}
             ]},
             { name: 'submittals', type: 'object', properties: [
               { name: 'data', type: 'object', properties: [
-                { name: 'id', label: 'Submittals Container ID' }
+                { name: 'id', label: 'Submittals container ID' }
               ]}
             ]},
             { name: 'rfis', type: 'object', properties: [
               { name: 'data', type: 'object', properties: [
-                { name: 'id', label: 'RFIs Container ID' }
+                { name: 'id', label: 'RFIs container ID' }
               ]}
             ]},
             { name: 'markups', type: 'object', properties: [
               { name: 'data', type: 'object', properties: [
-                { name: 'id', label: 'Markups Container ID' }
+                { name: 'id', label: 'Markups container ID' }
               ]}
             ]},
             { name: 'checklists', type: 'object', properties: [
               { name: 'data', type: 'object', properties: [
-                { name: 'id', label: 'Checklists Container ID' }
+                { name: 'id', label: 'Checklists container ID' }
               ]}
             ]},
             { name: 'cost', type: 'object', properties: [
               { name: 'data', type: 'object', properties: [
-                { name: 'id', label: 'Cost Container ID' }
+                { name: 'id', label: 'Cost container ID' }
               ]}
             ]},
             { name: 'location', type: 'object', properties: [
               { name: 'data', type: 'object', properties: [
-                { name: 'id', label: 'Locations Container ID' }
+                { name: 'id', label: 'Locations container ID' }
               ]}
             ]}
           ]}
@@ -454,7 +454,7 @@
         [
           {
             name: 'hub_id',
-            label: 'Hub Name',
+            label: 'Hub name',
             control_type: 'select',
             pick_list: 'hub_list',
             optional: false,
@@ -470,7 +470,7 @@
           },
           {
             name: 'project_id',
-            label: 'Project Name',
+            label: 'Project name',
             control_type: 'select',
             pick_list: 'project_list',
             pick_list_params: { hub_id: 'hub_id' },
@@ -555,7 +555,7 @@
         [
           {
             name: 'hub_id',
-            label: 'Hub Name',
+            label: 'Hub name',
             control_type: 'select',
             pick_list: 'hub_list',
             optional: false,
@@ -571,7 +571,7 @@
           },
           {
             name: 'container_id',
-            label: 'Project Name',
+            label: 'Project name',
             control_type: 'select',
             pick_list: 'issue_container_lists',
             pick_list_params: { hub_id: 'hub_id' },
@@ -609,12 +609,12 @@
       fields: lambda do |_connection, _config_fields|
         [
           { name: 'id', label: 'Item ID' },
-          { name: 'type', label: 'Item Type' },
+          { name: 'type', label: 'Item type' },
           { name: 'attributes', type: 'object', properties: [
             { name: 'displayName', label: 'Name' },
             { name: 'createTime', label: 'Created at', type: 'date_time' },
             { name: 'createUserId', label: 'Created by (User ID)' },
-            { name: 'createUserName', label: 'Created by (User Name)' },
+            { name: 'createUserName', label: 'Created by (User name)' },
             { name: 'lastModifiedTime',
               label: 'Last modified at', type: 'date_time' },
             { name: 'lastModifiedUserId', label: 'Last modified by (User ID)' },
@@ -638,7 +638,7 @@
               { name: 'displayName', label: 'Name' },
               { name: 'createTime', label: 'Created at', type: 'date_time' },
               { name: 'createUserId', label: 'Created by (User ID)' },
-              { name: 'createUserName', label: 'Created by (User Name)' },
+              { name: 'createUserName', label: 'Created by (User name)' },
               { name: 'lastModifiedTime',
                 label: 'Last modified at', type: 'date_time' },
               { name: 'lastModifiedUserId',
@@ -905,7 +905,7 @@
         [
           {
             name: 'hub_id',
-            label: 'Hub Name',
+            label: 'Hub name',
             control_type: 'select',
             pick_list: 'hub_list',
             optional: false,
@@ -921,7 +921,7 @@
           },
           {
             name: 'container_id',
-            label: 'Project Name',
+            label: 'Project name',
             control_type: 'select',
             pick_list: 'issue_container_lists',
             pick_list_params: { hub_id: 'hub_id' },
@@ -985,7 +985,7 @@
         [
           {
             name: 'hub_id',
-            label: 'Hub Name',
+            label: 'Hub name',
             control_type: 'select',
             pick_list: 'hub_list',
             optional: false,
@@ -1001,7 +1001,7 @@
           },
           {
             name: 'container_id',
-            label: 'Container Name',
+            label: 'Container name',
             control_type: 'select',
             pick_list: 'issue_container_lists',
             pick_list_params: { hub_id: 'hub_id' },
@@ -1068,7 +1068,7 @@
         [
           {
             name: 'hub_id',
-            label: 'Hub Name',
+            label: 'Hub name',
             control_type: 'select',
             pick_list: 'hub_list',
             optional: false,
@@ -1084,7 +1084,7 @@
           },
           {
             name: 'container_id',
-            label: 'Project Name',
+            label: 'Project name',
             control_type: 'select',
             pick_list: 'issue_container_lists',
             pick_list_params: { hub_id: 'hub_id' },
@@ -1141,7 +1141,7 @@
         [
           {
             name: 'hub_id',
-            label: 'Hub Name',
+            label: 'Hub name',
             control_type: 'select',
             pick_list: 'hub_list',
             optional: false,
@@ -1157,7 +1157,7 @@
           },
           {
             name: 'project_id',
-            label: 'Project Name',
+            label: 'Project name',
             control_type: 'select',
             pick_list: 'project_list',
             pick_list_params: { hub_id: 'hub_id' },
@@ -1195,7 +1195,7 @@
         ' a project in <span class="provider">BIM 360</span>',
       input_fields: lambda do |object_definitions|
         [
-          { name: 'export_link', label: 'Export Link', optional: false}
+          { name: 'export_link', label: 'Export link', optional: false}
         ]
       end,
       execute: lambda do |_connection, input|
@@ -1226,7 +1226,7 @@
         [
           {
             name: 'hub_id',
-            label: 'Hub Name',
+            label: 'Hub name',
             control_type: 'select',
             pick_list: 'hub_list',
             optional: false,
@@ -1242,7 +1242,7 @@
           },
           {
             name: 'project_id',
-            label: 'Project Name',
+            label: 'Project name',
             control_type: 'select',
             pick_list: 'project_list',
             pick_list_params: { hub_id: 'hub_id' },
@@ -1259,7 +1259,7 @@
             }
           },
           { name: 'folder_id',
-            label: 'Folder Name',
+            label: 'Folder name',
             control_type: 'tree',
             hint: 'Select folder',
             toggle_hint: 'Select Folder',
@@ -1277,7 +1277,7 @@
             } },
           {
             name: 'item_id',
-            label: 'File Name',
+            label: 'File name',
             control_type: 'select',
             pick_list: 'folder_items',
             pick_list_params: { project_id: 'project_id',
@@ -1313,13 +1313,13 @@
           },
           {
             name: 'includeMarkups', control_type: 'checkbox',
-            type: 'boolean', label: 'Include Markups',
+            type: 'boolean', label: 'Include markups',
             sticky: true,
             hint: 'Include markups in the export',
             toggle_hint: 'Select from options list',
             toggle_field: {
               name: 'includeMarkups',
-              label: 'Include Markups',
+              label: 'Include markups',
               type: 'string',
               control_type: 'text',
               toggle_hint: 'Use custom value',
@@ -1328,13 +1328,13 @@
           },
           {
             name: 'includeHyperlinks', control_type: 'checkbox',
-            type: 'boolean', label: 'Include Hyperlinks',
+            type: 'boolean', label: 'Include hyperlinks',
             sticky: true,
             hint: 'Include hyperlinks in the export',
             toggle_hint: 'Select from options list',
             toggle_field: {
               name: 'includeHyperlinks',
-              label: 'Include Hyperlinks',
+              label: 'Include hyperlinks',
               type: 'string',
               control_type: 'text',
               toggle_hint: 'Use custom value',
@@ -1368,7 +1368,7 @@
           headers('content-type': 'application/json').
           after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message}: #{body}")
-          end&.merge({ hub_id: hub_id }).merge({ project_id: 'b.' + project_id }).merge({ item_id: item_id })
+          end&.merge({ hub_id: hub_id, project_id: 'b.' + project_id, item_id: item_id })
       end,
       output_fields: lambda do |_object_definitions|
         [
@@ -1399,7 +1399,7 @@
         [
           {
             name: 'hub_id',
-            label: 'Hub Name',
+            label: 'Hub name',
             control_type: 'select',
             pick_list: 'hub_list',
             optional: false,
@@ -1415,7 +1415,7 @@
           },
           {
             name: 'project_id',
-            label: 'Project Name',
+            label: 'Project name',
             control_type: 'select',
             pick_list: 'project_list',
             pick_list_params: { hub_id: 'hub_id' },
@@ -1481,7 +1481,7 @@
         [
           {
             name: 'hub_id',
-            label: 'Hub Name',
+            label: 'Hub name',
             control_type: 'select',
             pick_list: 'hub_list',
             optional: false,
@@ -1497,7 +1497,7 @@
           },
           {
             name: 'project_id',
-            label: 'Project Name',
+            label: 'Project name',
             control_type: 'select',
             pick_list: 'project_list',
             pick_list_params: { hub_id: 'hub_id' },
@@ -1535,8 +1535,8 @@
             control_type: 'text',
             sticky: true,
             hint: 'Enter filters for the search. A list of filters can be' \
-            ' found at https://forge.autodesk.com/en/docs/data/v2/' \
-            'developers_guide/filtering.' }
+            ' found <a href="https://forge.autodesk.com/en/docs/data/v2/' \
+            'developers_guide/filtering" target_blank">here</a>.' }
         ]
       end,
       execute: lambda do |_connection, input|
@@ -1575,7 +1575,7 @@
         [
           {
             name: 'hub_id',
-            label: 'Hub Name',
+            label: 'Hub name',
             control_type: 'select',
             pick_list: 'hub_list',
             optional: false,
@@ -1591,7 +1591,7 @@
           },
           {
             name: 'project_id',
-            label: 'Project Name',
+            label: 'Project name',
             control_type: 'select',
             pick_list: 'project_list',
             pick_list_params: { hub_id: 'hub_id' },
@@ -1625,7 +1625,7 @@
               hint: 'Use Folder ID'
             } },
           { name: 'item_id',
-            label: 'File Name',
+            label: 'File name',
             control_type: 'tree',
             hint: 'Select folder',
             toggle_hint: 'Select Item',
@@ -1671,7 +1671,7 @@
         [
           {
             name: 'hub_id',
-            label: 'Hub Name',
+            label: 'Hub name',
             control_type: 'select',
             pick_list: 'hub_list',
             optional: false,
@@ -1687,7 +1687,7 @@
           },
           {
             name: 'project_id',
-            label: 'Project Name',
+            label: 'Project name',
             control_type: 'select',
             pick_list: 'project_list',
             pick_list_params: { hub_id: 'hub_id' },
@@ -1705,7 +1705,7 @@
           },
           {
             name: 'item_id',
-            label: 'File Name',
+            label: 'File name',
             control_type: 'select',
             pick_list: 'folder_items',
             pick_list_params: { project_id: 'project_id',
@@ -1718,7 +1718,7 @@
               control_type: 'text',
               label: 'File ID',
               toggle_hint: 'Use file ID',
-              hint: 'Use File/Item ID'
+              hint: 'Use file or item ID'
             }
           }
         ],
@@ -1736,9 +1736,7 @@
         project_id = input['project_id'].split('.').last
         get("/bim360/docs/v1/projects/#{project_id}/versions/" \
           "#{version_url}/exports/#{input['export_id']}").
-          merge({ hub_id: input['hub_id'] }).
-          merge({ project_id: input['project_id'] }).
-          merge({ item_id: input['item_id'] })
+          merge({ hub_id: input['hub_id'], project_id: input['project_id'], item_id: input['item_id'] })
       end,
       output_fields: lambda do |object_definitions|
         [
@@ -1758,7 +1756,7 @@
         [
           {
             name: 'hub_id',
-            label: 'Hub Name',
+            label: 'Hub name',
             control_type: 'select',
             pick_list: 'hub_list',
             optional: false,
@@ -1774,7 +1772,7 @@
           },
           {
             name: 'project_id',
-            label: 'Project Name',
+            label: 'Project name',
             control_type: 'select',
             pick_list: 'project_list',
             pick_list_params: { hub_id: 'hub_id' },
@@ -1807,7 +1805,7 @@
               hint: 'Use Folder ID'
             } },
           { name: 'item_id',
-            label: 'File Name',
+            label: 'File name',
             control_type: 'tree',
             hint: 'Select folder',
             toggle_hint: 'Select Folder',
@@ -1858,7 +1856,7 @@
       config_fields: [
         {
           name: 'hub_id',
-          label: 'Hub Name',
+          label: 'Hub name',
           control_type: 'select',
           pick_list: 'hub_list',
           optional: false,
@@ -1874,7 +1872,7 @@
         },
         {
           name: 'project_id',
-          label: 'Project Name',
+          label: 'Project name',
           control_type: 'select',
           pick_list: 'project_list',
           pick_list_params: { hub_id: 'hub_id' },
@@ -1910,7 +1908,7 @@
       ],
       input_fields: lambda do |_object_definitions|
         [
-          { name: 'file_name', optional: false, label: 'File Name',
+          { name: 'file_name', optional: false, label: 'File name',
             hint: 'File name should include extension of the file. e.g. ' \
             '<b>my_file.jpg</b>. The name of the file (1-255 characters). ' \
             'Reserved characters: <, >, :, ", /, \, |, ?, *, `, \n, \r, \t,' \
@@ -2087,7 +2085,7 @@
         [
           {
             name: 'hub_id',
-            label: 'Hub Name',
+            label: 'Hub name',
             control_type: 'select',
             pick_list: 'hub_list',
             optional: false,
@@ -2103,7 +2101,7 @@
           },
           {
             name: 'project_id',
-            label: 'Project Name',
+            label: 'Project name',
             control_type: 'select',
             pick_list: 'project_list',
             pick_list_params: { hub_id: 'hub_id' },
@@ -2212,7 +2210,7 @@
         [
           {
             name: 'hub_id',
-            label: 'Hub Name',
+            label: 'Hub name',
             control_type: 'select',
             pick_list: 'hub_list',
             optional: false,
@@ -2228,7 +2226,7 @@
           },
           {
             name: 'project_id',
-            label: 'Project Name',
+            label: 'Project name',
             control_type: 'select',
             pick_list: 'project_list',
             pick_list_params: { hub_id: 'hub_id' },
