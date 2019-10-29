@@ -882,12 +882,12 @@
           payload.map do |record|
             record.each do |key, val|
               if val.is_a?(Array) && val.first&.is_a?(String)
-                record[key] = val.map { |value| { "choice" => value } }
+                record[key] = val.map { |value| { 'choice' => value } }
               end
             end
             e_o_s.each_with_object({}) do |k, hash|
               hash[k[:name]] = record[k[:label]]
-            end.compact.merge("id" => record['id'], "dedup_modifiedDate" => record['Updated'])
+            end.compact.merge('id' => record['id'], 'dedup_modifiedDate' => record['Updated'])
           end
         end,
 
@@ -951,12 +951,12 @@
           payload.map do |record|
             record.each do |key, val|
               if val.is_a?(Array) && val.first&.is_a?(String)
-                record[key] = val.map { |value| { "choice" => value } }
+                record[key] = val.map { |value| { 'choice' => value } }
               end
             end
             e_o_s.each_with_object({}) do |k, hash|
               hash[k[:name]] = record[k[:label]]
-            end.compact.merge("id" => record['id'])
+            end.compact.merge('id' => record['id'])
           end
         end,
 
@@ -974,7 +974,9 @@
           record['id']
         end,
 
-        output_fields: ->(object_definitions) { object_definitions['list_record'] },
+        output_fields: ->(object_definitions) {
+          object_definitions['list_record']
+        },
 
         sample_output: lambda { |_connection, input, e_o_s|
           record = call(:get_fields_sample_output, view_id: input['view_id'])
@@ -982,4 +984,4 @@
         }
       }
     }
-  }
+}
