@@ -974,9 +974,9 @@
           record['id']
         end,
 
-        output_fields: ->(object_definitions) {
+        output_fields: lambda do |object_definitions|
           object_definitions['list_record']
-        },
+        end,
 
         sample_output: lambda { |_connection, input, e_o_s|
           record = call(:get_fields_sample_output, view_id: input['view_id'])
