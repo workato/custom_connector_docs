@@ -89,14 +89,21 @@
         'integer' => 'integer',
         'date' => 'date',
         'boolean' => 'boolean',
-        'datetime' => 'timestamp',
+        'datetime' => 'date_time',
         'currency' => 'number',
+        'number' => 'number'
+      }
+
+      control_type_map = {
+        'boolean' => 'checkbox',
+        'date_time' => 'date_time',
+        'date' => 'date',
         'number' => 'number'
       }
 
       render_input_map = {
         'date' => ->(field) { field&.to_date&.strftime('%m/%d/%Y') },
-        'timestamp' => lambda do |field|
+        'date_time' => lambda do |field|
           field&.to_time&.utc&.strftime('%m/%d/%Y %H:%M:%S')
         end
       }
@@ -104,7 +111,7 @@
       parse_output_map = {
         'integer' => 'integer_conversion',
         'date' => ->(field) { field&.to_date(format: '%m/%d/%Y') },
-        'timestamp' => lambda do |field|
+        'date_time' => lambda do |field|
           field&.to_time(format: '%m/%d/%Y %H:%M:%S')
         end,
         'number' => 'float_conversion'
@@ -124,7 +131,8 @@
             (name == 'DESCRIPTION'),
           render_input: render_input_map[data_type],
           parse_output: parse_output_map[data_type],
-          type: type_map[field['externalDataName']]
+          control_type: control_type_map[data_type],
+          type: data_type
         }.compact
       end
     end,
@@ -243,12 +251,6 @@
   end,
 
   object_definitions: {
-    api_session: {
-      fields: lambda do |_connection, _config_fields|
-        [{ name: 'sessionid', label: 'Session ID' }, { name: 'endpoint' }]
-      end
-    },
-
     # Contracts
     contract: {
       fields: lambda do |_connection, _config_fields|
@@ -301,10 +303,26 @@
       end
     },
 
+    employee: {
+      fields: lambda do |_connection, _config_fields|
+        function = {
+          '@controlid' => 'testControlId',
+          'inspect' => { '@detail' => '1', 'object' => 'EMPLOYEE' }
+        }
+        response_data = call('get_api_response_data_element', function)
+
+        call('format_schema_field_names',
+             call('get_object_definition',
+                  call('parse_xml_to_hash',
+                       'xml' => response_data,
+                       'array_fields' => ['Field'])
+                    &.dig('Type', 'Fields', 'Field')))
+      end
+    },
+
     employee_create: {
       fields: lambda do |_connection, _config_fields|
         [
-          { name: 'RECORDNO', label: 'Record number', type: 'integer' },
           { name: 'EMPLOYEEID', label: 'Employee ID', sticky: true },
           {
             name: 'PERSONALINFO',
@@ -353,6 +371,7 @@
             toggle_field: {
               name: 'STATUS',
               label: 'Status',
+              hint: 'Allowed values are: active, inactive',
               toggle_hint: 'Use custom value',
               control_type: 'text',
               type: 'string'
@@ -381,6 +400,8 @@
             toggle_field: {
               name: 'TERMINATIONTYPE',
               label: 'Termination type',
+              hint: 'Allowed values are: voluntary, involuntary, deceased, ' \
+              'disability, and retired.',
               toggle_hint: 'Use custom value',
               control_type: 'text',
               type: 'string'
@@ -409,6 +430,7 @@
             toggle_field: {
               name: 'GENDER',
               label: 'Gender',
+              hint: 'Allowed values are: male, female',
               toggle_hint: 'Use custom value',
               control_type: 'text',
               type: 'string'
@@ -475,6 +497,7 @@
             toggle_field: {
               name: 'POSTACTUALCOST',
               label: 'Post actual cost',
+              hint: 'Allowed values are: true, false',
               toggle_hint: 'Use custom value',
               control_type: 'text',
               type: 'boolean'
@@ -499,6 +522,7 @@
             toggle_field: {
               name: 'PAYMENTNOTIFY',
               label: 'Payment notify',
+              hint: 'Allowed values are: true, false',
               toggle_hint: 'Use custom value',
               control_type: 'text',
               type: 'boolean'
@@ -514,6 +538,7 @@
             toggle_field: {
               name: 'MERGEPAYMENTREQ',
               label: 'Merge payment requests',
+              hint: 'Allowed values are: true, false',
               toggle_hint: 'Use custom value',
               control_type: 'text',
               type: 'boolean'
@@ -529,6 +554,7 @@
             toggle_field: {
               name: 'ACHENABLED',
               label: 'ACH enabled',
+              hint: 'Allowed values are: true, false',
               toggle_hint: 'Use custom value',
               control_type: 'text',
               type: 'boolean'
@@ -539,23 +565,38 @@
           { name: 'ACHACCOUNTTYPE', label: 'ACH account type' },
           { name: 'ACHREMITTANCETYPE', label: 'ACH remittance type' },
           {
-            name: 'WHENCREATED',
-            label: 'Created date',
-            parse_output: lambda do |field|
-              field&.to_time(format: '%m/%d/%Y %H:%M:%S')
-            end,
-            type: 'timestamp'
-          },
-          {
-            name: 'WHENMODIFIED',
-            label: 'Modified date',
-            parse_output: lambda do |field|
-              field&.to_time(format: '%m/%d/%Y %H:%M:%S')
-            end,
-            type: 'timestamp'
-          },
-          { name: 'CREATEDBY', label: 'Created by' },
-          { name: 'MODIFIEDBY', label: 'Modified by' }
+            name: 'customfields',
+            label: 'Custom fields/dimensions',
+            sticky: true,
+            type: 'array',
+            of: 'object',
+            properties: [{
+              name: 'customfield',
+              label: 'Custom field/dimension',
+              sticky: true,
+              type: 'array',
+              of: 'object',
+              properties: [
+                {
+                  name: 'customfieldname',
+                  label: 'Custom field/dimension name',
+                  hint: 'Integration name of the custom field or ' \
+                    'custom dimension. Find integration name in object ' \
+                    'definition page of the respective object. Prepend ' \
+                    "custom dimension with 'GLDIM'; e.g., if the " \
+                    'custom dimension is Rating, use ' \
+                    "'<b>GLDIM</b>Rating' as integration name here.",
+                  sticky: true
+                },
+                {
+                  name: 'customfieldvalue',
+                  label: 'Custom field/dimension value',
+                  hint: 'The value of custom field or custom dimension',
+                  sticky: true
+                }
+              ]
+            }]
+          }
         ]
       end
     },
@@ -563,12 +604,6 @@
     employee_get: {
       fields: lambda do |_connection, _config_fields|
         [
-          {
-            name: 'RECORDNO',
-            label: 'Record number',
-            sticky: true,
-            type: 'integer'
-          },
           {
             name: 'EMPLOYEEID',
             label: 'Employee',
@@ -694,7 +729,7 @@
             parse_output: ->(field) { field&.to_date(format: '%m/%d/%Y') },
             type: 'date'
           },
-          { name: 'TITLE', label: 'Title' },
+          { name: 'TITLE', label: 'Title', sticky: true },
           {
             name: 'SSN',
             label: 'Social Security Number',
@@ -774,6 +809,7 @@
           {
             name: 'DEPARTMENTID',
             label: 'Department',
+            sticky: true,
             control_type: 'select',
             pick_list: 'departments',
             toggle_hint: 'Select from list',
@@ -805,6 +841,7 @@
           {
             name: 'CLASSID',
             label: 'Class',
+            sticky: true,
             control_type: 'select',
             pick_list: 'classes',
             toggle_hint: 'Select from list',
@@ -914,40 +951,506 @@
       end
     },
 
-    # Update GL Entry
-    gl_batch: {
+    employee_update: {
       fields: lambda do |_connection, _config_fields|
         [
           {
             name: 'RECORDNO',
             label: 'Record number',
+            sticky: true,
+            type: 'integer'
+          },
+          { name: 'EMPLOYEEID', label: 'Employee ID', sticky: true },
+          {
+            name: 'PERSONALINFO',
+            label: 'Personal info',
+            hint: 'Contact info',
+            type: 'object',
+            properties: [{
+              name: 'CONTACTNAME',
+              label: 'Contact name',
+              hint: 'Contact name of an existing contact',
+              control_type: 'select',
+              pick_list: 'contact_names',
+              toggle_hint: 'Select from list',
+              toggle_field: {
+                name: 'CONTACTNAME',
+                label: 'Contact name',
+                toggle_hint: 'Use custom value',
+                control_type: 'text',
+                type: 'string'
+              }
+            }]
+          },
+          {
+            name: 'STARTDATE',
+            label: 'Start date',
+            render_input: ->(field) { field&.to_date&.strftime('%m/%d/%Y') },
+            parse_output: ->(field) { field&.to_date(format: '%m/%d/%Y') },
+            type: 'date'
+          },
+          { name: 'TITLE', label: 'Title', sticky: true },
+          {
+            name: 'SSN',
+            label: 'Social Security Number',
+            hint: 'Do not include dashes.'
+          },
+          { name: 'EMPLOYEETYPE', label: 'Employee type' },
+          {
+            name: 'STATUS',
+            label: 'Status',
+            hint: 'Default: Active',
+            control_type: 'select',
+            pick_list: 'statuses',
+            toggle_hint: 'Select from list',
+            toggle_field: {
+              name: 'STATUS',
+              label: 'Status',
+              hint: 'Allowed values are: active, inactive',
+              toggle_hint: 'Use custom value',
+              control_type: 'text',
+              type: 'string'
+            }
+          },
+          {
+            name: 'BIRTHDATE',
+            label: 'Birth date',
+            render_input: ->(field) { field&.to_date&.strftime('%m/%d/%Y') },
+            parse_output: ->(field) { field&.to_date(format: '%m/%d/%Y') },
+            type: 'date'
+          },
+          {
+            name: 'ENDDATE',
+            label: 'End date',
+            render_input: ->(field) { field&.to_date&.strftime('%m/%d/%Y') },
+            parse_output: ->(field) { field&.to_date(format: '%m/%d/%Y') },
+            type: 'date'
+          },
+          {
+            name: 'TERMINATIONTYPE',
+            label: 'Termination type',
+            control_type: 'select',
+            pick_list: 'termination_types',
+            toggle_hint: 'Select from list',
+            toggle_field: {
+              name: 'TERMINATIONTYPE',
+              label: 'Termination type',
+              hint: 'Allowed values are: voluntary, involuntary, deceased, ' \
+              'disability, and retired.',
+              toggle_hint: 'Use custom value',
+              control_type: 'text',
+              type: 'string'
+            }
+          },
+          {
+            name: 'SUPERVISORID',
+            label: 'Manager',
+            control_type: 'select',
+            pick_list: 'employees',
+            toggle_hint: 'Select from list',
+            toggle_field: {
+              name: 'SUPERVISORID',
+              label: "Manager's employee ID",
+              toggle_hint: 'Use custom value',
+              control_type: 'text',
+              type: 'string'
+            }
+          },
+          {
+            name: 'GENDER',
+            label: 'Gender',
+            control_type: 'select',
+            pick_list: 'genders',
+            toggle_hint: 'Select from list',
+            toggle_field: {
+              name: 'GENDER',
+              label: 'Gender',
+              hint: 'Allowed values are: male, female',
+              toggle_hint: 'Use custom value',
+              control_type: 'text',
+              type: 'string'
+            }
+          },
+          {
+            name: 'DEPARTMENTID',
+            label: 'Department',
+            sticky: true,
+            control_type: 'select',
+            pick_list: 'departments',
+            toggle_hint: 'Select from list',
+            toggle_field: {
+              name: 'DEPARTMENTID',
+              label: 'Department ID',
+              toggle_hint: 'Use custom value',
+              control_type: 'text',
+              type: 'string'
+            }
+          },
+          {
+            name: 'LOCATIONID',
+            label: 'Location',
+            hint: 'Required only when an employee is created at the ' \
+              'top level in a multi-entity, multi-base-currency company.',
+            sticky: true,
+            control_type: 'select',
+            pick_list: 'locations',
+            toggle_hint: 'Select from list',
+            toggle_field: {
+              name: 'LOCATIONID',
+              label: 'Location ID',
+              toggle_hint: 'Use custom value',
+              control_type: 'text',
+              type: 'string'
+            }
+          },
+          {
+            name: 'CLASSID',
+            label: 'Class',
+            sticky: true,
+            control_type: 'select',
+            pick_list: 'classes',
+            toggle_hint: 'Select from list',
+            toggle_field: {
+              name: 'CLASSID',
+              label: 'Class ID',
+              toggle_hint: 'Use custom value',
+              control_type: 'text',
+              type: 'string'
+            }
+          },
+          {
+            name: 'CURRENCY',
+            label: 'Currency',
+            hint: 'Default currency code'
+          },
+          { name: 'EARNINGTYPENAME', label: 'Earning type name' },
+          {
+            name: 'POSTACTUALCOST',
+            label: 'Post actual cost',
+            hint: 'Default: No',
+            control_type: 'checkbox',
+            type: 'boolean',
+            toggle_hint: 'Select from list',
+            toggle_field: {
+              name: 'POSTACTUALCOST',
+              label: 'Post actual cost',
+              hint: 'Allowed values are: true, false',
+              toggle_hint: 'Use custom value',
+              control_type: 'text',
+              type: 'boolean'
+            }
+          },
+          { name: 'NAME1099', label: 'Name 1099', hint: 'Form 1099 name' },
+          { name: 'FORM1099TYPE', label: 'Form 1099 type' },
+          { name: 'FORM1099BOX', label: 'Form 1099 box' },
+          {
+            name: 'SUPDOCFOLDERNAME',
+            label: 'Supporting doc folder name',
+            hint: 'Attachment folder name'
+          },
+          { name: 'PAYMETHODKEY', label: 'Preferred payment method' },
+          {
+            name: 'PAYMENTNOTIFY',
+            label: 'Payment notify',
+            hint: 'Send automatic payment notification. Default: No',
+            control_type: 'checkbox',
+            type: 'boolean',
+            toggle_hint: 'Select from list',
+            toggle_field: {
+              name: 'PAYMENTNOTIFY',
+              label: 'Payment notify',
+              hint: 'Allowed values are: true, false',
+              toggle_hint: 'Use custom value',
+              control_type: 'text',
+              type: 'boolean'
+            }
+          },
+          {
+            name: 'MERGEPAYMENTREQ',
+            label: 'Merge payment requests',
+            hint: 'Default: Yes',
+            control_type: 'checkbox',
+            type: 'boolean',
+            toggle_hint: 'Select from list',
+            toggle_field: {
+              name: 'MERGEPAYMENTREQ',
+              label: 'Merge payment requests',
+              hint: 'Allowed values are: true, false',
+              toggle_hint: 'Use custom value',
+              control_type: 'text',
+              type: 'boolean'
+            }
+          },
+          {
+            name: 'ACHENABLED',
+            label: 'ACH enabled',
+            hint: 'Default: No',
+            control_type: 'checkbox',
+            type: 'boolean',
+            toggle_hint: 'Select from list',
+            toggle_field: {
+              name: 'ACHENABLED',
+              label: 'ACH enabled',
+              hint: 'Allowed values are: true, false',
+              toggle_hint: 'Use custom value',
+              control_type: 'text',
+              type: 'boolean'
+            }
+          },
+          { name: 'ACHBANKROUTINGNUMBER', label: 'ACH bank routing number' },
+          { name: 'ACHACCOUNTNUMBER', label: 'ACH account number' },
+          { name: 'ACHACCOUNTTYPE', label: 'ACH account type' },
+          { name: 'ACHREMITTANCETYPE', label: 'ACH remittance type' },
+          {
+            name: 'customfields',
+            label: 'Custom fields/dimensions',
+            sticky: true,
+            type: 'array',
+            of: 'object',
+            properties: [{
+              name: 'customfield',
+              label: 'Custom field/dimension',
+              sticky: true,
+              type: 'array',
+              of: 'object',
+              properties: [
+                {
+                  name: 'customfieldname',
+                  label: 'Custom field/dimension name',
+                  hint: 'Integration name of the custom field or ' \
+                    'custom dimension. Find integration name in object ' \
+                    'definition page of the respective object. Prepend ' \
+                    "custom dimension with 'GLDIM'; e.g., if the " \
+                    'custom dimension is Rating, use ' \
+                    "'<b>GLDIM</b>Rating' as integration name here.",
+                  sticky: true
+                },
+                {
+                  name: 'customfieldvalue',
+                  label: 'Custom field/dimension value',
+                  hint: 'The value of custom field or custom dimension',
+                  sticky: true
+                }
+              ]
+            }]
+          }
+        ]
+      end
+    },
+
+    # Contract MEA Bundle
+    contract_mea_bundle: {
+      fields: lambda do |_connection, _config_fields|
+        function = {
+          '@controlid' => 'testControlId',
+          'inspect' => { '@detail' => '1', 'object' => 'CONTRACTMEABUNDLE' }
+        }
+        response_data = call('get_api_response_data_element', function)
+
+        call('format_schema_field_names',
+             call('get_object_definition',
+                  call('parse_xml_to_hash',
+                       'xml' => response_data,
+                       'array_fields' => ['Field'])
+                    &.dig('Type', 'Fields', 'Field')))
+      end
+    },
+
+    contract_mea_bundle_create: {
+      fields: lambda do |_connection, _config_fields|
+        [
+          { name: 'CONTRACTID', label: 'Contract ID' },
+          { name: 'NAME' },
+          { name: 'DESCRIPTION' },
+          {
+            name: 'EFFECTIVEDATE',
+            label: 'Effective date',
+            control_type: 'date',
+            type: 'date'
+          },
+          {
+            name: 'ADJUSTMENTPROCESS',
+            label: 'Adjustment process',
+            sticky: true,
+            control_type: 'select',
+            pick_list: 'adjustment_process_types',
+            toggle_hint: 'Select from list',
+            toggle_field: {
+              name: 'ADJUSTMENTPROCESS',
+              label: 'Adjustment process',
+              hint: 'Allowed values are: One time, Distributed',
+              toggle_hint: 'Use custom value',
+              control_type: 'text',
+              type: 'string'
+            }
+          },
+          {
+            name: 'TYPE',
+            label: 'Type',
+            default: 'MEA Bundle',
+            control_type: 'select',
+            pick_list: 'mea_types',
+            toggle_hint: 'Select from list',
+            toggle_field: {
+              name: 'TYPE',
+              label: 'Type',
+              hint: 'Allowed value is: MEA Bundle',
+              toggle_hint: 'Use custom value',
+              control_type: 'text',
+              type: 'string'
+            }
+          },
+          {
+            control_type: 'checkbox',
+            label: 'Apply to journal 1',
+            toggle_hint: 'Select from option list',
+            toggle_field: {
+              label: 'Apply to journal 1',
+              control_type: 'text',
+              toggle_hint: 'Use custom value',
+              type: 'boolean',
+              name: 'APPLYTOJOURNAL1'
+            },
+            type: 'boolean',
+            name: 'APPLYTOJOURNAL1'
+          },
+          {
+            control_type: 'checkbox',
+            label: 'Apply to journal 2',
+            toggle_hint: 'Select from option list',
+            toggle_field: {
+              label: 'Apply to journal 2',
+              control_type: 'text',
+              toggle_hint: 'Use custom value',
+              type: 'boolean',
+              name: 'APPLYTOJOURNAL2'
+            },
+            type: 'boolean',
+            name: 'APPLYTOJOURNAL2'
+          },
+          { name: 'COMMENTS' },
+          {
+            name: 'CONTRACTMEABUNDLEENTRIES',
+            label: 'Contract MEA bundle entries',
+            type: 'array',
+            of: 'object',
+            properties: [
+              {
+                name: 'CONTRACTDETAILLINENO',
+                label: 'Contract detail line number',
+                type: 'integer'
+              },
+              { name: 'BUNDLENO', label: 'Bundle number', type: 'integer' },
+              {
+                name: 'MEA_AMOUNT',
+                label: 'MEA amount',
+                control_type: 'number',
+                parse_output: 'float_conversion',
+                type: 'number'
+              }
+            ]
+          }
+        ]
+      end
+    },
+
+    # Create & Update GL Entry
+    gl_batch: {
+      fields: lambda do |_connection, _config_fields|
+        [
+          {
+            name: 'JOURNAL',
+            hint: 'GL journal symbol. This determines the type of journal ' \
+            'entry as visible in the UI, for example, Regular, Adjustment, ' \
+            'User-defined, Statistical, GAAP, Tax, and so forth.'
+          },
+          {
+            name: 'RECORDNO',
+            label: 'Record number',
             hint: "Journal entry 'Record number' to update",
+            sticky: true,
             type: 'integer'
           },
           {
             name: 'BATCH_DATE',
             label: 'Batch date',
             hint: 'Posting date',
+            sticky: true,
             render_input: ->(field) { field&.to_date&.strftime('%m/%d/%Y') },
             parse_output: ->(field) { field&.to_date(format: '%m/%d/%Y') },
             type: 'date'
           },
           {
+            name: 'REVERSEDATE',
+            label: 'Reverse date',
+            hint: 'Reverse date must be greater than Batch date.',
+            render_input: lambda do |field|
+              field&.to_date&.strftime('%m/%d/%Y')
+            end,
+            parse_output: lambda do |field|
+              field&.to_date(format: '%m/%d/%Y')
+            end,
+            type: 'date'
+          },
+          {
             name: 'BATCH_TITLE',
             label: 'Batch title',
-            hint: 'Description of entry'
+            hint: 'Description of entry',
+            sticky: true
+          },
+          {
+            name: 'TAXIMPLICATIONS',
+            label: 'Tax implications',
+            hint: 'Tax implications. Use None, Inbound for purchase tax, ' \
+            'or Outbound for sales tax.(AU, GB only)',
+            control_type: 'select',
+            pick_list: 'tax_implications',
+            toggle_hint: 'Select from list',
+            toggle_field: {
+              name: 'TAXIMPLICATIONS',
+              label: 'Tax implications',
+              hint: 'Tax implications. Use None, Inbound for purchase tax, ' \
+              'or Outbound for sales tax.(AU, GB only)',
+              toggle_hint: 'Use custom value',
+              control_type: 'text',
+              type: 'string'
+            }
+          },
+          {
+            name: 'VATVENDORID',
+            label: 'VAT vendor ID',
+            hint: 'Vendor ID when tax implications is set to Inbound for ' \
+            'tax on purchases (AU, GB only)'
+          },
+          {
+            name: 'VATCUSTOMERID',
+            label: 'VAT customer ID',
+            hint: 'Customer ID when tax implications is set to Outbound for ' \
+            'tax on sales (AU, GB only)'
+          },
+          {
+            name: 'VATCONTACTID',
+            label: 'VAT contact ID',
+            hint: 'Contact name for the customer SHIPTO contact for sales ' \
+            'journals or the vendor ID for the vendor PAYTO contact for ' \
+            'purchase journals (AU, GB only)'
           },
           {
             name: 'HISTORY_COMMENT',
             label: 'History comment',
             hint: 'Comment added to history for this transaction'
           },
-          { name: 'REFERENCENO', label: 'Reference number of transaction' },
+          {
+            name: 'REFERENCENO',
+            label: 'Reference number of transaction',
+            sticky: true
+          },
           {
             name: 'BASELOCATION_NO',
             label: 'Baselocation number',
             hint: 'Source entity ID. Required if multi-entity enabled and ' \
-              'entries do not balance by entity.'
+              'entries do not balance by entity.',
+            sticky: true
           },
           { name: 'SUPDOCID', label: 'Attachments ID' },
           {
@@ -961,6 +1464,7 @@
             toggle_field: {
               name: 'STATE',
               label: 'State',
+              hint: 'Allowed values are: Draft, Posted',
               toggle_hint: 'Use custom value',
               control_type: 'text',
               type: 'string'
@@ -991,7 +1495,9 @@
                   label: 'Transaction amount',
                   hint: 'Absolute value, relates to Transaction type.',
                   optional: false,
-                  type: 'currency'
+                  control_type: 'number',
+                  parse_output: 'float_conversion',
+                  type: 'number'
                 },
                 {
                   name: 'TR_TYPE',
@@ -1003,6 +1509,7 @@
                   toggle_field: {
                     name: 'TR_TYPE',
                     label: 'Transaction type',
+                    hint: 'Allowed values are: 1 (Debit), -1 (Credit).',
                     toggle_hint: 'Use custom value',
                     control_type: 'text',
                     type: 'string'
@@ -1031,21 +1538,25 @@
                   name: 'EXCHANGE_RATE',
                   label: 'Exchange rate',
                   hint: 'Required if multi currency enabled ' \
-                    'and Exch rate type ID left blank. Exchange rate amount ' \
-                    'to 4 decimals.',
-                  type: 'currency'
+                  'and Exch rate type ID left blank. Exchange rate amount ' \
+                  'to 4 decimals.',
+                  control_type: 'number',
+                  parse_output: 'float_conversion',
+                  type: 'number'
                 },
                 {
                   name: 'DESCRIPTION',
                   label: 'Description',
                   hint: 'Memo. If left blank, set this value to match Batch ' \
-                    'title.'
+                  'title.'
                 },
                 {
                   name: 'ALLOCATION',
                   label: 'Allocation ID',
                   hint: 'All other dimension elements are ' \
-                    'ignored if allocation is set.'
+                  'ignored if allocation is set. Use `Custom` for ' \
+                  'custom splits and see `Split` element below.',
+                  sticky: true
                 },
                 {
                   name: 'DEPARTMENT',
@@ -1090,6 +1601,12 @@
                     control_type: 'text',
                     type: 'string'
                   }
+                },
+                {
+                  name: 'TASKID',
+                  label: 'Task ID',
+                  hint: 'Task ID. Only available when the parent ' \
+                  'Project/Project ID is also specified.'
                 },
                 {
                   name: 'CUSTOMERID',
@@ -1177,13 +1694,192 @@
                   }
                 },
                 {
+                  name: 'BILLABLE',
+                  hint: 'Billable option for project-related transactions ' \
+                  'imported into the GL through external systems. Use Yes ' \
+                  'for billable transactions (Default: No)',
+                  control_type: 'checkbox',
+                  type: 'boolean',
+                  toggle_hint: 'Select from list',
+                  toggle_field: {
+                    name: 'BILLABLE',
+                    label: 'Billable',
+                    hint: 'Billable option for project-related transactions ' \
+                    'imported into the GL through external systems. Use true ' \
+                    'for billable transactions (Default: false)',
+                    toggle_hint: 'Use custom value',
+                    control_type: 'text',
+                    type: 'boolean'
+                  }
+                },
+                {
+                  name: 'SPLIT',
+                  label: 'Split',
+                  hint: 'Custom allocation split. Required if ALLOCATION ' \
+                  'equals Custom. Multiple SPLIT elements may then be passed.',
+                  sticky: true,
+                  type: 'array',
+                  of: 'object',
+                  properties: [
+                    {
+                      name: 'AMOUNT',
+                      label: 'Amount',
+                      hint: 'A required field. Split transaction amount. ' \
+                      'Absolute value. All SPLIT element’s amount values ' \
+                      'must sum up to equal GLENTRY element’s Transaction ' \
+                      'amount',
+                      sticky: true,
+                      control_type: 'number',
+                      parse_output: 'float_conversion',
+                      type: 'number'
+                    },
+                    {
+                      name: 'DEPARTMENT',
+                      label: 'Department',
+                      control_type: 'select',
+                      pick_list: 'departments',
+                      toggle_hint: 'Select from list',
+                      toggle_field: {
+                        name: 'DEPARTMENT',
+                        label: 'Department ID',
+                        toggle_hint: 'Use custom value',
+                        control_type: 'text',
+                        type: 'string'
+                      }
+                    },
+                    {
+                      name: 'LOCATION',
+                      label: 'Location',
+                      hint: 'Required if multi-entity enabled',
+                      sticky: true,
+                      control_type: 'select',
+                      pick_list: 'locations',
+                      toggle_hint: 'Select from list',
+                      toggle_field: {
+                        name: 'LOCATION',
+                        label: 'Location ID',
+                        toggle_hint: 'Use custom value',
+                        control_type: 'text',
+                        type: 'string'
+                      }
+                    },
+                    {
+                      name: 'PROJECTID',
+                      label: 'Project',
+                      control_type: 'select',
+                      pick_list: 'projects',
+                      toggle_hint: 'Select from list',
+                      toggle_field: {
+                        name: 'PROJECTID',
+                        label: 'Project ID',
+                        toggle_hint: 'Use custom value',
+                        control_type: 'text',
+                        type: 'string'
+                      }
+                    },
+                    {
+                      name: 'TASKID',
+                      label: 'Task ID',
+                      hint: 'Task ID. Only available when the parent ' \
+                      'Project/Project ID is also specified.'
+                    },
+                    {
+                      name: 'CUSTOMERID',
+                      label: 'Customer',
+                      control_type: 'select',
+                      pick_list: 'customers',
+                      toggle_hint: 'Select from list',
+                      toggle_field: {
+                        name: 'CUSTOMERID',
+                        label: 'Customer ID',
+                        toggle_hint: 'Use custom value',
+                        control_type: 'text',
+                        type: 'string'
+                      }
+                    },
+                    {
+                      name: 'VENDORID',
+                      label: 'Vendor',
+                      control_type: 'select',
+                      pick_list: 'vendors',
+                      toggle_hint: 'Select from list',
+                      toggle_field: {
+                        name: 'VENDORID',
+                        label: 'Vendor ID',
+                        toggle_hint: 'Use custom value',
+                        control_type: 'text',
+                        type: 'string'
+                      }
+                    },
+                    {
+                      name: 'EMPLOYEEID',
+                      label: 'Employee',
+                      control_type: 'select',
+                      pick_list: 'employees',
+                      toggle_hint: 'Select from list',
+                      toggle_field: {
+                        name: 'EMPLOYEEID',
+                        label: 'Employee ID',
+                        toggle_hint: 'Use custom value',
+                        control_type: 'text',
+                        type: 'string'
+                      }
+                    },
+                    {
+                      name: 'ITEMID',
+                      label: 'Item',
+                      control_type: 'select',
+                      pick_list: 'items',
+                      toggle_hint: 'Select from list',
+                      toggle_field: {
+                        name: 'ITEMID',
+                        label: 'Item ID',
+                        toggle_hint: 'Use custom value',
+                        control_type: 'text',
+                        type: 'string'
+                      }
+                    },
+                    {
+                      name: 'CLASSID',
+                      label: 'Class',
+                      control_type: 'select',
+                      pick_list: 'classes',
+                      toggle_hint: 'Select from list',
+                      toggle_field: {
+                        name: 'CLASSID',
+                        label: 'Class ID',
+                        toggle_hint: 'Use custom value',
+                        control_type: 'text',
+                        type: 'string'
+                      }
+                    },
+                    { name: 'CONTRACTID', label: 'Contract ID' },
+                    {
+                      name: 'WAREHOUSEID',
+                      label: 'Warehouse',
+                      control_type: 'select',
+                      pick_list: 'warehouses',
+                      toggle_hint: 'Select from list',
+                      toggle_field: {
+                        name: 'WAREHOUSEID',
+                        label: 'Warehouse ID',
+                        toggle_hint: 'Use custom value',
+                        control_type: 'text',
+                        type: 'string'
+                      }
+                    }
+                  ]
+                },
+                {
                   name: 'customfields',
                   label: 'Custom fields/dimensions',
+                  sticky: true,
                   type: 'array',
                   of: 'object',
                   properties: [{
                     name: 'customfield',
                     label: 'Custom field/dimension',
+                    sticky: true,
                     type: 'array',
                     of: 'object',
                     properties: [
@@ -1195,15 +1891,52 @@
                           'definition page of the respective object. Prepend ' \
                           "custom dimension with 'GLDIM'; e.g., if the " \
                           'custom dimension is Rating, use ' \
-                          "'<b>GLDIM</b>Rating' as integration name here."
+                          "'<b>GLDIM</b>Rating' as integration name here.",
+                        sticky: true
                       },
                       {
                         name: 'customfieldvalue',
                         label: 'Custom field/dimension value',
-                        hint: 'The value of custom field or custom dimension'
+                        hint: 'The value of custom field or custom dimension',
+                        sticky: true
                       }
                     ]
                   }]
+                },
+                {
+                  name: 'TAXENTRIES',
+                  label: 'Tax entries',
+                  hint: 'Tax entry for the line (AU, GB only).',
+                  sticky: true,
+                  type: 'array',
+                  of: 'object',
+                  properties: [
+                    {
+                      name: 'RECORDNO',
+                      label: 'Record number',
+                      hint: 'Record number of an existing tax entry ' \
+                      '(associated with this line) that you want to modify. ' \
+                      'You can omit this parameter to create a new tax entry.',
+                      type: 'integer'
+                    },
+                    {
+                      name: 'DETAILID',
+                      label: 'Detail ID',
+                      hint: 'Required field. Tax rate specified via the ' \
+                      'unique ID of a tax detail.',
+                      sticky: true
+                    },
+                    {
+                      name: 'TRX_TAX',
+                      label: 'Transaction tax',
+                      hint: 'Transaction tax, which is your manually ' \
+                      'calculated value for the tax.',
+                      sticky: true,
+                      control_type: 'number',
+                      parse_output: 'float_conversion',
+                      type: 'number'
+                    }
+                  ]
                 }
               ]
             }]
@@ -1211,11 +1944,13 @@
           {
             name: 'customfields',
             label: 'Custom fields/dimensions',
+            sticky: true,
             type: 'array',
             of: 'object',
             properties: [{
               name: 'customfield',
               label: 'Custom field/dimension',
+              sticky: true,
               type: 'array',
               of: 'object',
               properties: [
@@ -1227,12 +1962,14 @@
                     'definition page of the respective object. Prepend ' \
                     "custom dimension with 'GLDIM'; e.g., if the " \
                     'custom dimension is Rating, use ' \
-                    "'<b>GLDIM</b>Rating' as integration name here."
+                    "'<b>GLDIM</b>Rating' as integration name here.",
+                  sticky: true
                 },
                 {
                   name: 'customfieldvalue',
                   label: 'Custom field/dimension value',
-                  hint: 'The value of custom field or custom dimension'
+                  hint: 'The value of custom field or custom dimension',
+                  sticky: true
                 }
               ]
             }]
@@ -1912,7 +2649,9 @@
                   label: 'Transaction amount',
                   hint: 'Absolute value, relates to Transaction type.',
                   optional: false,
-                  type: 'currency'
+                  control_type: 'number',
+                  parse_output: 'float_conversion',
+                  type: 'number'
                 },
                 {
                   name: 'TR_TYPE',
@@ -2307,12 +3046,14 @@
   },
 
   actions: {
+    # Contract related actions
     search_contract: {
-      description: "Search <span class='provider'>contract</span>  in " \
-        "<span class='provider'>Sage Intacct (Custom)</span>",
-      help: 'Fetches all the records <b>(max 100)</b>, that match ' \
-        'the criteria.<br/><b>Make sure you have subscribed for "Contract" ' \
-        'module in your Sage Intacct instance.</b>',
+      title: 'Search contracts',
+      description: "Search <span class='provider'>contracts</span>  in " \
+      "<span class='provider'>Sage Intacct (Custom)</span>",
+      help: 'Search will return results that match all your search criteria. ' \
+      'Returns a maximum of 100 records.<br/><b>Make sure you have  ' \
+      'subscribed for "Contract" module in your Sage Intacct instance.</b>',
 
       execute: lambda do |_connection, input|
         query = call('format_api_input_field_names', input)
@@ -2349,7 +3090,7 @@
         }]
       end,
 
-      sample_output: lambda do |_object_definitions, _input|
+      sample_output: lambda do |_connection, _input|
         function = {
           '@controlid' => 'testControlId',
           'readByQuery' => {
@@ -2373,7 +3114,7 @@
 
     get_contract_by_record_number: {
       description: "Get <span class='provider'>contract</span> by record " \
-        "number in <span class='provider'>Sage Intacct (Custom)</span>",
+      "number in <span class='provider'>Sage Intacct (Custom)</span>",
 
       execute: lambda do |_connection, input|
         function = {
@@ -2421,10 +3162,11 @@
     },
 
     search_contract_line: {
+      title: 'Search contract lines',
       description: "Search <span class='provider'>contract lines</span>  in " \
-        "<span class='provider'>Sage Intacct (Custom)</span>",
-      help: 'Fetches all the records <b>(max 100)</b>, that match ' \
-        'the criteria.',
+      "<span class='provider'>Sage Intacct (Custom)</span>",
+      help: 'Search will return results that match all your search criteria. ' \
+      'Returns a maximum of 100 records.',
 
       execute: lambda do |_connection, input|
         query = call('format_api_input_field_names', input)
@@ -2463,7 +3205,7 @@
         }]
       end,
 
-      sample_output: lambda do |_object_definitions, _input|
+      sample_output: lambda do |_connection, _input|
         function = {
           '@controlid' => 'testControlId',
           'readByQuery' => {
@@ -2487,7 +3229,7 @@
 
     get_contract_line_by_record_number: {
       description: "Get <span class='provider'>contract line</span> by " \
-        "record number in <span class='provider'>Sage Intacct (Custom)</span>",
+      "record number in <span class='provider'>Sage Intacct (Custom)</span>",
 
       execute: lambda do |_connection, input|
         function = {
@@ -2539,11 +3281,12 @@
     },
 
     search_contract_expense_line: {
+      title: 'Search contract expense lines',
       description: "Search <span class='provider'>contract expense</span> " \
-        "lines in <span class='provider'>Sage Intacct (Custom)</span>",
-      help: 'Fetches all the records <b>(max 100)</b>, that match ' \
-        'the criteria.<br/><b>Make sure you have subscribed for "Contract" ' \
-        'module in your Sage Intacct instance.</b>',
+      "lines in <span class='provider'>Sage Intacct (Custom)</span>",
+      help: 'Search will return results that match all your search criteria. ' \
+      'Returns a maximum of 100 records.<br/><b>Make sure you have  ' \
+      'subscribed for "Contract" module in your Sage Intacct instance.</b>',
 
       execute: lambda do |_connection, input|
         query = call('format_api_input_field_names', input)
@@ -2582,7 +3325,7 @@
         }]
       end,
 
-      sample_output: lambda do |_object_definitions, _input|
+      sample_output: lambda do |_connection, _input|
         function = {
           '@controlid' => 'testControlId',
           'readByQuery' => {
@@ -2606,8 +3349,7 @@
 
     get_contract_expense_line_by_record_number: {
       description: "Get <span class='provider'>contract expense line</span> " \
-        "by record number in <span class='provider'>Sage Intacct (Custom)" \
-        '</span>',
+      "by record number in <span class='provider'>Sage Intacct (Custom)</span>",
 
       execute: lambda do |_connection, input|
         function = {
@@ -2661,10 +3403,10 @@
     # Attachment related actions
     create_attachments: {
       description: "Create <span class='provider'>attachments</span> in " \
-        "<span class='provider'>Sage Intacct (Custom)</span>",
+      "<span class='provider'>Sage Intacct (Custom)</span>",
       help: '<b>Pay special attention to enter the values for the ' \
-        'fields in the same order as listed below, ' \
-        'for the action to be successful!</b>',
+      'fields in the same order as listed below, ' \
+      'for the action to be successful!</b>',
 
       execute: lambda do |_connection, input|
         function = {
@@ -2686,7 +3428,7 @@
         object_definitions['lagacy_create_or_update_response']
       end,
 
-      sample_output: lambda do |_object_definitions, _input|
+      sample_output: lambda do |_connection, _input|
         {
           status: 'success',
           function: 'create_supdoc',
@@ -2699,7 +3441,7 @@
     get_attachment: {
       title: 'Get attachment by ID',
       description: "Get <span class='provider'>attachment</span> by ID in " \
-        "<span class='provider'>Sage Intacct (Custom)</span>",
+      "<span class='provider'>Sage Intacct (Custom)</span>",
 
       execute: lambda do |_connection, input|
         function = {
@@ -2722,7 +3464,7 @@
           .ignored('supdocfoldername', 'supdocdescription')
       end,
 
-      sample_output: lambda do |_object_definitions, _input|
+      sample_output: lambda do |_connection, _input|
         function = {
           '@controlid' => 'testControlId',
           'get_list' => { '@object' => 'supdoc', '@maxitems' => '1' }
@@ -2737,10 +3479,10 @@
 
     update_attachment: {
       description: "Update <span class='provider'>attachment</span> in " \
-        "<span class='provider'>Sage Intacct (Custom)</span>",
+      "<span class='provider'>Sage Intacct (Custom)</span>",
       help: '<b>Pay special attention to enter the value for the ' \
-        'fields in the same order as listed below, ' \
-        'for the action to be successful!</b>',
+      'fields in the same order as listed below, ' \
+      'for the action to be successful!</b>',
 
       execute: lambda do |_connection, input|
         function = { '@controlid' => 'testControlId', 'update_supdoc' => input }
@@ -2762,7 +3504,7 @@
         object_definitions['lagacy_create_or_update_response']
       end,
 
-      sample_output: lambda do |_object_definitions, _input|
+      sample_output: lambda do |_connection, _input|
         {
           status: 'success',
           function: 'update_supdoc',
@@ -2775,10 +3517,10 @@
     # Attachment folder related actions
     create_attachment_folder: {
       description: "Create <span class='provider'>attachment folder</span> " \
-         "in <span class='provider'>Sage Intacct (Custom)</span>",
+      "in <span class='provider'>Sage Intacct (Custom)</span>",
       help: '<b>Pay special attention to enter the values for the ' \
-        'fields in the same order as listed below, ' \
-        'for the action to be successful!</b>',
+      'fields in the same order as listed below, ' \
+      'for the action to be successful!</b>',
 
       execute: lambda do |_connection, input|
         function = {
@@ -2803,7 +3545,7 @@
         object_definitions['lagacy_create_or_update_response']
       end,
 
-      sample_output: lambda do |_object_definitions, _input|
+      sample_output: lambda do |_connection, _input|
         {
           status: 'success',
           function: 'create_supdocfolder',
@@ -2816,7 +3558,7 @@
     get_attachment_folder: {
       title: 'Get attachment folder by folder name',
       description: "Get <span class='provider'>attachment folder</span> by " \
-        "folder name in <span class='provider'>Sage Intacct (Custom)</span>",
+      "folder name in <span class='provider'>Sage Intacct (Custom)</span>",
 
       execute: lambda do |_connection, input|
         function = {
@@ -2840,7 +3582,7 @@
                    'supdocparentfoldername')
       end,
 
-      sample_output: lambda do |_object_definitions, _input|
+      sample_output: lambda do |_connection, _input|
         function = {
           '@controlid' => 'testControlId',
           'get_list' => { '@object' => 'supdocfolder', '@maxitems' => '1' }
@@ -2855,10 +3597,10 @@
 
     update_attachment_folder: {
       description: "Update <span class='provider'>attachment folder</span> " \
-        "in <span class='provider'>Sage Intacct (Custom)</span>",
+      "in <span class='provider'>Sage Intacct (Custom)</span>",
       help: '<b>Pay special attention to enter the values for the ' \
-        'fields in the same order as listed below, ' \
-        'for the action to be successful!</b>',
+      'fields in the same order as listed below, ' \
+      'for the action to be successful!</b>',
 
       execute: lambda do |_connection, input|
         function = {
@@ -2883,7 +3625,7 @@
         object_definitions['lagacy_create_or_update_response']
       end,
 
-      sample_output: lambda do |_object_definitions, _input|
+      sample_output: lambda do |_connection, _input|
         {
           status: 'success',
           function: 'update_supdocfolder',
@@ -2893,42 +3635,10 @@
       end
     },
 
-    # API Session related actions
-    get_api_session: {
-      title: 'Get API session',
-      description: "Get API <span class='provider'>session</span> in " \
-        "<span class='provider'>Sage Intacct (Custom)</span>",
-      help: 'Action returns a unique identifier for an API session ' \
-        'and its endpoint.',
-
-      execute: lambda do |_connection, _input|
-        function = { '@controlid' => 'testControlId', 'getAPISession' => '' }
-        response_data = call('get_api_response_data_element', function)
-
-        call('parse_xml_to_hash',
-             'xml' => response_data,
-             'array_fields' => ['api'])&.dig('api', 0) || {}
-      end,
-
-      output_fields: lambda do |object_definitions|
-        object_definitions['api_session']
-      end,
-
-      sample_output: lambda do |_object_definitions, _input|
-        {
-          sessionid: 'ABCDEFGHiGKlmnoPQrstuvwxYz..',
-          endpoint: 'https://api.intacct.com/ia/xml/xmlgw.phtml'
-        }
-      end
-    },
-
     # Employee related actions
     create_employee: {
       description: "Create <span class='provider'>employee</span> in " \
-        "<span class='provider'>Sage Intacct (Custom)</span>",
-      help: '<b>Pay special attention to enter the values for the ' \
-        'fields in the same order as listed below, ' \
-        'for the action to be successful!</b>',
+      "<span class='provider'>Sage Intacct (Custom)</span>",
 
       execute: lambda do |_connection, input|
         function = {
@@ -2944,15 +3654,13 @@
 
       input_fields: lambda do |object_definitions|
         object_definitions['employee_create']
-          .ignored('RECORDNO', 'CREATEDBY', 'MODIFIEDBY', 'WHENCREATED',
-                   'WHENMODIFIED')
       end,
 
       output_fields: lambda do |object_definitions|
         object_definitions['employee_get'].only('RECORDNO', 'EMPLOYEEID')
       end,
 
-      sample_output: lambda do |_object_definitions, _input|
+      sample_output: lambda do |_connection, _input|
         { 'RECORDNO' => 1234, 'EMPLOYEEID' => 'EMP-007' }
       end
     },
@@ -2960,7 +3668,7 @@
     get_employee: {
       title: 'Get employee by record number',
       description: "Get <span class='provider'>employee</span> in " \
-        "<span class='provider'>Sage Intacct (Custom)</span>",
+      "<span class='provider'>Sage Intacct (Custom)</span>",
 
       execute: lambda do |_connection, input|
         function = {
@@ -2987,7 +3695,7 @@
         object_definitions['employee_get']
       end,
 
-      sample_output: lambda do |_object_definitions, _input|
+      sample_output: lambda do |_connection, _input|
         function = {
           '@controlid' => 'testControlId',
           'readByQuery' => {
@@ -3005,17 +3713,78 @@
       end
     },
 
+    search_employees: {
+      description: "Search <span class='provider'>employees</span> in " \
+      "<span class='provider'>Sage Intacct (Custom)</span>",
+      help: 'Search will return results that match all your search criteria. ' \
+      'Returns a maximum of 100 records.',
+
+      execute: lambda do |_connection, input|
+        query = input&.map { |key, value| "#{key} = '#{value}'" }
+                     &.smart_join(' AND ') || ''
+        function = {
+          '@controlid' => 'testControlId',
+          'readByQuery' => {
+            'object' => 'EMPLOYEE',
+            'fields' => '*',
+            'query' => query,
+            'pagesize' => '100'
+          }
+        }
+        response_data = call('get_api_response_data_element', function)
+
+        {
+          employees: call('format_api_output_field_names',
+                          call('parse_xml_to_hash',
+                               'xml' => response_data,
+                               'array_fields' => ['employee'])
+                            &.[]('employee')) || []
+        }
+      end,
+
+      input_fields: lambda do |object_definitions|
+        object_definitions['employee_get']
+          .only('RECORDNO', 'EMPLOYEEID', 'TITLE', 'DEPARTMENTID',
+                'LOCATIONID', 'CLASSID')
+      end,
+
+      output_fields: lambda do |object_definitions|
+        [{
+          name: 'employees',
+          type: 'array',
+          of: 'object',
+          properties: object_definitions['employee']
+        }]
+      end,
+
+      sample_output: lambda do |_connection, _input|
+        function = {
+          '@controlid' => 'testControlId',
+          'readByQuery' => {
+            'object' => 'EMPLOYEE',
+            'query' => '',
+            'fields' => '*',
+            'pagesize' => '1'
+          }
+        }
+        response_data = call('get_api_response_data_element', function)
+
+        {
+          employees: call('parse_xml_to_hash',
+                          'xml' => response_data,
+                          'array_fields' => ['employee'])['employee'] || []
+        }
+      end
+    },
+
     update_employee: {
       description: "Update <span class='provider'>employee</span> in " \
-        "<span class='provider'>Sage Intacct (Custom)</span>",
-      help: '<b>Pay special attention to enter the values for the ' \
-        'fields in the same order as listed below, ' \
-        'for the action to be successful!</b>',
+      "<span class='provider'>Sage Intacct (Custom)</span>",
 
       execute: lambda do |_connection, input|
         unless (fields = input.keys)&.include?('RECORDNO') ||
                fields&.include?('EMPLOYEEID')
-          error("Provide either 'RECORDNO' or 'EMPLOYEEID'")
+          error("Either 'Record number' or 'Employee ID' is required.")
         end
         function = {
           '@controlid' => 'testControlId',
@@ -3029,24 +3798,53 @@
       end,
 
       input_fields: lambda do |object_definitions|
-        object_definitions['employee_get']
-          .ignored('CREATEDBY', 'MODIFIEDBY', 'WHENCREATED', 'WHENMODIFIED')
+        object_definitions['employee_update']
       end,
 
       output_fields: lambda do |object_definitions|
         object_definitions['employee_get'].only('RECORDNO', 'EMPLOYEEID')
       end,
 
-      sample_output: lambda do |_object_definitions, _input|
+      sample_output: lambda do |_connection, _input|
         { 'RECORDNO' => 1234, 'EMPLOYEEID' => 'EMP-007' }
       end
     },
 
-    # Update GL Entry
+    # GL Entry
+    create_gl_entry: {
+      title: 'Create journal entry',
+      description: "Create <span class='provider'>journal entry</span> in " \
+      "<span class='provider'>Sage Intacct (Custom)</span>",
+
+      execute: lambda do |_connection, input|
+        function = {
+          '@controlid' => 'testControlId',
+          'create' => { 'GLBATCH' => input }
+        }
+        response_data = call('get_api_response_data_element', function)
+
+        call('parse_xml_to_hash',
+             'xml' => response_data,
+             'array_fields' => ['glbatch'])&.dig('glbatch', 0) || {}
+      end,
+
+      input_fields: lambda do |object_definitions|
+        object_definitions['gl_batch']
+          .ignored('RECORDNO')
+          .required('JOURNAL', 'BATCH_DATE', 'BATCH_TITLE', 'ENTRIES')
+      end,
+
+      output_fields: lambda do |object_definitions|
+        object_definitions['update_response']
+      end,
+
+      sample_output: ->(_connection, _input) { { 'RECORDNO' => 1234 } }
+    },
+
     update_gl_entry: {
       title: 'Update journal entry',
       description: "Update <span class='provider'>journal entry</span> in " \
-        "<span class='provider'>Sage Intacct (Custom)</span>",
+      "<span class='provider'>Sage Intacct (Custom)</span>",
 
       execute: lambda do |_connection, input|
         function = {
@@ -3062,6 +3860,7 @@
 
       input_fields: lambda do |object_definitions|
         object_definitions['gl_batch']
+          .ignored('JOURNAL', 'REVERSEDATE')
           .required('RECORDNO', 'BATCH_DATE', 'BATCH_TITLE', 'ENTRIES')
       end,
 
@@ -3069,18 +3868,113 @@
         object_definitions['update_response']
       end,
 
-      sample_output: lambda do |_object_definitions, _input|
-        { 'RECORDNO' => 1234 }
+      sample_output: ->(_connection, _input) { { 'RECORDNO' => 1234 } }
+    },
+
+    # MEA Allocation
+    search_mea_allocations: {
+      title: 'Search MEA allocations',
+      description: "Search contract <span class='provider'>MEA allocation" \
+      "</span>  in <span class='provider'>Sage Intacct (Custom)</span>",
+      help: 'Search will return results that match all your search criteria. ' \
+      'Returns a maximum of 100 records.<br/><b>Make sure you have  ' \
+      'subscribed for "Contract" module in your Sage Intacct instance.</b>',
+
+      execute: lambda do |_connection, input|
+        query = call('format_api_input_field_names', input)
+                &.map { |key, value| "#{key} = '#{value}'" }
+                &.smart_join(' AND ') || ''
+        function = {
+          '@controlid' => 'testControlId',
+          'readByQuery' => {
+            'object' => 'CONTRACTMEABUNDLE',
+            'fields' => '*',
+            'query' => query,
+            'pagesize' => '100'
+          }
+        }
+        response_data = call('get_api_response_data_element', function)
+
+        {
+          mea_bundles: call('format_api_output_field_names',
+                            call('parse_xml_to_hash',
+                                 'xml' => response_data,
+                                 'array_fields' => ['contractmeabundle'])
+                              &.[]('contractmeabundle')) || []
+        }
+      end,
+
+      input_fields: lambda do |object_definitions|
+        object_definitions['contract_mea_bundle']
+      end,
+
+      output_fields: lambda do |object_definitions|
+        [{
+          name: 'mea_bundles',
+          type: 'array',
+          of: 'object',
+          properties: object_definitions['contract_mea_bundle']
+        }]
+      end,
+
+      sample_output: lambda do |_connection, _input|
+        function = {
+          '@controlid' => 'testControlId',
+          'readByQuery' => {
+            'object' => 'CONTRACTMEABUNDLE',
+            'fields' => '*',
+            'query' => '',
+            'pagesize' => '1'
+          }
+        }
+        response_data = call('get_api_response_data_element', function)
+
+        {
+          mea_bundles: call('format_api_output_field_names',
+                            call('parse_xml_to_hash',
+                                 'xml' => response_data,
+                                 'array_fields' => ['contractmeabundle'])
+                              &.[]('contractmeabundle')) || []
+        }
       end
+    },
+
+    create_mea_allocation: {
+      title: 'Create MEA allocations',
+      description: "Create contract <span class='provider'>MEA allocation" \
+      "</span> in <span class='provider'>Sage Intacct (Custom)</span>",
+
+      execute: lambda do |_connection, input|
+        input['CONTRACTMEABUNDLEENTRIES'] = {
+          'CONTRACTMEABUNDLEENTRY' => input['CONTRACTMEABUNDLEENTRIES']
+        }
+        function = {
+          '@controlid' => 'testControlId',
+          'create' => { 'CONTRACTMEABUNDLE' => input }
+        }
+        response_result = call('get_api_response_result_element', function)
+
+        call('parse_xml_to_hash',
+             'xml' => response_result,
+             'array_fields' => []) || {}
+      end,
+
+      input_fields: lambda do |object_definitions|
+        object_definitions['contract_mea_bundle_create']
+      end,
+
+      output_fields: ->(_object_definitions) { [{ name: 'RECORDNO' }] },
+
+      sample_output: ->(_object_definitions, _input) { { RECORDNO: '12345' } }
     },
 
     # Purchase Order Transaction related actions
     update_purchase_transaction_header: {
       description: "Update <span class='provider'>purchase transaction " \
-        "header</span> in <span class='provider'>Sage Intacct (Custom)</span>",
+      "header</span> in <span class='provider'>Sage Intacct (Custom)</span>",
       help: '<b>Pay special attention to enter the values for the ' \
-        'fields in the same order as listed below, ' \
-        'for the action to be successful!</b>',
+      'fields in the same order as listed below, ' \
+      'for the action to be successful!</b>',
 
       execute: lambda do |_connection, input|
         function = {
@@ -3102,7 +3996,7 @@
         object_definitions['lagacy_create_or_update_response']
       end,
 
-      sample_output: lambda do |_object_definitions, _input|
+      sample_output: lambda do |_connection, _input|
         {
           status: 'success',
           function: 'update_potransaction',
@@ -3114,10 +4008,10 @@
 
     add_purchase_transaction_items: {
       description: "Add <span class='provider'>purchase transaction " \
-        "items</span> in <span class='provider'>Sage Intacct (Custom)</span>",
+      "items</span> in <span class='provider'>Sage Intacct (Custom)</span>",
       help: '<b>Pay special attention to enter the values for the ' \
-        'fields in the same order as listed below, ' \
-        'for the action to be successful!</b>',
+      'fields in the same order as listed below, ' \
+      'for the action to be successful!</b>',
 
       execute: lambda do |_connection, input|
         function = {
@@ -3139,7 +4033,7 @@
         object_definitions['lagacy_create_or_update_response']
       end,
 
-      sample_output: lambda do |_object_definitions, _input|
+      sample_output: lambda do |_connection, _input|
         {
           status: 'success',
           function: 'update_potransaction',
@@ -3151,10 +4045,10 @@
 
     update_purchase_transaction_items: {
       description: "Update <span class='provider'>purchase transaction " \
-        "items</span> in <span class='provider'>Sage Intacct (Custom)</span>",
+      "items</span> in <span class='provider'>Sage Intacct (Custom)</span>",
       help: '<b>Pay special attention to enter the values for the ' \
-        'fields in the same order as listed below, ' \
-        'for the action to be successful!</b>',
+      'fields in the same order as listed below, ' \
+      'for the action to be successful!</b>',
 
       execute: lambda do |_connection, input|
         function = {
@@ -3176,7 +4070,7 @@
         object_definitions['lagacy_create_or_update_response']
       end,
 
-      sample_output: lambda do |_object_definitions, _input|
+      sample_output: lambda do |_connection, _input|
         {
           status: 'success',
           function: 'update_potransaction',
@@ -3190,7 +4084,7 @@
     update_stat_gl_entry: {
       title: 'Update statistical journal entry',
       description: "Update <span class='provider'>statistical journal entry" \
-        "</span> in <span class='provider'>Sage Intacct (Custom)</span>",
+      "</span> in <span class='provider'>Sage Intacct (Custom)</span>",
 
       execute: lambda do |_connection, input|
         function = {
@@ -3213,18 +4107,16 @@
         object_definitions['update_response']
       end,
 
-      sample_output: lambda do |_object_definitions, _input|
-        { 'RECORDNO' => 1234 }
-      end
+      sample_output: ->(_connection, _input) { { 'RECORDNO' => 1234 } }
     }
   },
 
   triggers: {
     new_contract: {
       description: "New <span class='provider'>contract</span> in "\
-        "<span class='provider'>Sage Intacct (Custom)</span>",
+      "<span class='provider'>Sage Intacct (Custom)</span>",
       help: '<b>Make sure you have subscribed for "Contract" ' \
-        'module in your Sage Intacct instance.</b>',
+      'module in your Sage Intacct instance.</b>',
 
       input_fields: lambda do |_object_definitions|
         [{
@@ -3316,9 +4208,9 @@
     new_updated_contract: {
       title: 'New/updated contract',
       description: "New or updated <span class='provider'>contract</span> in "\
-        "<span class='provider'>Sage Intacct (Custom)</span>",
+      "<span class='provider'>Sage Intacct (Custom)</span>",
       help: '<b>Make sure you have subscribed for "Contract" ' \
-        'module in your Sage Intacct instance.</b>',
+      'module in your Sage Intacct instance.</b>',
 
       input_fields: lambda do |_object_definitions|
         [{
@@ -3409,7 +4301,7 @@
     new_updated_invoice: {
       title: 'New/updated invoice',
       description: "New or updated <span class='provider'>invoice</span> in "\
-        "<span class='provider'>Sage Intacct (Custom)</span>",
+      "<span class='provider'>Sage Intacct (Custom)</span>",
 
       input_fields: lambda do |_object_definitions|
         [{
@@ -3499,6 +4391,10 @@
   },
 
   pick_lists: {
+    adjustment_process_types: lambda do |_connection|
+      [%w[One\ time One\ time], %w[Distributed Distributed]]
+    end,
+
     classes: lambda do |_connection|
       function = {
         '@controlid' => 'testControlId',
@@ -3654,6 +4550,11 @@
     end,
 
     statuses: ->(_connection) { [%w[Active active], %w[Inactive inactive]] },
+
+    tax_implications: lambda do |_connection|
+      [%w[None None], ['Inbound (Purchase tax)', 'Inbound'],
+       ['Outbound (Sales tax)', 'Outbound']]
+    end,
 
     termination_types: lambda do |_connection|
       [%w[Voluntary voluntary], %w[Involuntary involuntary],
