@@ -4,7 +4,7 @@
   title: 'Clause',
 
   methods: {
-    error_response: lamda do |code, body, _header, message, resource|
+    error_response: ->(code, body, _header, message, resource) {
       case code
       when 400
         error("Your request contained bad data.\n#{code}: #{message}\n#{body}")
@@ -20,7 +20,7 @@
         error('An unexpected error occured. '\
               "Please contact the Clause support team: #{message}")
       end
-    end,
+    },
 
     organization_field: lamda do |hint|
       {
