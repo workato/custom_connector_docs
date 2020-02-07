@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 {
   title: 'Clause',
 
@@ -18,6 +20,133 @@
         error('An unexpected error occured. '\
               "Please contact the Clause support team: #{message}")
       end
+    end,
+
+    organization_field: lamda do |hint|
+      {
+        name: 'organization',
+        type: :string,
+        control_type: 'select',
+        hint: hint,
+        pick_list: 'organizations',
+        optional: false
+      }
+    end,
+
+    contract_field: lamda do |hint|
+      {
+        name: 'contract',
+        type: :string,
+        control_type: 'select',
+        hint: hint,
+        pick_list: 'contracts',
+        pick_list_params: { organization: 'organization' },
+        optional: false,
+        toggle_hint: 'Select from list',
+        toggle_field: {
+          name: 'contract',
+          type: :string,
+          control_type: 'text',
+          optional: false,
+          toggle_hint: 'Use Contract ID'
+        }
+      }
+    end,
+
+    clause_field: lamda do |hint|
+      {
+        name: 'clause',
+        type: :string,
+        control_type: 'select',
+        hint: hint,
+        pick_list: 'clauses',
+        pick_list_params: { contract: 'contract' },
+        optional: false,
+        toggle_hint: 'Select from list',
+        toggle_field: {
+          name: 'clause',
+          type: :string,
+          control_type: 'text',
+          optional: false,
+          toggle_hint: 'Use Clause ID'
+        }
+      }
+    end,
+
+    payment_obligation_fields: lamda do
+      [
+        {
+          name: 'description',
+          type: :string,
+          hint: 'Only for Payment Obligations',
+          optional: true
+        },
+        {
+          name: 'amount',
+          type: :object,
+          properties: [
+            { name: 'doubleValue', type: :double },
+            { name: 'currencyCode', type: :string }
+          ],
+          hint: 'Only for Payment Obligations',
+          optional: true
+        }
+      ]
+    end,
+
+    notification_obligation_fields: lamda do
+      [
+        {
+          name: 'title',
+          type: :string,
+          hint: 'Only for Notification Obligations',
+          optional: true
+        },
+        {
+          name: 'message',
+          type: :string,
+          hint: 'Only for Notification Obligations',
+          optional: true
+        }
+      ]
+    end,
+
+    create_secret_url: lamda do |input, webhook_url, secret_name|
+      post("/v1/secrets?organizationId=#{input['organization']}")
+        .payload(
+          '$class': 'io.clause.common.integration.HTTPConfig',
+          'url': webhook_url,
+          'name': secret_name,
+          'description': 'Workato, dynamic webhook url'
+        )
+        .after_error_response(/.*/) do |code, body, headers, message|
+          call('error_response', code, body, headers, message, 'secret')
+        end
+    end,
+
+    create_flow: lamda do |secret_name|
+      post(
+        '/v1/flows',
+        'clauseId': input['clause'],
+        'flowName': 'Workato Flow',
+        'triggerType': 'Action',
+        '$steps': [
+          {
+            'transformation': 'httpRequest',
+            'input': {
+              'headers': [{
+                'name': 'Content-Type', 'value': 'application/json'
+              }],
+              'json': '{{% step[0].output %}}',
+              'method': 'POST',
+              'uri': "{{% vault['#{secret_name}'].url %}}"
+            }
+          }
+        ], 'scheduleExpression': ''
+      )
+        .after_error_response(/.*/) do |code, body, headers, message|
+          call('error_response', code, body, headers, message, 'flow')
+        end
     end
   },
 
@@ -32,8 +161,8 @@
           'a client from your '\
           "<a href='https://hub.clause.io/settings/organization/developers'"\
           " target='_blank'>developer settings page</a> to generate the "\
-          'Client ID and Client Secret values. Populate the <i>Callback URL</i>'\
-          ' field with https://www.workato.com/oauth/callback.'
+          'Client ID and Client Secret values. Populate the '\
+          '<i>Callback URL</i> field with https://www.workato.com/oauth/callback.'
       },
       {
         name: 'client_secret',
@@ -107,51 +236,35 @@
 
     contract: {
       fields: lamda do
-        [
-          {
-            name: 'id',
-            type: :string,
-            hint: 'A unique reference for the contract',
-          },
-          {
-            name: 'name',
-            type: :string,
-            hint: 'The name of the contract to be created. An empty name will default to \'untitled\'.',
-            default:'My New Workato Contract',
-            optional: true
-          },
-          {
-            name: 'markdown',
-            type: :string,
-            hint: 'The contents of the contract in <a href="https://docs.accordproject.org/docs/markup-cicero.html" target="_blank">CiceroMark<a/> format.',
-            default: "The *Acceptance Criteria* are the specifications defined ...",
-            optional: false
-          },
-          {
-            name: 'status',
-            type: :string,
-            hint: 'One of either `DRAFTING`, `SIGNING`, `RUNNING`, `COMPLETED`.',
-            optional: false
-          },
-          {
-            name: 'createdAt',
-            type: 'date_time',
-            hint: 'When contract drafting was started.',
-            optional: false
-          },
-          {
-            name: 'updatedAt',
-            type: 'date_time',
-            hint: 'When the contract was last updated.',
-            optional: false
-          },
-        ]
+        [{
+          name: 'id', type: :string, hint: 'A unique reference for the contract'
+        }, {
+          name: 'name', type: :string, optional: true,
+          hint: 'The name of the contract to be created. An empty name will '\
+          'default to \'untitled\'.',
+          default: 'My New Workato Contract'
+        }, {
+          name: 'markdown', type: :string, optional: true,
+          hint: 'The contents of the contract in <a href="https://docs.accordproject.org/docs/markup-cicero'\
+          '.html" target="_blank">CiceroMark<a/> format.',
+          default: 'The *Acceptance Criteria* are the specifications defined...'
+        }, {
+          name: 'status', type: :string, optional: true,
+          hint: 'One of either `DRAFTING`, `SIGNING`, `RUNNING`, `COMPLETED`.'
+        }, {
+          name: 'createdAt', type: 'date_time',
+          hint: 'When contract drafting was started.',
+          optional: false
+        }, {
+          name: 'updatedAt', type: 'date_time', optional: false,
+          hint: 'When the contract was last updated.'
+        }]
       end
     },
 
-    # 
+    #
     # INPUT DEFINITIONS
-    # 
+    #
 
     contract_created_input: {
       fields: lamda do
@@ -167,77 +280,52 @@
           {
             name: 'organization',
             type: :string,
-            control_type:'select',
+            control_type: 'select',
             hint: 'The target organization to watch for new contracts',
             pick_list: 'organizations',
             optional: false
-          },
+          }
         ]
-      end,
+      end
     },
 
     contract_new_input: {
       fields: lamda do
-        [
-          {
-            name: 'organization',
-            type: :string,
-            control_type: 'select',
-            pick_list: 'organizations',
-            hint: 'The target organization that the new contract will be '\
-              'created in.',
-            optional: false
-          },
-          {
-            name: 'name',
-            type: :string,
-            hint: 'The name of the contract to be created. An empty name will '\
-              'default to \'untitled\'.',
-            default: 'My New Workato Contract',
-            optional: true
-          },
-          {
-            name: 'markdown',
-            type: :string,
-            hint: 'The contents of the new contract in <a '\
-              'href="https://docs.accordproject.org/docs/markup-cicero.html" '\
-              'target="_blank">CiceroMark<a/> format.',
-            default: 'The *Acceptance Criteria* are the specifications '\
-              'defined ...',
-            optional: false
-          }
-        ]
-      end,
+        [{
+          name: 'organization',
+          type: :string,
+          control_type: 'select',
+          pick_list: 'organizations',
+          hint: 'The target organization that the new contract will be '\
+            'created in.',
+          optional: false
+        }, {
+          name: 'name',
+          type: :string,
+          hint: 'The name of the contract to be created. An empty name will '\
+            'default to \'untitled\'.',
+          default: 'My New Workato Contract',
+          optional: true
+        }, {
+          name: 'markdown',
+          type: :string,
+          hint: 'The contents of the new contract in <a '\
+            'href="https://docs.accordproject.org/docs/markup-cicero.html" '\
+            'target="_blank">CiceroMark<a/> format.',
+          default: 'The *Acceptance Criteria* are the specifications '\
+            'defined ...',
+          optional: false
+        }]
+      end
     },
 
     contract_select_input: {
       fields: lamda do
         [
-          {
-            name: 'organization',
-            type: :string,
-            control_type:'select',
-            hint: 'The target organization where the source contract exists',
-            pick_list: 'organizations',
-            optional: false
-          },
-          {
-            name: 'contract',
-            type: :string,
-            control_type:'select',
-            hint: 'The contact that you want to connect to',
-            pick_list: 'contracts',
-            pick_list_params: { organization: 'organization' },
-            optional: false,
-            toggle_hint: "Select from list",
-            toggle_field: {
-              name: "contract",
-              type: :string,
-              control_type: "text",
-              optional: false,
-              toggle_hint: "Use Contract ID",
-            }
-          },
+          organization_field(
+            'The target organization where the source contract exists.'
+          ),
+          contract_field('The contact that you want to connect to.')
         ]
       end
     },
@@ -245,39 +333,17 @@
     contract_get_file_input: {
       fields: lamda do
         [
+          organization_field(
+            'The target organization where the source contract exists.'
+          ),
+          contract_field('The contact that you want to connect to.'),
           {
-            name: 'organization',
-            type: :string,
-            control_type:'select',
-            hint: 'The target organization where the source contract exists',
-            pick_list: 'organizations',
-            optional: false
-          },
-          {
-            name: 'contract',
-            type: :string,
-            control_type:'select',
-            hint: 'The contact that you want to connect to',
-            pick_list: 'contracts',
-            pick_list_params: { organization: 'organization' },
-            optional: false,
-            toggle_hint: "Select from list",
-            toggle_field: {
-              name: "contract",
-              type: :string,
-              control_type: "text",
-              optional: false,
-              toggle_hint: "Use Contract ID",
-            }
-          },
-          {
-            name: 'type',
-            type: :string,
-            control_type:'select',
+            name: 'type', type: :string,
+            control_type: 'select',
             hint: 'The file type, either PDF or Markdown',
             pick_list: 'fileTypes',
             optional: false
-          },
+          }
         ]
       end
     },
@@ -285,125 +351,18 @@
     obligation_emitted_input: {
       fields: lamda do
         [
-          {
-            name: 'organization',
-            type: :string,
-            control_type:'select',
-            hint: 'The target organization where the source contract exists',
-            pick_list: 'organizations',
-            optional: false
-          },
-          {
-            name: 'contract',
-            type: :string,
-            control_type:'select',
-            hint: 'The contact that you want to connect to',
-            pick_list: 'contracts',
-            pick_list_params: { organization: 'organization' },
-            optional: false,
-            toggle_hint: "Select from list",
-            toggle_field: {
-              name: "contract",
-              type: :string,
-              control_type: "text",
-              optional: false,
-              toggle_hint: "Use Contract ID",
-            }
-          },
-          {
-            name: 'clause',
-            type: :string,
-            control_type:'select',
-            hint: 'The clause that emits the relevant obligation',
-            pick_list: 'clauses',
-            pick_list_params: { contract: 'contract' },
-            optional: false,
-            toggle_hint: "Select from list",
-            toggle_field: {
-              name: "clause",
-              type: :string,
-              control_type: "text",
-              optional: false,
-              toggle_hint: "Use Clause ID",
-            }
-          }
+          organization_field(
+            'The target organization where the source contract exists.'
+          ),
+          contract_field('The contact that you want to connect to.'),
+          clause_field('The clause that emits the relevant obligation')
         ]
       end
     },
 
-    flow_trigger_input: {
-      fields: lamda do
-        [
-          {
-            name: 'organization',
-            type: :string,
-            control_type:'select',
-            hint: 'The target organization where the source contract exists',
-            pick_list: 'organizations',
-            optional: false
-          },
-          {
-            name: 'contract',
-            type: :string,
-            control_type:'select',
-            hint: 'The contact that you want to connect to',
-            pick_list: 'contracts',
-            pick_list_params: { organization: 'organization' },
-            optional: false,
-            toggle_hint: "Select from list",
-            toggle_field: {
-              name: "contract",
-              type: :string,
-              control_type: "text",
-              optional: false,
-              toggle_hint: "Use Contract ID",
-            }
-          },
-          {
-            name: 'clause',
-            type: :string,
-            control_type:'select',
-            hint: 'The clause that that you want to send data to',
-            pick_list: 'clauses',
-            pick_list_params: { contract: 'contract' },
-            optional: false,
-            toggle_hint: "Select from list",
-            toggle_field: {
-              name: "clause",
-              type: :string,
-              control_type: "text",
-              optional: false,
-              toggle_hint: "Use Clause ID",
-            }
-          },
-          {
-            name: 'flow',
-            type: :string,
-            control_type:'select',
-            hint: 'The HTTP Trigger flow',
-            pick_list: 'httpFlows',
-            pick_list_params: { clause: 'clause' },
-            optional: false
-          },
-          {
-            name: 'flowToken',
-            type: :string,
-            hint: 'The Bearer token from the flow step',
-            optional: false
-          },
-          {
-            name: 'data',
-            type: 'object',
-            hint: 'A JSON object to send to the flow',
-            optional: false
-          }
-        ]
-      end
-    },
-
-    # 
+    #
     # OUTPUT DEFINITIONS
-    # 
+    #
 
     contract_new_output: {
       fields: lamda do
@@ -411,7 +370,7 @@
           {
             name: 'id',
             type: :string,
-            hint: 'A unique reference for the newly created contract',
+            hint: 'A unique reference for the newly created contract'
           }
         ]
       end
@@ -420,45 +379,11 @@
     obligation_emitted_output: {
       fields: lamda do
         [
+          { name: '$class', type: :string },
+          { name: 'contract', type: :string },
           {
-            name: '$class', 
-            type: :string
-          },
-          {
-            name: 'description',
-            type: :string,
-            hint: 'Only for Payment Obligations', 
-            optional: true
-          },
-          {
-            name: 'amount',
-            type: :object,
-            properties: [
-              { name: 'doubleValue', type: :double },
-              { name: 'currencyCode', type: :string }
-            ],
-            hint: 'Only for Payment Obligations',
-            optional: true
-          },
-          {
-            name: 'title',
-            type: :string,
-            hint: 'Only for Notification Obligations',
-            optional: true
-          },
-          {
-            name: 'message',
-            type: :string,
-            hint: 'Only for Notification Obligations',
-            optional: true
-          },
-          {
-            name: 'contract', type: :string
-          },
-          {
-            name: 'promisor',
-            type: :string,
-            hint: 'The party that should fulfil the obligation, often to make a payment',
+            name: 'promisor', type: :string,
+            hint: 'The party that should fulfil the obligation',
             optional: true
           },
           {
@@ -467,18 +392,14 @@
             hint: 'Often the recipient of a payment obligation',
             optional: true
           },
-          {
-            name: 'eventId', type: :string
-          },
-          {
-            name: 'deadline', type: 'date_time', optional: true
-          },
+          { name: 'eventId', type: :string },
+          { name: 'deadline', type: 'date_time', optional: true },
           {
             name: 'timestamp',
             type: 'date_time',
             hint: 'The time when the obligation was raised by the contract.'
           }
-        ]
+        ].concat(payment_obligation_fields, notification_obligation_fields)
       end
     },
 
@@ -528,8 +449,8 @@
 
     copy_contract: {
       title: 'Copy a contract',
-      description: "Copy an existing <span class='provider'>contract</span> in " \
-        "<span class='provider'>Clause</span>",
+      description: "Copy an existing <span class='provider'>contract</span> in"\
+        " <span class='provider'>Clause</span>",
       input_fields: lamda do |object_definitions|
         object_definitions['contract_select_input']
       end,
@@ -573,7 +494,7 @@
       end,
       execute: lamda do |_connection, input|
         post("/v1/contracts/#{input['contract']}/complete")
-          .after_error_response(/.*/) do |code, body, headers, message| 
+          .after_error_response(/.*/) do |code, body, headers, message|
             call('error_response', code, body, headers, message, 'contract')
           end
       end,
@@ -631,40 +552,9 @@
         object_definitions['obligation_emitted_input']
       end,
       webhook_subscribe: lamda do |webhook_url, _connection, input|
-        secret_name = "WorkatoWebhook#{rand()}"
-        secret =
-          post("/v1/secrets?organizationId=#{input['organization']}")
-          .payload(
-            '$class': 'io.clause.common.integration.HTTPConfig',
-            'url': webhook_url,
-            'name': secret_name,
-            'description': 'Workato, dynamic webhook url',
-          )
-          .after_error_response(/.*/) do |code, body, headers, message|
-            call('error_response', code, body, headers, message, 'secret')
-          end
-        flow = 
-          post('/v1/flows')
-          .payload(
-            'clauseId': input['clause'],
-            'flowName': 'Workato Flow',
-            'triggerType': 'Action',
-            '$steps': [
-              {
-                'transformation': 'httpRequest',
-                'input': {
-                  'headers': [{'name':'Content-Type','value':'application/json'}],
-                  'json': '{{% step[0].output %}}',
-                  'method': 'POST',
-                  'uri': "{{% vault['#{secret_name}'].url %}}"
-                }
-              }
-            ],
-            'scheduleExpression': ''
-          )
-          .after_error_response(/.*/) do |code, body, headers, message|
-            call('error_response', code, body, headers, message, 'flow')
-          end
+        secret_name = "WorkatoWebhook#{rand}"
+        secret = create_secret_url(input, webhook_url, secret_name)
+        flow = create_flow(secret_name)
         { flowId: flow['flowId'], secretId: secret['id'] }
       end,
       webhook_notification: ->(_input, payload) { payload },
