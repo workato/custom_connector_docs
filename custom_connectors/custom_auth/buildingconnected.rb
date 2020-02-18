@@ -144,7 +144,7 @@
           { name: 'dateUpdated', type: 'date_time', label: 'Date Updated' },
           { name: 'isRemoved', label: 'Is Removed', type: 'integer' },
           { name: 'qualification', type: 'object', properties: [
-            { name: 'pqRelationshipId' },
+            { name: 'pqRelationshipId', label: 'ID' },
             { name: 'dateExpires', type: 'date_time', label: 'Date Expires' },
             { name: 'dateUpdated', type: 'date_time', label: 'Date Updated' },
             { name: 'gcCurrency', label: 'Currency' },
@@ -895,29 +895,30 @@
 
     get_qualification_form: {
       title: 'Get qualification form',
-      description: 'Get <span class="provider">qualification form</span> in <span class="provider">BuildingConnected</span>',
-      help: "Retrieve qualification form your company uses to qualify subcontractors",
+      description: 'Get <span class="provider">qualification form</span> in ' \
+                    '<span class="provider">BuildingConnected</span>',
+      help: 'Retrieve qualification form your company uses to ' \
+            'qualify subcontractors',
 
-      input_fields: lambda do |_object_definitions|
-
-      end,
-      execute: lambda do |_connection, input|
-        get("qm-form")
+      execute: lambda do |_connection|
+        get('qm-form')
       end,
 
       output_fields: lambda do |object_definitions|
         object_definitions['qualification_form']
       end,
 
-      sample_output: lambda do |_connection, input|
-        get("qm-form")
+      sample_output: lambda do |_connection|
+        get('qm-form')
       end
     },
 
     get_qualifications_tradetapp: {
       title: 'Get completed TradeTapp qualifications',
-      description: 'Get <span class="provider">completed TradeTapp qualifications</span> in <span class="provider">BuildingConnected</span>',
-      help: "Retrieve completed TradeTapp qualification submissions from your vendors",
+      description: 'Get <span class="provider">completed TradeTapp qualifications</span> ' \
+                  'in <span class="provider">BuildingConnected</span>',
+      help: 'Retrieve completed TradeTapp qualification submissions ' \
+              'from your vendors',
 
       input_fields: lambda do |_object_definitions|
         [
@@ -930,20 +931,23 @@
           {
             name: 'limit',
             type: :integer,
-            hint: 'Specify the number of submissions to retrieve in a page. Default is 50. Limit can be between 1 and 100.',
+            hint: 'Specify the number of submissions to retrieve in a page. ' \
+                    'Default is 50. Limit can be between 1 and 100.',
             sticky: true
           },
           {
             name: 'afterId',
             label: 'After ID',
-            hint: 'Specify the vendor ID to skip when paginating. For example, if you want the next list of vendor qualification submissions, enter the vendor ID to skip.',
+            hint: 'Specify the vendor ID to skip when paginating. For example, ' \
+                  'if you want the next list of vendor qualification submissions, ' \
+                  'enter the vendor ID to skip.',
             sticky: true
           }
         ]
       end,
 
       execute: lambda do |_connection, input|
-        get("tradetapp/qualification-submissions")
+        get('tradetapp/qualification-submissions')
           .params(input)
       end,
 
@@ -954,8 +958,8 @@
         ]
       end,
 
-      sample_output: lambda do |_connection, input|
-        get("tradetapp/qualification-submissions?limit=1")
+      sample_output: lambda do |_connection|
+        get('tradetapp/qualification-submissions?limit=1')
       end
     }
 
