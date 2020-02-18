@@ -123,13 +123,13 @@
     },
 
     bid_package: {
-      fields: lambda do |_connection, config_fields|
+      fields: lambda do |_connection|
         [
           { name: '_id', label: 'ID' },
           { name: 'projectId', label: 'Project ID' },
           { name: 'name' },
           { name: 'number' },
-          { name: 'keywords', type: 'array', of: 'string'},
+          { name: 'keywords', type: 'array', of: 'string' },
           { name: 'estimatedCost', type: 'integer' },
           { name: 'state' },
           { name: 'dateBidsDue', type: 'date_time', label: 'Bids Due Date' },
@@ -145,7 +145,7 @@
     },
 
     contact: {
-      fields: lambda do |_connection, config_fields|
+      fields: lambda do |_connection|
         [
           { name: '_id', label: 'ID' },
           { name: 'clientCompanyId', label: 'Client Company ID' },
@@ -184,7 +184,7 @@
               type: 'number' }
           ] },
           { name: 'submissionStatus', label: 'Submission Status' },
-          { name: 'vendorCompany', label:'Vendor Company',
+          { name: 'vendorCompany', label: 'Vendor Company',
             type: 'object', properties: [
               { name: '_id', label: 'ID' },
               { name: 'name' },
@@ -212,17 +212,17 @@
                 { name: 'coords', label: 'Coordinates',
                   type: 'object', properties: [
                     { name: 'lat', label: 'Latitude' },
-                    { name: 'lng', label: 'Longitude' }
-                  ]
-                }
-              ] },
-              { name: 'phone' } ]
+                    { name: 'lng', label: 'Longitude' } 
+                  ] }
+                ] },
+              { name: 'phone' }
+            ]
           } ]
       end
     },
 
     bidder: {
-      fields: lambda do |_connection, config_fields|
+      fields: lambda do |_connection|
         [
           { name: '_id', label: 'ID' },
           { name: 'name' },
@@ -243,7 +243,7 @@
     },
 
     submission: {
-      fields: lambda do |_connection, config_fields|
+      fields: lambda do |_connection|
         [
           { name: '_id', label: 'ID' },
           { name: 'vendorId' },
@@ -279,7 +279,7 @@
     },
 
     qualification_form: {
-      fields: lambda do |_connection, config_fields|
+      fields: lambda do |_connection|
         [
           { name: '_id', label: 'ID' },
           { name: 'companyId' },
@@ -310,7 +310,7 @@
                 { name: 'required', type: 'boolean' },
                 { name: 'include', type: 'boolean' },
                 { name: 'alwaysIncludeOrRequired', type: 'boolean' }
-              ] },
+              ] }
             ] }
           ] },
           { name: 'sectionsHash' }
@@ -319,7 +319,7 @@
     },
 
     qualification_submission: {
-      fields: lambda do |_connection, config_fields|
+      fields: lambda do |_connection|
         [
           { name: '_id' },
           { name: 'dateSubmitted', type: 'date_time' },
@@ -406,7 +406,7 @@
               { name: 'year', type: 'integer' },
               { name: 'totalNumberDeathsBoxG', type: 'integer' },
               { name: 'totalNumberCasesDaysAwayBoxH', type: 'integer' },
-              { name: 'totalNumberCasesRestrictionTransferBoxI', 
+              { name: 'totalNumberCasesRestrictionTransferBoxI',
                 type: 'integer' },
               { name: 'otherRecordableCasesBoxJ', type: 'integer' },
               { name: 'totalHoursWorked', type: 'integer' }
