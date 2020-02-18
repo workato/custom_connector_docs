@@ -435,7 +435,9 @@
           {
             name: 'path',
             optional: false,
-            hint: "Base URI is https://#{connection['environment']}.buildingconnected.com/api-beta/ - path will be appended to this URI. Use absolute URI to override this base URI."
+            hint: "Base URI is https://#{connection['environment']}." \
+                  'buildingconnected.com/api-beta/ - path will be appended ' \
+                  'to this URI. Use absolute URI to override this base URI.'
           },
           (
             if %w[get delete].include?(config_fields['verb'])
@@ -514,7 +516,8 @@
   triggers: {
     new_updated_contact: {
       title: 'New or updated contact',
-      description: 'New or updated <span class="provider">contact</span> in <span class="provider">BuildingConnected</span>',
+      description: 'New or updated <span class="provider">contact</span> '\
+                    ' in <span class="provider">BuildingConnected</span>',
       help: {
         body: 'Triggers when a contact is created or updated.'
       },
@@ -576,9 +579,11 @@
 
   actions: {
     custom_action: {
-      description: "Custom <span class='provider'>action</span> in <span class='provider'>BuildingConnected</span>",
+      description: 'Custom <span class="provider">action</span> ' \
+                    'in <span class="provider">BuildingConnected</span>',
       help: {
-        body: 'Build your own BuildingConnected action for any BuildingConnected API endpoint.',
+        body: 'Build your own BuildingConnected action for any ' \
+              'BuildingConnected API endpoint.',
         learn_more_url: 'https://app.buildingconnected.com/docs/',
         learn_more_text: 'BuildingConnected API Documentation'
       },
@@ -637,7 +642,8 @@
 
     get_contacts: {
       title: 'Get contacts',
-      description: 'Get <span class="provider">contacts</span> in <span class="provider">BuildingConnected</span>',
+      description: 'Get <span class="provider">contacts</span> ' \
+                    'in <span class="provider">BuildingConnected</span>',
       help: "Retrieve a list of your company's contacts",
 
       input_fields: lambda do |_object_definitions|
@@ -647,14 +653,16 @@
             label: 'Updated After',
             sticky: true,
             type: 'timestamp',
-            hint: 'Only retrieve contacts that were created/updated after this specified datetime.'
+            hint: 'Only retrieve contacts that were created/updated ' \ 
+                  'after this specified datetime.'
           },
           {
             name: 'includeRemoved',
             label: 'Include Closed',
             type: :integer,
             sticky: true,
-            hint: 'Specify whether to retrieve contacts that have been removed. The default is `0` and setting a `1` will inlude removed contacts.'
+            hint: 'Specify whether to retrieve contacts that have been removed. ' \
+                    'The default is `0` and setting a `1` will inlude removed contacts.'
           },
           {
             name: 'page',
@@ -666,13 +674,16 @@
             name: 'limit',
             type: :integer,
             sticky: true,
-            hint: 'Specify the number of projects to retrieve in a page. Default is 50. Limit can be between 1 and 100.'
+            hint: 'Specify the number of projects to retrieve in a page. ' \
+                  'Default is 50. Limit can be between 1 and 100.'
           },
           {
             name: 'afterId',
             label: 'After ID',
             sticky: true,
-            hint: 'Specify the project ID to skip when paginating. For example, if you want the next list of projects following a specific project, enter the project ID to skip.'
+            hint: 'Specify the project ID to skip when paginating. ' \
+                  'For example, if you want the next list of projects ' \
+                  'following a specific project, enter the project ID to skip.'
           }
         ]
       end,
@@ -684,20 +695,28 @@
 
       output_fields: lambda do |object_definitions|
         [
-          { name: 'total', type: 'integer' },
-          { name: 'results', type: 'array', of: 'object', properties: object_definitions['contact']}
+          {
+            name: 'total',
+            type: 'integer' },
+          {
+            name: 'results',
+            type: 'array',
+            of: 'object',
+            properties: object_definitions['contact']
+          }
         ]
       end,
 
       sample_output: lambda do |_connection, input|
-        get("contacts?limit=1")
+        get('contacts?limit=1')
       end
     },
 
     get_contact: {
       title: 'Get contact by ID',
-      description: 'Get <span class="provider">contact by ID</span> in <span class="provider">BuildingConnected</span>',
-      help: "Retrieve a contact using the contact ID",
+      description: 'Get <span class="provider">contact by ID</span> ' \
+                    'in <span class="provider">BuildingConnected</span>',
+      help: 'Retrieve a contact using the contact ID',
 
       input_fields: lambda do |_object_definitions|
         [
@@ -719,13 +738,14 @@
       end,
 
       sample_output: lambda do |_connection, input|
-        get("contacts?limit=1").dig('results')[0]
+        get('contacts?limit=1').dig('results')[0]
       end
     },
 
     get_projects: {
       title: 'Get projects',
-      description: 'Get <span class="provider">projects</span> in <span class="provider">BuildingConnected</span>',
+      description: 'Get <span class="provider">projects</span>' \
+                    ' in <span class="provider">BuildingConnected</span>',
       help: "Retrieve a list of your company's projects",
 
       input_fields: lambda do |_object_definitions|
@@ -735,7 +755,8 @@
             label: 'Include Closed',
             type: :integer,
             sticky: true,
-            hint: 'Specify whether to retrieve projects that have been closed. The default is `0` and setting a `1` will inlude closed projects.'
+            hint: 'Specify whether to retrieve projects that have been closed.' \
+                  ' The default is `0` and setting a `1` will inlude closed projects.'
           },
           {
             name: 'page',
@@ -747,38 +768,50 @@
             name: 'limit',
             type: :integer,
             sticky: true,
-            hint: 'Specify the number of projects to retrieve in a page. Default is 50. Limit can be between 1 and 100.'
+            hint: 'Specify the number of projects to retrieve in a page. ' \
+                  'Default is 50. Limit can be between 1 and 100.'
           },
           {
             name: 'afterId',
             label: 'After ID',
             sticky: true,
-            hint: 'Specify the project ID to skip when paginating. For example, if you want the next list of projects following a specific project, enter the project ID to skip.'
+            hint: 'Specify the project ID to skip when paginating. ' \
+                  'For example, if you want the next list of projects following ' \
+                  'a specific project, enter the project ID to skip.'
           }
         ]
       end,
 
       execute: lambda do |_connection, input|
-        get("projects")
+        get('projects')
           .params(input)
       end,
 
       output_fields: lambda do |object_definitions|
         [
-          { name: 'total', type: 'integer' },
-          { name: 'results', type: 'array', of: 'object', properties: object_definitions['project']}
+          {
+            name: 'total',
+            type: 'integer'
+          },
+          {
+            name: 'results',
+            type: 'array',
+            of: 'object',
+            properties: object_definitions['project']
+          }
         ]
       end,
 
       sample_output: lambda do |_connection, input|
-        get("projects?limit=1")
+        get('projects?limit=1')
       end
     },
 
     get_project: {
       title: 'Get project by ID',
-      description: 'Get <span class="provider">project by ID</span> in <span class="provider">BuildingConnected</span>',
-      help: "Retrieve a project using the project ID",
+      description: 'Get <span class="provider">project by ID</span> '\
+                    'in <span class="provider">BuildingConnected</span>',
+      help: 'Retrieve a project using the project ID',
 
       input_fields: lambda do |_object_definitions|
         [
@@ -792,29 +825,32 @@
       end,
 
       execute: lambda do |_connection, input|
-        get("projects/" + input["projectId"])
+        get('projects/' + input['projectId'])
       end,
 
       output_fields: lambda do |object_definitions|
         object_definitions['project'].concat([
-          { name: 'bidPackages', 
-            label: 'Bid Packages', 
-            type: 'array', of: 'object', 
+          {
+            name: 'bidPackages',
+            label: 'Bid Packages',
+            type: 'array', of: 'object',
             properties: object_definitions['bid_package']
           }
         ])
       end,
 
-      sample_output: lambda do |_connection, input|
-        project_id = get("projects?limit=1").dig("results")[0].dig("_id")
-        get("projects/" + project_id)
+      sample_output: lambda do |_connection|
+        project_id = get('projects?limit=1').dig('results')[0].dig('_id')
+        get('projects/' + project_id)
       end
     },
 
     get_bidders: {
       title: 'Get bidders for a bid package',
-      description: 'Get <span class="provider">bidders</span> for a bid package in <span class="provider">BuildingConnected</span>',
-      help: "Retrieve bidders for a project and bid package",
+      description: 'Get <span class="provider">bidders</span> for a bid ' \
+                    'package in <span class="provider">BuildingConnected' \
+                    '</span>',
+      help: 'Retrieve bidders for a project and bid package',
 
       input_fields: lambda do |_object_definitions|
         [
@@ -840,10 +876,14 @@
 
       output_fields: lambda do |object_definitions|
         [
-          { name: 'total', type: 'integer' },
-          { name: 'results', 
-            type: 'array', 
-            of: 'object', 
+          {
+            name: 'total',
+            type: 'integer'
+          },
+          {
+            name: 'results',
+            type: 'array',
+            of: 'object',
             properties: object_definitions['bidder']
           }
         ]
@@ -851,17 +891,19 @@
 
       sample_output: lambda do |_connection|
         project_id = get('projects?limit=1')
-                      .dig('results')[0].dig('_id')
+                      .dig('results')[0]
+                      .dig('_id')
         bid_package_id = get("projects/#{project_id}")
-                          .dig("bidPackages")[0].dig("_id")
+                          .dig('bidPackages')[0]
+                          .dig('_id')
         get("projects/#{project_id}/bid-packages/#{bid_package_id}/bidders")
       end
     },
 
     get_qualification: {
       title: 'Get qualification submission',
-      description: 'Get <span class="provider">qualification submission</span> ' \
-              'in <span class="provider">BuildingConnected</span>',
+      description: 'Get <span class="provider">qualification submission' \
+              '</span> in <span class="provider">BuildingConnected</span>',
       help: 'Retrieve qualification submission using an ID',
 
       input_fields: lambda do |_object_definitions|
@@ -871,7 +913,8 @@
             label: 'ID Type',
             optional: false,
             control_type: 'select',
-            hint: 'Select the ID type to use. The qualification ID is found on the contact object for the vendor.',
+            hint: 'Select the ID type to use. The qualification ID is ' \
+                  'found on the contact object for the vendor.',
             pick_list: [
               ['Vendor ID', 'vendorId'],
               ['Qualification ID', 'pqRelationshipId']
@@ -900,8 +943,9 @@
       end,
 
       sample_output: lambda do |_connection|
-        vendor_id = get('contacts?limit=1').dig('results')[0]
-                    .dig('vendorCompany')['_id']
+        vendor_id = get('contacts?limit=1')
+                      .dig('results')[0]
+                      .dig('vendorCompany')['_id']
         get("qm-submissions?vendorId=#{vendor_id}")
       end
     },
@@ -968,7 +1012,11 @@
       output_fields: lambda do |object_definitions|
         [
           { name: 'total', type: 'integer' },
-          { name: 'results', type: 'array', of: 'object', properties: object_definitions['qualification_submission']}
+          { name: 'results',
+            type: 'array',
+            of: 'object',
+            properties: object_definitions['qualification_submission']
+          }
         ]
       end,
 
