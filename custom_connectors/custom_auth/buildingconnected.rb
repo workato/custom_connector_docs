@@ -33,10 +33,10 @@
                'buildingconnected.com/api-beta/auth/token',
               grant_type: 'client_credentials'
             )
-            .user(connection['client_id'])
-            .password(connection['client_secret'])
-            .headers('Content-Type': 'application/json')
-            .dig('access_token')
+              .user(connection['client_id'])
+              .password(connection['client_secret'])
+              .headers('Content-Type': 'application/json')
+              .dig('access_token')
         }
       end,
 
@@ -61,14 +61,14 @@
       input.map do |field|
         if field[:properties].present?
           field[:properties] = call(
-                                 'make_schema_builder_fields_sticky',
-                                 field[:properties]
-                               )
+            'make_schema_builder_fields_sticky',
+            field[:properties]
+          )
         elsif field['properties'].present?
           field['properties'] = call(
-                                  'make_schema_builder_fields_sticky',
-                                  field['properties']
-                                )
+            'make_schema_builder_fields_sticky',
+            field['properties']
+          )
         end
         field[:sticky] = true
         field
@@ -212,12 +212,13 @@
                   type: 'object', properties: [
                     { name: 'lat', label: 'Latitude' },
                     { name: 'lng', label: 'Longitude' }
-                  ] }
-                ]
-              },
+                  ] 
+                }
+              ] },
               { name: 'phone' }
             ]
-          } ]
+          } 
+        ]
       end
     },
 
@@ -584,13 +585,13 @@
 
         response = if closure['afterId'].present?
                      get('contacts')
-                     .params(
-                       updatedAfter: updated_after,
-                       afterId: closure['afterId']
-                     )
+                       .params(
+                         updatedAfter: updated_after,
+                         afterId: closure['afterId']
+                       )
                    else
                      get('contacts')
-                     .params(updatedAfter: updated_after)
+                       .params(updatedAfter: updated_after)
                    end
 
         closure = if response['results'].length > 0
