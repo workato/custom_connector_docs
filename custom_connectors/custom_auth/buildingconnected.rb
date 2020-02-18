@@ -730,14 +730,14 @@
       end,
 
       execute: lambda do |_connection, input|
-        get("contacts/" + input["contactId"])
+        get('contacts/' + input['contactId'])
       end,
 
       output_fields: lambda do |object_definitions|
         object_definitions['contact']
       end,
 
-      sample_output: lambda do |_connection, input|
+      sample_output: lambda do |_connection|
         get('contacts?limit=1').dig('results')[0]
       end
     },
@@ -755,8 +755,9 @@
             label: 'Include Closed',
             type: :integer,
             sticky: true,
-            hint: 'Specify whether to retrieve projects that have been closed.' \
-                  ' The default is `0` and setting a `1` will inlude closed projects.'
+            hint: 'Specify whether to retrieve closed projects.' \
+                  ' The default is `0` and setting a `1` will inlude closed ' \
+                  'projects.'
           },
           {
             name: 'page',
@@ -776,8 +777,8 @@
             label: 'After ID',
             sticky: true,
             hint: 'Specify the project ID to skip when paginating. ' \
-                  'For example, if you want the next list of projects following ' \
-                  'a specific project, enter the project ID to skip.'
+                  'For example, if you want the next list of projects ' \
+                  'following a specific project, enter the project ID to skip.'
           }
         ]
       end,
@@ -802,7 +803,7 @@
         ]
       end,
 
-      sample_output: lambda do |_connection, input|
+      sample_output: lambda do |_connection|
         get('projects?limit=1')
       end
     },
@@ -829,14 +830,16 @@
       end,
 
       output_fields: lambda do |object_definitions|
-        object_definitions['project'].concat([
-          {
-            name: 'bidPackages',
-            label: 'Bid Packages',
-            type: 'array', of: 'object',
-            properties: object_definitions['bid_package']
-          }
-        ])
+        object_definitions['project'].concat(
+          [
+            {
+              name: 'bidPackages',
+              label: 'Bid Packages',
+              type: 'array', of: 'object',
+              properties: object_definitions['bid_package']
+            }
+          ]
+        )
       end,
 
       sample_output: lambda do |_connection|
@@ -891,11 +894,11 @@
 
       sample_output: lambda do |_connection|
         project_id = get('projects?limit=1')
-                      .dig('results')[0]
-                      .dig('_id')
+                     .dig('results')[0]
+                     .dig('_id')
         bid_package_id = get("projects/#{project_id}")
-                          .dig('bidPackages')[0]
-                          .dig('_id')
+                         .dig('bidPackages')[0]
+                         .dig('_id')
         get("projects/#{project_id}/bid-packages/#{bid_package_id}/bidders")
       end
     },
@@ -944,8 +947,8 @@
 
       sample_output: lambda do |_connection|
         vendor_id = get('contacts?limit=1')
-                      .dig('results')[0]
-                      .dig('vendorCompany')['_id']
+                    .dig('results')[0]
+                    .dig('vendorCompany')['_id']
         get("qm-submissions?vendorId=#{vendor_id}")
       end
     },
@@ -1015,8 +1018,7 @@
           { name: 'results',
             type: 'array',
             of: 'object',
-            properties: object_definitions['qualification_submission']
-          }
+            properties: object_definitions['qualification_submission']}
         ]
       end,
 
