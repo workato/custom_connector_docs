@@ -30,7 +30,8 @@
 
         {
           access_token:
-            post("https://#{connection['environment']}.buildingconnected.com/api-beta/auth/token",
+            post("https://#{connection['environment']}." \
+                  'buildingconnected.com/api-beta/auth/token',
                 grant_type: 'client_credentials')
               .user(connection['client_id'])
               .password(connection['client_secret'])
@@ -60,9 +61,15 @@
     make_schema_builder_fields_sticky: lambda do |input|
       input.map do |field|
         if field[:properties].present?
-          field[:properties] = call('make_schema_builder_fields_sticky', field[:properties])
+          field[:properties] = call(
+                                 'make_schema_builder_fields_sticky', 
+                                 field[:properties]
+                               )
         elsif field['properties'].present?
-          field['properties'] = call('make_schema_builder_fields_sticky', field['properties'])
+          field['properties'] = call(
+                                  'make_schema_builder_fields_sticky', 
+                                  field['properties']
+                                )
         end
         field[:sticky] = true
         field
@@ -81,10 +88,12 @@
           { name: 'location', type: 'object', properties: [
             { name: 'city' },
             { name: 'complete', label: 'Complete Address' },
-            { name: 'coords', label: 'Coordinates', type: 'object', properties: [
-              { name: 'lat', label: 'Latitude' },
-              { name: 'lng', label: 'Longitude' }
-            ]},
+            { name: 'coords', label: 'Coordinates', 
+              type: 'object', properties: [
+                { name: 'lat', label: 'Latitude' },
+                { name: 'lng', label: 'Longitude' }
+              ]
+            },
             { name: 'country' },
             { name: 'state' },
             { name: 'streetName', label: 'Street Name' },
@@ -99,7 +108,8 @@
           { name: 'dateBidsDue', type: 'date_time', label: 'Date Bids Due' },
           { name: 'dateCreated', type: 'date_time', label: 'Date Created' },
           { name: 'dateEnd', type: 'date_time', label: 'Date End' },
-          { name: 'datePublished', type: 'date_time', label: 'Date Published' },
+          { name: 'datePublished', type: 'date_time', 
+            label: 'Date Published' },
           { name: 'dateRFIsDue', type: 'date_time', label: 'Date RFIs Due'},
           { name: 'dateStart', type: 'date_time', label: 'Start Date' },
           { name: 'dateDue', type: 'date_time', label: 'Due Date' },
@@ -126,7 +136,8 @@
           { name: 'dateBidsDue', type: 'date_time', label: 'Bids Due Date' },
           { name: 'dateCreated', type: 'date_time', label: 'Date Created' },
           { name: 'dateEnd', type: 'date_time', label: 'End Date' },
-          { name: 'datePublished', type: 'date_time', label: 'Date Published' },
+          { name: 'datePublished', type: 'date_time', 
+            label: 'Date Published' },
           { name: 'dateRFIsDue', type: 'date_time', label: 'RFIs Due Date' },
           { name: 'dateStart', type: 'date_time', label: 'Start Date' },
           { name: 'dateJobWalk', type: 'date_time', label: 'Job Walk Date' }
@@ -139,7 +150,8 @@
         [
           { name: '_id', label: 'ID' },
           { name: 'clientCompanyId', label: 'Client Company ID' },
-          { name: 'companyTags', label: 'Company Tags', type: 'array', of: 'string'},
+          { name: 'companyTags', label: 'Company Tags', 
+            type: 'array', of: 'string' },
           { name: 'dateCreated', type: 'date_time', label: 'Date Created' },
           { name: 'dateUpdated', type: 'date_time', label: 'Date Updated' },
           { name: 'isRemoved', label: 'Is Removed', type: 'integer' },
@@ -153,47 +165,62 @@
             { name: 'summary' },
             { name: 'totalLimit', type: 'integer' },
             { name: 'attachmentIds', type: 'array', of: 'string' }
-          ]},
+          ] },
           { name: 'stats', type: 'object', properties: [
-            { name: 'awardedCount', label: 'Awarded Count', type: 'integer' },
-            { name: 'awardedPercentage', label: 'Awarded Percentage', type: 'number' },
+            { name: 'awardedCount', label: 'Awarded Count', 
+              type: 'integer' },
+            { name: 'awardedPercentage', label: 'Awarded Percentage', 
+              type: 'number' },
             { name: 'bidCount', label: 'Bid Count', type: 'integer' },
-            { name: 'biddingCount', label: 'Bidding Count', type: 'integer' },
-            { name: 'biddingPercentage', label: 'Bidding Percentage', type: 'number' },
+            { name: 'biddingCount', label: 'Bidding Count', 
+              type: 'integer' },
+            { name: 'biddingPercentage', label: 'Bidding Percentage', 
+              type: 'number' },
             { name: 'declinedCount', label: 'Declined Count', type: 'integer' },
-            { name: 'declinedPercentage', label: 'Declined Percentage', type: 'number' },
+            { name: 'declinedPercentage', label: 'Declined Percentage', 
+              type: 'number' },
             { name: 'invitedCount', label: 'Invited Count', type: 'integer' },
             { name: 'viewedCount', label: 'Viewed Count', type: 'integer' },
-            { name: 'viewedPercentage', label: 'Viewed Percentage', type: 'number' }
-          ]},
+            { name: 'viewedPercentage', label: 'Viewed Percentage', 
+              type: 'number' }
+          ] },
           { name: 'submissionStatus', label: 'Submission Status' },
-          { name: 'vendorCompany', label:'Vendor Company', type: 'object', properties: [
-            { name: '_id', label: 'ID' },
-            { name: 'name' },
-            { name: 'website' },
-            { name: 'enterpriseType', label: 'Enterprise Type', type: 'array', of: 'string'},
-            { name: 'businessType', label: 'Business Type', type: 'array', of: 'string'},
-            { name: 'labelType', label: 'Labor Type', type: 'array', of: 'string'}
-          ]},
-          { name: 'vendorOffice', label: 'Vendor Office', type: 'object', properties: [
-            { name: '_id', label: 'ID' },
-            { name: 'name' },
-            { name: 'keywords', type: 'array', of: 'string' },
-            { name: 'location', type: 'object', properties: [
-              { name: 'complete', label: 'Complete Address' },
-              { name: 'streetNumber', label: 'Street Number' },
-              { name: 'streetName', label: 'Street Name' },
-              { name: 'city' },
-              { name: 'country' },
-              { name: 'state' },
-              { name: 'zip' },
-              { name: 'coords', label: 'Coordinates', type: 'object', properties: [
-                { name: 'lat', label: 'Latitude' },
-                { name: 'lng', label: 'Longitude' }
-              ]}
-            ]},
-            { name: 'phone' }
-          ]}
+          { name: 'vendorCompany', label:'Vendor Company', 
+            type: 'object', properties: [
+              { name: '_id', label: 'ID' },
+              { name: 'name' },
+              { name: 'website' },
+              { name: 'enterpriseType', label: 'Enterprise Type', 
+                type: 'array', of: 'string' },
+              { name: 'businessType', label: 'Business Type', 
+                type: 'array', of: 'string' },
+              { name: 'labelType', label: 'Labor Type', 
+                type: 'array', of: 'string' }
+            ]
+          },
+          { name: 'vendorOffice', label: 'Vendor Office', 
+            type: 'object', properties: [
+              { name: '_id', label: 'ID' },
+              { name: 'name' },
+              { name: 'keywords', type: 'array', of: 'string' },
+              { name: 'location', type: 'object', properties: [
+                { name: 'complete', label: 'Complete Address' },
+                { name: 'streetNumber', label: 'Street Number' },
+                { name: 'streetName', label: 'Street Name' },
+                { name: 'city' },
+                { name: 'country' },
+                { name: 'state' },
+                { name: 'zip' },
+                { name: 'coords', label: 'Coordinates', 
+                  type: 'object', properties: [
+                    { name: 'lat', label: 'Latitude' },
+                    { name: 'lng', label: 'Longitude' }
+                  ]
+                }
+              ] },
+              { name: 'phone' }
+            ]
+          }
         ]
       end
     },
@@ -203,15 +230,18 @@
         [
           { name: '_id', label: 'ID' },
           { name: 'name' },
-          { name: 'companyTags', label: 'Company Tags', type: 'array', of: 'string'},
+          { name: 'companyTags', label: 'Company Tags', 
+            type: 'array', of: 'string' },
           { name: 'officeId', label: 'Office ID' },
           { name: 'projectId', label: 'Project ID' },
           { name: 'bidPackageId', label: 'Bid Package ID' },
           { name: 'state' },
-          { name: 'dateSubmitted', type: 'date_time', label: 'Date Submitted'},
-          { name: 'submittedBy', label: 'Submitted By'},
+          { name: 'dateSubmitted', type: 'date_time', 
+            label: 'Date Submitted' },
+          { name: 'submittedBy', label: 'Submitted By' },
           { name: 'amount', type: 'integer' },
-          { name: 'adjustedTotal', label: 'Adjusted Total', type: 'integer' }
+          { name: 'adjustedTotal', label: 'Adjusted Total', 
+            type: 'integer' }
         ]
       end
     },
@@ -245,9 +275,9 @@
                 { name: 'label' },
                 { name: 'responseType' },
                 { name: 'value', type: 'array' }
-              ]}
-            ]}
-          ]}
+              ] }
+            ] }
+          ] }
         ]
       end
     },
@@ -284,9 +314,9 @@
                 { name: 'required', type: 'boolean' },
                 { name: 'include', type: 'boolean' },
                 { name: 'alwaysIncludeOrRequired', type: 'boolean' }
-              ]},
-            ]}
-          ]},
+              ] },
+            ] }
+          ] },
           { name: 'sectionsHash' }
         ]
       end
@@ -327,102 +357,125 @@
           { name: 'bankContactName' },
           { name: 'bankContactPhone', type: 'integer' },
           { name: 'bankContactEmail' },
-          { name: 'csiCodesForWorkPerformed', type: 'array', of: 'objects', properties: [
-            { name: 'primaryCode' },
-            { name: 'secondaryCode' },
-            { name: 'tertiaryCode' },
-            { name: 'description' }
-          ]},
+          { name: 'csiCodesForWorkPerformed', type: 'array', 
+            of: 'objects', properties: [
+              { name: 'primaryCode' },
+              { name: 'secondaryCode' },
+              { name: 'tertiaryCode' },
+              { name: 'description' }
+            ]
+          },
           { name: 'regions', type: 'array', of: 'object', properties: [
             { name: 'region' }
           ]},
           { name: 'markets', type: 'array', of: 'object', properties: [
             { name: 'market' }
           ]},
-          { name: 'completedReferences', type: 'array', of: 'object', properties: [
-            { name: 'projectName' },
-            { name: 'location' },
-            { name: 'yearCompleted' },
-            { name: 'value', type: 'integer' },
-            { name: 'scope' },
-            { name: 'referenceContactCompany' },
-            { name: 'referenceContactName' },
-            { name: 'referenceContactPhone', type: 'integer' },
-            { name: 'referenceContactEmail' },
-            { name: 'isLargestProject', type: 'boolean' }
-          ]},
-          { name: 'companyContacts', type: 'array', of: 'object', properties: [
-            { name: 'positionTitle' },
-            { name: 'contactName' },
-            { name: 'contactPhone', type: 'integer' },
-            { name: 'contactEmail' },
-            { name: 'contactFax', type: 'integer' },
-            { name: 'contactType' }
-          ]},
-          { name: 'insuranceCoverages', type: 'array', of: 'object', properties: [
-            { name: 'insuranceType' },
-            { name: 'carrier' },
-            { name: 'perOccurrenceLimit', type: 'integer' },
-            { name: 'aggregateLimit', type: 'integer' },
-            { name: 'policyExpirationDate' },
-            { name: 'notApplicable', type: 'boolean' }
-          ]},
+          { name: 'completedReferences', type: 'array', 
+            of: 'object', properties: [
+              { name: 'projectName' },
+              { name: 'location' },
+              { name: 'yearCompleted' },
+              { name: 'value', type: 'integer' },
+              { name: 'scope' },
+              { name: 'referenceContactCompany' },
+              { name: 'referenceContactName' },
+              { name: 'referenceContactPhone', type: 'integer' },
+              { name: 'referenceContactEmail' },
+              { name: 'isLargestProject', type: 'boolean' }
+            ]
+          },
+          { name: 'companyContacts', type: 'array', 
+            of: 'object', properties: [
+              { name: 'positionTitle' },
+              { name: 'contactName' },
+              { name: 'contactPhone', type: 'integer' },
+              { name: 'contactEmail' },
+              { name: 'contactFax', type: 'integer' },
+              { name: 'contactType' }
+            ]
+          },
+          { name: 'insuranceCoverages', type: 'array', 
+            of: 'object', properties: [
+              { name: 'insuranceType' },
+              { name: 'carrier' },
+              { name: 'perOccurrenceLimit', type: 'integer' },
+              { name: 'aggregateLimit', type: 'integer' },
+              { name: 'policyExpirationDate' },
+              { name: 'notApplicable', type: 'boolean' }
+            ]
+          },
           { name: 'emr', type: 'array', of: 'object', properties: [
             { name: 'year', type: 'integer' },
             { name: 'emr' }
           ]},
-          { name: 'osha300Results', type: 'array', of: 'object', properties: [
-            { name: 'year', type: 'integer' },
-            { name: 'totalNumberDeathsBoxG', type: 'integer' },
-            { name: 'totalNumberCasesDaysAwayBoxH', type: 'integer' },
-            { name: 'totalNumberCasesRestrictionTransferBoxI', type: 'integer' },
-            { name: 'otherRecordableCasesBoxJ', type: 'integer' },
-            { name: 'totalHoursWorked', type: 'integer' }
-          ]},
-          { name: 'enterpriseBusinessCertifications', type: 'array', of: 'object', properties: [
-            { name: 'additionalDescription' },
-            { name: 'certificationState' },
-            { name: 'certificationNumber' },
-            { name: 'certificationType' },
-            { name: 'otherType' },
-            { name: 'certificationLevel' },
-            { name: 'certificationCounty' },
-            { name: 'certificationCity' },
-            { name: 'certificationFederal' },
-            { name: 'otherLevel' },
-            { name: 'ownershipEthnicity' },
-            { name: 'otherEthnicity' }
-          ]},
-          { name: 'unions', type: 'array', of: 'object', properties: [
-            { name: 'unionName' },
-            { name: 'unionNumber' }
-          ]},
-          { name: 'annualVolumeRevenue', type: 'array', of: 'object', properties: [
-            { name: 'year', type: 'integer' },
-            { name: 'estimatedVolumeRevenue', type: 'integer' }
-          ]},
-          { name: 'professionalLicenses', type: 'array', of: 'object', properties: [
-            { name: 'licenseType' },
-            { name: 'licenseNumber' },
-            { name: 'licenseState' },
-            { name: 'issuingAgency' },
-            { name: 'additionalDescription' }
-          ]},
-          { name: 'companyOfficeAddresses', type: 'array', of: 'object', properties: [
-            { name: 'isMainOffice', type: 'boolean' },
-            { name: 'address1' },
-            { name: 'address2' },
-            { name: 'city' },
-            { name: 'state' },
-            { name: 'zip' }
-          ]},
-          { name: 'customQuestions', type: 'array', of: 'object', properties: [
-            { name: 'question' },
-            { name: 'section' },
-            { name: 'textResponse' },
-            { name: 'numberResponse', type: 'integer' },
-            { name: 'booleanResponse', type: 'boolean' }
-          ]}
+          { name: 'osha300Results', type: 'array', 
+            of: 'object', properties: [
+              { name: 'year', type: 'integer' },
+              { name: 'totalNumberDeathsBoxG', type: 'integer' },
+              { name: 'totalNumberCasesDaysAwayBoxH', type: 'integer' },
+              { name: 'totalNumberCasesRestrictionTransferBoxI', 
+                type: 'integer' },
+              { name: 'otherRecordableCasesBoxJ', type: 'integer' },
+              { name: 'totalHoursWorked', type: 'integer' }
+            ]
+          },
+          { name: 'enterpriseBusinessCertifications', type: 'array', 
+            of: 'object', properties: [
+              { name: 'additionalDescription' },
+              { name: 'certificationState' },
+              { name: 'certificationNumber' },
+              { name: 'certificationType' },
+              { name: 'otherType' },
+              { name: 'certificationLevel' },
+              { name: 'certificationCounty' },
+              { name: 'certificationCity' },
+              { name: 'certificationFederal' },
+              { name: 'otherLevel' },
+              { name: 'ownershipEthnicity' },
+              { name: 'otherEthnicity' }
+            ]
+          },
+          { name: 'unions', type: 'array', 
+            of: 'object', properties: [
+              { name: 'unionName' },
+              { name: 'unionNumber' }
+            ]
+          },
+          { name: 'annualVolumeRevenue', type: 'array', 
+            of: 'object', properties: [
+              { name: 'year', type: 'integer' },
+              { name: 'estimatedVolumeRevenue', type: 'integer' }
+            ]
+          },
+          { name: 'professionalLicenses', type: 'array', 
+            of: 'object', properties: [
+              { name: 'licenseType' },
+              { name: 'licenseNumber' },
+              { name: 'licenseState' },
+              { name: 'issuingAgency' },
+              { name: 'additionalDescription' }
+            ]
+          },
+          { name: 'companyOfficeAddresses', type: 'array', 
+            of: 'object', properties: [
+              { name: 'isMainOffice', type: 'boolean' },
+              { name: 'address1' },
+              { name: 'address2' },
+              { name: 'city' },
+              { name: 'state' },
+              { name: 'zip' }
+            ]
+          },
+          { name: 'customQuestions', type: 'array', 
+            of: 'object', properties: [
+              { name: 'question' },
+              { name: 'section' },
+              { name: 'textResponse' },
+              { name: 'numberResponse', type: 'integer' },
+              { name: 'booleanResponse', type: 'boolean' }
+            ]
+          }
         ]
       end
     },
@@ -459,7 +512,10 @@
                       {
                         name: 'data',
                         type: 'object',
-                        properties: call('make_schema_builder_fields_sticky', input_schema)
+                        properties: call(
+                                      'make_schema_builder_fields_sticky',
+                                      input_schema
+                                    )
                       }
                     end
                   )
@@ -543,8 +599,10 @@
 
         response = if closure['afterId'].present?
                      get('contacts')
-                       .params(updatedAfter: updated_after, 
-                        afterId: closure['afterId'] )
+                       .params(
+                          updatedAfter: updated_after,
+                          afterId: closure['afterId']
+                        )
                    else
                      get('contacts')
                        .params(updatedAfter: updated_after)
