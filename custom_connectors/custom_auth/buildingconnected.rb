@@ -25,20 +25,19 @@
 
     authorization: {
       type: 'custom_auth',
-
       acquire: lambda do |connection|
-
         {
           access_token:
-            post("https://#{connection['environment']}." \
-                  'buildingconnected.com/api-beta/auth/token',
-                grant_type: 'client_credentials')
-              .user(connection['client_id'])
-              .password(connection['client_secret'])
-              .headers('Content-Type': 'application/json')
-              .dig('access_token')
+            post(
+              "https://#{connection['environment']}." \
+               'buildingconnected.com/api-beta/auth/token',
+              grant_type: 'client_credentials'
+            )
+            .user(connection['client_id'])
+            .password(connection['client_secret'])
+            .headers('Content-Type': 'application/json')
+            .dig('access_token')
         }
-
       end,
 
       refresh_on: [401, 403],
@@ -62,14 +61,14 @@
       input.map do |field|
         if field[:properties].present?
           field[:properties] = call(
-                                     'make_schema_builder_fields_sticky', 
-                                     field[:properties]
-                                   )
+                                 'make_schema_builder_fields_sticky',
+                                 field[:properties]
+                               )
         elsif field['properties'].present?
           field['properties'] = call(
-                                      'make_schema_builder_fields_sticky', 
-                                      field['properties']
-                                    )
+                                  'make_schema_builder_fields_sticky',
+                                  field['properties']
+                                )
         end
         field[:sticky] = true
         field
@@ -80,7 +79,7 @@
   object_definitions: {
 
     project: {
-      fields: lambda do |_connection, config_fields|
+      fields: lambda do |_connection|
         [
           { name: '_id', label: 'ID' },
           { name: 'name' },
@@ -109,7 +108,7 @@
           { name: 'dateEnd', type: 'date_time', label: 'Date End' },
           { name: 'datePublished', type: 'date_time',
             label: 'Date Published' },
-          { name: 'dateRFIsDue', type: 'date_time', label: 'Date RFIs Due'},
+          { name: 'dateRFIsDue', type: 'date_time', label: 'Date RFIs Due' },
           { name: 'dateStart', type: 'date_time', label: 'Start Date' },
           { name: 'dateDue', type: 'date_time', label: 'Due Date' },
           { name: 'awarded' },
@@ -212,9 +211,10 @@
                 { name: 'coords', label: 'Coordinates',
                   type: 'object', properties: [
                     { name: 'lat', label: 'Latitude' },
-                    { name: 'lng', label: 'Longitude' } 
+                    { name: 'lng', label: 'Longitude' }
                   ] }
-                ] },
+                ]
+              },
               { name: 'phone' }
             ]
           } ]
@@ -500,7 +500,7 @@
                         properties: call(
                                           'make_schema_builder_fields_sticky',
                                           input_schema
-                                        )
+                                    )
                       }
                     end
                   )
@@ -584,13 +584,13 @@
 
         response = if closure['afterId'].present?
                      get('contacts')
-                       .params(
-                                updatedAfter: updated_after,
-                                afterId: closure['afterId']
-                              )
+                     .params(
+                       updatedAfter: updated_after,
+                       afterId: closure['afterId']
+                     )
                    else
                      get('contacts')
-                       .params(updatedAfter: updated_after)
+                     .params(updatedAfter: updated_after)
                    end
 
         closure = if response['results'].length > 0
