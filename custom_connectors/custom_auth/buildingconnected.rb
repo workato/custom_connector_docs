@@ -571,7 +571,7 @@
       end,
 
       sample_output: lambda do |_connection|
-        get("contacts?limit=1").dig('results')[0]
+        get('contacts?limit=1').dig('results')[0]
       end
 
     }
@@ -608,12 +608,13 @@
         data = input.dig('input', 'data').presence || {}
         case input['verb']
         when 'get'
-          response = get(input['path'], data).
-                       after_error_response(/.*/) do |_code, body, _header, message|
-                         error("#{message}: #{body}")
-                       end.compact
+          response = get(input['path'], data)
+                     .after_error_response(/.*/) do |_code, body, _header, message|
+                       error("#{message}: #{body}")
+                     end.compact
           if response.is_a?(Array)
-            array_name = parse_json(input['output'] || '[]').dig(0, 'name') || 'array'
+            array_name = parse_json(input['output'] || '[]')
+                         .dig(0, 'name') || 'array'
             { array_name.to_s => response }
           elsif response.is_a?(Hash)
             response
@@ -621,15 +622,18 @@
             error('API response is not a JSON')
           end
         when 'post'
-          post(input['path'], data).after_error_response(/.*/) do |_code, body, _header, message|
+          post(input['path'], data)
+          .after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message}: #{body}")
           end.compact
         when 'patch'
-          patch(input['path'], data).after_error_response(/.*/) do |_code, body, _header, message|
+          patch(input['path'], data)
+          .after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message}: #{body}")
           end.compact
         when 'delete'
-          delete(input['path'], data).after_error_response(/.*/) do |_code, body, _header, message|
+          delete(input['path'], data)
+          .after_error_response(/.*/) do |_code, body, _header, message|
             error("#{message}: #{body}")
           end.compact
         end
@@ -661,8 +665,9 @@
             label: 'Include Closed',
             type: :integer,
             sticky: true,
-            hint: 'Specify whether to retrieve contacts that have been removed. ' \
-                    'The default is `0` and setting a `1` will inlude removed contacts.'
+            hint: 'Specify whether to retrieve removed contacts. ' \
+                    'The default is `0` and setting a `1` will inlude ' \
+                    'removed contacts.'
           },
           {
             name: 'page',
@@ -689,7 +694,7 @@
       end,
 
       execute: lambda do |_connection, input|
-        get("contacts")
+        get('contacts')
           .params(input)
       end,
 
@@ -697,7 +702,8 @@
         [
           {
             name: 'total',
-            type: 'integer' },
+            type: 'integer' 
+          },
           {
             name: 'results',
             type: 'array',
@@ -707,7 +713,7 @@
         ]
       end,
 
-      sample_output: lambda do |_connection, input|
+      sample_output: lambda do |_connection|
         get('contacts?limit=1')
       end
     },
@@ -1018,7 +1024,7 @@
           { name: 'results',
             type: 'array',
             of: 'object',
-            properties: object_definitions['qualification_submission']}
+            properties: object_definitions['qualification_submission'] }
         ]
       end,
 
