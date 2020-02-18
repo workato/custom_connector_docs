@@ -653,7 +653,7 @@
             label: 'Updated After',
             sticky: true,
             type: 'timestamp',
-            hint: 'Only retrieve contacts that were created/updated ' \ 
+            hint: 'Only retrieve contacts that were created/updated ' \
                   'after this specified datetime.'
           },
           {
