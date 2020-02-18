@@ -212,12 +212,10 @@
                   type: 'object', properties: [
                     { name: 'lat', label: 'Latitude' },
                     { name: 'lng', label: 'Longitude' }
-                  ] 
-                }
+                  ] }
               ] },
               { name: 'phone' }
-            ]
-          } 
+            ] }
         ]
       end
     },
@@ -499,9 +497,9 @@
                         name: 'data',
                         type: 'object',
                         properties: call(
-                                          'make_schema_builder_fields_sticky',
-                                          input_schema
-                                    )
+                          'make_schema_builder_fields_sticky',
+                          input_schema
+                        )
                       }
                     end
                   )
