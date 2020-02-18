@@ -797,7 +797,11 @@
 
       output_fields: lambda do |object_definitions|
         object_definitions['project'].concat([
-          { name: 'bidPackages', label: 'Bid Packages', type: 'array', of: 'object', properties: object_definitions['bid_package']}
+          { name: 'bidPackages', 
+            label: 'Bid Packages', 
+            type: 'array', of: 'object', 
+            properties: object_definitions['bid_package']
+          }
         ])
       end,
 
@@ -830,27 +834,35 @@
       end,
 
       execute: lambda do |_connection, input|
-        get("projects/#{input['projectId']}/bid-packages/#{input['bidPackageId']}/bidders")
+        get("projects/#{input['projectId']}/bid-packages/" \
+            "#{input['bidPackageId']}/bidders")
       end,
 
       output_fields: lambda do |object_definitions|
         [
           { name: 'total', type: 'integer' },
-          { name: 'results', type: 'array', of: 'object', properties: object_definitions['bidder']}
+          { name: 'results', 
+            type: 'array', 
+            of: 'object', 
+            properties: object_definitions['bidder']
+          }
         ]
       end,
 
-      sample_output: lambda do |_connection, input|
-        project_id = get("projects?limit=1").dig("results")[0].dig("_id")
-        bid_package_id = get("projects/#{project_id}").dig("bidPackages")[0].dig("_id")
+      sample_output: lambda do |_connection|
+        project_id = get('projects?limit=1')
+                      .dig('results')[0].dig('_id')
+        bid_package_id = get("projects/#{project_id}")
+                          .dig("bidPackages")[0].dig("_id")
         get("projects/#{project_id}/bid-packages/#{bid_package_id}/bidders")
       end
     },
 
     get_qualification: {
       title: 'Get qualification submission',
-      description: 'Get <span class="provider">qualification submission</span> in <span class="provider">BuildingConnected</span>',
-      help: "Retrieve qualification submission using an ID",
+      description: 'Get <span class="provider">qualification submission</span> ' \
+              'in <span class="provider">BuildingConnected</span>',
+      help: 'Retrieve qualification submission using an ID',
 
       input_fields: lambda do |_object_definitions|
         [
@@ -874,11 +886,11 @@
       end,
 
       execute: lambda do |_connection, input|
-        if input['idType'] === 'vendorId'
-          get("qm-submissions")
+        if input['idType'] == 'vendorId'
+          get('qm-submissions')
             .params(vendorId: input['id'])
         else
-          get("qm-submissions")
+          get('qm-submissions')
             .params(pqRelationshipId: input['id'])
         end
       end,
@@ -887,8 +899,9 @@
         object_definitions['submission']
       end,
 
-      sample_output: lambda do |_connection, input|
-        vendor_id = get("contacts?limit=1").dig("results")[0].dig("vendorCompany")["_id"]
+      sample_output: lambda do |_connection|
+        vendor_id = get('contacts?limit=1').dig('results')[0]
+                    .dig('vendorCompany')['_id']
         get("qm-submissions?vendorId=#{vendor_id}")
       end
     },
@@ -915,8 +928,9 @@
 
     get_qualifications_tradetapp: {
       title: 'Get completed TradeTapp qualifications',
-      description: 'Get <span class="provider">completed TradeTapp qualifications</span> ' \
-                  'in <span class="provider">BuildingConnected</span>',
+      description: 'Get <span class="provider">completed TradeTapp ' \
+                  'qualifications</span> in <span class="provider">' \
+                  'BuildingConnected</span>',
       help: 'Retrieve completed TradeTapp qualification submissions ' \
               'from your vendors',
 
@@ -938,9 +952,9 @@
           {
             name: 'afterId',
             label: 'After ID',
-            hint: 'Specify the vendor ID to skip when paginating. For example, ' \
-                  'if you want the next list of vendor qualification submissions, ' \
-                  'enter the vendor ID to skip.',
+            hint: 'Specify the vendor ID to skip when paginating. ' \
+                  'For example, if you want the next list of vendor ' \
+                  'qualification submissions, enter the vendor ID to skip.',
             sticky: true
           }
         ]
