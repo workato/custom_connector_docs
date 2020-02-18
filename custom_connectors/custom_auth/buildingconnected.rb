@@ -485,8 +485,8 @@
                       {
                         name: 'data',
                         type: 'object',
-                        properties: input_schema.
-                        each { |field| field[:sticky] = true }
+                        properties: input_schema
+                        .each { |field| field[:sticky] = true }
                       }
                     end
                   )
@@ -538,20 +538,22 @@
 
       poll: lambda do |_connection, input, closure|
         closure ||= {}
-        updatedAfter = closure['updatedAfter'] || (input['since'] || 1.hour.ago).to_time.utc.iso8601
-        limit = 100
+        updated_after = closure['updatedAfter'] ||
+                        (input['since'] || 1.hour.ago).to_time.utc.iso8601
 
         response = if closure['afterId'].present?
-                    get('contacts')
-                      .params(updatedAfter: updatedAfter, afterId: closure['afterId'])
+                     get('contacts')
+                       .params(updatedAfter: updated_after, 
+                        afterId: closure['afterId'] )
                    else
-                    get('contacts')
-                      .params(updatedAfter: updatedAfter)
+                     get('contacts')
+                       .params(updatedAfter: updated_after)
                    end
 
         closure = if response['results'].length > 0
-                    { 'afterId' => response['results'].last['_id'],
-                      'updatedAfter' => updatedAfter
+                    {
+                      'afterId' => response['results'].last['_id'],
+                      'updatedAfter' => updated_after
                     }
                   end
 
@@ -623,19 +625,19 @@
           end
         when 'post'
           post(input['path'], data)
-          .after_error_response(/.*/) do |_code, body, _header, message|
-            error("#{message}: #{body}")
-          end.compact
+            .after_error_response(/.*/) do |_code, body, _header, message|
+              error("#{message}: #{body}")
+            end.compact
         when 'patch'
           patch(input['path'], data)
-          .after_error_response(/.*/) do |_code, body, _header, message|
-            error("#{message}: #{body}")
-          end.compact
+            .after_error_response(/.*/) do |_code, body, _header, message|
+              error("#{message}: #{body}")
+            end.compact
         when 'delete'
           delete(input['path'], data)
-          .after_error_response(/.*/) do |_code, body, _header, message|
-            error("#{message}: #{body}")
-          end.compact
+            .after_error_response(/.*/) do |_code, body, _header, message|
+              error("#{message}: #{body}")
+            end.compact
         end
       end,
 
@@ -702,7 +704,7 @@
         [
           {
             name: 'total',
-            type: 'integer' 
+            type: 'integer'
           },
           {
             name: 'results',
