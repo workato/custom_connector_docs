@@ -898,6 +898,206 @@
         standard_fields.concat(custom_fields || []).compact
       end
     },
+    
+    job: {
+      fields: lambda do |_|
+        standard_fields = [
+          {name: 'id', type: 'integer', control_type: 'number'},
+          {name: 'name'},
+          {name: 'requisition_id'},
+          {name: 'notes'},
+          {name: 'confidential', type: 'boolean', control_type: 'checkbox'},
+          {name: 'status'},
+          {name: 'created_at', type: 'date_time', control_type: 'date_time'},
+          {name: 'opened_at', type: 'date_time', control_type: 'date_time'},
+          {name: 'closed_at', type: 'date_time', control_type: 'date_time'},
+          {name: 'updated_at', type: 'date_time', control_type: 'date_time'},
+          {name: 'departments', type: 'array', of: 'object', properties: [
+            {name: 'id', type: 'integer', control_type: 'number' },
+            {name: 'name' },
+            {name: 'parent_id', type: 'integer', control_type: 'number'},
+            {name: 'child_ids', type: 'array', of: 'integer', control_type: 'number'},
+            {name: 'external_id', type: 'integer', control_type: 'number'}
+          ] },
+          {name: 'offices', type: 'array', of: 'object', properties: [
+            {name: 'id', type: 'integer', control_type: 'number'},
+            {name: 'name'},
+            {name: 'location', type: 'object', properties: [
+              {name: 'name'}
+            ]},
+            {name: 'primary_contact_user_id', type: 'integer', control_type: 'number'},
+            {name: 'parent_id', type: 'integer', control_type: 'number'},
+            {name: 'child_ids', type: 'array', of: 'integer', control_type: 'number'},
+            {name: 'external_id', type: 'integer', control_type: 'number'}
+          ]},
+          {name: 'hiring_team', type: 'object', properties: [
+            {name: 'hiring_managers', type: 'array', of: 'object', properties: [
+              {name: 'id', type: 'integer', control_type: 'number'},
+              {name: 'first_name'},
+              {name: 'last_name'},
+              {name: 'name'},
+              {name: 'employee_id'}
+            ]},
+            {name: 'recruiters', type: 'array', of: 'object', properties: [
+              {name: 'id', type: 'integer', control_type: 'number'},
+              {name: 'first_name'},
+              {name: 'last_name'},
+              {name: 'name'},
+              {name: 'employee_id'},
+              {name: 'responsible', type: 'boolean', control_type: 'checkbox'}
+            ]},
+            {name: 'coordinators', type: 'array', of: 'object', properties: [
+              {name: 'id', type: 'integer', control_type: 'number'},
+              {name: 'first_name'},
+              {name: 'last_name'},
+              {name: 'name'},
+              {name: 'employee_id'},
+              {name: 'responsible', type: 'boolean', control_type: 'checkbox'}
+            ]},
+            {name: 'sourcers', type: 'array', of: 'object', properties: [
+              {name: 'id', type: 'integer', control_type: 'number'},
+              {name: 'first_name'},
+              {name: 'last_name'},
+              {name: 'name'},
+              {name: 'employee_id'}
+            ]},
+          ]},
+          {name: 'openings', type: 'array', of: 'object', properties: [
+            {name: 'id', type: 'integer', control_type: 'number'},
+            {name: 'opening_id'},
+            {name: 'status'},
+            {name: 'opened_at', type: 'date_time', control_type: 'date_time'},
+            {name: 'closed_at', type: 'date_time', control_type: 'date_time'},
+            {name: 'application_id', type: 'integer', control_type: 'number'},
+            {name: 'close_reason', type: 'object', properties: [
+              {name: 'id', type: 'integer', control_type: 'number'},
+              {name: 'name'}
+            ]}
+          ]}
+        ]
+        custom_fields = get('/v1/custom_fields/job').
+                        select { |e|
+                          e['field_type'] == 'job' &&
+                            e['private'] == false &&
+                            e['active'] == true
+                        }.
+                        map do |field|
+          type = field['value_type']
+          case type
+          when 'short_text'
+            { name: field['name_key'], type: 'string', control_type: 'text',
+              label: field['name'], optional: !field['required'] }
+          when 'long_text'
+            { name: field['name_key'], type: 'string', label: field['name'],
+              control_type: 'text-area', optional: !field['required'] }
+          when 'yes_no'
+            { name: field['name_key'], type: 'boolean',
+              control_type: 'checkbox',
+              label: field['name'], optional: !field['required'],
+              toggle_hint: field['name'],
+              toggle_field: {
+                name: field['name_key'],
+                label: field['name'],
+                type: :string,
+                control_type: 'text',
+                optional: !field['required'],
+                toggle_hint: 'Use custom value'
+              } }
+          when 'date'
+            { name: field['name_key'], type: 'date', control_type: 'date',
+              label: field['name'], optional: !field['required'] }
+          when 'url'
+            { name: field['name_key'], type: 'string', control_type: 'url',
+              label: field['name'], optional: !field['required'] }
+          when 'user'
+            { name: field['name_key'], type: 'string', control_type: 'text',
+              label: field['name'], optional: !field['required'] }
+          when 'single_select'
+            select_values = field['custom_field_options'].
+                            map do |ob|
+                              [ob['name'], ob['name']]
+                            end
+            { name: field['name_key'], control_type: 'select',
+              label: field['name'], optional: !field['required'],
+              pick_list: select_values,
+              toggle_hint: field['name'],
+              toggle_field: {
+                name: field['name_key'],
+                label: field['name'],
+                type: :string,
+                control_type: 'text',
+                optional: !field['required'],
+                toggle_hint: 'Use custom value'
+              } }
+          when 'multi_select'
+            multiselect_values = field['custom_field_options'].
+                                 map do |ob|
+                                   [ob['name'], ob['name']]
+                                 end
+            { name: field['name_key'], control_type: 'multiselect',
+              label: field['name'], optional: !field['required'],
+              pick_list: multiselect_values,
+              pick_list_params: {},
+              delimiter: ',',
+              toggle_hint: field['name'],
+              toggle_field: {
+                name: field['name_key'],
+                label: field['name'],
+                type: :string,
+                control_type: 'text',
+                optional: !field['required'],
+                toggle_hint: 'Use custom value'
+              } }
+          else
+            { name: field['name_key'], type: 'string', control_type: 'text',
+              label: field['name'], optional: !field['required'] }
+          end
+        end
+
+        standard_fields.concat(custom_fields || []).compact
+      end
+    },
+    
+    job_post: {
+      fields: lambda do
+        [
+          { name: 'id', type: 'integer', control_type: 'number' },
+          { name: 'title' },
+          { name: 'location', type: 'object', properties: [
+            { name: 'id', type: 'integer', control_type: 'number' },
+            { name: 'name' },
+            { name: 'office_id', type: 'integer', control_type: 'number' },
+            { name: 'job_post_location_type', type: 'object', properties: [
+              { name: 'id', type: 'integer', control_type: 'number' },
+              { name: 'name' },
+            ] }
+          ] },
+          { name: 'internal', type: 'boolean', control_type: 'checkbox' },
+          { name: 'external', type: 'boolean', control_type: 'checkbox' },
+          { name: 'active', type: 'boolean', control_type: 'checkbox' },
+          { name: 'live', type: 'boolean', control_type: 'checkbox' },
+          { name: 'first_published_at', type: 'date_time', control_type: 'date_time' },
+          { name: 'job_id', type: 'integer', control_type: 'number' },
+          { name: 'content' },
+          { name: 'internal_content' },
+          { name: 'updated_at', type: 'date_time', control_type: 'date_time' },
+          { name: 'created_at', type: 'date_time', control_type: 'date_time' },
+          { name: 'demographic_question_set_id', type: 'integer', control_type: 'number' },
+          { name: 'questions', type: 'array', of: 'object', properties: [
+            { name: 'internal', type: 'boolean', control_type: 'checkbox' },
+            { name: 'external', type: 'boolean', control_type: 'checkbox' },
+            { name: 'label'},
+            { name: 'name'},
+            { name: 'type'},
+            { name: 'values', type: 'array', of: 'object', properties: [
+              { name: 'value', type: 'integer', control_type: 'number' },
+              { name: 'label'}
+            ]},
+            { name: 'description'}
+          ]},
+        ]
+      end
+    },
 
     user: {
       fields: lambda do
@@ -1322,6 +1522,100 @@
         {
           applications: get('/v1/applications', per_page: 1)
         }
+      end
+    },
+    
+    get_job: {
+      title: 'Get job by ID',
+      description: "Get <span class='provider'>job</span> by " \
+        "ID in <span class='provider'>Greenhouse</span>",
+      subtitle: 'Get job details by ID',
+      help: 'Returns information about a job.',
+
+      input_fields: lambda do |_object_definitions|
+        [
+          { name: 'id', optional: false, type: 'integer',
+            control_type: 'number', label: 'Job ID' }
+        ]
+      end,
+
+      execute: lambda do |_connection, input|
+        get('/v1/jobs/' + input['id'])
+      end,
+
+      output_fields: lambda do |object_definitions|
+        object_definitions['job']
+      end,
+
+      sample_output: lambda do |_connection, _input|
+        get('/v1/jobs', per_page: 1).first
+      end
+    },
+
+    get_job_post: {
+      title: 'Get job post by ID',
+      description: "Get <span class='provider'>job post</span> by " \
+        "ID in <span class='provider'>Greenhouse</span>",
+      subtitle: 'Get job post details by ID',
+      help: 'Returns information about a job post.',
+
+      input_fields: lambda do |_object_definitions|
+        [
+          { name: 'id', optional: false, type: 'integer',
+            control_type: 'number', label: 'Job Post ID' }
+        ]
+      end,
+
+      execute: lambda do |_connection, input|
+        get('/v1/job_posts/' + input['id'])
+      end,
+
+      output_fields: lambda do |object_definitions|
+        object_definitions['job_post']
+      end,
+
+      sample_output: lambda do |_connection, _input|
+        get('/v1/job_posts', per_page: 1).first
+      end
+    },
+
+    list_job_posts_for_job: {
+      description: "List <span class='provider'>Job Posts for Job</span> in " \
+        "<span class='provider'>Greenhouse</span>",
+      title: 'List job posts for job',
+      help: 'Returns a list of job posts for the given job ID.',
+
+      input_fields: lambda do |_object_definitions|
+        [
+          { name: 'job_id', optional: false, type: 'integer',
+            control_type: 'number', label: 'Job ID' },
+          { name: 'active', optional: true, type: 'boolean',
+            control_type: 'checkbox', label: 'Active?',
+            hint: 'If true, only return active job posts. If false, only ' \
+              'return deleted job posts. When omitted, return both active ' \
+              'and deleted job posts.'
+          }
+        ]
+      end,
+
+      execute: lambda do |_connection, input|
+        {
+          job_posts_for_job: get('/v1/jobs/' + input['id'] + '/job_posts?active='
+            + input['active'])
+        }
+      end,
+
+      output_fields: lambda do |object_definitions|
+        [
+          { name: 'job_posts', type: 'array', of: 'object',
+            properties: object_definitions['job_post'] }
+        ]
+      end,
+
+      sample_output: lambda do |_connection, _input|
+        [
+          get('/v1/job_posts', per_page: 1).first
+        ]
       end
     },
 
