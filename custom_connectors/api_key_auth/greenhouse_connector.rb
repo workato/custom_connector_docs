@@ -1600,8 +1600,7 @@
 
       execute: lambda do |_connection, input|
         {
-          job_posts_for_job: get('/v1/jobs/' + input['id'] + '/job_posts?active='
-            + input['active'])
+          job_posts_for_job: get('/v1/jobs/' + input['id'] + '/job_posts?active=' + input['active'])
         }
       end,
 
