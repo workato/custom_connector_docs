@@ -4,7 +4,7 @@
   title: 'Clause',
 
   methods: {
-    error_response: ->(code, body, _header, message, resource) {
+    error_response: lambda do |code, body, _header, message, resource|
       case code
       when 400
         error("Your request contained bad data.\n#{code}: #{message}\n#{body}")
@@ -20,9 +20,9 @@
         error('An unexpected error occured. '\
               "Please contact the Clause support team: #{message}")
       end
-    },
+    end,
 
-    organization_field: lamda do |hint|
+    organization_field: lambda do |hint|
       {
         name: 'organization',
         type: :string,
@@ -33,7 +33,7 @@
       }
     end,
 
-    contract_field: lamda do |hint|
+    contract_field: lambda do |hint|
       {
         name: 'contract',
         type: :string,
@@ -53,7 +53,7 @@
       }
     end,
 
-    clause_field: lamda do |hint|
+    clause_field: lambda do |hint|
       {
         name: 'clause',
         type: :string,
@@ -73,7 +73,7 @@
       }
     end,
 
-    payment_obligation_fields: lamda do
+    payment_obligation_fields: lambda do
       [
         {
           name: 'description',
@@ -94,7 +94,7 @@
       ]
     end,
 
-    notification_obligation_fields: lamda do
+    notification_obligation_fields: lambda do
       [
         {
           name: 'title',
@@ -111,7 +111,7 @@
       ]
     end,
 
-    create_secret_url: lamda do |input, webhook_url, secret_name|
+    create_secret_url: lambda do |input, webhook_url, secret_name|
       post("/v1/secrets?organizationId=#{input['organization']}")
         .payload(
           '$class': 'io.clause.common.integration.HTTPConfig',
@@ -124,7 +124,7 @@
         end
     end,
 
-    create_flow: lamda do |secret_name|
+    create_flow: lambda do |secret_name|
       post(
         '/v1/flows',
         'clauseId': input['clause'],
@@ -203,7 +203,7 @@
         }]
       end,
 
-      credentials: lamda do |_connection, access_token|
+      credentials: lambda do |_connection, access_token|
         headers('Authorization': "Bearer #{access_token}")
       end,
 
@@ -235,7 +235,7 @@
     #
 
     contract: {
-      fields: lamda do
+      fields: lambda do
         [{
           name: 'id', type: :string, hint: 'A unique reference for the contract'
         }, {
@@ -267,7 +267,7 @@
     #
 
     contract_created_input: {
-      fields: lamda do
+      fields: lambda do
         [
           {
             name: 'since',
@@ -290,7 +290,7 @@
     },
 
     contract_new_input: {
-      fields: lamda do
+      fields: lambda do
         [{
           name: 'organization',
           type: :string,
@@ -320,7 +320,7 @@
     },
 
     contract_select_input: {
-      fields: lamda do
+      fields: lambda do
         [
           organization_field(
             'The target organization where the source contract exists.'
@@ -331,7 +331,7 @@
     },
 
     contract_get_file_input: {
-      fields: lamda do
+      fields: lambda do
         [
           organization_field(
             'The target organization where the source contract exists.'
@@ -349,7 +349,7 @@
     },
 
     obligation_emitted_input: {
-      fields: lamda do
+      fields: lambda do
         [
           organization_field(
             'The target organization where the source contract exists.'
@@ -365,7 +365,7 @@
     #
 
     contract_new_output: {
-      fields: lamda do
+      fields: lambda do
         [
           {
             name: 'id',
@@ -377,7 +377,7 @@
     },
 
     obligation_emitted_output: {
-      fields: lamda do
+      fields: lambda do
         [
           { name: '$class', type: :string },
           { name: 'contract', type: :string },
@@ -404,7 +404,7 @@
     },
 
     contract_get_file_output: {
-      fields: lamda do
+      fields: lambda do
         [
           { name: 'mime_type', type: :string },
           {
@@ -428,10 +428,10 @@
       title: 'Create a new contract',
       description: "Create a new <span class='provider'>contract</span> in " \
         "<span class='provider'>Clause</span>",
-      input_fields: lamda do |object_definitions|
+      input_fields: lambda do |object_definitions|
         object_definitions['contract_new_input']
       end,
-      execute: lamda do |_connection, input|
+      execute: lambda do |_connection, input|
         post(
           '/v1/contracts?markdown=true',
           organizationId: input['organization'],
@@ -442,7 +442,7 @@
             call('error_response', code, body, headers, message, 'contract')
           end
       end,
-      output_fields: lamda do |object_definitions|
+      output_fields: lambda do |object_definitions|
         object_definitions['contract_new_output']
       end
     },
@@ -451,16 +451,16 @@
       title: 'Copy a contract',
       description: "Copy an existing <span class='provider'>contract</span> in"\
         " <span class='provider'>Clause</span>",
-      input_fields: lamda do |object_definitions|
+      input_fields: lambda do |object_definitions|
         object_definitions['contract_select_input']
       end,
-      execute: lamda do |_connection, input|
+      execute: lambda do |_connection, input|
         post("/v1/contracts/#{input['contract']}/copy")
           .after_error_response(/.*/) do |code, body, headers, message|
             call('error_response', code, body, headers, message, 'contract')
           end
       end,
-      output_fields: lamda do |object_definitions|
+      output_fields: lambda do |object_definitions|
         object_definitions['contract']
       end
     },
@@ -470,16 +470,16 @@
       description: "Attest that a <span class='provider'>contract</span> " \
         "has been signed outside of <span class='provider'>Clause</span>",
       help: "Signing a contract transitions it to 'RUNNING'",
-      input_fields: lamda do |object_definitions|
+      input_fields: lambda do |object_definitions|
         object_definitions['contract_select_input']
       end,
-      execute: lamda do |_connection, input|
+      execute: lambda do |_connection, input|
         post("/v1/contracts/#{input['contract']}/signatures/all-signed")
           .after_error_response(/.*/) do |code, body, headers, message|
             call('error_response', code, body, headers, message, 'contract')
           end
       end,
-      output_fields: lamda do |object_definitions|
+      output_fields: lambda do |object_definitions|
         object_definitions['contract']
       end
     },
@@ -489,16 +489,16 @@
       description: "Completing a <span class='provider'>contract</span> " \
         " in <span class='provider'>Clause</span> stops it from receiving"\
         ' data and emitting events.',
-      input_fields: lamda do |object_definitions|
+      input_fields: lambda do |object_definitions|
         object_definitions['contract_select_input']
       end,
-      execute: lamda do |_connection, input|
+      execute: lambda do |_connection, input|
         post("/v1/contracts/#{input['contract']}/complete")
           .after_error_response(/.*/) do |code, body, headers, message|
             call('error_response', code, body, headers, message, 'contract')
           end
       end,
-      output_fields: lamda do |object_definitions|
+      output_fields: lambda do |object_definitions|
         object_definitions['contract']
       end
     },
@@ -507,10 +507,10 @@
       title: 'Download a contract',
       description: "Retrieve a <span class='provider'>contract</span>'s" \
         " PDF or Markdown from <span class='provider'>Clause</span>.",
-      input_fields: lamda do |object_definitions|
+      input_fields: lambda do |object_definitions|
         object_definitions['contract_get_file_input']
       end,
-      execute: lamda do |_connection, input|
+      execute: lambda do |_connection, input|
         content = nil
         mime_type = ''
         if input['type'] == 'pdf'
@@ -536,7 +536,7 @@
           content: content
         }
       end,
-      output_fields: lamda do |object_definitions|
+      output_fields: lambda do |object_definitions|
         object_definitions['contract_get_file_output']
       end
     }
@@ -548,17 +548,17 @@
       title: 'Obligation emitted',
       description: 'A Smart Clause emitted an obligation in '\
         "<span class='provider'>Clause</span>.",
-      input_fields: lamda do |object_definitions|
+      input_fields: lambda do |object_definitions|
         object_definitions['obligation_emitted_input']
       end,
-      webhook_subscribe: lamda do |webhook_url, _connection, input|
+      webhook_subscribe: lambda do |webhook_url, _connection, input|
         secret_name = "WorkatoWebhook#{rand}"
         secret = create_secret_url(input, webhook_url, secret_name)
         flow = create_flow(secret_name)
         { flowId: flow['flowId'], secretId: secret['id'] }
       end,
       webhook_notification: ->(_input, payload) { payload },
-      webhook_unsubscribe: lamda do |webhook|
+      webhook_unsubscribe: lambda do |webhook|
         delete("/v1/flows/#{webhook['flowId']}")
         delete("/v1/secrets/#{webhook['secretId']}")
       end,
@@ -566,7 +566,7 @@
       output_fields: lambda do |object_definitions|
         object_definitions['obligation_emitted_output']
       end,
-      sample_output: lamda do
+      sample_output: lambda do
         {
           '$class': 'org.accordproject.cicero.runtime.PaymentObligation',
           'amount': {
