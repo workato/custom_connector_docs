@@ -607,7 +607,7 @@
         contracts =
           get("/v1/contracts?organizationId=#{input['organization']}")
           .after_error_response(/.*/) do |code, body, headers, message|
-            call('error_response', code, body, headers, message, 'contract')
+            call('error_response', code, body, headers, message, 'organization')
           end
 
         contracts = contracts.select do |contract|
