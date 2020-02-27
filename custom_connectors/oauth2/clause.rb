@@ -402,7 +402,7 @@
             name: 'timestamp',
             type: 'date_time',
             hint: 'The time when the obligation was raised by the contract.'
-          },
+          }
         ].concat(
           call('payment_obligation_fields'),
           call('notification_obligation_fields')
