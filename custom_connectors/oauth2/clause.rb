@@ -23,18 +23,18 @@
     end,
 
     organization_field: lambda do |hint|
-      {
+      [{
         name: 'organization',
         type: :string,
         control_type: 'select',
         hint: hint,
         pick_list: 'organizations',
         optional: false
-      }
+      }]
     end,
 
     contract_field: lambda do |hint|
-      {
+      [{
         name: 'contract',
         type: :string,
         control_type: 'select',
@@ -50,11 +50,11 @@
           optional: false,
           toggle_hint: 'Use Contract ID'
         }
-      }
+      }]
     end,
 
     clause_field: lambda do |hint|
-      {
+      [{
         name: 'clause',
         type: :string,
         control_type: 'select',
@@ -70,7 +70,7 @@
           optional: false,
           toggle_hint: 'Use Clause ID'
         }
-      }
+      }]
     end,
 
     payment_obligation_fields: lambda do
@@ -124,7 +124,7 @@
         end
     end,
 
-    create_flow: lambda do |secret_name|
+    create_flow: lambda do |input, secret_name|
       post(
         '/v1/flows',
         'clauseId': input['clause'],
@@ -320,23 +320,20 @@
     },
 
     contract_select_input: {
-      fields: lambda do
-        [
-          organization_field(
+      fields: lambda { |_connection, _config_fields|
+        [].concat(
+          call('contract_field', 'The contact that you want to connect to.'),
+          call(
+            'organization_field',
             'The target organization where the source contract exists.'
-          ),
-          contract_field('The contact that you want to connect to.')
-        ]
-      end
+          )
+        )
+      }
     },
 
     contract_get_file_input: {
-      fields: lambda do
+      fields: lambda { |_connection, _config_fields|
         [
-          organization_field(
-            'The target organization where the source contract exists.'
-          ),
-          contract_field('The contact that you want to connect to.'),
           {
             name: 'type', type: :string,
             control_type: 'select',
@@ -344,20 +341,27 @@
             pick_list: 'fileTypes',
             optional: false
           }
-        ]
-      end
+        ].concat(
+          call(
+            'organization_field',
+            'The target organization where the source contract exists.'
+          ),
+          call('contract_field', 'The contact that you want to connect to.')
+        )
+      }
     },
 
     obligation_emitted_input: {
-      fields: lambda do
-        [
-          organization_field(
+      fields: lambda { |_connection, _config_fields|
+        [].concat(
+          call(
+            'organization_field',
             'The target organization where the source contract exists.'
           ),
-          contract_field('The contact that you want to connect to.'),
-          clause_field('The clause that emits the relevant obligation')
-        ]
-      end
+          call('contract_field', 'The contact that you want to connect to.'),
+          call('clause_field', 'The clause that emits the relevant obligation')
+        )
+      }
     },
 
     #
@@ -377,7 +381,7 @@
     },
 
     obligation_emitted_output: {
-      fields: lambda do
+      fields: lambda { |_connection, _config_fields|
         [
           { name: '$class', type: :string },
           { name: 'contract', type: :string },
@@ -398,9 +402,12 @@
             name: 'timestamp',
             type: 'date_time',
             hint: 'The time when the obligation was raised by the contract.'
-          }
-        ].concat(payment_obligation_fields, notification_obligation_fields)
-      end
+          },
+        ].concat(
+          call('payment_obligation_fields'),
+          call('notification_obligation_fields')
+        )
+      }
     },
 
     contract_get_file_output: {
@@ -553,8 +560,8 @@
       end,
       webhook_subscribe: lambda do |webhook_url, _connection, input|
         secret_name = "WorkatoWebhook#{rand}"
-        secret = create_secret_url(input, webhook_url, secret_name)
-        flow = create_flow(secret_name)
+        secret = call('create_secret_url', input, webhook_url, secret_name)
+        flow = call('create_flow', input, secret_name)
         { flowId: flow['flowId'], secretId: secret['id'] }
       end,
       webhook_notification: ->(_input, payload) { payload },
