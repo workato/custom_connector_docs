@@ -322,11 +322,11 @@
     contract_select_input: {
       fields: lambda { |_connection, _config_fields|
         [].concat(
-          call('contract_field', 'The contact that you want to connect to.'),
           call(
             'organization_field',
             'The target organization where the source contract exists.'
-          )
+          ),
+          call('contract_field', 'The contact that you want to connect to.')
         )
       }
     },
