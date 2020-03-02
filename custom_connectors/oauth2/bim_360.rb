@@ -978,6 +978,251 @@
       end
     },
 
+    budget: {
+      fields: lambda do |_connection, _config_fields|
+        [
+          { name: 'id' },
+          { name: 'parentId' },
+          { name: 'code' },
+          { name: 'name' },
+          { name: 'description' },
+          { name: 'quantity', type: 'number'  },
+          { name: 'unitPrice' },
+          { name: 'unit' },
+          { name: 'originalAmount', type: 'number' },
+          { name: 'internalAdjustment', type: 'number' },
+          { name: 'approvedOwnerChanges', type: 'number' },
+          { name: 'pendingOwnerChanges' , type: 'number'},
+          { name: 'originalCommitment', type: 'number' },
+          { name: 'approvedChangeOrders', type: 'number' },
+          { name: 'approvedInScopeChangeOrders', type: 'number' },
+          { name: 'pendingChangeOrders', type: 'number' },
+          { name: 'reserves', type: 'number' },
+          { name: 'actualCost', type: 'number' },
+          { name: 'mainContractId' },
+          { name: 'adjustments', type: 'object', properties: [
+            { name: 'total', type: 'number'},
+            { name: 'details', type: 'array', of: 'objects', properties: [
+              { name: 'quantity', type: 'number' },
+              { name: 'unitPrice', type: 'number' },
+              { name: 'unit' }
+            ]},
+            { name: 'updatedAt', type: 'date_time'}
+          ]},
+          { name: 'uncommited', type: 'number' },
+          { name: 'revised', type: 'number' },
+          { name: 'projectedCost', type: 'number' },
+          { name: 'projectedBudget', type: 'number' },
+          { name: 'forecastFinalCost', type: 'number' },
+          { name: 'forecastVariance', type: 'number' },
+          { name: 'forecastCostComplete', type: 'number' },
+          { name: 'varianceTotal', type: 'number' },
+          { name: 'externalId' },
+          { name: 'externalSystem' },
+          { name: 'createdAt', type: 'date_time' },
+          { name: 'updatedAt', type: 'date_time' }
+        ]
+      end
+    },
+
+    contract: {
+      fields: lambda do |_connection, _config_fields|
+        [
+          { name: 'id' },
+          { name: 'code' },
+          { name: 'name' },
+          { name: 'description' },
+          { name: 'companyId' },
+          { name: 'type' },
+          { name: 'contactId' },
+          { name: 'signedBy' },
+          { name: 'ownerId' },
+          { name: 'statusId' },
+          { name: 'status' },
+          { name: 'changedBy' },
+          { name: 'creatorId' },
+          { name: 'awarded', type: 'number' },
+          { name: 'changes', type: 'number' },
+          { name: 'total', type: 'number' },
+          { name: 'originalBudget', type: 'number' },
+          { name: 'internalAdjustment', type: 'number' },
+          { name: 'approvedOwnerChanges', type: 'number' },
+          { name: 'pendingOwnerChanges', type: 'number' },
+          { name: 'approvedChangeOrders', type: 'number' },
+          { name: 'approvedInScopeChangeOrders', type: 'number' },
+          { name: 'pendingChangeOrders', type: 'number' },
+          { name: 'reserves', type: 'number' },
+          { name: 'actualCost', type: 'number' },
+          { name: 'uncommitted', type: 'number' },
+          { name: 'revised', type: 'number' },
+          { name: 'projectedCost', type: 'number' },
+          { name: 'projectedBudget', type: 'number' },
+          { name: 'forecastFinalCost', type: 'number' },
+          { name: 'forecastVariance', type: 'number' },
+          { name: 'forecastCostComplete', type: 'number' },
+          { name: 'varianceTotal', type: 'number' },
+          { name: 'awardedAt', type: 'date_time' },
+          { name: 'statusChangedAt', type: 'date_time' },
+          { name: 'documentGeneratedAt', type: 'date_time' },
+          { name: 'sentAt', type: 'date_time' },
+          { name: 'respondedAt', type: 'date_time' },
+          { name: 'returnedAt', type: 'date_time' },
+          { name: 'onsiteAt', type: 'date_time' },
+          { name: 'offsiteAt', type: 'date_time' },
+          { name: 'procuredAt', type: 'date_time' },
+          { name: 'approvedAt', type: 'date_time' },
+          { name: 'scopeOfWork' },
+          { name: 'note' },
+          { name: 'budgets', type: 'array', of: 'object', properties: [
+            { name: 'id' },
+            { name: 'mainContractId' }
+          ]},
+          { name: 'adjustments', type: 'array', of: 'object', properties: [
+            { name: 'total', type: 'number' },
+            { name: 'details', type: 'array', of: 'object', properties: [
+              { name: 'quantity', type: 'number' },
+              { name: 'unitPrice', type: 'number' },
+              { name: 'unit' }
+            ]},
+            { name: 'updatedAt', type: 'date_time' }
+          ]},
+          { name: 'externalId' },
+          { name: 'externalSystem' },
+          { name: 'createdAt', type: 'date_time' },
+          { name: 'updatedAt', type: 'date_time' }
+        ]
+      end
+    },
+
+    change_order: {
+      fields: lambda do |_connection, _config_fields|
+        [
+          { name: 'id' },
+          { name: 'number' },
+          { name: 'name' },
+          { name: 'description' },
+          { name: 'scope' },
+          { name: 'creatorId' },
+          { name: 'ownerId' },
+          { name: 'changedBy' },
+          { name: 'budgetStatus' },
+          { name: 'costStatus' },
+          { name: 'estimated', type: 'number' },
+          { name: 'proposed', type: 'number' },
+          { name: 'submitted', type: 'number' },
+          { name: 'approved', type: 'number' },
+          { name: 'committed', type: 'number' },
+          { name: 'scopeOfWork' },
+          { name: 'note' },
+          { name: 'externalId' },
+          { name: 'externalSystem' },
+          { name: 'createdAt', type: 'date_time' },
+          { name: 'updatedAt', type: 'date_time' },
+          { name: 'properties', type: 'array', of: 'object', properties: [
+            { name: 'name' },
+            { name: 'builtIn', type: 'boolean' },
+            { name: 'position', type: 'number' },
+            { name: 'propertyDefinitionId'},
+            { name: 'type'},
+            { name: 'value'}
+          ]},
+          { name: 'costItems', type: 'array', of: 'object', properties: [
+            { name: 'id' }
+          ]}
+        ]
+      end
+    },
+
+    cost_item: {
+      fields: lambda do |_connection, _config_fields|
+        [
+          { name: 'id' },
+          { name: 'number' },
+          { name: 'name' },
+          { name: 'description' },
+          { name: 'budgetStatus' },
+          { name: 'costStatus' },
+          { name: 'scope' },
+          { name: 'type' },
+          { name: 'isMarkup', type: 'boolean' },
+          { name: 'estimated', type: 'number' },
+          { name: 'proposed', type: 'number' },
+          { name: 'submitted', type: 'number' },
+          { name: 'approved', type: 'number' },
+          { name: 'committed', type: 'number' },
+          { name: 'scopeOfWork' },
+          { name: 'note' },
+          { name: 'createdAt', type: 'date_time' },
+          { name: 'updatedAt', type: 'date_time' }
+        ]
+      end
+    },
+
+    cost_attachment: {
+      fields: lambda do |_connection, _config_fields|
+        [
+          { name: 'id' },
+          { name: 'folderId' },
+          { name: 'urn' },
+          { name: 'type' },
+          { name: 'name' },
+          { name: 'associationId', label: 'Object ID' },
+          { name: 'associationType', label: 'Object Type' },
+          { name: 'createdAt', type: 'date_time' },
+          { name: 'updatedAt', type: 'date_time' }
+        ]
+      end
+    },
+
+    cost_document: {
+      fields: lambda do |_connection, _config_fields|
+        [
+          { name: 'id' },
+          { name: 'templateId' },
+          { name: 'recipientId' },
+          { name: 'signedBy' },
+          { name: 'urn' },
+          { name: 'signedUrn' },
+          { name: 'status' },
+          { name: 'jobId' },
+          { name: 'errorInfo', type: 'object', properties: [
+            { name: 'code' },
+            { name: 'message' },
+            { name: 'detail' }
+          ]},
+          { name: 'associationId', label: 'Object ID' },
+          { name: 'associationType', label: 'Object Type' },
+          { name: 'createdAt', type: 'date_time' },
+          { name: 'updatedAt', type: 'date_time' }
+        ]
+      end
+    },
+
+    cost_file_packages: {
+      fields: lambda do |_connection, _config_fields|
+        [
+          { name: 'id' },
+          { name: 'recipient' },
+          { name: 'urn' },
+          { name: 'errorInfo', type: 'object', properties: [
+            { name: 'code' },
+            { name: 'message' },
+            { name: 'detail' }
+          ]},
+          { name: 'items', type: 'array', of: 'object', properties: [
+            { name: 'id' },
+            { name: 'urn' },
+            { name: 'name' },
+            { name: 'type' },
+            { name: 'createdAt', type: 'date_time' },
+            { name: 'updatedAt', type: 'date_time' }
+          ]},
+          { name: 'createdAt', type: 'date_time' },
+          { name: 'updatedAt', type: 'date_time' }
+        ]
+      end
+    },
+
     custom_action_input: {
       fields: lambda do |_connection, config_fields|
         input_schema = parse_json(config_fields.dig('input', 'schema') || '[]')
