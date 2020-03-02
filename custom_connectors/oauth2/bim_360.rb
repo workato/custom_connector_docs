@@ -3071,6 +3071,27 @@
         ['Plan Service', 'plan'],
         ['Docs Service', 'doc_manager']
       ]
+    end,
+
+    change_order_types: lambda do |_connection|
+      [
+        ['PCO', 'pco'],
+        ['RFQ', 'rfq'],
+        ['RCO', 'rco'],
+        ['OCO', 'oco'],
+        ['SCO', 'sco']
+      ]
+    end,
+
+    cost_association_types: lambda do |_connection|
+      [
+        ['Budget', 'Budget'],
+        ['Contract', 'Contract'],
+        ['Cost Item', 'CostItem'],
+        ['Form Instance', 'FormInstance'],
+        ['Payment', 'Payment'],
+        ['Budget Payment', 'BudgetPayment']
+      ]
     end
   }
 }
