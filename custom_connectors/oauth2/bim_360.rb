@@ -77,6 +77,21 @@
       end
     end,
 
+    format_cost_search: lambda do |input|
+      if input.is_a?(Hash)
+        input.each_with_object({}) do |(key, value), hash|
+          value = call('format_search', value)
+          if %w[rootId externalSystem externalId code].include?(key)
+            hash["filter[#{key}]"] = value
+          else
+            hash[key] = value
+          end
+        end
+      else
+        input
+      end
+    end,
+
     make_schema_builder_fields_sticky: lambda do |input|
       input.map do |field|
         if field[:properties].present?
@@ -2716,6 +2731,124 @@
           { name: 'hub_id' },
           { name: 'project_id' }
         ].concat(object_definitions['folder_file'])
+      end
+    },
+
+    search_budgets_in_project: {
+      title: 'Search budgets in a project',
+
+      description: 'Search <span class="provider">budgets</span> in a project in' \
+      ' <span class="provider">BIM 360</span>',
+
+      help: {
+        body: 'This action searches for budgets in a project.'
+      },
+
+      input_fields: lambda do |_object_definitions|
+        [
+          {
+            name: 'hub_id',
+            label: 'Hub',
+            control_type: 'select',
+            pick_list: 'hub_list',
+            optional: false,
+            toggle_hint: 'Select hub',
+            toggle_field: {
+              name: 'hub_id',
+              label: 'Hub ID',
+              type: 'string',
+              change_on_blur: true,
+              control_type: 'text',
+              toggle_hint: 'Enter hub ID',
+              hint: 'Get account ID from admin page. To convert an account ID into a hub ID you need to add a “b.” prefix. For example, an account ID of '\
+              '<b>c8b0c73d-3ae9</b> translates to a hub ID of <b>b.c8b0c73d-3ae9</b>.'
+            }
+          },
+          {
+            name: 'project_id',
+            label: 'Project',
+            control_type: 'select',
+            pick_list: 'project_list',
+            pick_list_params: { hub_id: 'hub_id' },
+            optional: false,
+            toggle_hint: 'Select project',
+            toggle_field: {
+              name: 'project_id',
+              label: 'Project ID',
+              change_on_blur: true,
+              type: 'string',
+              control_type: 'text',
+              toggle_hint: 'Enter project ID',
+              hint: 'Get ID from url of the project page. For example, a project ID is <b>b.baf-0871-4aca-82e8-3dd6db</b>.'
+            }
+          },
+          {
+            name: 'rootId',
+            hint: 'Filter by related subitems for the given root item ID. Separate multiple IDs with commas.'
+          },
+          {
+            name: 'externalSystem',
+            hint: 'Filter by name of source if used in system integration.'
+          },
+          {
+            name: 'externalId',
+            hint: 'Filter by item ID in the external system. Separate multiple IDs with commas.'
+          },
+          {
+            name: 'code',
+            hint: 'Filter by item code.'
+          },
+          {
+            name: 'offset',
+            type: 'number',
+            hint: 'Number of items to skip before starting to collect the result set.'
+          },
+          {
+            name: 'limit',
+            type: 'number',
+            hint: 'Number of items to return.'
+          },
+          {
+            name: 'sort',
+            hint: 'Order of items to sort. Each item can be followed by a direction modifier' \
+            ' of either asc or desc. If no direction is specified then asc is assumed.'
+          }
+        ]
+      end,
+
+      execute: lambda do |_connection, input|
+        filter_criteria = call('format_cost_search', input.except('hub_id', 'project_id'))
+        container_id = get("/project/v1/hubs/#{input['hub_id']}/projects/#{input['project_id']}")
+                       &.dig('data', 'relationships', 'cost', 'data', 'id')
+
+        response = if container_id.present?
+                     get("/cost/v1/containers/#{container_id}/budgets", filter_criteria)
+                     .after_error_response(/.*/) do |_code, body, _header, message|
+                       error("#{message}: #{body}")
+                     end.merge(hub_id: input['hub_id'], container_id: container_id)
+                   end
+      end,
+
+      output_fields: lambda do |object_definitions|
+        [
+          { name: 'hub_id' },
+          { name: 'container_id' }
+        ]
+        .concat([
+          { name: 'results', type: 'array', of: 'object', properties: object_definitions['budget'] },
+          { name: 'pagination', type: 'object', properties: [
+            { name: 'totalResults', type: 'number' },
+            { name: 'limit', type: 'number' },
+            { name: 'offset', type: 'number' }
+          ]}
+        ])
+      end,
+
+      sample_output: lambda do |_connection, input|
+        container_id = get("/project/v1/hubs/#{input['hub_id']}/projects/#{input['project_id']}")
+                       &.dig('data', 'relationships', 'cost', 'data', 'id') || {}
+        (get("/cost/v1/containers/#{container_id}/budgets?limit=1") || {})
+          &.merge(hub_id: input['hub_id'], container_id: container_id)
       end
     }
   },
