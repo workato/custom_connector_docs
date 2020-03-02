@@ -31,7 +31,11 @@
       end,
 
       apply: lambda do |_connection, access_token|
-        headers(Authorization: "Bearer #{access_token}")
+        if current_url.include?('https://developer.api.autodesk.com/cost/')
+          headers('Authorization': "Bearer #{access_token}", 'Content-Type' => 'application/json')
+        else
+          headers('Authorization': "Bearer #{access_token}", 'Content-Type' => 'application/vnd.api+json')
+        end
       end
     },
 
