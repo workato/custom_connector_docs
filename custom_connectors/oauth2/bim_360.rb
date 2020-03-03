@@ -3553,13 +3553,7 @@
             name: 'status',
             sticky: true,
             control_type: 'select',
-            pick_list: [
-              ['Draft', 'draft'],
-              ['Open', 'open'],
-              ['Sent', 'sent'],
-              ['Executed', 'executed'],
-              ['Closed', 'closed']
-            ],
+            pick_list: 'contract_status',
             toggle_hint: 'Select status',
             toggle_field: {
               name: 'status',
@@ -3706,13 +3700,7 @@
             name: 'status',
             sticky: true,
             control_type: 'select',
-            pick_list: [
-              ['Draft', 'draft'],
-              ['Open', 'open'],
-              ['Sent', 'sent'],
-              ['Executed', 'executed'],
-              ['Closed', 'closed']
-            ],
+            pick_list: 'contract_status',
             toggle_hint: 'Select status',
             toggle_field: {
               name: 'status',
@@ -4135,6 +4123,16 @@
         ['Form Instance', 'FormInstance'],
         ['Payment', 'Payment'],
         ['Budget Payment', 'BudgetPayment']
+      ]
+    end,
+
+    contract_status: lambda do |_connection|
+      [
+        ['Draft', 'draft'],
+        ['Open', 'open'],
+        ['Sent', 'sent'],
+        ['Executed', 'executed'],
+        ['Closed', 'closed']
       ]
     end
   }
