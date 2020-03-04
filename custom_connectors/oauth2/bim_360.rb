@@ -4677,13 +4677,7 @@
     end,
 
     change_order_types: lambda do |_connection|
-      [
-        ['PCO', 'pco'],
-        ['RFQ', 'rfq'],
-        ['RCO', 'rco'],
-        ['OCO', 'oco'],
-        ['SCO', 'sco']
-      ]
+      %w[pco rfq rco oco sco]&.map { |el| [el.upcase, el] }
     end,
 
     cost_association_types: lambda do |_connection|
@@ -4698,13 +4692,7 @@
     end,
 
     contract_status: lambda do |_connection|
-      [
-        ['Draft', 'draft'],
-        ['Open', 'open'],
-        ['Sent', 'sent'],
-        ['Executed', 'executed'],
-        ['Closed', 'closed']
-      ]
+      %w[draft open sent executed closed]&.map { |el| [el.labelize, el] }
     end,
 
     change_order_scope: lambda do |_connection|
