@@ -81,7 +81,9 @@
       if input.is_a?(Hash)
         input.each_with_object({}) do |(key, value), hash|
           value = call('format_search', value)
-          if %w[rootId externalSystem externalId code].include?(key)
+          if %w[rootId externalSystem externalId code
+                contractId mainContractId budgetStatus costStatus
+                changeOrderId budgetId associationId associationType].include?(key)
             hash["filter[#{key}]"] = value
           else
             hash[key] = value
