@@ -4321,6 +4321,503 @@
       end
     },
 
+    search_cost_items_in_project: {
+      title: 'Search cost items in a project',
+
+      description: 'Search <span class="provider">cost items</span>' \
+      ' in a project in <span class="provider">BIM 360</span>',
+
+      help: {
+        body: 'This action searches for cost items in a project.'
+      },
+
+      input_fields: lambda do |_object_definitions|
+        [
+          {
+            name: 'hub_id',
+            label: 'Hub',
+            control_type: 'select',
+            pick_list: 'hub_list',
+            optional: false,
+            toggle_hint: 'Select hub',
+            toggle_field: {
+              name: 'hub_id',
+              label: 'Hub ID',
+              type: 'string',
+              change_on_blur: true,
+              control_type: 'text',
+              toggle_hint: 'Enter hub ID',
+              hint: 'Get account ID from admin page. To convert an account ID into a hub ID you need to add a “b.” prefix. For example, an account ID of '\
+              '<b>c8b0c73d-3ae9</b> translates to a hub ID of <b>b.c8b0c73d-3ae9</b>.'
+            }
+          },
+          {
+            name: 'project_id',
+            label: 'Project',
+            control_type: 'select',
+            pick_list: 'project_list',
+            pick_list_params: { hub_id: 'hub_id' },
+            optional: false,
+            toggle_hint: 'Select project',
+            toggle_field: {
+              name: 'project_id',
+              label: 'Project ID',
+              change_on_blur: true,
+              type: 'string',
+              control_type: 'text',
+              toggle_hint: 'Enter project ID',
+              hint: 'Get ID from url of the project page. For example, a project ID is <b>b.baf-0871-4aca-82e8-3dd6db</b>.'
+            }
+          },
+          {
+            name: 'changeOrderId',
+            label: 'Change Order',
+            hint: 'Filter by change order ID. Separate multiple IDs with commas.'
+          },
+          {
+            name: 'budgetId',
+            label: 'Budget',
+            hint: 'Filter by budget ID. Separate multiple IDs with commas.'
+          },
+          {
+            name: 'externalSystem',
+            label: 'External System',
+            hint: 'Filter by name of source if used in system integration.'
+          },
+          {
+            name: 'externalId',
+            label: 'External ID',
+            hint: 'Filter by item ID in the external system. ' \
+            'Separate multiple IDs with commas.'
+          },
+          {
+            name: 'include',
+            hint: 'Resources to include in the response.',
+            control_type: 'multiselect',
+            pick_list: [
+              ['Budgets', 'budgets'],
+              ['Change Orders', 'changeOrders'],
+              ['Attributes', 'attributes']
+            ],
+            delimiter: ','
+          },
+          {
+            name: 'offset',
+            type: 'number',
+            hint: 'Number of items to skip before starting to collect the result set.'
+          },
+          {
+            name: 'limit',
+            type: 'number',
+            hint: 'Number of items to return.'
+          },
+          {
+            name: 'sort',
+            hint: 'Order of items to sort. Each item can be followed by ' \
+            'a direction modifier of either asc or desc. ' \
+            'If no direction is specified then asc is assumed.'
+          }
+        ]
+      end,
+
+      execute: lambda do |_connection, input|
+        filter_criteria = call('format_cost_search', input.except('hub_id', 'project_id', 'type'))
+
+        container_id = get("/project/v1/hubs/#{input['hub_id']}/projects/#{input['project_id']}")
+                        .dig('data', 'relationships', 'cost', 'data', 'id')
+
+        response = if container_id.present?
+                     get("/cost/v1/containers/#{container_id}/cost-items", filter_criteria)
+                      .after_error_response(/.*/) do |_code, body, _header, message|
+                        error("#{message}: #{body}")
+                      end.merge(hub_id: input['hub_id'], container_id: container_id)
+                   end
+      end,
+
+      output_fields: lambda do |object_definitions|
+        [
+          { name: 'hub_id' },
+          { name: 'container_id' }
+        ]
+        .concat([
+          { name: 'results', type: 'array', of: 'object', properties: object_definitions['cost_item'] },
+          { name: 'pagination', type: 'object', properties: [
+            { name: 'totalResults', type: 'number' },
+            { name: 'limit', type: 'number' },
+            { name: 'offset', type: 'number' },
+            { name: 'nextUrl' }
+          ]}
+        ])
+      end,
+
+      sample_output: lambda do |_connection, input|
+        container_id = get("/project/v1/hubs/#{input['hub_id']}/projects/#{input['project_id']}")
+                        .dig('data', 'relationships', 'cost', 'data', 'id') || {}
+
+        (get("/cost/v1/containers/#{container_id}/cost-items?limit=1") || {})
+          .merge(hub_id: input['hub_id'], container_id: container_id)
+      end
+    },
+
+    get_cost_item_in_project: {
+      title: 'Get cost item in a project',
+
+      description: 'Get <span class="provider">cost item</span>' \
+      ' in a project in <span class="provider">BIM 360</span>',
+
+      help: {
+        body: 'This action returns a cost item in a project.'
+      },
+
+      input_fields: lambda do |_object_definitions|
+        [
+          {
+            name: 'hub_id',
+            label: 'Hub',
+            control_type: 'select',
+            pick_list: 'hub_list',
+            optional: false,
+            toggle_hint: 'Select hub',
+            toggle_field: {
+              name: 'hub_id',
+              label: 'Hub ID',
+              type: 'string',
+              change_on_blur: true,
+              control_type: 'text',
+              toggle_hint: 'Enter hub ID',
+              hint: 'Get account ID from admin page. To convert an account ID into a hub ID you need to add a “b.” prefix. For example, an account ID of '\
+              '<b>c8b0c73d-3ae9</b> translates to a hub ID of <b>b.c8b0c73d-3ae9</b>.'
+            }
+          },
+          {
+            name: 'project_id',
+            label: 'Project',
+            control_type: 'select',
+            pick_list: 'project_list',
+            pick_list_params: { hub_id: 'hub_id' },
+            optional: false,
+            toggle_hint: 'Select project',
+            toggle_field: {
+              name: 'project_id',
+              label: 'Project ID',
+              change_on_blur: true,
+              type: 'string',
+              control_type: 'text',
+              toggle_hint: 'Enter project ID',
+              hint: 'Get ID from url of the project page. For example, a project ID is <b>b.baf-0871-4aca-82e8-3dd6db</b>.'
+            }
+          },
+          {
+            name: 'id',
+            label: 'Cost Item ID',
+            optional: false,
+            sticky: true
+          }
+        ]
+      end,
+
+      execute: lambda do |_connection, input|
+        container_id = get("/project/v1/hubs/#{input['hub_id']}/projects/#{input['project_id']}")
+                        .dig('data', 'relationships', 'cost', 'data', 'id')
+
+        response = if container_id.present?
+                     get("/cost/v1/containers/#{container_id}/cost-items/#{input['id']}")
+                      .after_error_response(/.*/) do |_code, body, _header, message|
+                        error("#{message}: #{body}")
+                      end.merge(hub_id: input['hub_id'], container_id: container_id)
+                   end
+      end,
+
+      output_fields: lambda do |object_definitions|
+        [
+          { name: 'hub_id' },
+          { name: 'container_id' }
+        ]
+        .concat(object_definitions['cost_item'])
+      end,
+
+      sample_output: lambda do |_connection, input|
+        container_id = get("/project/v1/hubs/#{input['hub_id']}/projects/#{input['project_id']}")
+                        .dig('data', 'relationships', 'cost', 'data', 'id') || {}
+        (get("/cost/v1/containers/#{container_id}/cost-items?limit=1") || {})
+          .dig('results', 0).merge(hub_id: input['hub_id'], container_id: container_id)
+      end
+    },
+
+    create_cost_item_in_project: {
+      title: 'Create cost item in a project',
+
+      description: 'Create <span class="provider">cost item</span>' \
+      ' in a project in <span class="provider">BIM 360</span>',
+
+      help: {
+        body: 'This action creates a cost item in a project.'
+      },
+
+      input_fields: lambda do |_object_definitions|
+        [
+          {
+            name: 'hub_id',
+            label: 'Hub',
+            control_type: 'select',
+            pick_list: 'hub_list',
+            optional: false,
+            toggle_hint: 'Select hub',
+            toggle_field: {
+              name: 'hub_id',
+              label: 'Hub ID',
+              type: 'string',
+              change_on_blur: true,
+              control_type: 'text',
+              toggle_hint: 'Enter hub ID',
+              hint: 'Get account ID from admin page. To convert an account ID into a hub ID you need to add a “b.” prefix. For example, an account ID of '\
+              '<b>c8b0c73d-3ae9</b> translates to a hub ID of <b>b.c8b0c73d-3ae9</b>.'
+            }
+          },
+          {
+            name: 'project_id',
+            label: 'Project',
+            control_type: 'select',
+            pick_list: 'project_list',
+            pick_list_params: { hub_id: 'hub_id' },
+            optional: false,
+            toggle_hint: 'Select project',
+            toggle_field: {
+              name: 'project_id',
+              label: 'Project ID',
+              change_on_blur: true,
+              type: 'string',
+              control_type: 'text',
+              toggle_hint: 'Enter project ID',
+              hint: 'Get ID from url of the project page. For example, a project ID is <b>b.baf-0871-4aca-82e8-3dd6db</b>.'
+            }
+          },
+          {
+            name: 'name',
+            optional: false,
+            sticky: true,
+            hint: 'Name of the cost item. Max length of 1024 characters.'
+          },
+          {
+            name: 'changeOrderId',
+            sticky: true,
+            hint: 'ID of the change order that the cost item is created in.'
+          },
+          {
+            name: 'budgetId',
+            sticky: true,
+            hint: 'ID of the budget that the cost item is linked to.'
+          },
+          {
+            name: 'description',
+            sticky: true,
+            hint: 'Description of the cost item. Max length of 2048 characters.'
+          },
+          {
+            name: 'estimated',
+            sticky: true,
+            type: 'number',
+            hint: 'Rough estimation of this item without a quotation.'
+          },
+          {
+            name: 'proposed',
+            sticky: true,
+            type: 'number',
+            hint: 'Quoted cost of the cost item.'
+          },
+          {
+            name: 'submitted',
+            sticky: true,
+            type: 'number',
+            hint: 'Amount submitted to the owner for approval.'
+          },
+          {
+            name: 'approved',
+            sticky: true,
+            type: 'number',
+            hint: 'Amount approved by the owner.'
+          },
+          {
+            name: 'committed',
+            sticky: true,
+            type: 'number',
+            hint: 'Amount committed to the supplier.'
+          }
+        ]
+      end,
+
+      execute: lambda do |_connection, input|
+        hub_id = input.delete('hub_id')
+        project_id = input.delete('project_id')
+
+        container_id = get("/project/v1/hubs/#{hub_id}/projects/#{project_id}")
+                        .dig('data', 'relationships', 'cost', 'data', 'id')
+        response = if container_id.present?
+                     post("/cost/v1/containers/#{container_id}/cost-items")
+                      .payload(input)
+                      .after_error_response(/.*/) do |_code, body, _header, message|
+                        error("#{message}: #{body}")
+                      end.merge(hub_id: hub_id, container_id: container_id)
+                   end
+      end,
+
+      output_fields: lambda do |object_definitions|
+        [
+          { name: 'hub_id' },
+          { name: 'container_id' }
+        ]
+        .concat(object_definitions['cost_item'])
+      end,
+
+      sample_output: lambda do |_connection, input|
+        container_id = get("/project/v1/hubs/#{input['hub_id']}/projects/#{input['project_id']}")
+                        .dig('data', 'relationships', 'cost', 'data', 'id') || {}
+
+        (get("/cost/v1/containers/#{container_id}/cost-items?limit=1") || {})
+          .dig('results', 0).merge(hub_id: input['hub_id'], container_id: container_id)
+      end
+    },
+
+    update_cost_item_in_project: {
+      title: 'Update cost item in a project',
+
+      description: 'Update <span class="provider">cost item</span>' \
+      ' in a project in <span class="provider">BIM 360</span>',
+
+      help: {
+        body: 'This action updates a cost item in a project.'
+      },
+
+      input_fields: lambda do |_object_definitions|
+        [
+          {
+            name: 'hub_id',
+            label: 'Hub',
+            control_type: 'select',
+            pick_list: 'hub_list',
+            optional: false,
+            toggle_hint: 'Select hub',
+            toggle_field: {
+              name: 'hub_id',
+              label: 'Hub ID',
+              type: 'string',
+              change_on_blur: true,
+              control_type: 'text',
+              toggle_hint: 'Enter hub ID',
+              hint: 'Get account ID from admin page. To convert an account ID into a hub ID you need to add a “b.” prefix. For example, an account ID of '\
+              '<b>c8b0c73d-3ae9</b> translates to a hub ID of <b>b.c8b0c73d-3ae9</b>.'
+            }
+          },
+          {
+            name: 'project_id',
+            label: 'Project',
+            control_type: 'select',
+            pick_list: 'project_list',
+            pick_list_params: { hub_id: 'hub_id' },
+            optional: false,
+            toggle_hint: 'Select project',
+            toggle_field: {
+              name: 'project_id',
+              label: 'Project ID',
+              change_on_blur: true,
+              type: 'string',
+              control_type: 'text',
+              toggle_hint: 'Enter project ID',
+              hint: 'Get ID from url of the project page. For example, a project ID is <b>b.baf-0871-4aca-82e8-3dd6db</b>.'
+            }
+          },
+          {
+            name: 'id',
+            label: 'Cost Item ID',
+            optional: false,
+            sticky: true
+          },
+          {
+            name: 'name',
+            sticky: true,
+            hint: 'Name of the cost item. Max length of 1024 characters.'
+          },
+          {
+            name: 'changeOrderId',
+            sticky: true,
+            hint: 'ID of the change order that the cost item is created in.'
+          },
+          {
+            name: 'budgetId',
+            sticky: true,
+            hint: 'ID of the budget that the cost item is linked to.'
+          },
+          {
+            name: 'description',
+            sticky: true,
+            hint: 'Description of the cost item. Max length of 2048 characters.'
+          },
+          {
+            name: 'estimated',
+            sticky: true,
+            type: 'number',
+            hint: 'Rough estimation of this item without a quotation.'
+          },
+          {
+            name: 'proposed',
+            sticky: true,
+            type: 'number',
+            hint: 'Quoted cost of the cost item.'
+          },
+          {
+            name: 'submitted',
+            sticky: true,
+            type: 'number',
+            hint: 'Amount submitted to the owner for approval.'
+          },
+          {
+            name: 'approved',
+            sticky: true,
+            type: 'number',
+            hint: 'Amount approved by the owner.'
+          },
+          {
+            name: 'committed',
+            sticky: true,
+            type: 'number',
+            hint: 'Amount committed to the supplier.'
+          }
+        ]
+      end,
+
+      execute: lambda do |_connection, input|
+        hub_id = input.delete('hub_id')
+        project_id = input.delete('project_id')
+        cost_item_id = input.delete('id')
+
+        container_id = get("/project/v1/hubs/#{hub_id}/projects/#{project_id}")
+                        .dig('data', 'relationships', 'cost', 'data', 'id')
+
+        response = if container_id.present?
+                     patch("/cost/v1/containers/#{container_id}/cost-items/#{cost_item_id}")
+                      .payload(input)
+                      .after_error_response(/.*/) do |_code, body, _header, message|
+                        error("#{message}: #{body}")
+                      end.merge(hub_id: hub_id, container_id: container_id)
+                   end
+      end,
+
+      output_fields: lambda do |object_definitions|
+        [
+          { name: 'hub_id' },
+          { name: 'container_id' }
+        ]
+        .concat(object_definitions['cost_item'])
+      end,
+
+      sample_output: lambda do |_connection, input|
+        container_id = get("/project/v1/hubs/#{input['hub_id']}/projects/#{input['project_id']}")
+                        .dig('data', 'relationships', 'cost', 'data', 'id') || {}
+        (get("/cost/v1/containers/#{container_id}/cost-items?limit=1") || {})
+          .dig('results', 0).merge(hub_id: input['hub_id'], container_id: container_id)
+      end
+    },
+
   },
 
   triggers: {
