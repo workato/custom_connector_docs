@@ -4818,6 +4818,400 @@
       end
     },
 
+    get_cost_attachments_in_project: {
+      title: 'Get cost attachments in a project',
+
+      description: 'Get <span class="provider">cost attachments</span>' \
+      ' in a project in <span class="provider">BIM 360</span>',
+
+      help: {
+        body: 'This action returns all attachments associated with a cost in a project.'
+      },
+
+      input_fields: lambda do |_object_definitions|
+        [
+          {
+            name: 'hub_id',
+            label: 'Hub',
+            control_type: 'select',
+            pick_list: 'hub_list',
+            optional: false,
+            toggle_hint: 'Select hub',
+            toggle_field: {
+              name: 'hub_id',
+              label: 'Hub ID',
+              type: 'string',
+              change_on_blur: true,
+              control_type: 'text',
+              toggle_hint: 'Enter hub ID',
+              hint: 'Get account ID from admin page. To convert an account ID into a hub ID you need to add a “b.” prefix. For example, an account ID of '\
+              '<b>c8b0c73d-3ae9</b> translates to a hub ID of <b>b.c8b0c73d-3ae9</b>.'
+            }
+          },
+          {
+            name: 'project_id',
+            label: 'Project',
+            control_type: 'select',
+            pick_list: 'project_list',
+            pick_list_params: { hub_id: 'hub_id' },
+            optional: false,
+            toggle_hint: 'Select project',
+            toggle_field: {
+              name: 'project_id',
+              label: 'Project ID',
+              change_on_blur: true,
+              type: 'string',
+              control_type: 'text',
+              toggle_hint: 'Enter project ID',
+              hint: 'Get ID from url of the project page. For example, a project ID is <b>b.baf-0871-4aca-82e8-3dd6db</b>.'
+            }
+          },
+          {
+            name: 'associationId',
+            label: 'Object ID',
+            optional: false,
+            sticky: true,
+            hint: 'Object ID of the budget, contract, or cost item.'
+          },
+          {
+            name: 'associationType',
+            label: 'Object Type',
+            optional: false,
+            sticky: true,
+            control_type: 'select',
+            pick_list: 'cost_association_types',
+            toggle_hint: 'Select object type',
+            toggle_field: {
+              name: 'associationType',
+              label: 'Object Type',
+              type: 'string',
+              change_on_blur: true,
+              control_type: 'text',
+              toggle_hint: 'Enter object type',
+              hint: 'Possible values are: Budget, Contract, CostItem, ' \
+              'FormInstance, Payment, BudgetPayment'
+            }
+          }
+        ]
+      end,
+
+      execute: lambda do |_connection, input|
+        container_id = get("/project/v1/hubs/#{input.delete('hub_id')}/projects/#{input.delete('project_id')}")
+                        .dig('data', 'relationships', 'cost', 'data', 'id')
+
+        response = if container_id.present?
+                     get("/cost/v1/containers/#{container_id}/attachments", input)
+                       .after_error_response(/.*/) do |_code, body, _header, message|
+                         error("#{message}: #{body}")
+                       end
+                   end
+        { results: response }
+      end,
+
+      output_fields: lambda do |object_definitions|
+        [
+          { name: 'results', type: 'array', 
+            of: 'object', properties: object_definitions['cost_attachment'] }
+        ]
+      end,
+
+      sample_output: lambda do |_connection, input|
+        {
+          results: [
+            {
+              "id": "F2D2ED17-C763-465B-8FAB-251C5A35D42F",
+              "folderId": "8E34872D-A56F-4096-B675-476F50F4EF51",
+              "urn": "urn:adsk.wipprod:fs.file:vf.PMbRnoPZR2mKDhau2uw4SQ?version=1",
+              "type": "Upload",
+              "name": "Architecture",
+              "associationId": "EDC42DF6-277A-436A-A50D-EF57F35E1248",
+              "associationType": "Budget",
+              "createdAt": "2019-01-06T01:24:22.678Z",
+              "updatedAt": "2019-09-05T01:00:12.989Z"
+            }
+          ]
+        }
+      end
+    },
+
+    create_cost_attachment_in_project: {
+      title: 'Create cost attachment in a project',
+
+      description: 'Create <span class="provider">cost attachment</span>' \
+      ' in a project in <span class="provider">BIM 360</span>',
+
+      help: {
+        body: 'This action creates an attachment to a cost object in a project.'
+      },
+
+      input_fields: lambda do |_object_definitions|
+        [
+          {
+            name: 'hub_id',
+            label: 'Hub',
+            control_type: 'select',
+            pick_list: 'hub_list',
+            optional: false,
+            toggle_hint: 'Select hub',
+            toggle_field: {
+              name: 'hub_id',
+              label: 'Hub ID',
+              type: 'string',
+              change_on_blur: true,
+              control_type: 'text',
+              toggle_hint: 'Enter hub ID',
+              hint: 'Get account ID from admin page. To convert an account ID into a hub ID you need to add a “b.” prefix. For example, an account ID of '\
+              '<b>c8b0c73d-3ae9</b> translates to a hub ID of <b>b.c8b0c73d-3ae9</b>.'
+            }
+          },
+          {
+            name: 'project_id',
+            label: 'Project',
+            control_type: 'select',
+            pick_list: 'project_list',
+            pick_list_params: { hub_id: 'hub_id' },
+            optional: false,
+            toggle_hint: 'Select project',
+            toggle_field: {
+              name: 'project_id',
+              label: 'Project ID',
+              change_on_blur: true,
+              type: 'string',
+              control_type: 'text',
+              toggle_hint: 'Enter project ID',
+              hint: 'Get ID from url of the project page. For example, a project ID is <b>b.baf-0871-4aca-82e8-3dd6db</b>.'
+            }
+          },
+          {
+            name: 'name',
+            optional: false,
+            sticky: true,
+            hint: 'Name of the attachment. Max length of 255 characters.'
+          },
+          {
+            name: 'urn',
+            optional: false,
+            sticky: true,
+            hint: 'Version URN of the BIM 360 Docs file.'
+          },
+          {
+            name: 'associationId',
+            optional: false,
+            sticky: true,
+            hint: 'Object ID of the budget, contract, or cost item.'
+          },
+          {
+            name: 'associationType',
+            label: 'Object Type',
+            optional: false,
+            sticky: true,
+            control_type: 'select',
+            pick_list: 'cost_association_types',
+            toggle_hint: 'Select object type',
+            toggle_field: {
+              name: 'associationType',
+              label: 'Object Type',
+              type: 'string',
+              change_on_blur: true,
+              control_type: 'text',
+              toggle_hint: 'Enter object type',
+              hint: 'Possible values are: Budget, Contract, CostItem,' \
+              ' FormInstance, Payment, BudgetPayment'
+            }
+          }
+        ]
+      end,
+
+      execute: lambda do |_connection, input|
+        hub_id = input.delete('hub_id')
+        project_id = input.delete('project_id')
+        container_id = get("/project/v1/hubs/#{hub_id}/projects/#{project_id}")
+                        .dig('data', 'relationships', 'cost', 'data', 'id')
+
+        attachment_folder = post("/cost/v1/containers/#{container_id}/attachment-folders")
+                              .payload(
+                                'associationId' => input['associationId'],
+                                'associationType' => input['associationType']
+                              )
+                              .dig('id')
+
+        response = if container_id.present?
+                     post("/cost/v1/containers/#{container_id}/attachments")
+                       .payload(
+                          'name': input['name'],
+                          'folderId': attachment_folder,
+                          'urn': input['urn'],
+                          'associationId': input['associationId'],
+                          'associationType': input['associationType']
+                        )
+                        .after_error_response(/.*/) do |_code, body, _header, message|
+                          error("#{message}: #{body}")
+                       end.merge(hub_id: hub_id, container_id: container_id)
+                   end
+      end,
+
+      output_fields: lambda do |object_definitions|
+        [
+          { name: 'hub_id' },
+          { name: 'container_id' }
+        ]
+        .concat(object_definitions['cost_attachment'])
+      end,
+
+      sample_output: lambda do |_connection, input|
+        {
+          'id': 'F2D2ED17-C763-465B-8FAB-251C5A35D42F',
+          'folderId': '8E34872D-A56F-4096-B675-476F50F4EF51',
+          'urn': 'urn:adsk.wipprod:fs.file:vf.PMbRnoPZR2mKDhau2uw4SQ?version=1',
+          'type': 'Upload',
+          'name': 'Architecture',
+          'associationId': 'EDC42DF6-277A-436A-A50D-EF57F35E1248',
+          'associationType': 'Budget',
+          'createdAt': '2019-01-06T01:24:22.678Z',
+          'updatedAt': '2019-09-05T01:00:12.989Z'
+        }
+      end
+    },
+
+    get_cost_documents_in_project: {
+      title: 'Get cost documents in a project',
+
+      description: 'Get <span class="provider">generated cost documents</span>' \
+      ' in a project in <span class="provider">BIM 360</span>',
+
+      help: {
+        body: 'This action returns generated documents associated with cost in a project.'
+      },
+
+      input_fields: lambda do |_object_definitions|
+        [
+          {
+            name: 'hub_id',
+            label: 'Hub',
+            control_type: 'select',
+            pick_list: 'hub_list',
+            optional: false,
+            toggle_hint: 'Select hub',
+            toggle_field: {
+              name: 'hub_id',
+              label: 'Hub ID',
+              type: 'string',
+              change_on_blur: true,
+              control_type: 'text',
+              toggle_hint: 'Enter hub ID',
+              hint: 'Get account ID from admin page. To convert an account ID into a hub ID you need to add a “b.” prefix. For example, an account ID of '\
+              '<b>c8b0c73d-3ae9</b> translates to a hub ID of <b>b.c8b0c73d-3ae9</b>.'
+            }
+          },
+          {
+            name: 'project_id',
+            label: 'Project',
+            control_type: 'select',
+            pick_list: 'project_list',
+            pick_list_params: { hub_id: 'hub_id' },
+            optional: false,
+            toggle_hint: 'Select project',
+            toggle_field: {
+              name: 'project_id',
+              label: 'Project ID',
+              change_on_blur: true,
+              type: 'string',
+              control_type: 'text',
+              toggle_hint: 'Enter project ID',
+              hint: 'Get ID from url of the project page. For example, a project ID is <b>b.baf-0871-4aca-82e8-3dd6db</b>.'
+            }
+          },
+          {
+            name: 'associationId',
+            label: 'Object ID',
+            optional: false,
+            sticky: true,
+            hint: 'Object ID of the item, such as budget, contract, or cost item.'
+          },
+          {
+            name: 'associationType',
+            label: 'Object Type',
+            optional: false,
+            sticky: true,
+            control_type: 'select',
+            pick_list: 'cost_association_types',
+            toggle_hint: 'Select object type',
+            toggle_field: {
+              name: 'associationType',
+              label: 'Object Type',
+              type: 'string',
+              change_on_blur: true,
+              control_type: 'text',
+              toggle_hint: 'Enter object type',
+              hint: 'Possible values are: Budget, Contract, CostItem, ' \
+              'FormInstance, Payment, BudgetPayment'
+            }
+          },
+          {
+            name: 'filter[latest]',
+            label: 'Latest Version',
+            optional: true,
+            sticky: true,
+            type: 'boolean',
+            hint: 'Return only the latest version of a document if it has ' \
+            'been generated multiple times.'
+          },
+          {
+            name: 'filter[signed]',
+            label: 'Signed Documents',
+            optional: true,
+            sticky: true,
+            type: 'boolean',
+            hint: 'Return only documents that have been signed.'
+          }
+        ]
+      end,
+
+      execute: lambda do |_connection, input|
+        container_id = get("/project/v1/hubs/#{input.delete('hub_id')}/projects/#{input.delete('project_id')}")
+                        .dig('data', 'relationships', 'cost', 'data', 'id')
+
+        response = if container_id.present?
+                     get("/cost/v1/containers/#{container_id}/documents", input)
+                       .after_error_response(/.*/) do |_code, body, _header, message|
+                          error("#{message}: #{body}")
+                       end
+                   end
+        { results: response }
+      end,
+
+      output_fields: lambda do |object_definitions|
+        [
+          { name: 'results', type: 'array', of: 'object', 
+            properties: object_definitions['cost_document'] }
+        ]
+      end,
+
+      sample_output: lambda do |_connection, input|
+        [
+          {
+            "id": "1df59db0-9484-11e8-a7ec-7ddae203e404",
+            "templateId": "1df59db0-9484-11e8-a7ec-7ddae203e404",
+            "recipientId": "GF8XKPKWM38E",
+            "signedBy": "CED9LVTLHNXV",
+            "urn": "urn:adsk.wipprod:fs.file:vf.PMbRnoPZR2mKDhau2uw4SQ?version=1",
+            "signedUrn": "urn:adsk.wipprod:fs.file:vf.PMbRnoPZR2mKDhau2uw4SQ?version=1",
+            "status": "Completed",
+            "jobId": 1,
+            "errorInfo": {
+              "code": "missingTemplate",
+              "message": "Couldn't generate the document because the template is invalid.",
+              "detail": "Got timeout for POST upload URL."
+            },
+            "associationId": "EDC42DF6-277A-436A-A50D-EF57F35E1248",
+            "associationType": "Budget",
+            "createdAt": "2019-01-06T01:24:22.678Z",
+            "updatedAt": "2019-09-05T01:00:12.989Z"
+          }
+        ]
+      end
+    },
+
   },
 
   triggers: {
