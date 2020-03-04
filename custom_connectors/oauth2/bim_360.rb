@@ -3750,6 +3750,577 @@
       end
     },
 
+    search_change_orders_in_project: {
+      title: 'Search change orders in a project',
+
+      description: 'Search <span class="provider">change orders</span>' \
+      ' in a project in <span class="provider">BIM 360</span>',
+
+      help: {
+        body: 'This action searches for change orders in a project.'
+      },
+
+      input_fields: lambda do |_object_definitions|
+        [
+          {
+            name: 'hub_id',
+            label: 'Hub',
+            control_type: 'select',
+            pick_list: 'hub_list',
+            optional: false,
+            toggle_hint: 'Select hub',
+            toggle_field: {
+              name: 'hub_id',
+              label: 'Hub ID',
+              type: 'string',
+              change_on_blur: true,
+              control_type: 'text',
+              toggle_hint: 'Enter hub ID',
+              hint: 'Get account ID from admin page. To convert an account ID into a hub ID you need to add a “b.” prefix. For example, an account ID of '\
+              '<b>c8b0c73d-3ae9</b> translates to a hub ID of <b>b.c8b0c73d-3ae9</b>.'
+            }
+          },
+          {
+            name: 'project_id',
+            label: 'Project',
+            control_type: 'select',
+            pick_list: 'project_list',
+            pick_list_params: { hub_id: 'hub_id' },
+            optional: false,
+            toggle_hint: 'Select project',
+            toggle_field: {
+              name: 'project_id',
+              label: 'Project ID',
+              change_on_blur: true,
+              type: 'string',
+              control_type: 'text',
+              toggle_hint: 'Enter project ID',
+              hint: 'Get ID from url of the project page. For example, a project ID is <b>b.baf-0871-4aca-82e8-3dd6db</b>.'
+            }
+          },
+          {
+            name: 'type',
+            label: 'Change Order Type',
+            control_type: 'select',
+            pick_list: 'change_order_types',
+            optional: false,
+            sticky: true,
+            toggle_hint: 'Select type',
+            toggle_field: {
+              name: 'type',
+              label: 'Change Order Type',
+              type: 'string',
+              change_on_blur: true,
+              control_type: 'text',
+              toggle_hint: 'Enter type',
+              hint: 'Enter the change order type name. ' \
+              'Possible values are: pco, rfq, rco, oco, sco.'
+            }
+          },
+          {
+            name: 'externalSystem',
+            label: 'External System',
+            hint: 'Filter by name of source if used in system integration.'
+          },
+          {
+            name: 'externalId',
+            label: 'External ID',
+            hint: 'Filter by item ID in the external system. ' \
+            'Separate multiple IDs with commas.'
+          },
+          {
+            name: 'contractId',
+            label: 'Contract ID',
+            hint: 'Filter by contract ID. ' \
+            'Separate multiple IDs with commas.'
+          },
+          {
+            name: 'mainContractId',
+            label: 'Main Contract ID',
+            hint: 'Filter by main contract ID. Separate multiple IDs with commas.'
+          },
+          {
+            name: 'budgetStatus',
+            label: 'Budget Status',
+            hint: 'Filter by budget status code. Separate multiple codes with commas.'
+          },
+          {
+            name: 'costStatus',
+            label: 'Cost Status',
+            hint: 'Filter by cost status code. Separate multiple codes with commas.'
+          },
+          {
+            name: 'include',
+            hint: 'Resources to include in the response.',
+            control_type: 'multiselect',
+            pick_list: [
+              ['Cost Items', 'costItems'],
+              ['Attributes', 'attributes']
+            ],
+            delimiter: ','
+          },
+          {
+            name: 'offset',
+            type: 'number',
+            hint: 'Number of items to skip before starting to collect the result set.'
+          },
+          {
+            name: 'limit',
+            type: 'number',
+            hint: 'Number of items to return.'
+          },
+          {
+            name: 'sort',
+            hint: 'Order of items to sort. Each item can be followed by a direction modifier' \
+            ' of either asc or desc. If no direction is specified then asc is assumed.'
+          }
+        ]
+      end,
+
+      execute: lambda do |_connection, input|
+        filter_criteria = call('format_cost_search', input.except('hub_id', 'project_id'))
+
+        container_id = get("/project/v1/hubs/#{input['hub_id']}/projects/#{input['project_id']}")
+                       .dig('data', 'relationships', 'cost', 'data', 'id')
+
+        response = if container_id.present?
+                     get("/cost/v1/containers/#{container_id}/change-orders/#{input['type']}", filter_criteria)
+                      .after_error_response(/.*/) do |_code, body, _header, message|
+                        error("#{message}: #{body}")
+                      end.merge(hub_id: input['hub_id'], container_id: container_id)
+                   end
+      end,
+
+      output_fields: lambda do |object_definitions|
+        [
+          { name: 'hub_id' },
+          { name: 'container_id' }
+        ]
+        .concat([
+          { name: 'results', type: 'array', of: 'object', properties: object_definitions['change_order'] },
+          { name: 'pagination', type: 'object', properties: [
+            { name: 'totalResults', type: 'number' },
+            { name: 'limit', type: 'number' },
+            { name: 'offset', type: 'number' },
+            { name: 'nextUrl' }
+          ]}
+        ])
+      end,
+
+      sample_output: lambda do |_connection, input|
+        container_id = get("/project/v1/hubs/#{input['hub_id']}/projects/#{input['project_id']}")&.dig('data', 'relationships', 'cost', 'data', 'id') || {}
+        (get("/cost/v1/containers/#{container_id}/change-orders/pco?limit=1") || {})&.merge(hub_id: input['hub_id'], container_id: container_id)
+      end
+    },
+
+    get_change_order_in_project: {
+      title: 'Get change order in a project',
+
+      description: 'Get <span class="provider">change order</span>' \
+      ' in a project in <span class="provider">BIM 360</span>',
+
+      help: {
+        body: 'This action returns a change order in a project.'
+      },
+
+      input_fields: lambda do |_object_definitions|
+        [
+          {
+            name: 'hub_id',
+            label: 'Hub',
+            control_type: 'select',
+            pick_list: 'hub_list',
+            optional: false,
+            toggle_hint: 'Select hub',
+            toggle_field: {
+              name: 'hub_id',
+              label: 'Hub ID',
+              type: 'string',
+              change_on_blur: true,
+              control_type: 'text',
+              toggle_hint: 'Enter hub ID',
+              hint: 'Get account ID from admin page. To convert an account ID into a hub ID you need to add a “b.” prefix. For example, an account ID of '\
+              '<b>c8b0c73d-3ae9</b> translates to a hub ID of <b>b.c8b0c73d-3ae9</b>.'
+            }
+          },
+          {
+            name: 'project_id',
+            label: 'Project',
+            control_type: 'select',
+            pick_list: 'project_list',
+            pick_list_params: { hub_id: 'hub_id' },
+            optional: false,
+            toggle_hint: 'Select project',
+            toggle_field: {
+              name: 'project_id',
+              label: 'Project ID',
+              change_on_blur: true,
+              type: 'string',
+              control_type: 'text',
+              toggle_hint: 'Enter project ID',
+              hint: 'Get ID from url of the project page. For example, a project ID is <b>b.baf-0871-4aca-82e8-3dd6db</b>.'
+            }
+          },
+          {
+            name: 'type',
+            label: 'Change Order Type',
+            control_type: 'select',
+            pick_list: 'change_order_types',
+            optional: false,
+            sticky: true,
+            toggle_hint: 'Select type',
+            toggle_field: {
+              name: 'type',
+              label: 'Change Order Type',
+              type: 'string',
+              change_on_blur: true,
+              control_type: 'text',
+              toggle_hint: 'Enter type name',
+              hint: 'Enter the change order type name. ' \
+              'Possible values are: pco, rfq, rco, oco, sco.'
+            }
+          },
+          {
+            name: 'id',
+            label: 'Change Order ID',
+            optional: false,
+            sticky: true
+          }
+        ]
+      end,
+
+      execute: lambda do |_connection, input|
+        container_id = get("/project/v1/hubs/#{input['hub_id']}/projects/#{input['project_id']}")
+                       .dig('data', 'relationships', 'cost', 'data', 'id')
+
+        response = if container_id.present?
+                     get("/cost/v1/containers/#{container_id}/change-orders/#{input['type']}/#{input['id']}")
+                      .after_error_response(/.*/) do |_code, body, _header, message|
+                        error("#{message}: #{body}")
+                      end.merge(hub_id: input['hub_id'], container_id: container_id)
+                   end
+      end,
+
+      output_fields: lambda do |object_definitions|
+        [
+          { name: 'hub_id' },
+          { name: 'container_id' }
+        ]
+        .concat(object_definitions['change_order'])
+      end,
+
+      sample_output: lambda do |_connection, input|
+        container_id = get("/project/v1/hubs/#{input['hub_id']}/projects/#{input['project_id']}")
+                        .dig('data', 'relationships', 'cost', 'data', 'id') || {}
+        (get("/cost/v1/containers/#{container_id}/change-orders/pco?limit=1") || {})
+          .dig('results', 0).merge(hub_id: input['hub_id'], container_id: container_id)
+      end
+    },
+
+    create_change_order_in_project: {
+      title: 'Create change order in a project',
+
+      description: 'Create <span class="provider">change order</span>' \
+      ' in a project in <span class="provider">BIM 360</span>',
+
+      help: {
+        body: 'This action creates a change order in a project.'
+      },
+
+      input_fields: lambda do |_object_definitions|
+        [
+          {
+            name: 'hub_id',
+            label: 'Hub',
+            control_type: 'select',
+            pick_list: 'hub_list',
+            optional: false,
+            toggle_hint: 'Select hub',
+            toggle_field: {
+              name: 'hub_id',
+              label: 'Hub ID',
+              type: 'string',
+              change_on_blur: true,
+              control_type: 'text',
+              toggle_hint: 'Enter hub ID',
+              hint: 'Get account ID from admin page. To convert an account ID into a hub ID you need to add a “b.” prefix. For example, an account ID of '\
+              '<b>c8b0c73d-3ae9</b> translates to a hub ID of <b>b.c8b0c73d-3ae9</b>.'
+            }
+          },
+          {
+            name: 'project_id',
+            label: 'Project',
+            control_type: 'select',
+            pick_list: 'project_list',
+            pick_list_params: { hub_id: 'hub_id' },
+            optional: false,
+            toggle_hint: 'Select project',
+            toggle_field: {
+              name: 'project_id',
+              label: 'Project ID',
+              change_on_blur: true,
+              type: 'string',
+              control_type: 'text',
+              toggle_hint: 'Enter project ID',
+              hint: 'Get ID from url of the project page. For example, a project ID is <b>b.baf-0871-4aca-82e8-3dd6db</b>.'
+            }
+          },
+          {
+            name: 'type',
+            label: 'Change Order Type',
+            control_type: 'select',
+            pick_list: 'change_order_types',
+            optional: false,
+            sticky: true,
+            toggle_hint: 'Select type',
+            toggle_field: {
+              name: 'type',
+              label: 'Change Order Type',
+              type: 'string',
+              change_on_blur: true,
+              control_type: 'text',
+              toggle_hint: 'Enter type name',
+              hint: 'Enter the change order type name. ' \
+              'Possible values are: pco, rfq, rco, oco, sco.'
+            }
+          },
+          {
+            name: 'name',
+            sticky: true,
+            hint: 'Name of the change order. Max length of 1024 characters.'
+          },
+          {
+            name: 'description',
+            sticky: true,
+            hint: 'Description of the change order. Max length of 2048 characters.'
+          },
+          {
+            name: 'scope',
+            sticky: true,
+            label: 'Scope',
+            hint: 'Scope of the change order.',
+            control_type: 'select',
+            pick_list: 'change_order_scope',
+            toggle_hint: 'Select scope',
+            toggle_field: {
+              name: 'scope',
+              label: 'Scope',
+              type: 'string',
+              change_on_blur: true,
+              control_type: 'text',
+              toggle_hint: 'Enter type name',
+              hint: 'Enter scope of change order. ' \
+              'Possible values are: out, in, tbd, contigency.'
+            }
+          },
+          {
+            name: 'scopeOfWork',
+            optional: true,
+            sticky: true,
+            hint: 'Scope of work of the change order.'
+          },
+          {
+            name: 'note',
+            optional: true,
+            sticky: true,
+            hint: 'Additional notes to the change order.'
+          }
+        ]
+      end,
+
+      execute: lambda do |_connection, input|
+        hub_id = input.delete('hub_id')
+        project_id = input.delete('project_id')
+        type = input.delete('type')
+
+        container_id = get("/project/v1/hubs/#{hub_id}/projects/#{project_id}")
+                        .dig('data', 'relationships', 'cost', 'data', 'id')
+
+        response = if container_id.present?
+                     post("/cost/v1/containers/#{container_id}/change-orders/#{type}")
+                      .payload(input)
+                      .after_error_response(/.*/) do |_code, body, _header, message|
+                       error("#{message}: #{body}")
+                     end.merge(hub_id: hub_id, container_id: container_id)
+                   end
+      end,
+
+      output_fields: lambda do |object_definitions|
+        [
+          { name: 'hub_id' },
+          { name: 'container_id' }
+        ]
+        .concat(object_definitions['change_order'])
+      end,
+
+      sample_output: lambda do |_connection, input|
+        container_id = get("/project/v1/hubs/#{input['hub_id']}/projects/#{input['project_id']}")
+                        .dig('data', 'relationships', 'cost', 'data', 'id') || {}
+        (get("/cost/v1/containers/#{container_id}/change-orders/pco?limit=1") || {})
+          .dig('results', 0).merge(hub_id: input['hub_id'], container_id: container_id)
+      end
+    },
+
+    update_change_order_in_project: {
+      title: 'Update change order in a project',
+
+      description: 'Update <span class="provider">change order</span>' \
+      ' in a project in <span class="provider">BIM 360</span>',
+
+      help: {
+        body: 'This action updates a change order in a project.'
+      },
+
+      input_fields: lambda do |_object_definitions|
+        [
+          {
+            name: 'hub_id',
+            label: 'Hub',
+            control_type: 'select',
+            pick_list: 'hub_list',
+            optional: false,
+            toggle_hint: 'Select hub',
+            toggle_field: {
+              name: 'hub_id',
+              label: 'Hub ID',
+              type: 'string',
+              change_on_blur: true,
+              control_type: 'text',
+              toggle_hint: 'Enter hub ID',
+              hint: 'Get account ID from admin page. To convert an account ID into a hub ID you need to add a “b.” prefix. For example, an account ID of '\
+              '<b>c8b0c73d-3ae9</b> translates to a hub ID of <b>b.c8b0c73d-3ae9</b>.'
+            }
+          },
+          {
+            name: 'project_id',
+            label: 'Project',
+            control_type: 'select',
+            pick_list: 'project_list',
+            pick_list_params: { hub_id: 'hub_id' },
+            optional: false,
+            toggle_hint: 'Select project',
+            toggle_field: {
+              name: 'project_id',
+              label: 'Project ID',
+              change_on_blur: true,
+              type: 'string',
+              control_type: 'text',
+              toggle_hint: 'Enter project ID',
+              hint: 'Get ID from url of the project page. For example, a project ID is <b>b.baf-0871-4aca-82e8-3dd6db</b>.'
+            }
+          },
+          {
+            name: 'type',
+            label: 'Change Order Type',
+            control_type: 'select',
+            pick_list: 'change_order_types',
+            optional: false,
+            sticky: true,
+            toggle_hint: 'Select type',
+            toggle_field: {
+              name: 'type',
+              label: 'Change Order Type',
+              type: 'string',
+              change_on_blur: true,
+              control_type: 'text',
+              toggle_hint: 'Enter type name',
+              hint: 'Enter the change order type name. ' \
+              'Possible values are: pco, rfq, rco, oco, sco.'
+            }
+          },
+          {
+            name: 'id',
+            label: 'Change Order ID',
+            optional: false,
+            sticky: true,
+            hint: 'ID of the change order. Max length of 1024 characters.'
+          },
+          {
+            name: 'name',
+            sticky: true,
+            hint: 'Name of the change order. Max length of 1024 characters.'
+          },
+          {
+            name: 'description',
+            sticky: true,
+            hint: 'Description of the change order. Max length of 2048 characters.'
+          },
+          {
+            name: 'scope',
+            sticky: true,
+            label: 'Scope',
+            hint: 'Scope of the change order.',
+            control_type: 'select',
+            pick_list: 'change_order_scope',
+            toggle_hint: 'Select scope',
+            toggle_field: {
+              name: 'scope',
+              label: 'Scope',
+              type: 'string',
+              change_on_blur: true,
+              control_type: 'text',
+              toggle_hint: 'Enter type name',
+              hint: 'Enter scope of change order. ' \
+              'Possible values are: out, in, tbd, contigency.'
+            }
+          },
+          {
+            name: 'scopeOfWork',
+            sticky: true,
+            hint: 'Scope of work of the change order.'
+          },
+          {
+            name: 'note',
+            sticky: true,
+            hint: 'Additional notes to the change order.'
+          },
+          {
+            name: 'recipients',
+            sticky: true,
+            hint: 'Users who will receive the generated documents.',
+            type: 'array', of: 'object', properties: [
+              { name: 'id', hint: 'ID of the user in BIM 360.' },
+              { name: 'isDefault', type: 'boolean', hint: 'Indicate whether the user is the default recipient.'}
+            ]
+          }
+        ]
+      end,
+
+      execute: lambda do |_connection, input|
+        hub_id = input.delete('hub_id')
+        project_id = input.delete('project_id')
+        type = input.delete('type')
+        id = input.delete('id')
+
+        container_id = get("/project/v1/hubs/#{hub_id}/projects/#{project_id}")
+                        .dig('data', 'relationships', 'cost', 'data', 'id')
+
+        response = if container_id.present?
+                     patch("/cost/v1/containers/#{container_id}/change-orders/#{type}/#{id}")
+                      .payload(input)
+                      .after_error_response(/.*/) do |_code, body, _header, message|
+                       error("#{message}: #{body}")
+                     end.merge(hub_id: hub_id, container_id: container_id)
+                   end
+      end,
+
+      output_fields: lambda do |object_definitions|
+        [
+          { name: 'hub_id' },
+          { name: 'container_id' }
+        ]
+        .concat(object_definitions['change_order'])
+      end,
+
+      sample_output: lambda do |_connection, input|
+        container_id = get("/project/v1/hubs/#{input['hub_id']}/projects/#{input['project_id']}")
+                        .dig('data', 'relationships', 'cost', 'data', 'id') || {}
+
+        (get("/cost/v1/containers/#{container_id}/change-orders/pco?limit=1") || {})
+          .dig('results', 0).merge(hub_id: input['hub_id'], container_id: container_id)
+      end
+    },
+
   },
 
   triggers: {
@@ -4134,6 +4705,10 @@
         ['Executed', 'executed'],
         ['Closed', 'closed']
       ]
+    end,
+
+    change_order_scope: lambda do |_connection|
+      %w[in out tbd contigency]&.map { |el| [el.labelize, el] }
     end
   }
 }
