@@ -5613,7 +5613,401 @@
       sample_output: lambda do |_connection, input|
         get("/data/v1/projects/#{input['project_id']}/folders/#{input['folder_id']}/contents?page[limit]=1")&.dig('data', 0) || {}
       end
+    },
+
+    new_updated_budget_in_project: {
+      title: 'New or updated budget in a project',
+
+      description: 'New or updated <span class="provider">budget</span> in a project in <span class="provider">BIM 360</span>',
+
+      help: {
+        body: 'Triggers when a budget in a project is created or updated.'
+      },
+
+      input_fields: lambda do |_object_definitions|
+        [
+          {
+            name: 'hub_id',
+            label: 'Hub name',
+            control_type: 'select',
+            pick_list: 'hub_list',
+            optional: false
+          },
+          {
+            name: 'project_id',
+            label: 'Project name',
+            control_type: 'select',
+            pick_list: 'project_list',
+            pick_list_params: { hub_id: 'hub_id' },
+            optional: false
+          },
+          {
+            name: 'since',
+            label: 'When first started, this recipe should pick up events from',
+            hint: 'When you start recipe for the first time, ' \
+            'it picks up trigger events from this specified date and time. ' \
+            'Leave empty to get records created or updated one hour ago',
+            sticky: true,
+            type: 'timestamp'
+          }
+        ]
+      end,
+
+      poll: lambda do |_connection, input, closure|
+        closure ||= {}
+        updated_after = closure['updated_after'] || (input['since'] || 1.hour.ago).to_time.utc.iso8601
+        limit = 100
+
+        response = if closure['next_page_url'].present?
+                     get(closure['next_page_url'])
+                   else
+                     closure['container_id'] ||= get("/project/v1/hubs/#{input['hub_id']}/projects/#{input['project_id']}")&.
+                                                   dig('data', 'relationships', 'cost', 'data', 'id')
+
+                     get("/cost/v1/containers/#{closure['container_id']}/budgets").
+                       params(limit: limit,
+                              offset: closure['offset'] || 0,
+                              filter: { lastModifiedSince: updated_after },
+                              sort: 'updatedAt')
+                   end
+
+        if (next_page_url = response.dig('pagination', 'nextUrl')).present?
+          closure['next_page_url'] = next_page_url
+        else
+          closure['offset'] = 0
+          closure['updated_after'] = (Array.wrap(response['results']).last||{}).dig('updatedAt')
+        end
+
+        records = response['results']&.map do |out|
+          out.merge(project_id: input['project_id'], hub_id: input['hub_id'])
+        end
+        {
+          events: records || [],
+          next_poll: closure,
+          can_poll_more: response.dig('pagination', 'nextUrl').present?
+        }
+
+      end,
+
+      dedup: lambda do |record|
+        "#{record['id']}@#{record.dig('updatedAt')}"
+      end,
+
+      output_fields: lambda do |object_definitions|
+        [
+          { name: 'hub_id' },
+          { name: 'project_id' }
+        ].concat(object_definitions['budget']).compact
+      end,
+
+      sample_output: lambda do |_connection, input|
+        container_id = get("/project/v1/hubs/#{input['hub_id']}/projects/#{input['project_id']}")
+                        .dig('data', 'relationships', 'cost', 'data', 'id') || {}
+
+        (get("/cost/v1/containers/#{container_id}/budgets?limit]=1")&.dig('results', 0) || {})
+          .merge(hub_id: input['hub_id'], project_id: input['project_id'])
+      end
+    },
+
+    new_updated_contract_in_project: {
+      title: 'New or updated contract in a project',
+
+      description: 'New or updated <span class="provider">contract</span> in a project in <span class="provider">BIM 360</span>',
+
+      help: {
+        body: 'Triggers when a contract in a project is created or updated.'
+      },
+
+      input_fields: lambda do |_object_definitions|
+        [
+          {
+            name: 'hub_id',
+            label: 'Hub name',
+            control_type: 'select',
+            pick_list: 'hub_list',
+            optional: false
+          },
+          {
+            name: 'project_id',
+            label: 'Project name',
+            control_type: 'select',
+            pick_list: 'project_list',
+            pick_list_params: { hub_id: 'hub_id' },
+            optional: false
+          },
+          {
+            name: 'since',
+            label: 'When first started, this recipe should pick up events from',
+            hint: 'When you start recipe for the first time, ' \
+            'it picks up trigger events from this specified date and time. ' \
+            'Leave empty to get records created or updated one hour ago',
+            sticky: true,
+            type: 'timestamp'
+          }
+        ]
+      end,
+
+      poll: lambda do |_connection, input, closure|
+        closure ||= {}
+        updated_after = closure['updated_after'] || (input['since'] || 1.hour.ago).to_time.utc.iso8601
+        limit = 100
+
+        response = if closure['next_page_url'].present?
+                     get(closure['next_page_url'])
+                   else
+                     closure['container_id'] ||= get("/project/v1/hubs/#{input['hub_id']}/projects/#{input['project_id']}")&.
+                                                   dig('data', 'relationships', 'cost', 'data', 'id')
+
+                     get("/cost/v1/containers/#{closure['container_id']}/contracts").
+                       params(limit: limit,
+                              offset: closure['offset'] || 0,
+                              filter: { lastModifiedSince: updated_after },
+                              sort: 'updatedAt')
+                   end
+
+        if (next_page_url = response.dig('pagination', 'nextUrl')).present?
+          closure['next_page_url'] = next_page_url
+        else
+          closure['offset'] = 0
+          closure['updated_after'] = (Array.wrap(response['results']).last||{}).dig('updatedAt')
+        end
+
+        records = response['results']&.map do |out|
+          out.merge(project_id: input['project_id'], hub_id: input['hub_id'])
+        end
+        {
+          events: records || [],
+          next_poll: closure,
+          can_poll_more: response.dig('pagination', 'nextUrl').present?
+        }
+
+      end,
+
+      dedup: lambda do |record|
+        "#{record['id']}@#{record.dig('updatedAt')}"
+      end,
+
+      output_fields: lambda do |object_definitions|
+        [
+          { name: 'hub_id' },
+          { name: 'project_id' }
+        ].concat(object_definitions['contract']).compact
+      end,
+
+      sample_output: lambda do |_connection, input|
+        container_id = get("/project/v1/hubs/#{input['hub_id']}/projects/#{input['project_id']}")
+                        .dig('data', 'relationships', 'cost', 'data', 'id') || {}
+
+        (get("/cost/v1/containers/#{container_id}/contracts?limit]=1")&.dig('results', 0) || {})
+          .merge(hub_id: input['hub_id'], project_id: input['project_id'])
+      end
+    },
+
+    new_updated_change_order_in_project: {
+      title: 'New or updated change order in a project',
+
+      description: 'New or updated <span class="provider">change order</span> in a project in <span class="provider">BIM 360</span>',
+
+      help: {
+        body: 'Triggers when a change order in a project is created or updated.'
+      },
+
+      input_fields: lambda do |_object_definitions|
+        [
+          {
+            name: 'hub_id',
+            label: 'Hub name',
+            control_type: 'select',
+            pick_list: 'hub_list',
+            optional: false
+          },
+          {
+            name: 'project_id',
+            label: 'Project name',
+            control_type: 'select',
+            pick_list: 'project_list',
+            pick_list_params: { hub_id: 'hub_id' },
+            optional: false
+          },
+          {
+            name: 'type',
+            label: 'Change Order Type',
+            control_type: 'select',
+            pick_list: 'change_order_types',
+            optional: false,
+            sticky: true,
+            toggle_hint: 'Select type',
+            toggle_field: {
+              name: 'type',
+              label: 'Change Order Type',
+              type: 'string',
+              change_on_blur: true,
+              control_type: 'text',
+              toggle_hint: 'Enter type name'
+            }
+          },
+          {
+            name: 'since',
+            label: 'When first started, this recipe should pick up events from',
+            hint: 'When you start recipe for the first time, ' \
+            'it picks up trigger events from this specified date and time. ' \
+            'Leave empty to get records created or updated one hour ago',
+            sticky: true,
+            type: 'timestamp'
+          }
+        ]
+      end,
+
+      poll: lambda do |_connection, input, closure|
+        closure ||= {}
+        updated_after = closure['updated_after'] || (input['since'] || 1.hour.ago).to_time.utc.iso8601
+        limit = 100
+
+        response = if closure['next_page_url'].present?
+                     get(closure['next_page_url'])
+                   else
+                     closure['container_id'] ||= get("/project/v1/hubs/#{input['hub_id']}/projects/#{input['project_id']}")&.
+                                                   dig('data', 'relationships', 'cost', 'data', 'id')
+
+                     get("/cost/v1/containers/#{closure['container_id']}/change-orders/#{input['type']}").
+                       params(limit: limit,
+                              offset: closure['offset'] || 0,
+                              filter: { lastModifiedSince: updated_after },
+                              sort: 'updatedAt')
+                   end
+
+        if (next_page_url = response.dig('pagination', 'nextUrl')).present?
+          closure['next_page_url'] = next_page_url
+        else
+          closure['offset'] = 0
+          closure['updated_after'] = (Array.wrap(response['results']).last||{}).dig('updatedAt')
+        end
+
+        records = response['results']&.map do |out|
+          out.merge(project_id: input['project_id'], hub_id: input['hub_id'])
+        end
+        {
+          events: records || [],
+          next_poll: closure,
+          can_poll_more: response.dig('pagination', 'nextUrl').present?
+        }
+
+      end,
+
+      dedup: lambda do |record|
+        "#{record['id']}@#{record.dig('updatedAt')}"
+      end,
+
+      output_fields: lambda do |object_definitions|
+        [
+          { name: 'hub_id' },
+          { name: 'project_id' }
+        ].concat(object_definitions['change_order']).compact
+      end,
+
+      sample_output: lambda do |_connection, input|
+        container_id = get("/project/v1/hubs/#{input['hub_id']}/projects/#{input['project_id']}")
+                        .dig('data', 'relationships', 'cost', 'data', 'id') || {}
+
+        (get("/cost/v1/containers/#{container_id}/change-orders/pco?limit]=1")&.dig('results', 0) || {})
+          .merge(hub_id: input['hub_id'], project_id: input['project_id'])
+      end
+    },
+
+    new_updated_cost_item_in_project: {
+      title: 'New or updated cost item in a project',
+
+      description: 'New or updated <span class="provider">cost item</span> in a project in <span class="provider">BIM 360</span>',
+
+      help: {
+        body: 'Triggers when a cost item in a project is created or updated.'
+      },
+
+      input_fields: lambda do |_object_definitions|
+        [
+          {
+            name: 'hub_id',
+            label: 'Hub name',
+            control_type: 'select',
+            pick_list: 'hub_list',
+            optional: false
+          },
+          {
+            name: 'project_id',
+            label: 'Project name',
+            control_type: 'select',
+            pick_list: 'project_list',
+            pick_list_params: { hub_id: 'hub_id' },
+            optional: false
+          },
+          {
+            name: 'since',
+            label: 'When first started, this recipe should pick up events from',
+            hint: 'When you start recipe for the first time, ' \
+            'it picks up trigger events from this specified date and time. ' \
+            'Leave empty to get records created or updated one hour ago',
+            sticky: true,
+            type: 'timestamp'
+          }
+        ]
+      end,
+
+      poll: lambda do |_connection, input, closure|
+        closure ||= {}
+        updated_after = closure['updated_after'] || (input['since'] || 1.hour.ago).to_time.utc.iso8601
+        limit = 100
+
+        response = if closure['next_page_url'].present?
+                     get(closure['next_page_url'])
+                   else
+                     closure['container_id'] ||= get("/project/v1/hubs/#{input['hub_id']}/projects/#{input['project_id']}")&.
+                                                   dig('data', 'relationships', 'cost', 'data', 'id')
+
+                     get("/cost/v1/containers/#{closure['container_id']}/cost-items").
+                       params(limit: limit,
+                              offset: closure['offset'] || 0,
+                              filter: { lastModifiedSince: updated_after },
+                              sort: 'updatedAt')
+                   end
+
+        if (next_page_url = response.dig('pagination', 'nextUrl')).present?
+          closure['next_page_url'] = next_page_url
+        else
+          closure['offset'] = 0
+          closure['updated_after'] = (Array.wrap(response['results']).last||{}).dig('updatedAt')
+        end
+
+        records = response['results']&.map do |out|
+          out.merge(project_id: input['project_id'], hub_id: input['hub_id'])
+        end
+        {
+          events: records || [],
+          next_poll: closure,
+          can_poll_more: response.dig('pagination', 'nextUrl').present?
+        }
+
+      end,
+
+      dedup: lambda do |record|
+        "#{record['id']}@#{record.dig('updatedAt')}"
+      end,
+
+      output_fields: lambda do |object_definitions|
+        [
+          { name: 'hub_id' },
+          { name: 'project_id' }
+        ].concat(object_definitions['cost_item']).compact
+      end,
+
+      sample_output: lambda do |_connection, input|
+        container_id = get("/project/v1/hubs/#{input['hub_id']}/projects/#{input['project_id']}")
+                        .dig('data', 'relationships', 'cost', 'data', 'id') || {}
+
+        (get("/cost/v1/containers/#{container_id}/cost-items?limit]=1")&.dig('results', 0) || {})
+          .merge(hub_id: input['hub_id'], project_id: input['project_id'])
+      end
     }
+
   },
 
   pick_lists: {
