@@ -83,7 +83,8 @@
           value = call('format_search', value)
           if %w[rootId externalSystem externalId code
                 contractId mainContractId budgetStatus costStatus
-                changeOrderId budgetId associationId associationType].include?(key)
+                changeOrderId budgetId associationId associationType
+                latest signed lastModifiedSince].include?(key)
             hash["filter[#{key}]"] = value
           else
             hash[key] = value
@@ -2813,6 +2814,11 @@
             hint: 'Number of items to return.'
           },
           {
+            name: 'lastModifiedSince',
+            hint: 'Filter to include only items updated since this datetime.',
+            type: 'date_time'
+          },
+          {
             name: 'sort',
             hint: 'Order of items to sort. Each item can be followed by a direction modifier' \
             ' of either asc or desc. If no direction is specified then asc is assumed.'
@@ -3326,6 +3332,21 @@
             name: 'limit',
             type: 'number',
             hint: 'Number of items to return.'
+          },
+          {
+            name: 'lastModifiedSince',
+            hint: 'Filter to include only items updated since this datetime.',
+            type: 'date_time'
+          },
+          {
+            name: 'lastModifiedSince',
+            hint: 'Filter to include only items updated since this datetime.',
+            type: 'date_time'
+          },
+          {
+            name: 'lastModifiedSince',
+            hint: 'Filter to include only items updated since this datetime.',
+            type: 'date_time'
           },
           {
             name: 'sort',
@@ -3870,6 +3891,16 @@
             name: 'limit',
             type: 'number',
             hint: 'Number of items to return.'
+          },
+          {
+            name: 'lastModifiedSince',
+            hint: 'Filter to include only items updated since this datetime.',
+            type: 'date_time'
+          },
+          {
+            name: 'lastModifiedSince',
+            hint: 'Filter to include only items updated since this datetime.',
+            type: 'date_time'
           },
           {
             name: 'sort',
@@ -4893,16 +4924,24 @@
               hint: 'Possible values are: Budget, Contract, CostItem, ' \
               'FormInstance, Payment, BudgetPayment'
             }
+          },
+          {
+            name: 'lastModifiedSince',
+            hint: 'Filter to include only items updated since this datetime.',
+            type: 'date_time'
           }
         ]
       end,
 
       execute: lambda do |_connection, input|
+        filter_criteria = call('format_cost_search', input.except('hub_id', 'project_id', 'associationId', 'associationType'))
         container_id = get("/project/v1/hubs/#{input.delete('hub_id')}/projects/#{input.delete('project_id')}")
                         .dig('data', 'relationships', 'cost', 'data', 'id')
 
+        filter_criteria['associationType'] = input['associationType']
+        filter_criteria['associationId'] = input['associationId']
         response = if container_id.present?
-                     get("/cost/v1/containers/#{container_id}/attachments", input)
+                     get("/cost/v1/containers/#{container_id}/attachments", filter_criteria)
                        .after_error_response(/.*/) do |_code, body, _header, message|
                          error("#{message}: #{body}")
                        end
@@ -5165,16 +5204,24 @@
             type: 'boolean',
             control_type: 'checkbox',
             hint: 'Return only documents that have been signed.'
+          },
+          {
+            name: 'lastModifiedSince',
+            hint: 'Filter to include only items updated since this datetime.',
+            type: 'date_time'
           }
         ]
       end,
 
       execute: lambda do |_connection, input|
+        filter_criteria = call('format_cost_search', input.except('hub_id', 'project_id', 'associationId', 'associationType'))
         container_id = get("/project/v1/hubs/#{input.delete('hub_id')}/projects/#{input.delete('project_id')}")
                         .dig('data', 'relationships', 'cost', 'data', 'id')
 
+        filter_criteria['associationType'] = input['associationType']
+        filter_criteria['associationId'] = input['associationId']
         response = if container_id.present?
-                     get("/cost/v1/containers/#{container_id}/documents", input)
+                     get("/cost/v1/containers/#{container_id}/documents", filter_criteria)
                        .after_error_response(/.*/) do |_code, body, _header, message|
                           error("#{message}: #{body}")
                        end
@@ -5373,6 +5420,11 @@
               hint: 'Possible values are: Budget, Contract, CostItem, ' \
               'FormInstance, Payment, BudgetPayment'
             }
+          },
+          {
+            name: 'lastModifiedSince',
+            hint: 'Filter to include only items updated since this datetime.',
+            type: 'date_time'
           }
         ]
       end,
