@@ -499,6 +499,22 @@
               ]
             },
             {
+              name: 'custom_items', label: 'Custom Form Items', type: 'array',
+              of: 'object', properties: [
+                { name: 'section_label', label: 'Section Name' },
+                { name: 'item_label', label: 'Item Label' },
+                { name: 'value_name', label: 'Value Name' },
+                { name: 'notes' },
+                { name: 'text_val', label: 'Text Value' },
+                { name: 'choice_val', label: 'Choice Value' },
+                { name: 'number_val', label: 'Number Value', type: 'number' },
+                { name: 'date_val', label: 'Date Value', type: 'date_time' },
+                { name: 'array_val', label: 'Array Value', type: 'array',
+                  of: 'string' },
+                { name: 'toggle_val', label: 'Toggle Value', type: 'integer' }
+              ]
+            },
+            {
               name: 'attachments', type: 'object', properties: [
                 { name: 'total_count', type: 'integer' },
                 { name: 'url' }
