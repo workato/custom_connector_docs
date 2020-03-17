@@ -69,6 +69,8 @@
           ]
         when 'field_report'
           [
+            { name: 'template_uid', label: 'Field Report Template ID',
+              hint: 'Only retrieve field reports for the specified template ID.'},
             { name: 'report_date_min', type: 'date',
               label: 'Report Start Date',
               hint: 'Only retrieve field reports between a date range starting with this date in UTC format.' },
