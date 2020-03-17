@@ -77,6 +77,10 @@
               hint: 'Only retrieve field reports between a date range ending with this date in UTC format.' },
             { name: 'updated_after', label: 'Updated After', type: 'date_time',
               hint: 'Only retrieve field reports created/updated after specified UTC date and time.' },
+            { name: 'skip', type: 'integer',
+              hint: 'Number of records to skip.' },
+            { name: 'limit', type: 'integer',
+              hint: 'Number of records to retrieve.' },
             {
               name: 'sort_by', label: 'Sort by column', control_type: 'select',
               pick_list:
@@ -106,6 +110,17 @@
               hint: 'Manually define the values expected of your PDF field values in the field report.',
               optional: true
             }
+          ]
+        when 'field_report_template'
+          [
+            { name: 'updated_after', label: 'Updated After', type: 'date_time',
+              hint: 'Only retrieve field reports created/updated after specified UTC date and time.' },
+            { name: 'updated_before', label: 'Updated Before', type: 'date_time',
+              hint: 'Only retrieve field reports created/updated before specified UTC date and time.' },
+            { name: 'skip', type: 'integer',
+              hint: 'Number of records to skip.' },
+            { name: 'limit', type: 'integer',
+              hint: 'Number of records to retrieve.' }
           ]
         when 'role', 'project'
           []
@@ -557,6 +572,41 @@
                 { name: 'wind_speed', type: 'number' }
               ]
             }
+          ]
+        when 'field_report_template'
+          [
+            { name: 'uid', label: 'Field Report Template ID' },
+            { name: 'name' },
+            { name: 'field_reports', label: 'Field Reports',
+              type: 'object', properties: [
+                { name: 'url' }
+              ]
+            },
+            { name: 'is_pdf', label: 'Is PDF', type: 'boolean' },
+            { name: 'pdf_url', label: 'PDF URL' },
+            { name: 'template_type', label: 'Template Type' },
+            { name: 'status' },
+            { name: 'group_permissions', label: 'Group Permissions',
+              type: 'array', of: 'object', properties: [
+                { name: 'permissions', type: 'array', of: 'string' },
+                { name: 'role_name', label: 'Role Name' },
+                { name: 'role_uid', label: 'Role UID' }
+              ]
+            },
+            { name: 'user_permissions', label: 'User Permissions',
+              type: 'array', of: 'object', properties: [
+                { name: 'permissions', type: 'array', of:' string' },
+                { name: 'user_id', label: 'User UID'}
+              ]
+            },
+            { name: 'created_by', label: 'Created By', type: 'object',
+              properties: [
+                { name: 'email' },
+                { name: 'uid' },
+                { name: 'url' }
+              ]
+            },
+            { name: 'updated_at', label: 'Updated At', type: 'date_time' }
           ]
         when 'rfi'
           [
@@ -1691,15 +1741,18 @@
           end
         case input['object']
         when 'rfi_status'
-          { data: get("/projects/#{input['project_uid']}/rfis/statuses", params)['data'] }
+          response = get("/projects/#{input['project_uid']}/rfis/statuses", params)
+          { data: response['data'], total_count: response['total_count'], next_page_url: response['next_page_url'] }
         when 'field_report'
-          results = get("/projects/#{input['project_uid']}/#{input['object'].pluralize}", params)['data']
+          response = get("/projects/#{input['project_uid']}/#{input['object'].pluralize}", params)
+          results = response['data']
           results.map do |field_report|
             field_report.merge('pdf_form_fields' => field_report['pdf_form_values']&.map { |a| { a['name'] => a['value'] } }&.inject(:merge))
           end
-          { data: results }
+          { data: results, total_count: response['total_count'], next_page_url: response['next_page_url'] }
         else
-          { data: get("/projects/#{input['project_uid']}/#{input['object'].pluralize}", params)['data'] }
+          response = get("/projects/#{input['project_uid']}/#{input['object'].pluralize}", params)
+          { data: response['data'], total_count: response['total_count'], next_page_url: response['next_page_url'] }
         end.merge('project_uid' => input['project_uid'])
       end,
 
@@ -1707,7 +1760,9 @@
         [
           {
             name: 'data', type: 'array', of: 'object', properties: object_definitions['get_output_schema']
-          }
+          },
+          { name: 'total_count', label: 'Total Count', type: 'integer' },
+          { name: 'next_page_url', label: 'Next Page URL' }
         ]
       end,
 
@@ -2060,7 +2115,8 @@
     end,
 
     search_objects: lambda do |_connection|
-      [["RFI Status", "rfi_status"], ["Role", "role"], ["Field Report", "field_report"]]
+      [["RFI Status", "rfi_status"], ["Role", "role"], ["Field Report", "field_report"],
+      ["Field Report Template", "field_report_template"]]
     end,
 
     object_list: lambda do |_connection|
