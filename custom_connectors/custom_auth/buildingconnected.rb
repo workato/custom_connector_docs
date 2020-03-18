@@ -40,22 +40,7 @@
         }
       end,
 
-      refresh_on: [401, 403],
-
-      refresh: lambda do |connection|
-        {
-          access_token:
-            post(
-              "https://#{connection['environment']}." \
-               'buildingconnected.com/api-beta/auth/token',
-              grant_type: 'client_credentials'
-            )
-              .user(connection['client_id'])
-              .password(connection['client_secret'])
-              .headers('Content-Type': 'application/json')
-              .dig('access_token')
-        }
-      end,
+      refresh_on: [400, 401, 403],
 
       apply: lambda do |connection|
         headers(Authorization: "Bearer #{connection['access_token']}")
