@@ -537,6 +537,11 @@
                     HINT
             },
             {
+              name: 'file_name',
+              label: 'File Name',
+              optional: false
+            },
+            {
               name: 'content',
               optional: false
             },
@@ -568,7 +573,7 @@
         execute: lambda do |_connection, input, _e_i_s, e_o_s|
           res = post("views/#{input['view_id']}/records/#{input['id']}/files/#{input['field_name']}").
                   headers(enctype: 'multipart/form-data').
-                  payload(file: [input['content'], [input['content_type']]]).
+                  payload(file: [input['content'], input['content_type'], input['file_name']]).
                   request_format_multipart_form.
                   after_error_response(/.*/) do |_code, body, _header, message|
                     error("#{message} : #{body}")
