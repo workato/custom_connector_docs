@@ -235,7 +235,7 @@
       apps: ->(_connection) { get('apps').pluck('name', 'name') },
 
       file_fields: lambda do |_connection, view_id:|
-        file_fields = Array.wrap(get("views/#{view_id}")&.[]('structure')).select { |field| %w(image document).include?(field) }.pluck('name', 'name')
+        file_fields = Array.wrap(get("views/#{view_id}")&.[]('structure')).select { |field| %w(image document).include?(field['type']) }.pluck('name', 'name')
         file_fields.map { |key, value| [key, value.gsub(' ', '%20')] }
       end,
 
