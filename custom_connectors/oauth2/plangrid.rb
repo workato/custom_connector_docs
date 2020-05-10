@@ -2487,6 +2487,9 @@
                    elsif input['object'] == 'field_report'
                      get("/projects/#{input['project_uid']}/#{input['object'].pluralize}").
                        params(limit: limit, skip: skip, updated_after: updated_after)
+                   elsif input['object'] == 'attachment'
+                     get("/projects/#{input['project_uid']}/documents").
+                       params(limit: limit, skip: skip, updated_after: updated_after)
                    else
                      get("/projects/#{input['project_uid']}/#{input['object'].pluralize}").
                        params(limit: limit, skip: skip, updated_after: updated_after)
@@ -2506,6 +2509,10 @@
                       field_report.merge('pdf_form_fields' => field_report['pdf_form_values']&.map { |a| { a['name'] => a['value'] } }&.inject(:merge),
                                          'project_uid' => input['project_uid'])
                     end
+                  elsif input['object'] == 'attachment'
+                    response['data'].select { |o| o['type'] == 'file' }&.map do |document|
+                      get("/projects/#{input['project_uid']}/attachments/#{document['uid']}")
+                    end&.map { |o| o.merge('project_uid' => input['project_uid']) }
                   else
                     response['data']&.map { |o| o.merge('project_uid' => input['project_uid']) }
                   end
