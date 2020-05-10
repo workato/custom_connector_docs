@@ -2434,6 +2434,24 @@
                   pluck('folder')&.uniq
         folders.size > 0 ? folders&.map { |folder| [folder || 'Root', folder || ''] } : [['Root', '']]
       end
+    end,
+
+    field_report_export_file_type: lambda do |_connection|
+      [
+        [ 'PDF', 'pdf' ],
+        [ 'XLSL', 'xlsx' ]
+      ]
+    end,
+
+    timezones: lambda do |_connection|
+      [
+        ['America/Los_Angeles','America/Los_Angeles'],
+        ['America/Denver','America/Denver'],
+        ['America/Phoenix','America/Phoenix'],
+        ['America/Chicago','America/Chicago'],
+        ['America/Mexico_City','America/Mexico_City'],
+        ['America/New_York','America/New_York']
+      ]
     end
   }
 }
