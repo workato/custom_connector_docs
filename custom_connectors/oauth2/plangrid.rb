@@ -1802,6 +1802,14 @@
       end,
 
       execute: lambda do |_connection, input|
+        if input['object'] == 'submittals/package'
+          input['item_uids'] = input['item_uids'].split(',')
+        end
+
+        if input['object'] == 'field_reports/export'
+          input['field_report_uids'] = input['field_report_uids'].split(',')
+        end
+        
         payload =
           input.except('project_uid', 'object').each_with_object({}) do |(key, val), hash|
             hash[key] = if %w[due_at sent_at].include?(key)
@@ -1821,6 +1829,12 @@
         when 'sheet_packet', 'sheet_upload', 'user_invite'
           path = input['object'].split("_")
           post("/projects/#{input['project_uid']}/#{path.first.pluralize}/#{path.last.pluralize}").payload(payload).
+            after_error_response(/.*/) do |_code, body, _header, message|
+              error("#{message}: #{body}")
+            end
+
+        when 'field_reports/export'
+          post("/projects/#{input['project_uid']}/field_reports/export").payload(payload).
             after_error_response(/.*/) do |_code, body, _header, message|
               error("#{message}: #{body}")
             end
