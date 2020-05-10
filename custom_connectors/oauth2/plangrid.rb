@@ -996,6 +996,129 @@
             { name: 'last_name' },
             { name: 'language' }
           ]
+        when 'submittals/package'
+          [
+            { name: 'name', optional: false,
+              hint: 'The name of the submittal package.' },
+            { name: 'custom_id', optional: false,
+              hint: 'A custom ID for the submittal package.' },
+            { name: 'item_uids', optional: false, label: 'Submittal Item IDs',
+              hint: 'The IDs of the specific submittal items to include in the submittal package. ' \
+              'Separate each item with a comma.' },
+            { name: 'ball_in_court_status',
+              hint: "Reference to the role of the user from whom the next step is expected." \
+              " Can be 'manager', 'submitter', or 'reviewer'." },
+            { name: 'design_review_due_date', type: 'date',
+              hint: 'Due date for the design review.' },
+            { name: 'file_group_uid',
+              hint: 'UID of the file group to associate with this submittal package.' },
+            { name: 'general_contractor_review_due_date', type: 'date',
+              hint: "Due date of the general contractor's review." },
+            { name: 'lead_time_days', type: 'integer',
+              hint: 'Number of days of lead time provided for this submittal package.' },
+            { name: 'notes' },
+            { name: 'required_on_job_date', type: 'date',
+              hint: 'The date when the submitted material is required on the job.' },
+            { name: 'submittal_due_date', type: 'date',
+              hint: 'Due date for this submittal package.' },
+            { name: 'managers', type: 'array', of: 'object',
+              hint: 'An array of objects describing users assigned the role of manager.',
+              properties: [
+                { name: 'type', hint: 'Can be `user` or `group`.' },
+                { name: 'uid', hint: 'ID of either the user or group' }
+              ]
+            },
+            { name: 'reviewers', type: 'array', of: 'object',
+              hint: 'An array of objects describing users assigned the role of reviewer.',
+              properties: [
+                { name: 'type', hint: 'Can be `user` or `group`.' },
+                { name: 'uid', hint: 'ID of either the user or group' }
+              ]
+            },
+            { name: 'watchers', type: 'array', of: 'object',
+              hint: 'An array of objects describing users assigned the role of watcher.',
+              properties: [
+                { name: 'type', hint: 'Can be `user` or `group`.' },
+                { name: 'uid', hint: 'ID of either the user or group' }
+              ]
+            }
+          ]
+        when 'submittals/item'
+          [
+            { name: 'name', optional: false,
+              hint: 'Name of the submittal item.' },
+            { name: 'description',
+              hint: 'Description of the submittal package.' },
+            { name: 'package_uid',
+              hint: 'ID of the submittal package to which this item should be associated.' },
+            { name: 'submittal_due_date', type: 'date',
+              hint: 'Date when the submittal is due.' },
+            { name: 'lead_time_days', type: 'integer',
+              hint: 'The number of days of lead time provided for this submittal item.' },
+            { name: 'required_on_job_date', type: 'date',
+              hint: 'The date when the submitted material is required on the job.' },
+            { name: 'design_review_due_date', type: 'date',
+              hint: 'The date when the design review is due.' },
+            { name: 'general_contractor_review_due_date', type: 'date',
+              hint: 'The date when the general contractor\'s review is due.' },
+            { name: 'managers', type: 'array', of: 'object',
+              hint: 'An array of objects describing users assigned the role of manager.',
+              properties: [
+                { name: 'type', hint: 'Can be `user` or `group`.' },
+                { name: 'uid', hint: 'ID of either the user or group' }
+              ]
+            },
+            { name: 'reviewers', type: 'array', of: 'object',
+              hint: 'A list describing users assigned the role of reviewer.',
+              properties: [
+                { name: 'type', hint: 'Can be `user` or `group`.' },
+                { name: 'uid', hint: 'ID of either the user or group' }
+              ]
+            },
+            { name: 'submitters', type: 'array', of: 'object',
+              hint: 'A list describing users assigned the role of submitter.',
+              properties: [
+                { name: 'type', hint: 'Can be `user` or `group`.' },
+                { name: 'uid', hint: 'ID of either the user or group' }
+              ]
+            },
+            { name: 'watchers', type: 'array', of: 'object',
+              hint: 'A list describing users assigned the role of watcher.',
+              properties: [
+                { name: 'type', hint: 'Can be `user` or `group`.' },
+                { name: 'uid', hint: 'ID of either the user or group' }
+              ]
+            }
+          ]
+        when 'field_reports/export'
+          [
+            { name: 'field_report_uids', label: 'Field Report IDs', optional: false,
+              hint: 'A comma separated list of field report IDs.' },
+            {
+              name: 'file_type',
+              control_type: 'select',
+              pick_list: 'field_report_export_file_type',
+              sticky: true,
+              hint: 'Select the file type of the export',
+            },
+            {
+              name: 'timezone',
+              control_type: 'select',
+              pick_list: 'timezones',
+              sticky: true,
+              toggle_hint: 'Select timezone',
+              toggle_field: {
+                name: 'timezone',
+                type: 'string',
+                label: 'Timezone',
+                control_type: 'text',
+                optional: false,
+                toggle_hint: 'Enter timezone',
+                hint: 'A valid timezone. See fill list ' \
+                '<a href="https://en.wikipedia.org/wiki/List_of_tz_database_time_zones">here</a>.'
+              }
+            }
+          ]
         else
           []
         end.concat(
