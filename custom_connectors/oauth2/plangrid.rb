@@ -610,6 +610,14 @@
             },
             { name: 'updated_at', label: 'Updated At', type: 'date_time' }
           ]
+        when 'field_reports/export'
+          [
+            { name: 'uid', label: 'Export ID' },
+            { name: 'project_uid', label: 'Project ID' },
+            { name: 'status' },
+            { name: 'file_url' },
+            { name: 'resource_url' }
+          ]
         when 'rfi'
           [
             { name: 'uid', label: 'RFI ID' },
@@ -792,6 +800,137 @@
             { name: 'uid', label: 'Sheet Version ID' },
             { name: "project_uid", label: "Project ID" },
             { name: 'status', label: 'Status' }
+          ]
+        when 'submittals/package'
+          [
+            { name: 'uid', label: 'Submittal Package ID' },
+            { name: 'project_uid', label: 'Project ID' },
+            { name: 'name' },
+            { name: 'spec_section' },
+            { name: 'spec_section_name' },
+            { name: 'custom_id' },
+            { name: 'version' },
+            { name: 'ball_in_court_status' },
+            { name: 'lead_time_days', type: 'integer' },
+            { name: 'submittals_due_date', type: 'date_time' },
+            { name: 'required_on_job_date', type: 'date_time' },
+            { name: 'transmission_status' },
+            { name: 'is_voided', type: 'boolean'  },
+            { name: 'items', type: 'object', properties: [
+              { name: 'uids', type: 'array', of: 'string' },
+              { name: 'url' },
+              { name: 'total_count', type: 'integer'}
+            ]},
+            { name: 'visible_file_group_uid' },
+            { name: 'design_review_due_date', type: 'date_time' },
+            { name: 'general_contractor_review_due_date', type: 'date_time' },
+            { name: 'latest_review', type: 'object', properties: [
+              { name: 'uid', label: 'Review ID' },
+              { name: 'created_at', type: 'date_time' },
+              { name: 'created_by', type: 'object', properties: [
+                { name: 'uid' },
+                { name: 'url' }
+              ]},
+              { name: 'file_group_uid' },
+              { name: 'is_official_review' },
+              { name: 'package_version' },
+              { name: 'review_response_uid' },
+              { name: 'reviewed_by', type: 'object', properties: [
+                { name: 'type' },
+                { name: 'uid' },
+                { name: 'url' }
+              ]}
+            ]},
+            { name: 'latest_review_response_uid' },
+            { name: 'received_from_design_at', type: 'date_time'  },
+            { name: 'sent_to_design_at', type: 'date_time'  },
+            { name: 'received_from_sub_at', type: 'date_time'  },
+            { name: 'returned_to_sub_at', type: 'date_time'  },
+            { name: 'managers', type: 'array', of: 'object', properties: [
+                { name: 'type' },
+                { name: 'uid' },
+                { name: 'url' }
+            ]},
+            { name: 'reviewers', type: 'array', of: 'object', properties: [
+                { name: 'type' },
+                { name: 'uid' },
+                { name: 'url' }
+            ]},
+            { name: 'submitters', type: 'array', of: 'object', properties: [
+                { name: 'type' },
+                { name: 'uid' },
+                { name: 'url' }
+            ]},
+            { name: 'unioned_watchers', type: 'array', of: 'object', properties: [
+                { name: 'type' },
+                { name: 'uid' },
+                { name: 'url' }
+            ]},
+            { name: 'watchers', type: 'array', of: 'object', properties: [
+                { name: 'type' },
+                { name: 'uid' },
+                { name: 'url' }
+            ]},
+            { name: 'created_at', type: 'date_time' },
+            { name: 'created_by', type: 'object', properties: [
+              { name: 'uid' },
+              { name: 'url' }
+            ]},
+            { name: 'published_at', type: 'date_time' },
+            { name: 'updated_at', type: 'date_time' },
+            { name: 'updated_by', type: 'object', properties: [
+              { name: 'uid' },
+              { name: 'url' }
+            ]}
+          ]
+        when 'submittals/item'
+          [
+            { name: 'uid', label: 'Submittal Item ID' },
+            { name: 'project_uid', label: 'Project ID' },
+            { name: 'name' },
+            { name: 'description' },
+            { name: 'spec_bullet' },
+            { name: 'spec_doc' },
+            { name: 'spec_heading' },
+            { name: 'spec_page' },
+            { name: 'spec_section' },
+            { name: 'spec_section_name' },
+            { name: 'spec_subsection_name' },
+            { name: 'lead_time_days', type:'integer' },
+            { name: 'required_on_job_date', type: 'date_time' },
+            { name: 'submittal_due_date', type: 'date_time' },
+            { name: 'submittals_type' },
+            { name: 'package', type: 'object', properties: [
+              { name: 'uid' },
+              { name: 'url' }
+            ]},
+            { name: 'design_review_due_date', type: 'date_time' },
+            { name: 'general_contractor_review_due_date', type: 'date_time' },
+            { name: 'reviewers', type: 'array', of: 'object', properties: [
+                { name: 'type' },
+                { name: 'uid' },
+                { name: 'url' }
+            ]},
+            { name: 'managers', type: 'array', of: 'object', properties: [
+                { name: 'type' },
+                { name: 'uid' },
+                { name: 'url' }
+            ]},
+            { name: 'submitters', type: 'array', of: 'object', properties: [
+                { name: 'type' },
+                { name: 'uid' },
+                { name: 'url' }
+            ]},
+            { name: 'watchers', type: 'array', of: 'object', properties: [
+                { name: 'type' },
+                { name: 'uid' },
+                { name: 'url' }
+            ]},
+            { name: 'created_at' },
+            { name: 'created_by', type: 'object', properties: [
+              { name: 'uid' },
+              { name: 'url' }
+            ]}
           ]
         end
       end
