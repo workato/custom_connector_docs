@@ -592,12 +592,14 @@
         when 'field_report_template'
           [
             { name: 'uid', label: 'Field Report Template ID' },
+            { name: 'project_uid', label: 'Project ID' },
             { name: 'name' },
             { name: 'field_reports', label: 'Field Reports',
               type: 'object', properties: [
                 { name: 'url' }
               ]
             },
+            { name: 'cadence' },
             { name: 'is_pdf', label: 'Is PDF', type: 'boolean' },
             { name: 'pdf_url', label: 'PDF URL' },
             { name: 'template_type', label: 'Template Type' },
