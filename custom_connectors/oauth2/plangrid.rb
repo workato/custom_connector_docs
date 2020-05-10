@@ -1749,6 +1749,20 @@
       end
     },
 
+    download_input_schema: {
+      fields: lambda do |_connection, config_fields|
+        case config_fields['object']
+        when 'field_reports/export'
+          [{ name: 'uid', label: 'Export ID', optional: false }]
+        when 'sheets/packet'
+          [{ name: 'uid', label: "Sheet Packet ID", optional: false,
+               hint: 'Ensure the status of the sheet packet export is `complete` before downloading.' }]
+        else
+          [{ name: 'uid', label: "#{config_fields['object'].labelize} ID", optional: false }]
+        end
+      end
+    },
+
     trigger_input: {
       fields: lambda do |_connection, config_fields|
         if config_fields['object'] != 'project'
@@ -2266,6 +2280,75 @@
         call(:get_sample_output, input['object'], input['project_uid'] || "")
       end
     },
+
+    download_object: {
+      title: 'Download object',
+      description: lambda do |_, objects|
+        "Download <span class='provider'>#{objects['object']&.downcase || 'object'}</span> in <span class='provider'>PlanGrid</span>"
+      end,
+      help: "Download object in PlanGrid",
+
+      config_fields: [
+        {
+          name: 'object',
+          optional: false,
+          label: 'Object',
+          control_type: 'select',
+          pick_list: 'download_object_list',
+          toggle_hint: 'Select object',
+          hint: 'Select the object from picklist.'
+        }
+      ],
+
+      input_fields: lambda do |object_definitions|
+        [
+          {
+            name: 'project_uid',
+            control_type: 'select',
+            pick_list: 'project_list',
+            label: 'Project',
+            optional: false,
+            toggle_hint: 'Select project',
+            hint: 'If your project is not in top 50, use project ID toggle.',
+            toggle_field: {
+              name: 'project_uid',
+              type: 'string',
+              control_type: 'text',
+              optional: false,
+              label: 'Project ID',
+              toggle_hint: 'Enter project ID',
+              hint: 'Provide project ID. For example, <b>0bbb5bdb-3f87-4b46-9975-90e797ee9ff9</b>'
+            }
+          },
+        ].concat(object_definitions['download_input_schema'])
+      end,
+
+      execute: lambda do |_connection, input|
+        case input['object']
+        when 'field_reports/export'
+          record = get("/projects/#{input['project_uid']}/field_reports/export/#{input['uid']}")
+          file_content = get(record['url'] || record['file_url']).
+          response_format_raw.
+          after_error_response(/.*/) do |_code, body, _header, message|
+            error("#{message}: #{body}")
+          end
+          { content: file_content }
+        else
+          record = get("/projects/#{input['project_uid']}/#{input['object'].pluralize}/#{input['uid']}")
+          file_content = get(record['url'] || record['file_url']).
+          response_format_raw.
+          after_error_response(/.*/) do |_code, body, _header, message|
+            error("#{message}: #{body}")
+          end
+          { content: file_content }
+        end
+      end,
+
+      output_fields: lambda do |object_definitions|
+        [
+          { name: 'content', label: 'File Contents' }
+        ]
+      end
   },
 
   triggers: {
@@ -2594,6 +2677,14 @@
        'industrial-petroleum', 'transportation', 'hazardous-waste',
        'telecom', 'education-k-12', 'education-higher', 'gov-federal',
        'gov-state-local', 'other'].map { |type| [type.labelize, type] }
+    end,
+    
+    download_object_list: lambda do |_connection|
+      [
+        ['Document', 'attachment'],
+        ['Field Report Export', 'field_reports/export'],
+        ['Sheet Packet', 'sheets/packet']
+      ]
     end,
 
     project_folders: lambda do |_connection, project_uid:|
