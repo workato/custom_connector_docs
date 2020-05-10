@@ -124,8 +124,22 @@
             { name: 'limit', type: 'integer',
               hint: 'Number of records to retrieve.' }
           ]
+        when 'field_reports/export'
+          [{ name: 'uid', label: 'Export ID', optional: false }]
         when 'role', 'project'
           []
+        when 'submittals/item'
+          [{ name: 'uids', label: 'Submittal Item ID', optional: false }]
+        when 'submittals/package'
+          [{ name: 'uid', label: 'Submittal Package ID', optional: false,
+             hint: 'ID can be found at the end of the url.' }]
+        when 'submittals_file_group'
+          [
+            { name: 'uid', label: 'Submittal Package ID', optional: false,
+              hint: 'ID can be found at the end of the url.' },
+            { name: 'created_after', type: 'date_time',
+              hint: 'Only return file groups created after the specified date.' }
+          ]
         else
           [{ name: "uid", label: "#{config_fields['object'].labelize} ID", optional: false,
              hint: 'ID can be found at the end of the url.' }]
@@ -931,6 +945,51 @@
               { name: 'uid' },
               { name: 'url' }
             ]}
+          ]
+        when 'submittals_file_group'
+          [
+            { name: 'package_uid', label: 'Submittal Package ID' },
+            { name: 'project_uid', label: 'Project ID' },
+            { name: 'data', label: 'File Groups',
+              type: 'array', of: 'object', properties: [
+                { name: 'uid', label: 'File Group ID' },
+                { name: 'files', type: 'array', of: 'object', properties: [
+                  { name: 'document_uid', label: 'Document ID' },
+                  { name: 'name' },
+                  { name: 'url' },
+                  { name: 'created_at', type: 'date_time' },
+                  { name: 'file_group_uid' }
+                ]},
+                { name: 'package', type: 'object', properties: [
+                  { name: 'uid' },
+                  { name: 'url' }
+                ]},
+                { name: 'upload_completed', type: 'boolean'}
+              ]
+            },
+            { name: 'total_count' },
+            { name: 'next_page_url' }
+          ]
+        when 'submittals_review_status'
+          [
+            { name: 'package_uid', label: 'Submittal Package ID' },
+            { name: 'project_uid', label: 'Project ID' },
+            { name: 'data', label: 'Review Status',
+              type: 'array', of: 'object', properties: [
+                { name: 'uid', label: 'Review ID' },
+                { name: 'review_response_uid', label: 'Review Response ID' },
+                { name: 'is_official_review', type: 'boolean' },
+                { name: 'package_version', type: 'integer' },
+                { name: 'file_group_uid', label: 'File Group ID' },
+                { name: 'created_at' },
+                { name: 'created_by', type: 'object', properties: [
+                  { name: 'uid', label: 'User ID' },
+                  { name: 'url' }
+                ]}
+              ]
+            },
+            { name: 'total_count' },
+            { name: 'next_page_url' }
           ]
         end
       end
@@ -2050,8 +2109,21 @@
         case input['object']
         when 'project'
           get("/projects/#{input['project_uid']}")
+        when 'field_reports/export'
+          get("/projects/#{input['project_uid']}/field_reports/export/#{input['uid']}")
         when 'sheet_packet'
           get("/projects/#{input['project_uid']}/sheets/packets/#{input['uid']}")
+        when 'submittals/item'
+          get("/projects/#{input['project_uid']}/submittals/items?uids=#{input['uids']}").dig('data',0)
+        when 'submittals_file_group'
+          get("/projects/#{input['project_uid']}/submittals/packages/#{input['uid']}/file_groups")
+          .merge('package_uid' => input['uid'])
+        when 'submittals_history'
+          get("/projects/#{input['project_uid']}/submittals/packages/#{input['uid']}/history")
+          .merge('package_uid' => input['uid'])
+        when 'submittals_review_status'
+          get("/projects/#{input['project_uid']}/submittals/packages/#{input['uid']}/reviews")
+          .merge('package_uid' => input['uid'])
         else
           get("/projects/#{input['project_uid']}/#{input['object'].pluralize}/#{input['uid']}")
         end.merge('project_uid' => input['project_uid'])
