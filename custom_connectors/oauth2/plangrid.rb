@@ -2587,6 +2587,8 @@
             }
           ]
         }
+      when 'submittals/items'
+        get("/projects/#{project_uid}/submittals/items")&.dig('data', 0)&.merge('project_uid' => project_uid)
       else
         get("/projects/#{project_uid}/#{object.pluralize}")&.dig('data', 0)&.merge('project_uid' => project_uid)
       end
