@@ -2638,13 +2638,24 @@
     end,
 
     update_object_list: lambda do |_connection|
-      [["Project", "project"], ["Task List", "issue_list"], ["Task", "issue"], ["RFI", "rfi"],
-       ["Photo Metadata", "photo"]]
+      [
+        ['Project', 'project'],
+        ['Photo', 'photo'],
+        ['RFI', 'rfi'],
+        ['Task List', 'issue_list'],
+        ['Task', 'issue'],
+        ['Submittal Package', 'submittals/package'],
+        ['Submittal Item', 'submittals/item']
+      ]
     end,
 
     upload_object_list: lambda do |_connection|
-      [["Document", "attachment"], ["Photo", "photo"], ["File to sheet version", "file_upload"],
-       ["Complete version", "version_upload"]]
+      [
+        ['Document', 'attachment'],
+        ['Photo', 'photo'],
+        ['File to Sheet Version', 'file_upload'],
+        ['Complete Sheet Version', 'version_upload']
+      ]
     end,
 
     get_objects: lambda do |_connection|
