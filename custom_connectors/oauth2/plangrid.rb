@@ -2219,7 +2219,7 @@
       output_fields: lambda do |object_definitions|
         [
           {
-            name: 'data', type: 'array', of: 'object', properties: object_definitions['get_output_schema']
+            name: 'data', label: 'Results', type: 'array', of: 'object', properties: object_definitions['get_output_schema']
           },
           { name: 'total_count', label: 'Total Count', type: 'integer' },
           { name: 'next_page_url', label: 'Next Page URL' }
@@ -2665,8 +2665,20 @@
     end,
 
     search_objects: lambda do |_connection|
-      [["RFI Status", "rfi_status"], ["Role", "role"], ["Field Report", "field_report"],
-      ["Field Report Template", "field_report_template"]]
+      [
+        ['Field Report', 'field_report'],
+        ['Field Report Template', 'field_report_template'],
+        ['RFI Status', 'rfi_status'],
+        ['Role', 'role']
+      ]
+    end,
+
+    download_object_list: lambda do |_connection|
+      [
+        ['Document', 'attachment'],
+        ['Field Report Export', 'field_reports/export'],
+        ['Sheet Packet', 'sheets/packet']
+      ]
     end,
 
     object_list: lambda do |_connection|
