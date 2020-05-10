@@ -2349,6 +2349,7 @@
           { name: 'content', label: 'File Contents' }
         ]
       end
+    }
   },
 
   triggers: {
