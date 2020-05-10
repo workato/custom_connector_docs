@@ -2096,8 +2096,18 @@
 
   pick_lists: {
     create_object_list: lambda do |_connection|
-      [["Project", "project"], ["Sheet Packet", "sheet_packet"], ["Task List", "issue_list"], ["Task", "issue"], ["RFI", "rfi"],
-       ["Sheet Version", "sheet_upload"], ["Invite User", "user_invite"]]
+      [
+        ['Project', 'project'],
+        ['Field Report Export', 'field_reports/export'],
+        ['Invite User', 'user_invite'],
+        ['RFI', 'rfi'],
+        ['Task List', 'issue_list'],
+        ['Task', 'issue'],
+        ['Sheet Packet', 'sheet_packet'],
+        ['Sheet Version', 'sheet_upload'],
+        ['Submittal Item', 'submittals/item'],
+        ['Submittal Package', 'submittals/package']
+      ]
     end,
 
     update_object_list: lambda do |_connection|
