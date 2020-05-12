@@ -2662,9 +2662,23 @@
     end,
 
     get_objects: lambda do |_connection|
-      [["Project", "project"], ["RFI", "rfi"], ["Task", "issue"], ["User", "user"],
-       ["Snapshot", "snapshot"], ["Sheet", "sheet"], ["Sheet Packet", "sheet_packet"],
-       ["Photo", "photo"], ["Document", "attachment"], ["Task_list", "issue_list"]]
+      [
+        ['Project', 'project'],
+        ['Document', 'attachment'],
+        ['Field Report Export', 'field_reports/export'],
+        ['Photo', 'photo'],
+        ['RFI', 'rfi'],
+        ['Sheet', 'sheet'],
+        ['Sheet Packet', 'sheet_packet'],
+        ['Snapshot', 'snapshot'],
+        ['Submittal Package', 'submittals/package'],
+        ['Submittal Item', 'submittals/item'],
+        ['Submittal Package File Group', 'submittals_file_group'],
+        ['Submittal Package Review Status', 'submittals_review_status'],
+        ['Task', 'issue'],
+        ['Task List', 'issue_list'],
+        ['User', 'user']
+      ]
     end,
 
     search_objects: lambda do |_connection|
@@ -2685,13 +2699,32 @@
     end,
 
     object_list: lambda do |_connection|
-      [["Project", "project"], ["Sheet", "sheet"], ["Document", "attachment"], ["Task", "issue"], ["RFI", "rfi"],
-       ["Annotation", "annotation"], ["Photo", "photo"], ["Snapshot", "snapshot"], ["Field Report", "field_report"]]
+      [
+        ['Project', 'project'], 
+        ['Annotation', 'annotation'], 
+        ['Document', 'attachment'],
+        ['Field Report', 'field_report'], 
+        ['Photo', 'photo'], 
+        ['RFI', 'rfi'],
+        ['Sheet', 'sheet'], 
+        ['Snapshot', 'snapshot'],
+        ['Task', 'issue']
+      ]
     end,
 
     object_list_new: lambda do |_connection|
-      [["Project", "project"], ["Task", "issue"], ["RFI", "rfi"], ["Sheet", "sheet"], ["Field Report", "field_report"],
-       ["Document", "attachment"], ["Annotation", "annotation"]]
+      [
+        ['Project', 'project'],
+        ['Annotation', 'annotation'],
+        ['Document', 'attachment'],
+        ['Field Report', 'field_report'],
+        ['Field Report Template', 'field_report_template'],
+        ['RFI', 'rfi'],
+        ['Sheet', 'sheet'],
+        ['Submittal Package', 'submittals/package'],
+        ['Submittal Item', 'submittals/item'],
+        ['Task', 'issue']
+      ]
     end,
 
     project_list: lambda do |_connection|
