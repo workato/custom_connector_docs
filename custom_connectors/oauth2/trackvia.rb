@@ -826,7 +826,7 @@
             end
             e_o_s.each_with_object({}) do |k, hash|
               hash[k[:name]] = record[k[:label]]
-            end.compact.merge('id' => record['id'])
+            end.compact.merge('id' => record['id'], 'dedup_modifiedDate' => record['Updated'])
           end
         end,
 
@@ -841,7 +841,7 @@
         end,
 
         dedup: lambda do |record|
-          record['id']
+          "#{record['id']}@#{record['dedup_modifiedDate']}"
         end,
 
         output_fields: ->(object_definitions) { object_definitions['list_record'] },
