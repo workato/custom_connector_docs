@@ -503,7 +503,7 @@
       description: lambda do |_connection, objects|
         "New <span class='provider'>" \
         "#{objects['object']&.downcase || 'object'}" \
-        '</span> in <span class='provider'>Kizen</span>'
+        "</span> in <span class='provider'>Kizen</span>"
       end,
       help: lambda do |_, objects|
         "Triggers when #{objects['object']&.downcase || 'an object'} " \
