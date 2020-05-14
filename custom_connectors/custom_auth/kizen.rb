@@ -515,14 +515,16 @@
             hint: 'Required to filter deals.',
           } },
         {
-          name: "since",
-          label: "When first started, this recipe should pick up events from",
-          type: "timestamp",
+          name: 'since',
+          label: 'When first started, this recipe should pick up events from',
+          type: 'timestamp',
           optional: true,
           sticky: true,
           since_field: true,
-          hint: "When you start recipe for the first time, it picks up trigger events from this specified date and time.<br>
-            <b>Once recipe has been run or tested, value cannot be changed.</b> If left blank, trigger picks up events from 1 hour ago."
+          hint: "When you start recipe for the first time, it picks up trigger " \
+                "events from this specified date and time.<br> " \
+                "<b>Once recipe has been run or tested, value cannot be changed.</b> " \
+                "If left blank, trigger picks up events from 1 hour ago."
         }
       ],
 
@@ -531,25 +533,26 @@
         page_size = 200
         page = 1
         query = {
-          "version": 1,
-          "filters": {
-            "fields": [{
-              "field": "created",
-              "condition": ">",
-              "values": [(closure[:last_created_date].presence || input[:since].presence || 1.hour.ago).to_time.utc.iso8601]
+          'version': 1,
+          'filters': {
+            'fields': [{
+              'field': 'created',
+              'condition': '>',
+              'values': [(closure[:last_created_date].presence || input[:since].presence || 1.hour.ago).
+                          to_time.utc.iso8601]
             }]
           }
         }.to_json
         params = {
-          "page" => page,
-          "page_size" => page_size,
-          "order_by" => "created",
-          "ordering" => "created"
+          'page' => page,
+          'page_size' => page_size,
+          'order_by' => 'created',
+          'ordering' => 'created'
         }.merge(
-          if input['object'] == "deal"
-            { "group_config" => query, "pipeline" => input['pipeline'] }
+          if input['object'] == 'deal'
+            { 'group_config' => query, 'pipeline' => input['pipeline'] }
           else
-            { "contact_group_config" => query }
+            { 'contact_group_config' => query }
           end
         )
         response = get("https://app.kizen.com/api/#{input['object']}", params)
@@ -571,47 +574,48 @@
       end,
 
       sample_output: lambda do |_connection, input|
-        get("https://api.kizen.com/#{input['object']}?page=1&page_size=1").dig("results", 0)
+        get("https://api.kizen.com/#{input['object']}?page=1&page_size=1").
+          dig('results', 0)
       end
     }
   },
 
   pick_lists: {
-    pipelines: ->(_connection) {
+    pipelines: lambda do |connection|
       get("/api/deal-pipeline")['results']&.map do |res|
         [res['name'].presence || "unknown", res['id']]
       end
-    },
+    end,
 
-    companies: ->(_connection) {
+    companies: lambda do |connection|
       get("/api/company")['results']&.map do |res|
         [res['name'].presence || "unknown", res['id']]
       end
-    },
+    end,
 
-    clients: ->(_connection) {
+    clients: lambda do |connection|
       get("/api/client")['results']&.map do |res|
         [res['display_name'].presence || "unknown", res['id']]
       end
-    },
+    end,
 
-    stages: ->(_connection, pipeline:) {
+    stages: lambda do |connection, pipeline:|
       get("/api/deal-pipeline/#{pipeline}")['stages']&.map do |res|
         [res['name'].presence || "unknown", res['id']]
       end
-    },
+    end,
 
-    reason_losts: ->(_connection, pipeline:) {
+    reason_losts: lambda do |connection, pipeline:|
       get("/api/deal-pipeline/#{pipeline}")['reasons_lost']&.map do |res|
         [res['name'].presence || "unknown", res['id']]
       end
-    },
+    end,
 
-    owners: ->(_connection) {
+    owners: lambda do |connection|
       get("/api/team")&.map do |res|
         [res['full_name'].presence || "unknown", res['id']]
       end
-    },
+    end,
 
     kizen_objects: lambda do
       [
