@@ -357,27 +357,40 @@
             { name: 'home_phone', label: 'Home phone', type: 'integer', control_type: 'integer' },
             { name: 'company',
               hint: 'The company at which the candidate currently works' },
-            { name: 'titles', hint: 'The candidate’s current title', type: 'array', of: 'object', properties:
-              [
-                { name: 'name' },
-                { name: 'id' }
-              ] },
-            { name: 'tags', type: 'array', of: 'object', properties:
-              [
-                { name: 'name' },
-                { name: 'id' }
-              ] },
-            { name: 'domains', type: 'array', of: 'object', properties:
-              [
-                { name: 'name' },
-                { name: 'id' }
-              ] },
+            { name: 'titles',
+              hint: 'The candidate’s current title',
+              type: 'array',
+              of: 'object',
+              properties:
+                [
+                  { name: 'name' },
+                  { name: 'id' }
+                ] },
+            { name: 'tags',
+              type: 'array',
+              of: 'object',
+              properties:
+                [
+                  { name: 'name' },
+                  { name: 'id' }
+                ] },
+            { name: 'domains',
+              type: 'array',
+              of: 'object',
+              properties:
+                [
+                  { name: 'name' },
+                  { name: 'id' }
+                ] },
             { name: 'timezone' },
             { name: 'email_status' },
-            { name: 'email_is_blacklisted', type: 'boolean', control_type: 'checkbox' },
+            { name: 'email_is_blacklisted',
+              type: 'boolean',
+              control_type: 'checkbox' },
             { name: 'created', type: 'date_time', control_type: 'date_time' },
             { name: 'custom', label: 'Custom fields',
-              type: 'object', properties: call("get_trigger_custom_fields", "/api/client-field") }
+              type: 'object',
+              properties: call('get_trigger_custom_fields', '/api/client-field') }
           ]
         end
       end
@@ -392,7 +405,9 @@
       title: 'Create object',
       subtitle: 'Create an object in Kizen',
       description: lambda do |_connection, objects|
-        "Create <span class='provider'>#{objects['object']&.downcase || 'object'}</span> in <span class='provider'>Kizen</span>"
+        "Create <span class='provider'>" \
+        "#{objects['object']&.downcase || 'object'}" \
+        "</span> in <span class='provider'>Kizen</span>"
       end,
       help: lambda do |_, objects|
         "Create #{objects['object']&.downcase || 'object'} in Kizen."
@@ -414,10 +429,11 @@
       end,
 
       execute: lambda do |_connection, input|
-        payload = call("format_input", input)
-        result = post("/api/#{input['object']}", payload).after_error_response(/.*/) do |_code, body, _header, message|
-          error("#{message}: #{body}")
-        end
+        payload = call('format_input', input)
+        result = post("/api/#{input['object']}", payload)
+          .after_error_response(/.*/) do |_code, body, _header, message|
+            error("#{message}: #{body}")
+          end
         call('format_output', result)
       end,
 
@@ -426,7 +442,8 @@
       end,
 
       sample_output: lambda do |_connection, input|
-        get("https://api.kizen.com/#{input['object']}?page=1&page_size=1").dig("results", 0)
+        get("https://api.kizen.com/#{input['object']}?page=1&page_size=1")
+          .dig('results', 0)
       end
     },
 
@@ -434,7 +451,9 @@
       title: 'Update object',
       subtitle: 'Update an object in Kizen',
       description: lambda do |_connection, objects|
-        "Update <span class='provider'>#{objects['object']&.downcase || 'object'}</span> in <span class='provider'>Kizen</span>"
+        "Update <span class='provider'>" \
+        "#{objects['object']&.downcase || 'object'}</span>" \
+        "in <span class='provider'>Kizen</span>"
       end,
       help: lambda do |_, objects|
         "Update #{objects['object']&.downcase || 'object'} in Kizen."
@@ -453,15 +472,16 @@
 
       input_fields: lambda do |object_definitions|
         [
-          { name: "id", sticky: true, optional: false }
+          { name: 'id', sticky: true, optional: false }
         ].concat(object_definitions['object_input'])
       end,
 
       execute: lambda do |_connection, input|
-        payload = call("format_input", input)
-        result = put("/api/#{input['object']}/#{input['id']}", payload).after_error_response(/.*/) do |_code, body, _header, message|
-          error("#{message}: #{body}")
-        end
+        payload = call('format_input', input)
+        result = put("/api/#{input['object']}/#{input['id']}", payload)
+          .after_error_response(/.*/) do |_code, body, _header, message|
+            error("#{message}: #{body}")
+          end
         call('format_output', result)
       end,
 
@@ -481,12 +501,13 @@
       title: 'New object',
       subtitle: 'New object in Kizen',
       description: lambda do |_connection, objects|
-        "New <span class='provider'>#{objects['object']&.downcase || 'object'}" \
-        "</span> in <span class='provider'>Kizen</span>"
+        "New <span class='provider'>" \
+        "#{objects['object']&.downcase || 'object'}" \
+        '</span> in <span class='provider'>Kizen</span>'
       end,
       help: lambda do |_, objects|
         "Triggers when #{objects['object']&.downcase || 'an object'} " \
-        "is created in Kizen."
+        'is created in Kizen.'
       end,
 
       config_fields: [
@@ -542,8 +563,10 @@
               'field': 'created',
               'condition': '>',
               'values': [
-                (closure[:last_created_date].presence || input[:since].presence || 1.hour.ago)
-                .to_time.utc.iso8601
+                (closure[:last_created_date].presence ||
+                  input[:since].presence ||
+                  1.hour.ago)
+                  .to_time.utc.iso8601
               ]
             }]
           }
