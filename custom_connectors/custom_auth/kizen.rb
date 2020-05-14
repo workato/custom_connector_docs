@@ -581,39 +581,39 @@
   },
 
   pick_lists: {
-    pipelines: lambda do |connection|
-      get("/api/deal-pipeline")['results']&.map do |res|
-        [res['name'].presence || "unknown", res['id']]
+    pipelines: lambda do |_connection|
+      get('/api/deal-pipeline')['results']&.map do |res|
+        [res['name'].presence || 'unknown', res['id']]
       end
     end,
 
-    companies: lambda do |connection|
-      get("/api/company")['results']&.map do |res|
-        [res['name'].presence || "unknown", res['id']]
+    companies: lambda do |_connection|
+      get('/api/company')['results']&.map do |res|
+        [res['name'].presence || 'unknown', res['id']]
       end
     end,
 
-    clients: lambda do |connection|
-      get("/api/client")['results']&.map do |res|
-        [res['display_name'].presence || "unknown", res['id']]
+    clients: lambda do |_connection|
+      get('/api/client')['results']&.map do |res|
+        [res['display_name'].presence || 'unknown', res['id']]
       end
     end,
 
-    stages: lambda do |connection, pipeline:|
-      get("/api/deal-pipeline/#{pipeline}")['stages']&.map do |res|
-        [res['name'].presence || "unknown", res['id']]
+    stages: lambda do |_connection, pipeline:|
+      get('/api/deal-pipeline/#{pipeline}')['stages']&.map do |res|
+        [res['name'].presence || 'unknown', res['id']]
       end
     end,
 
-    reason_losts: lambda do |connection, pipeline:|
-      get("/api/deal-pipeline/#{pipeline}")['reasons_lost']&.map do |res|
-        [res['name'].presence || "unknown", res['id']]
+    reason_losts: lambda do |_connection, pipeline:|
+      get('/api/deal-pipeline/#{pipeline}')['reasons_lost']&.map do |res|
+        [res['name'].presence || 'unknown', res['id']]
       end
     end,
 
-    owners: lambda do |connection|
-      get("/api/team")&.map do |res|
-        [res['full_name'].presence || "unknown", res['id']]
+    owners: lambda do |_connection|
+      get('/api/team')&.map do |res|
+        [res['full_name'].presence || 'unknown', res['id']]
       end
     end,
 
