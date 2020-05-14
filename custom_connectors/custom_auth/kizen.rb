@@ -7,19 +7,25 @@
         name: 'business_id',
         control_type: 'password',
         optional: false,
-        hint: 'Found on the API keys settings page <a href="https://app.kizen.com/business/api-keys", target="_blank">here</a>'
+        hint: 'Found on the API keys settings page' \
+        ' <a href="https://app.kizen.com/business/api-keys", ' \
+        'target="_blank">here</a>'
       },
       {
         name: 'user_id',
         optional: false,
-        hint: 'Found on the API keys settings page <a href="https://app.kizen.com/business/api-keys", target="_blank">here</a>'
+        hint: 'Found on the API keys settings page ' \
+        '<a href="https://app.kizen.com/business/api-keys",' \
+        ' target="_blank">here</a>'
       },
       {
         name: 'api_key',
         label: 'API key',
         control_type: 'password',
         optional: false,
-        hint: 'Found on the API keys settings page <a href="https://app.kizen.com/business/api-keys", target="_blank">here</a>'
+        hint: 'Found on the API keys settings page ' \
+        '<a href="https://app.kizen.com/business/api-keys", ' \
+        ' target="_blank">here</a>'
       }
     ],
 
@@ -28,8 +34,8 @@
 
       apply: lambda do |connection|
         headers('X-USER-ID': connection['user_id'],
-          'X-API-KEY': connection['api_key'],
-          'X-BUSINESS-ID': connection['business_id'])
+                'X-API-KEY': connection['api_key'],
+                'X-BUSINESS-ID': connection['business_id'])
       end
     },
 
@@ -42,7 +48,6 @@
 
     format_input: lambda do |input|
       if input['custom_fields'].present?
-        puts "hello"
         input['custom_fields'] = input['custom_fields'].map do |key, value|
           key = key.gsub(/^f_/, "").gsub(/_/, "-")
           { key => value }
@@ -193,7 +198,7 @@
         when 'company'
           [
             { name: 'name',
-              label: "Company name",
+              label: 'Company name',
               sticky: true },
             { name: 'email', control_type: 'email' },
             { name: 'mobile_phone',
@@ -295,7 +300,7 @@
         when 'company'
           [
             { name: 'id', label: 'Company ID' },
-            { name: 'name', label: "Company name" },
+            { name: 'name', label: 'Company name' },
             { name: 'email', control_type: 'email' },
             { name: 'mobile_phone',
               label: 'Mobile phone',
