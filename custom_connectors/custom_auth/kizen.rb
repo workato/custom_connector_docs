@@ -298,14 +298,27 @@
           [
             { name: 'id', label: 'Deal ID' },
             { name: 'name', label: "Deal name" },
-            { name: 'amount', type: 'integer', control_type: 'integer', label: "Deal amount" },
+            { name: 'amount',
+              type: 'integer',
+              control_type: 'integer',
+              label: "Deal amount" },
             { name: 'owner' },
             { name: 'primary_client' },
             { name: 'primary_company' },
-            { name: 'close_date', type: 'date_time', control_type: 'date' },
-            { name: 'estimated_close_date', type: 'date_time', control_type: 'date_time' },
-            { name: 'created', label: 'Created date', type: 'date_time', control_type: 'date_time' },
-            { name: 'updated', label: 'Updated date', type: 'date_time', control_type: 'date_time' },
+            { name: 'close_date',
+              type: 'date_time',
+              control_type: 'date' },
+            { name: 'estimated_close_date',
+              type: 'date_time',
+              control_type: 'date_time' },
+            { name: 'created',
+              label: 'Created date',
+              type: 'date_time',
+              control_type: 'date_time' },
+            { name: 'updated',
+              label: 'Updated date',
+              type: 'date_time',
+              control_type: 'date_time' },
             { name: 'stage' },
             { name: 'order', type: 'integer', control_type: 'integer' },
             { name: 'pipeline' },
@@ -320,15 +333,23 @@
                 { name: 'name' }
               ] },
             { name: 'custom', label: 'Custom fields',
-              type: 'object', properties: call("get_trigger_custom_fields", "/api/deal-custom-field") }
+              type: 'object',
+              properties:
+              call('get_trigger_custom_fields', '/api/deal-custom-field') }
           ]
         when 'company'
           [
             { name: 'id', label: 'Company ID' },
-            { name: 'name', label: "Company name" },
+            { name: 'name', label: 'Company name' },
             { name: 'email', control_type: 'email' },
-            { name: 'mobile_phone', label: 'Mobile phone', type: 'integer', control_type: 'integer' },
-            { name: 'business_phone', label: 'Business phone', type: 'integer', control_type: 'integer' },
+            { name: 'mobile_phone',
+              label: 'Mobile phone',
+              type: 'integer',
+              control_type: 'integer' },
+            { name: 'business_phone',
+              label: 'Business phone',
+              type: 'integer',
+              control_type: 'integer' },
             { name: 'addresses', type: 'array', of: 'object', properties:
               [
                 { name: 'full_name' },
@@ -341,7 +362,9 @@
               ] },
             { name: 'created', type: 'date_time', control_type: 'date_time' },
             { name: 'custom', label: 'Custom fields',
-              type: 'object', properties: call("get_trigger_custom_fields", "/api/company-field") }
+              type: 'object',
+              properties:
+              call('get_trigger_custom_fields', '/api/company-field') }
           ]
         when 'client'
           [
@@ -352,9 +375,18 @@
             { name: 'birthday', type: 'date' },
             { name: 'display_name', label: 'Display name' },
             { name: 'email', control_type: 'email' },
-            { name: 'mobile_phone', label: 'Mobile phone', type: 'integer', control_type: 'integer' },
-            { name: 'business_phone', label: 'Business phone', type: 'integer', control_type: 'integer' },
-            { name: 'home_phone', label: 'Home phone', type: 'integer', control_type: 'integer' },
+            { name: 'mobile_phone',
+              label: 'Mobile phone',
+              type: 'integer',
+              control_type: 'integer' },
+            { name: 'business_phone',
+              label: 'Business phone',
+              type: 'integer',
+              control_type: 'integer' },
+            { name: 'home_phone',
+              label: 'Home phone',
+              type: 'integer',
+              control_type: 'integer' },
             { name: 'company',
               hint: 'The company at which the candidate currently works' },
             { name: 'titles',
@@ -390,7 +422,8 @@
             { name: 'created', type: 'date_time', control_type: 'date_time' },
             { name: 'custom', label: 'Custom fields',
               type: 'object',
-              properties: call('get_trigger_custom_fields', '/api/client-field') }
+              properties:
+              call('get_trigger_custom_fields', '/api/client-field') }
           ]
         end
       end
@@ -431,9 +464,9 @@
       execute: lambda do |_connection, input|
         payload = call('format_input', input)
         result = post("/api/#{input['object']}", payload)
-          .after_error_response(/.*/) do |_code, body, _header, message|
-            error("#{message}: #{body}")
-          end
+        .after_error_response(/.*/) do |_code, body, _header, message|
+          error("#{message}: #{body}")
+        end
         call('format_output', result)
       end,
 
@@ -479,9 +512,9 @@
       execute: lambda do |_connection, input|
         payload = call('format_input', input)
         result = put("/api/#{input['object']}/#{input['id']}", payload)
-          .after_error_response(/.*/) do |_code, body, _header, message|
-            error("#{message}: #{body}")
-          end
+        .after_error_response(/.*/) do |_code, body, _header, message|
+          error("#{message}: #{body}")
+        end
         call('format_output', result)
       end,
 
