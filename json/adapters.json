@@ -1,1 +1,746 @@
-[{"id":"1","name":"2checkout","image":"images/2checkout.png","link":"https://www.workato.com/custom_adapters/10602?token=13131e8c","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/2checkout.rb","properties":{"api_type":"REST","auth_type":"API Key","category":"Finance and Accounting"}},{"id":"2","name":"Action Network","image":"images/actionnetwork.png","link":"https://www.workato.com/custom_adapters/3122?token=b9275943","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/action_network_connector.rb","properties":{"api_type":"REST","auth_type":"API Key","category":"Marketing"}},{"id":"3","name":"Aftership","image":"images/aftership.png","link":"https://www.workato.com/custom_adapters/1316?token=b83769ad","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/aftership_connector.rb","properties":{"api_type":"REST","auth_type":"API Key","category":"Operations"}},{"id":"4","name":"Amazon SES","image":"images/amazonses.png","link":"https://www.workato.com/custom_adapters/12845?token=489f4dc8","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/amazonses.rb","properties":{"api_type":"REST","auth_type":"API Key","category":"Productivity"}},{"id":"5","name":"BMC Innovation Suite","image":"images/bmc.jpg","link":"https://www.workato.com/custom_adapters/3087?token=888e7a33","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/custom_auth/bmc_innovation_suite_connector.rb","properties":{"api_type":"REST","auth_type":"Custom","category":"Developer"}},{"id":"6","name":"Base CRM","image":"images/basecrm.png","link":"https://www.workato.com/custom_adapters/1764?token=d1a4cfb3","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/basecrm_connector.rb","properties":{"api_type":"REST","auth_type":"API Key","category":"Sales and BD"}},{"id":"7","name":"Bill.com (Custom)","image":"images/bill.png","link":"https://www.workato.com/custom_adapters/1734?token=48a1ebea","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/custom_auth/bill_connector.rb","properties":{"api_type":"REST","auth_type":"Custom","category":"Finance and Accounting"}},{"id":"8","name":"BlackLine","image":"images/blackline-systems-squarelogo.png","link":"https://www.workato.com/custom_adapters/10303?token=8f761b88","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/custom_auth/blackline.rb","properties":{"api_type":"REST","auth_type":"Custom","category":"Finance and Accounting"}},{"id":"9","name":"BlackLine Reports","image":"images/blackline-systems-squarelogo.png","link":"https://www.workato.com/custom_adapters/11365?token=b0ad34e2","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/custom_auth/blacklinereports.rb","properties":{"api_type":"REST","auth_type":"Custom","category":"Finance and Accounting"}},{"id":"10","name":"Calendly","image":"images/calendly.png","link":"https://www.workato.com/custom_adapters/2966?token=472495f8","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/calendly_connector.rb","properties":{"api_type":"REST","auth_type":"Custom","category":"Productivity"}},{"id":"11","name":"Chartmogul","image":"images/chartmogul.png","link":"https://www.workato.com/custom_adapters/1319?token=51dd82ec","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/custom_auth/chartmogul_connector.rb","properties":{"api_type":"REST","auth_type":"Custom","category":"Sales and BD"}},{"id":"12","name":"Clover","image":"images/clover.png","link":"https://www.workato.com/custom_adapters/11364?token=30ebda56","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/clover.rb","properties":{"api_type":"REST","auth_type":"API Key","category":"Operations"}},{"id":"13","name":"Codility","image":"images/codility.png","link":"https://www.workato.com/custom_adapters/14705?token=8f38a31e","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/codility_connector.rb","properties":{"api_type":"REST","auth_type":"API Key","category":"HR"}},{"id":"14","name":"Constant Contact","image":"images/constantcontact.png","link":"https://www.workato.com/custom_adapters/1320?token=f6157902","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/constant_contact.rb","properties":{"api_type":"REST","auth_type":"OAuth2.0","category":"Marketing"}},{"id":"15","name":"ConvertAPI","image":"images/convertapi.png","link":"https://www.workato.com/custom_adapters/3652?token=7d327908","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/custom_auth/convert_api_connector.rb","properties":{"api_type":"REST","auth_type":"Custom","category":"Productivity"}},{"id":"16","name":"Domo","image":"images/domo.png","link":"https://www.workato.com/custom_adapters/1321?token=5cd5b806","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/custom_auth/domo.rb","properties":{"api_type":"REST","auth_type":"Custom","category":"Operations"}},{"id":"17","name":"Doubleclick","image":"images/doubleclick.png","link":"https://www.workato.com/custom_adapters/12867?token=55f6da1d","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/doubleclick.rb","properties":{"api_type":"REST","auth_type":"OAuth2.0","category":"Marketing"}},{"id":"18","name":"Drift","image":"images/drift.png","link":"https://www.workato.com/custom_adapters/10947?token=3f207403","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/drift.rb","properties":{"api_type":"REST","auth_type":"API Key","category":"Marketing"}},{"id":"19","name":"Duo Security","image":"images/duosecurity.png","link":"https://www.workato.com/custom_adapters/12843?token=b99f55aa","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/custom_auth/duosecurity.rb","properties":{"api_type":"REST","auth_type":"Custom","category":"Other"}},{"id":"20","name":"Easy Projects","image":"images/easyprojects.png","link":"https://www.workato.com/custom_adapters/12844?token=3a29e1a6","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/basic_auth/easyprojects.rb","properties":{"api_type":"REST","auth_type":"Basic","category":"Productivity"}},{"id":"21","name":"Facebook (Custom)","image":"images/facebook.png","link":"https://www.workato.com/custom_adapters/3124?token=46113cde","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/facebook_connector.rb","properties":{"api_type":"REST","auth_type":"API Key","category":"Marketing"}},{"id":"22","name":"FormAssembly","image":"images/formassembly.png","link":"https://www.workato.com/custom_adapters/4725?token=7fd69209","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/formassembly.rb","properties":{"api_type":"REST","auth_type":"OAuth2.0","category":"Productivity"}},{"id":"23","name":"G Suite Admin","image":"images/gadmin.png","link":"https://www.workato.com/custom_adapters/11321?token=b5e74307","github_link":"https://raw.githubusercontent.com/workato/custom_connector_docs/master/custom_connectors/oauth2/gsuite_admin_connector","properties":{"api_type":"REST","auth_type":"OAuth2.0","category":"Operations"}},{"id":"24","name":"Google Analytics","image":"images/googleanalytics.png","link":"https://www.workato.com/custom_adapters/1270?token=8d23a89c","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/google_analytics_connector.rb","properties":{"api_type":"REST","auth_type":"OAuth2.0","category":"Marketing"}},{"id":"25","name":"Google BigQuery","image":"images/googlebigquery.png","link":"https://www.workato.com/custom_adapters/2607?token=3f0eae4c","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/google_bigquery_connector.rb","properties":{"api_type":"REST","auth_type":"OAuth2.0","category":"Productivity"}},{"id":"26","name":"Google Calendar (Custom)","image":"images/googlecalendar.jpg","link":"https://www.workato.com/custom_adapters/3906?token=c9d70069","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/google_calendar_connector.rb","properties":{"api_type":"REST","auth_type":"OAuth2.0","category":"Productivity"}},{"id":"27","name":"Gravity Forms","image":"images/gravityforms.png","link":"https://www.workato.com/custom_adapters/12868?token=1780c6af","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/basic_auth/gravityforms.rb","properties":{"api_type":"REST","auth_type":"API Key","category":"Other"}},{"id":"28","name":"Greenhouse","image":"images/greenhouse.png","link":"https://www.workato.com/custom_adapters/3585?token=07700d22","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/greenhouse_connector.rb","properties":{"api_type":"REST","auth_type":"API Key","category":"HR"}},{"id":"29","name":"Harvest","image":"images/harvest.png","link":"https://www.workato.com/custom_adapters/3081?token=711c08ab","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/harvest_connector.rb","properties":{"api_type":"REST","auth_type":"OAuth2.0","category":"HR"}},{"id":"30","name":"Hubspot (Custom)","image":"images/hubspot.png","link":"https://www.workato.com/custom_adapters/4563?token=bfbbbcc5","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/hubspot.rb","properties":{"api_type":"REST","auth_type":"OAuth2.0","category":"Marketing"}},{"id":"31","name":"Intercom (Custom)","image":"images/intercom.png","link":"https://www.workato.com/custom_adapters/3831?token=b839c286","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/intercom_connector.rb","properties":{"api_type":"REST","auth_type":"OAuth2.0","category":"Customer Service"}},{"id":"32","name":"Iterable","image":"images/iterable.png","link":"https://www.workato.com/custom_adapters/17527?token=986f939d","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/iterable.rb","properties":{"api_type":"REST","auth_type":"API Key","category":"Marketing"}},{"id":"33","name":"Jumpcloud","image":"images/jumpcloud.png","link":"https://www.workato.com/custom_adapters/11502?token=538e3df3","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/jumpcloud.rb","properties":{"api_type":"REST","auth_type":"API Key","category":"Operations"}},{"id":"34","name":"Line Notify","image":"images/linenotify.png","link":"https://www.workato.com/custom_adapters/4724?token=efd2f801","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/linenotify.rb","properties":{"api_type":"REST","auth_type":"OAuth2.0","category":"Other"}},{"id":"35","name":"Mandrill","image":"images/mandrill.png","link":"https://www.workato.com/custom_adapters/1986?token=d77f685b","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/mandrill_connector.rb","properties":{"api_type":"REST","auth_type":"API Key","category":"Marketing"}},{"id":"36","name":"Marketo (Custom)","image":"images/marketo.png","link":"https://www.workato.com/custom_adapters/2980?token=d88b5471","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/custom_auth/marketo_connector.rb","properties":{"api_type":"REST","auth_type":"Custom","category":"Marketing"}},{"id":"37","name":"Microsoft Advertising","image":"images/microsoftadvertising.png","link":"https://www.workato.com/custom_adapters/12842?token=1ad2d381","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/microsoftadvertising.rb","properties":{"api_type":"REST","auth_type":"OAuth2.0","category":"Marketing"}},{"id":"38","name":"Microsoft Dynamics Finance and Operations","image":"images/dynamicscrm.png","link":"https://www.workato.com/custom_adapters/5081?token=5d9259df","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/dynamicsCRM","properties":{"api_type":"REST","auth_type":"OAuth2.0","category":"Finance and Accounting"}},{"id":"39","name":"Microsoft Office 365","image":"images/microsoftoffice365.png","link":"https://www.workato.com/custom_adapters/1284?token=d6601d81","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/microsoft_office_365.rb","properties":{"api_type":"REST","auth_type":"OAuth2.0","category":"Productivity"}},{"id":"40","name":"Namely (Custom)","image":"images/namely.png","link":"https://www.workato.com/custom_adapters/4458?token=5e7e36c8","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/namely_connector.rb","properties":{"api_type":"REST","auth_type":"OAuth2.0","category":"HR"}},{"id":"41","name":"NationBuilder (Custom)","image":"images/nationbuilder.png","link":"https://www.workato.com/custom_adapters/2403?token=68332176","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/nationbuilder_connector.rb","properties":{"api_type":"REST","auth_type":"OAuth2.0","category":"Marketing"}},{"id":"42","name":"Nokia SPS","image":"images/nokiasps.png","link":"https://www.workato.com/custom_adapters/5272?token=398c2716","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/basic_auth/nokiasps.rb","properties":{"api_type":"REST","auth_type":"Basic","category":"Operations"}},{"id":"43","name":"OpsGenie","image":"images/opsgenie.png","link":"https://www.workato.com/custom_adapters/3583?token=848432f5","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/ops_genie_connector.rb","properties":{"api_type":"REST","auth_type":"API Key","category":"Operations"}},{"id":"44","name":"Outreach","image":"images/outreach_logo.png","link":"https://www.workato.com/custom_adapters/19276?token=481c1d2f","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/outreach_connector.rb","properties":{"api_type":"REST","auth_type":"OAuth2.0","category":"Sales and Marketing"}},{"id":"45","name":"Password Generator","image":"images/passwordgenerator.png","link":"https://www.workato.com/custom_adapters/4494?token=d3ba17d2","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/none/password_generator.rb","properties":{"api_type":"REST","auth_type":"None","category":"Other"}},{"id":"46","name":"PayPal","image":"images/paypal.png","link":"https://www.workato.com/custom_adapters/3085?token=e65f1a72","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/custom_auth/paypal_connector.rb","properties":{"api_type":"REST","auth_type":"Custom","category":"Finance and Accounting"}},{"id":"47","name":"RSS Feed Reader 2.0","image":"images/rssfeedreader.png","link":"https://www.workato.com/custom_adapters/6161?token=4c15096d","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/none/rssfeedreader.rb","properties":{"api_type":"REST","auth_type":"None","category":"Other"}},{"id":"48","name":"RightSignature","image":"images/rightsignature.png","link":"https://www.workato.com/custom_adapters/2073?token=59e8a05d","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/rightsignature_connector.rb","properties":{"api_type":"REST","auth_type":"API Key","category":"Productivity"}},{"id":"49","name":"Sage Intacct (Custom)","image":"images/sageintacct.jpg","link":"https://www.workato.com/custom_adapters/3119?token=4dd71bfd","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/custom_auth/sage_intacct_connector.rb","properties":{"api_type":"SOAP","auth_type":"Custom","category":"Finance and Accounting"}},{"id":"50","name":"Salesforce (Custom)","image":"images/salesforcesoap.png","link":"https://www.workato.com/custom_adapters/10920?token=e9e92c57","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/custom_auth/salesforcesoap.rb","properties":{"api_type":"SOAP","auth_type":"Custom","category":"Operations"}},{"id":"51","name":"SalesforceIQ","image":"images/salesforceiq.png","link":"https://www.workato.com/custom_adapters/1747?token=457560e5","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/basic_auth/salesforceiq_connector.rb","properties":{"api_type":"REST","auth_type":"Basic","category":"Sales and BD"}},{"id":"52","name":"Segment","image":"images/segment.png","link":"https://www.workato.com/custom_adapters/12559?token=b06385a1","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/segment.rb","properties":{"api_type":"REST","auth_type":"API Key","category":"Operations"}},{"id":"53","name":"Shopware","image":"images/shopware.png","link":"https://www.workato.com/custom_adapters/1324?token=bdb1c519","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/digest_auth/shopware_connector.rb","properties":{"api_type":"REST","auth_type":"Digest","category":"Sales and BD"}},{"id":"54","name":"Spotify","image":"images/spotify.png","link":"https://www.workato.com/custom_adapters/1326?token=6f014f44","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/spotify_connector.rb","properties":{"api_type":"REST","auth_type":"OAuth2.0","category":"Other"}},{"id":"55","name":"Status Page","image":"images/statuspage.png","link":"https://www.workato.com/custom_adapters/5131?token=6d2e0480","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/none/statuspage.rb","properties":{"api_type":"REST","auth_type":"None","category":"Operations"}},{"id":"56","name":"Transdirect","image":"images/transdirect.png","link":"https://www.workato.com/custom_adapters/1329?token=d180f84e","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/basic_auth/transdirect.rb","properties":{"api_type":"REST","auth_type":"Basic","category":"Other"}},{"id":"57","name":"TransmitSMS","image":"images/transmitsms.png","link":"https://www.workato.com/custom_adapters/3411?token=5bbe6a6e","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/basic_auth/transmit_sms_connector.rb","properties":{"api_type":"REST","auth_type":"Basic","category":"Productivity"}},{"id":"58","name":"Typeform","image":"images/typeform.png","link":"https://www.workato.com/custom_adapters/3083?token=9b8dd4d0","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/typeform_connector.rb","properties":{"api_type":"REST","auth_type":"OAuth2.0","category":"Productivity"}},{"id":"59","name":"WorkflowMax","image":"images/workflowmax.png","link":"https://www.workato.com/custom_adapters/5846?token=7912edf9","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/workflowmax.rb","properties":{"api_type":"REST","auth_type":"API Key","category":"Finance and Accounting"}},{"id":"60","name":"Yarooms","image":"images/yarooms.png","link":"https://www.workato.com/custom_adapters/3939?token=894eeb95","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/custom_auth/yarooms_connector.rb","properties":{"api_type":"REST","auth_type":"Custom","category":"Collaboration"}},{"id":"61","name":"Zoho Mail","image":"images/zohomail.png","link":"https://www.workato.com/custom_adapters/14872?token=848b7fd6","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/zohomail.rb","properties":{"api_type":"REST","auth_type":"OAuth2.0","category":"Productivity"}},{"id":"62","name":"Zoom Meeting","image":"images/zoommeeting.png","link":"https://www.workato.com/custom_adapters/4560?token=3a533e7e","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/custom_auth/zoommeeting.rb","properties":{"api_type":"REST","auth_type":"Custom","category":"Collaboration"}},{"id":"63","name":"Zuora","image":"images/zuora.png","link":"https://www.workato.com/custom_adapters/4565?token=c8fcdfc8","github_link":"https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/custom_auth/zuora.rb","properties":{"api_type":"REST","auth_type":"Custom","category":"Operations"}}]
+[
+  {
+    "id": "1",
+    "name": "2checkout",
+    "image": "images/2checkout.png",
+    "link": "https://www.workato.com/custom_adapters/10602?token=13131e8c",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/2checkout.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "API Key",
+      "category": "Finance and Accounting"
+    }
+  },
+  {
+    "id": "2",
+    "name": "Action Network",
+    "image": "images/actionnetwork.png",
+    "link": "https://www.workato.com/custom_adapters/3122?token=b9275943",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/action_network_connector.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "API Key",
+      "category": "Marketing"
+    }
+  },
+  {
+    "id": "3",
+    "name": "Aftership",
+    "image": "images/aftership.png",
+    "link": "https://www.workato.com/custom_adapters/1316?token=b83769ad",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/aftership_connector.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "API Key",
+      "category": "Operations"
+    }
+  },
+  {
+    "id": "4",
+    "name": "Amazon SES",
+    "image": "images/amazonses.png",
+    "link": "https://www.workato.com/custom_adapters/12845?token=489f4dc8",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/amazonses.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "API Key",
+      "category": "Productivity"
+    }
+  },
+  {
+    "id": "5",
+    "name": "BMC Innovation Suite",
+    "image": "images/bmc.jpg",
+    "link": "https://www.workato.com/custom_adapters/3087?token=888e7a33",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/custom_auth/bmc_innovation_suite_connector.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "Custom",
+      "category": "Developer"
+    }
+  },
+  {
+    "id": "6",
+    "name": "Base CRM",
+    "image": "images/basecrm.png",
+    "link": "https://www.workato.com/custom_adapters/1764?token=d1a4cfb3",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/basecrm_connector.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "API Key",
+      "category": "Sales and BD"
+    }
+  },
+  {
+    "id": "7",
+    "name": "Bill.com (Custom)",
+    "image": "images/bill.png",
+    "link": "https://www.workato.com/custom_adapters/1734?token=48a1ebea",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/custom_auth/bill_connector.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "Custom",
+      "category": "Finance and Accounting"
+    }
+  },
+  {
+    "id": "8",
+    "name": "BlackLine",
+    "image": "images/blackline-systems-squarelogo.png",
+    "link": "https://www.workato.com/custom_adapters/10303?token=8f761b88",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/custom_auth/blackline.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "Custom",
+      "category": "Finance and Accounting"
+    }
+  },
+  {
+    "id": "9",
+    "name": "BlackLine Reports",
+    "image": "images/blackline-systems-squarelogo.png",
+    "link": "https://www.workato.com/custom_adapters/11365?token=b0ad34e2",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/custom_auth/blacklinereports.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "Custom",
+      "category": "Finance and Accounting"
+    }
+  },
+  {
+    "id": "10",
+    "name": "Calendly",
+    "image": "images/calendly.png",
+    "link": "https://www.workato.com/custom_adapters/2966?token=472495f8",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/calendly_connector.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "Custom",
+      "category": "Productivity"
+    }
+  },
+  {
+    "id": "11",
+    "name": "Chartmogul",
+    "image": "images/chartmogul.png",
+    "link": "https://www.workato.com/custom_adapters/1319?token=51dd82ec",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/custom_auth/chartmogul_connector.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "Custom",
+      "category": "Sales and BD"
+    }
+  },
+  {
+    "id": "12",
+    "name": "Clover",
+    "image": "images/clover.png",
+    "link": "https://www.workato.com/custom_adapters/11364?token=30ebda56",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/clover.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "API Key",
+      "category": "Operations"
+    }
+  },
+  {
+    "id": "13",
+    "name": "Codility",
+    "image": "images/codility.png",
+    "link": "https://www.workato.com/custom_adapters/14705?token=8f38a31e",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/codility_connector.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "API Key",
+      "category": "HR"
+    }
+  },
+  {
+    "id": "14",
+    "name": "Constant Contact",
+    "image": "images/constantcontact.png",
+    "link": "https://www.workato.com/custom_adapters/1320?token=f6157902",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/constant_contact.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "OAuth2.0",
+      "category": "Marketing"
+    }
+  },
+  {
+    "id": "15",
+    "name": "ConvertAPI",
+    "image": "images/convertapi.png",
+    "link": "https://www.workato.com/custom_adapters/3652?token=7d327908",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/custom_auth/convert_api_connector.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "Custom",
+      "category": "Productivity"
+    }
+  },
+  {
+    "id": "16",
+    "name": "Domo",
+    "image": "images/domo.png",
+    "link": "https://www.workato.com/custom_adapters/1321?token=5cd5b806",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/custom_auth/domo.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "Custom",
+      "category": "Operations"
+    }
+  },
+  {
+    "id": "17",
+    "name": "Doubleclick",
+    "image": "images/doubleclick.png",
+    "link": "https://www.workato.com/custom_adapters/12867?token=55f6da1d",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/doubleclick.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "OAuth2.0",
+      "category": "Marketing"
+    }
+  },
+  {
+    "id": "18",
+    "name": "Drift",
+    "image": "images/drift.png",
+    "link": "https://www.workato.com/custom_adapters/10947?token=3f207403",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/drift.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "API Key",
+      "category": "Marketing"
+    }
+  },
+  {
+    "id": "19",
+    "name": "Duo Security",
+    "image": "images/duosecurity.png",
+    "link": "https://www.workato.com/custom_adapters/12843?token=b99f55aa",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/custom_auth/duosecurity.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "Custom",
+      "category": "Other"
+    }
+  },
+  {
+    "id": "20",
+    "name": "Easy Projects",
+    "image": "images/easyprojects.png",
+    "link": "https://www.workato.com/custom_adapters/12844?token=3a29e1a6",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/basic_auth/easyprojects.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "Basic",
+      "category": "Productivity"
+    }
+  },
+  {
+    "id": "21",
+    "name": "Facebook (Custom)",
+    "image": "images/facebook.png",
+    "link": "https://www.workato.com/custom_adapters/3124?token=46113cde",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/facebook_connector.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "API Key",
+      "category": "Marketing"
+    }
+  },
+  {
+    "id": "22",
+    "name": "FormAssembly",
+    "image": "images/formassembly.png",
+    "link": "https://www.workato.com/custom_adapters/4725?token=7fd69209",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/formassembly.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "OAuth2.0",
+      "category": "Productivity"
+    }
+  },
+  {
+    "id": "23",
+    "name": "G Suite Admin",
+    "image": "images/gadmin.png",
+    "link": "https://www.workato.com/custom_adapters/11321?token=b5e74307",
+    "github_link": "https://raw.githubusercontent.com/workato/custom_connector_docs/master/custom_connectors/oauth2/gsuite_admin_connector",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "OAuth2.0",
+      "category": "Operations"
+    }
+  },
+  {
+    "id": "24",
+    "name": "Google Analytics",
+    "image": "images/googleanalytics.png",
+    "link": "https://www.workato.com/custom_adapters/1270?token=8d23a89c",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/google_analytics_connector.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "OAuth2.0",
+      "category": "Marketing"
+    }
+  },
+  {
+    "id": "25",
+    "name": "Google BigQuery",
+    "image": "images/googlebigquery.png",
+    "link": "https://www.workato.com/custom_adapters/2607?token=3f0eae4c",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/google_bigquery_connector.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "OAuth2.0",
+      "category": "Productivity"
+    }
+  },
+  {
+    "id": "26",
+    "name": "Google Calendar (Custom)",
+    "image": "images/googlecalendar.jpg",
+    "link": "https://www.workato.com/custom_adapters/3906?token=c9d70069",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/google_calendar_connector.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "OAuth2.0",
+      "category": "Productivity"
+    }
+  },
+  {
+    "id": "27",
+    "name": "Gravity Forms",
+    "image": "images/gravityforms.png",
+    "link": "https://www.workato.com/custom_adapters/12868?token=1780c6af",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/basic_auth/gravityforms.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "API Key",
+      "category": "Other"
+    }
+  },
+  {
+    "id": "28",
+    "name": "Greenhouse",
+    "image": "images/greenhouse.png",
+    "link": "https://www.workato.com/custom_adapters/3585?token=07700d22",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/greenhouse_connector.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "API Key",
+      "category": "HR"
+    }
+  },
+  {
+    "id": "29",
+    "name": "Harvest",
+    "image": "images/harvest.png",
+    "link": "https://www.workato.com/custom_adapters/3081?token=711c08ab",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/harvest_connector.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "OAuth2.0",
+      "category": "HR"
+    }
+  },
+  {
+    "id": "30",
+    "name": "Hubspot (Custom)",
+    "image": "images/hubspot.png",
+    "link": "https://www.workato.com/custom_adapters/4563?token=bfbbbcc5",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/hubspot.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "OAuth2.0",
+      "category": "Marketing"
+    }
+  },
+  {
+    "id": "31",
+    "name": "Intercom (Custom)",
+    "image": "images/intercom.png",
+    "link": "https://www.workato.com/custom_adapters/3831?token=b839c286",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/intercom_connector.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "OAuth2.0",
+      "category": "Customer Service"
+    }
+  },
+  {
+    "id": "32",
+    "name": "Iterable",
+    "image": "images/iterable.png",
+    "link": "https://www.workato.com/custom_adapters/17527?token=986f939d",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/iterable.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "API Key",
+      "category": "Marketing"
+    }
+  },
+  {
+    "id": "33",
+    "name": "Jumpcloud",
+    "image": "images/jumpcloud.png",
+    "link": "https://www.workato.com/custom_adapters/11502?token=538e3df3",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/jumpcloud.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "API Key",
+      "category": "Operations"
+    }
+  },
+  {
+    "id": "34",
+    "name": "Line Notify",
+    "image": "images/linenotify.png",
+    "link": "https://www.workato.com/custom_adapters/4724?token=efd2f801",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/linenotify.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "OAuth2.0",
+      "category": "Other"
+    }
+  },
+  {
+    "id": "35",
+    "name": "Mandrill",
+    "image": "images/mandrill.png",
+    "link": "https://www.workato.com/custom_adapters/1986?token=d77f685b",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/mandrill_connector.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "API Key",
+      "category": "Marketing"
+    }
+  },
+  {
+    "id": "36",
+    "name": "Marketo (Custom)",
+    "image": "images/marketo.png",
+    "link": "https://www.workato.com/custom_adapters/2980?token=d88b5471",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/custom_auth/marketo_connector.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "Custom",
+      "category": "Marketing"
+    }
+  },
+  {
+    "id": "37",
+    "name": "Microsoft Advertising",
+    "image": "images/microsoftadvertising.png",
+    "link": "https://www.workato.com/custom_adapters/12842?token=1ad2d381",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/microsoftadvertising.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "OAuth2.0",
+      "category": "Marketing"
+    }
+  },
+  {
+    "id": "38",
+    "name": "Microsoft Dynamics Finance and Operations",
+    "image": "images/dynamicscrm.png",
+    "link": "https://www.workato.com/custom_adapters/5081?token=5d9259df",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/dynamicsCRM",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "OAuth2.0",
+      "category": "Finance and Accounting"
+    }
+  },
+  {
+    "id": "39",
+    "name": "Microsoft Office 365",
+    "image": "images/microsoftoffice365.png",
+    "link": "https://www.workato.com/custom_adapters/1284?token=d6601d81",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/microsoft_office_365.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "OAuth2.0",
+      "category": "Productivity"
+    }
+  },
+  {
+    "id": "40",
+    "name": "Namely (Custom)",
+    "image": "images/namely.png",
+    "link": "https://www.workato.com/custom_adapters/4458?token=5e7e36c8",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/namely_connector.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "OAuth2.0",
+      "category": "HR"
+    }
+  },
+  {
+    "id": "41",
+    "name": "NationBuilder (Custom)",
+    "image": "images/nationbuilder.png",
+    "link": "https://www.workato.com/custom_adapters/2403?token=68332176",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/nationbuilder_connector.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "OAuth2.0",
+      "category": "Marketing"
+    }
+  },
+  {
+    "id": "42",
+    "name": "Nokia SPS",
+    "image": "images/nokiasps.png",
+    "link": "https://www.workato.com/custom_adapters/5272?token=398c2716",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/basic_auth/nokiasps.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "Basic",
+      "category": "Operations"
+    }
+  },
+  {
+    "id": "43",
+    "name": "OpsGenie",
+    "image": "images/opsgenie.png",
+    "link": "https://www.workato.com/custom_adapters/3583?token=848432f5",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/ops_genie_connector.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "API Key",
+      "category": "Operations"
+    }
+  },
+  {
+    "id": "44",
+    "name": "Outreach",
+    "image": "images/outreach_logo.png",
+    "link": "https://www.workato.com/custom_adapters/19276?token=481c1d2f",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/outreach_connector.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "OAuth2.0",
+      "category": "Sales and Marketing"
+    }
+  },
+  {
+    "id": "45",
+    "name": "Password Generator",
+    "image": "images/passwordgenerator.png",
+    "link": "https://www.workato.com/custom_adapters/4494?token=d3ba17d2",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/none/password_generator.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "None",
+      "category": "Other"
+    }
+  },
+  {
+    "id": "46",
+    "name": "PayPal",
+    "image": "images/paypal.png",
+    "link": "https://www.workato.com/custom_adapters/3085?token=e65f1a72",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/custom_auth/paypal_connector.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "Custom",
+      "category": "Finance and Accounting"
+    }
+  },
+  {
+    "id": "47",
+    "name": "RSS Feed Reader 2.0",
+    "image": "images/rssfeedreader.png",
+    "link": "https://www.workato.com/custom_adapters/6161?token=4c15096d",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/none/rssfeedreader.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "None",
+      "category": "Other"
+    }
+  },
+  {
+    "id": "48",
+    "name": "RightSignature",
+    "image": "images/rightsignature.png",
+    "link": "https://www.workato.com/custom_adapters/2073?token=59e8a05d",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/rightsignature_connector.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "API Key",
+      "category": "Productivity"
+    }
+  },
+  {
+    "id": "49",
+    "name": "Sage Intacct (Custom)",
+    "image": "images/sageintacct.jpg",
+    "link": "https://www.workato.com/custom_adapters/3119?token=4dd71bfd",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/custom_auth/sage_intacct_connector.rb",
+    "properties": {
+      "api_type": "SOAP",
+      "auth_type": "Custom",
+      "category": "Finance and Accounting"
+    }
+  },
+  {
+    "id": "50",
+    "name": "Salesforce (Custom)",
+    "image": "images/salesforcesoap.png",
+    "link": "https://www.workato.com/custom_adapters/10920?token=e9e92c57",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/custom_auth/salesforcesoap.rb",
+    "properties": {
+      "api_type": "SOAP",
+      "auth_type": "Custom",
+      "category": "Operations"
+    }
+  },
+  {
+    "id": "51",
+    "name": "SalesforceIQ",
+    "image": "images/salesforceiq.png",
+    "link": "https://www.workato.com/custom_adapters/1747?token=457560e5",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/basic_auth/salesforceiq_connector.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "Basic",
+      "category": "Sales and BD"
+    }
+  },
+  {
+    "id": "52",
+    "name": "Segment",
+    "image": "images/segment.png",
+    "link": "https://www.workato.com/custom_adapters/12559?token=b06385a1",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/segment.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "API Key",
+      "category": "Operations"
+    }
+  },
+  {
+    "id": "53",
+    "name": "Shopware",
+    "image": "images/shopware.png",
+    "link": "https://www.workato.com/custom_adapters/1324?token=bdb1c519",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/digest_auth/shopware_connector.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "Digest",
+      "category": "Sales and BD"
+    }
+  },
+  {
+    "id": "54",
+    "name": "Spotify",
+    "image": "images/spotify.png",
+    "link": "https://www.workato.com/custom_adapters/1326?token=6f014f44",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/spotify_connector.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "OAuth2.0",
+      "category": "Other"
+    }
+  },
+  {
+    "id": "55",
+    "name": "Status Page",
+    "image": "images/statuspage.png",
+    "link": "https://www.workato.com/custom_adapters/5131?token=6d2e0480",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/none/statuspage.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "None",
+      "category": "Operations"
+    }
+  },
+  {
+    "id": "56",
+    "name": "Transdirect",
+    "image": "images/transdirect.png",
+    "link": "https://www.workato.com/custom_adapters/1329?token=d180f84e",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/basic_auth/transdirect.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "Basic",
+      "category": "Other"
+    }
+  },
+  {
+    "id": "57",
+    "name": "TransmitSMS",
+    "image": "images/transmitsms.png",
+    "link": "https://www.workato.com/custom_adapters/3411?token=5bbe6a6e",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/basic_auth/transmit_sms_connector.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "Basic",
+      "category": "Productivity"
+    }
+  },
+  {
+    "id": "58",
+    "name": "Typeform",
+    "image": "images/typeform.png",
+    "link": "https://www.workato.com/custom_adapters/3083?token=9b8dd4d0",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/typeform_connector.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "OAuth2.0",
+      "category": "Productivity"
+    }
+  },
+  {
+    "id": "59",
+    "name": "WorkflowMax",
+    "image": "images/workflowmax.png",
+    "link": "https://www.workato.com/custom_adapters/5846?token=7912edf9",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/workflowmax.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "API Key",
+      "category": "Finance and Accounting"
+    }
+  },
+  {
+    "id": "60",
+    "name": "Yarooms",
+    "image": "images/yarooms.png",
+    "link": "https://www.workato.com/custom_adapters/3939?token=894eeb95",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/custom_auth/yarooms_connector.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "Custom",
+      "category": "Collaboration"
+    }
+  },
+  {
+    "id": "61",
+    "name": "Zoho Mail",
+    "image": "images/zohomail.png",
+    "link": "https://www.workato.com/custom_adapters/14872?token=848b7fd6",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/zohomail.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "OAuth2.0",
+      "category": "Productivity"
+    }
+  },
+  {
+    "id": "62",
+    "name": "Zuora",
+    "image": "images/zuora.png",
+    "link": "https://www.workato.com/custom_adapters/4565?token=c8fcdfc8",
+    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/custom_auth/zuora.rb",
+    "properties": {
+      "api_type": "REST",
+      "auth_type": "Custom",
+      "category": "Operations"
+    }
+  }
+]
