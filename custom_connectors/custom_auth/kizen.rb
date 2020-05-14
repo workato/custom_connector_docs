@@ -49,7 +49,7 @@
     format_input: lambda do |input|
       if input['custom_fields'].present?
         input['custom_fields'] = input['custom_fields'].map do |key, value|
-          key = key.gsub(/^f_/, "").gsub(/_/, "-")
+          key = key.gsub(/^f_/, '').gsub(/_/, '-')
           { key => value }
         end.inject(:merge)
       end
