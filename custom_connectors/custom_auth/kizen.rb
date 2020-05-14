@@ -27,7 +27,9 @@
       type: 'custom_auth',
 
       apply: lambda do |connection|
-        headers('X-USER-ID': connection['user_id'], 'X-API-KEY': connection['api_key'], 'X-BUSINESS-ID': connection['business_id'])
+        headers('X-USER-ID': connection['user_id'],
+          'X-API-KEY': connection['api_key'],
+          'X-BUSINESS-ID': connection['business_id'])
       end
     },
 
@@ -51,7 +53,9 @@
 
     format_output: lambda do |result|
       if result['custom_fields'].present?
-        result['custom_fields'] = result['custom_fields']&.values&.each_with_object({}) do |obj, h|
+        result['custom_fields'] = result['custom_fields']
+                                    &.values
+                                    &.each_with_object({}) do |obj, h|
           h["f_#{obj['field_id'].gsub(/-/, '_')}"] = obj['value']
         end
       end
@@ -61,14 +65,20 @@
     get_custom_fields: lambda do |url|
       get(url)&.
         map do |field|
-          { name: "f_#{field['id'].gsub(/-/, '_')}", label: field['name'].labelize, type: field['type'], custom: true }
+          { name: "f_#{field['id'].gsub(/-/, '_')}",
+            label: field['name'].labelize,
+            type: field['type'],
+            custom: true }
         end
     end,
 
     get_trigger_custom_fields: lambda do |url|
       get(url)&.
         map do |field|
-          { name: field['handle'], label: field['name'].labelize, type: field['type'], custom: true }
+          { name: field['handle'],
+            label: field['name'].labelize,
+            type: field['type'],
+            custom: true }
         end
     end
   },
@@ -80,8 +90,13 @@
         case config_fields['object']
         when 'deal'
           [
-            { name: 'name', label: "Deal name", optional: false },
-            { name: 'amount', type: 'integer', control_type: 'integer', label: "Deal amount" },
+            { name: 'name',
+              label: 'Deal name',
+              optional: false },
+            { name: 'amount',
+              type: 'integer',
+              control_type: 'integer',
+              label: 'Deal amount' },
             { name: 'owner',
               control_type: 'select',
               pick_list: 'owners',
@@ -135,8 +150,14 @@
                 toggle_hint: 'Use custom value',
                 optional: true
               } },
-            { name: 'close_date', label: 'Close date', type: 'date_time', control_type: 'date' },
-            { name: 'estimated_close_date', label: 'Estimated close date', type: 'date_time', control_type: 'date' },
+            { name: 'close_date',
+              label: 'Close date',
+              type: 'date_time',
+              ontrol_type: 'date' },
+            { name: 'estimated_close_date',
+              label: 'Estimated close date',
+              type: 'date_time',
+              control_type: 'date' },
             { name: 'primary_client',
               label: 'Primary contact',
               control_type: 'select',
@@ -165,30 +186,61 @@
               } },
             { name: 'order', type: 'integer', control_type: 'integer' },
             { name: 'custom_fields',
-              type: 'object', properties: call("get_custom_fields", "/api/deal-custom-field") }
+              type: 'object',
+              properties:
+              call('get_custom_fields', '/api/deal-custom-field') }
           ]
         when 'company'
           [
-            { name: 'name', label: "Company name", sticky: true },
+            { name: 'name',
+              label: "Company name",
+              sticky: true },
             { name: 'email', control_type: 'email' },
-            { name: 'mobile_phone', label: 'Mobile phone', type: 'integer', control_type: 'integer' },
-            { name: 'business_phone', label: 'Business phone', type: 'integer', control_type: 'integer' },
+            { name: 'mobile_phone',
+              label: 'Mobile phone',
+              type: 'integer',
+              control_type: 'integer' },
+            { name: 'business_phone',
+              label: 'Business phone',
+              type: 'integer',
+              control_type: 'integer' },
             { name: 'custom_fields',
-              type: 'object', properties: call("get_custom_fields", "/api/company-field") }
+              type: 'object',
+              properties:
+              call('get_custom_fields', '/api/company-field') }
           ]
         when 'client'
           [
-            { name: 'first_name', label: 'First name', sticky: true },
-            { name: 'last_name', label: 'Last name', sticky: true },
-            { name: 'email', sticky: true, control_type: 'email' },
+            { name: 'first_name',
+              label: 'First name',
+              sticky: true },
+            { name: 'last_name',
+              label: 'Last name',
+              sticky: true },
+            { name: 'email',
+              sticky: true,
+              control_type: 'email' },
             { name: 'full_name', label: 'Full name' },
-            { name: 'mobile_phone', label: 'Mobile phone', type: 'integer', control_type: 'integer' },
-            { name: 'business_phone', label: 'Business phone', type: 'integer', control_type: 'integer' },
-            { name: 'home_phone', label: 'Home phone', type: 'integer', control_type: 'integer' },
-            { name: 'birthday', type: 'date', control_type: 'date' },
+            { name: 'mobile_phone',
+              label: 'Mobile phone',
+              type: 'integer',
+              control_type: 'integer' },
+            { name: 'business_phone',
+              label: 'Business phone',
+              type: 'integer',
+              control_type: 'integer' },
+            { name: 'home_phone',
+              label: 'Home phone',
+              type: 'integer',
+              control_type: 'integer' },
+            { name: 'birthday',
+              type: 'date',
+              control_type: 'date' },
             { name: 'timezone' },
             { name: 'custom_fields',
-              type: 'object', properties: call("get_custom_fields", "/api/client-field") }
+              type: 'object',
+              properties:
+              call('get_custom_fields', '/api/client-field') }
           ]
         end
       end
@@ -200,15 +252,28 @@
         when 'deal'
           [
             { name: 'id', label: 'Deal ID' },
-            { name: 'name', label: "Deal name" },
-            { name: 'amount', type: 'integer', control_type: 'integer', label: "Deal amount" },
+            { name: 'name', label: 'Deal name' },
+            { name: 'amount',
+              type: 'integer',
+              control_type: 'integer',
+              label: 'Deal amount' },
             { name: 'owner' },
             { name: 'primary_client' },
             { name: 'primary_company' },
-            { name: 'close_date', type: 'date_time', control_type: 'date' },
-            { name: 'estimated_close_date', type: 'date_time', control_type: 'date_time' },
-            { name: 'created', label: 'Created date', type: 'date_time', control_type: 'date_time' },
-            { name: 'updated', label: 'Updated date', type: 'date_time', control_type: 'date_time' },
+            { name: 'close_date',
+              type: 'date_time',
+              control_type: 'date' },
+            { name: 'estimated_close_date',
+              type: 'date_time',
+              control_type: 'date_time' },
+            { name: 'created',
+              label: 'Created date',
+              type: 'date_time',
+              control_type: 'date_time' },
+            { name: 'updated',
+              label: 'Updated date',
+              type: 'date_time',
+              control_type: 'date_time' },
             { name: 'stage' },
             { name: 'order', type: 'integer', control_type: 'integer' },
             { name: 'pipeline' },
@@ -223,15 +288,23 @@
                 { name: 'name' }
               ] },
             { name: 'custom_fields',
-              type: 'object', properties: call("get_custom_fields", "/api/deal-custom-field") }
+              type: 'object',
+              properties:
+              call('get_custom_fields', '/api/deal-custom-field') }
           ]
         when 'company'
           [
             { name: 'id', label: 'Company ID' },
             { name: 'name', label: "Company name" },
             { name: 'email', control_type: 'email' },
-            { name: 'mobile_phone', label: 'Mobile phone', type: 'integer', control_type: 'integer' },
-            { name: 'business_phone', label: 'Business phone', type: 'integer', control_type: 'integer' },
+            { name: 'mobile_phone',
+              label: 'Mobile phone',
+              type: 'integer',
+              control_type: 'integer' },
+            { name: 'business_phone',
+              label: 'Business phone',
+              type: 'integer',
+              control_type: 'integer' },
             { name: 'addresses', type: 'array', of: 'object', properties:
               [
                 { name: 'full_name' },
@@ -252,9 +325,14 @@
                 { name: 'name' },
                 { name: 'id' }
               ] },
-            { name: 'created', label: 'Created date', type: 'date_time', control_type: 'date_time' },
+            { name: 'created',
+              label: 'Created date',
+              type: 'date_time',
+              control_type: 'date_time' },
             { name: 'custom_fields',
-              type: 'object', properties: call("get_custom_fields", "/api/company-field") }
+              type: 'object',
+              properties:
+              call('get_custom_fields', '/api/company-field') }
           ]
         when 'client'
           [
@@ -265,17 +343,33 @@
             { name: 'birthday', type: 'date' },
             { name: 'display_name', label: 'Display name' },
             { name: 'email', control_type: 'email' },
-            { name: 'mobile_phone', label: 'Mobile phone', type: 'integer', control_type: 'integer' },
-            { name: 'business_phone', label: 'Business phone', type: 'integer', control_type: 'integer' },
-            { name: 'home_phone', label: 'Home phone', type: 'integer', control_type: 'integer' },
+            { name: 'mobile_phone',
+              label: 'Mobile phone',
+              type: 'integer',
+              control_type: 'integer' },
+            { name: 'business_phone',
+              label: 'Business phone',
+              type: 'integer',
+              control_type: 'integer' },
+            { name: 'home_phone',
+              label: 'Home phone',
+              type: 'integer',
+              control_type: 'integer' },
             { name: 'company',
               hint: 'The company at which the candidate currently works' },
-            { name: 'titles', hint: 'The candidate’s current title', type: 'array', of: 'object', properties:
+            { name: 'titles',
+              hint: 'The candidate’s current title',
+              type: 'array',
+              of: 'object',
+              properties:
               [
                 { name: 'name' },
                 { name: 'id' }
               ] },
-            { name: 'tags', type: 'array', of: 'object', properties:
+            { name: 'tags',
+              type: 'array',
+              of: 'object',
+              properties:
               [
                 { name: 'name' },
                 { name: 'id' }
@@ -285,7 +379,9 @@
             { name: 'email_is_blacklisted', type: 'boolean', control_type: 'checkbox' },
             { name: 'created', label: 'Created date', type: 'date_time', control_type: 'date_time' },
             { name: 'custom_fields',
-              type: 'object', properties: call("get_custom_fields", "/api/client-field") }
+              type: 'object',
+              properties:
+              call('get_custom_fields', '/api/client-field') }
           ]
         end
       end
@@ -297,11 +393,11 @@
         when 'deal'
           [
             { name: 'id', label: 'Deal ID' },
-            { name: 'name', label: "Deal name" },
+            { name: 'name', label: 'Deal name' },
             { name: 'amount',
               type: 'integer',
               control_type: 'integer',
-              label: "Deal amount" },
+              label: 'Deal amount' },
             { name: 'owner' },
             { name: 'primary_client' },
             { name: 'primary_company' },
@@ -464,9 +560,9 @@
       execute: lambda do |_connection, input|
         payload = call('format_input', input)
         result = post("/api/#{input['object']}", payload)
-        .after_error_response(/.*/) do |_code, body, _header, message|
-          error("#{message}: #{body}")
-        end
+                 .after_error_response(/.*/) do |_code, body, _header, message|
+                   error("#{message}: #{body}")
+                 end
         call('format_output', result)
       end,
 
@@ -512,9 +608,9 @@
       execute: lambda do |_connection, input|
         payload = call('format_input', input)
         result = put("/api/#{input['object']}/#{input['id']}", payload)
-        .after_error_response(/.*/) do |_code, body, _header, message|
-          error("#{message}: #{body}")
-        end
+                 .after_error_response(/.*/) do |_code, body, _header, message|
+                   error("#{message}: #{body}")
+                 end
         call('format_output', result)
       end,
 
