@@ -470,7 +470,8 @@
       end,
 
       sample_output: lambda do |_connection, input|
-        get("https://api.kizen.com/#{input['object']}?page=1&page_size=1").dig("results", 0)
+        get("https://api.kizen.com/#{input['object']}?page=1&page_size=1")
+          .dig('results', 0)
       end
     }
   },
@@ -480,10 +481,12 @@
       title: 'New object',
       subtitle: 'New object in Kizen',
       description: lambda do |_connection, objects|
-        "New <span class='provider'>#{objects['object']&.downcase || 'object'}</span> in <span class='provider'>Kizen</span>"
+        "New <span class='provider'>#{objects['object']&.downcase || 'object'}" \
+        "</span> in <span class='provider'>Kizen</span>"
       end,
       help: lambda do |_, objects|
-        "Triggers when #{objects['object']&.downcase || 'an object'} is created in Kizen."
+        "Triggers when #{objects['object']&.downcase || 'an object'} " \
+        "is created in Kizen."
       end,
 
       config_fields: [
@@ -512,7 +515,7 @@
             toggle_hint: 'Use custom value',
             optional: true,
             sticky: true,
-            hint: 'Required to filter deals.',
+            hint: 'Required to filter deals.'
           } },
         {
           name: 'since',
@@ -521,10 +524,10 @@
           optional: true,
           sticky: true,
           since_field: true,
-          hint: "When you start recipe for the first time, it picks up trigger " \
-                "events from this specified date and time.<br> " \
-                "<b>Once recipe has been run or tested, value cannot be changed.</b> " \
-                "If left blank, trigger picks up events from 1 hour ago."
+          hint: 'When you start recipe for the first time, it picks up ' \
+                'trigger events from this specified date and time.<br> <b>' \
+                'Once recipe has been run or tested, value cannot be changed.' \
+                '</b> If left blank, trigger picks up events from 1 hour ago.'
         }
       ],
 
@@ -538,8 +541,10 @@
             'fields': [{
               'field': 'created',
               'condition': '>',
-              'values': [(closure[:last_created_date].presence || input[:since].presence || 1.hour.ago).
-                          to_time.utc.iso8601]
+              'values': [
+                (closure[:last_created_date].presence || input[:since].presence || 1.hour.ago)
+                .to_time.utc.iso8601
+              ]
             }]
           }
         }.to_json
@@ -574,8 +579,8 @@
       end,
 
       sample_output: lambda do |_connection, input|
-        get("https://api.kizen.com/#{input['object']}?page=1&page_size=1").
-          dig('results', 0)
+        get("https://api.kizen.com/#{input['object']}?page=1&page_size=1")
+          .dig('results', 0)
       end
     }
   },
@@ -599,14 +604,14 @@
       end
     end,
 
-    stages: lambda do |_connection, pipeline:|
-      get('/api/deal-pipeline/#{pipeline}')['stages']&.map do |res|
+    stages: lambda do |_connection, pipeline|
+      get("/api/deal-pipeline/#{pipeline}")['stages']&.map do |res|
         [res['name'].presence || 'unknown', res['id']]
       end
     end,
 
-    reason_losts: lambda do |_connection, pipeline:|
-      get('/api/deal-pipeline/#{pipeline}')['reasons_lost']&.map do |res|
+    reason_losts: lambda do |_connection, pipeline|
+      get("/api/deal-pipeline/#{pipeline}")['reasons_lost']&.map do |res|
         [res['name'].presence || 'unknown', res['id']]
       end
     end,
