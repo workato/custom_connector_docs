@@ -385,7 +385,7 @@
               type: 'boolean',
               control_type: 'checkbox' },
             { name: 'created',
-              label: 'Created date', 
+              label: 'Created date',
               type: 'date_time',
               control_type: 'date_time' },
             { name: 'custom_fields',
