@@ -1283,7 +1283,7 @@
           { name: "last_activity_after",
             type: "date_time", control_type: "date_time",
             hint: "Timestamp must be in in ISO-8601 format" },
-          { name: "status", control_type: "select", picklist:
+          { name: "status", control_type: "select", pick_list:
             [
               %w[Active active],
               %w[Converted converted],
