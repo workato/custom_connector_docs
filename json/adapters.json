@@ -730,17 +730,5 @@
       "auth_type": "OAuth2.0",
       "category": "Productivity"
     }
-  },
-  {
-    "id": "62",
-    "name": "Zuora",
-    "image": "images/zuora.png",
-    "link": "https://www.workato.com/custom_adapters/4565?token=c8fcdfc8",
-    "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/custom_auth/zuora.rb",
-    "properties": {
-      "api_type": "REST",
-      "auth_type": "Custom",
-      "category": "Operations"
-    }
   }
 ]
