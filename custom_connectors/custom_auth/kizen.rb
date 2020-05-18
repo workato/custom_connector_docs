@@ -1146,26 +1146,24 @@
           { name: "quantity", optional: false , hint: "This must be a number without decimal places. Example - 1.00 will not work."},
         ]
       end,
-      
-      
-      
-      
-      
+
       execute: lambda do |_connection, input|
-      post("https://app.kizen.com/api/commerce/orders").
+        post("https://app.kizen.com/api/commerce/orders").
           payload(
-            "order_status": input["order_status"],
-            "order_number": input["order_number"],
-            "created": input["created"],
-            "client": { "email": input["email"],
-            "upload":true,
-            },
-            "line_items": [{"price": input["price"], "sku": input["sku"], "name": input["name"],"quantity": input["quantity"]}]
-      
-              
-                  
+            'order_status': input['order_status'],
+            'order_number': input['order_number'],
+            'created': input['created'],
+            'client': {'email': input['email']},
+            'upload':true,
+            'line_items': [
+              {'price': input['price'], 
+                'sku': input['sku'], 
+                'name': input['name'],
+                'quantity': input['quantity']
+              }
+            ]
             )
-      end, 
+      end,
     
     output_fields: lambda do
           [
