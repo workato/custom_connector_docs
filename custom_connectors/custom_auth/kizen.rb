@@ -1452,7 +1452,7 @@ output_fields: lambda do
         ]
       end,
 
-    
+    #This is an array that needs to be split up. How can I do this? #Need workato's help on this one
     
       poll: lambda do |_connection, input, page|
         page_size = 50
@@ -1483,15 +1483,15 @@ output_fields: lambda do
       end,
       
       output_fields: lambda do
-          [
-            { name: 'id'},
-            { name: 'activity_type'},
-            { name: 'client'},  #This is an array that needs to be split up. How can I do this? #Need workato's help on this one
-            { name: 'company'},
-            { name: 'deal'},
-            { name: 'employee'},
-            { name: 'created'}
-          ]
+        [
+            { name: 'id' },
+            { name: 'activity_type' },
+            { name: 'client' },
+            { name: 'company' },
+            { name: 'deal' },
+            { name: 'employee' },
+            { name: 'created' }
+        ]
       end
     }
   },
@@ -1538,12 +1538,12 @@ output_fields: lambda do
       get(url).pluck('name', 'id')
     },
     
-      lead_sources: ->(_connection) {
-        url = 'https://app.kizen.com/api/lead-source-custom-source-type'
-        get(url)['results'].pluck('name', 'id')
+    lead_sources: ->(_connection) {
+      url = 'https://app.kizen.com/api/lead-source-custom-source-type'
+      get(url)['results'].pluck('name', 'id')
     },
     
-        order_status: lambda do |connection|
+    order_status: lambda do |connection|
       [
         # Display name, value
         ['paid', 'paid']
