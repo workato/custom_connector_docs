@@ -779,7 +779,7 @@
       help: lambda do |_, objects|
         "Create #{objects['object']&.downcase || 'object'} in Kizen."
       end,
-
+      
       config_fields: [
         {
           name: 'object',
@@ -1484,15 +1484,15 @@ output_fields: lambda do
       
       output_fields: lambda do
           [
-          { name: "id"},
-            { name: "activity_type"},
-            { name: "client"},  #This is an array that needs to be split up. How can I do this? #Need workato's help on this one
-            { name: "company"},
-            { name: "deal"},
-            { name: "employee"},
-            { name: "created"}
-        ]
-      end,
+            { name: 'id'},
+            { name: 'activity_type'},
+            { name: 'client'},  #This is an array that needs to be split up. How can I do this? #Need workato's help on this one
+            { name: 'company'},
+            { name: 'deal'},
+            { name: 'employee'},
+            { name: 'created'}
+          ]
+      end
     }
   },
 
@@ -1533,20 +1533,22 @@ output_fields: lambda do
       end
     end,
     
-    activities: ->(connection) {
-      url = "https://app.kizen.com/api/activity-type?fields=id,name,created"
-      get(url).pluck('name', 'id')  
+    activities: ->(_connection) {
+      url = 'https://app.kizen.com/api/activity-type?fields=id,name,created'
+      get(url).pluck('name', 'id')
     },
-      lead_sources: ->(connection) {
-      url = "https://app.kizen.com/api/lead-source-custom-source-type"
-      get(url)['results'].pluck('name', 'id') 
+    
+      lead_sources: ->(_connection) {
+        url = 'https://app.kizen.com/api/lead-source-custom-source-type'
+        get(url)['results'].pluck('name', 'id')
     },
+    
         order_status: lambda do |connection|
       [
         # Display name, value
-        ["paid","paid"]
+        ['paid', 'paid']
       ]
-    end,
+        end,
 
     kizen_objects: lambda do
       [
