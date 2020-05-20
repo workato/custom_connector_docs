@@ -1135,32 +1135,35 @@ create_order: { #This is new
 
   input_fields: lambda do
     [
-      { name: "email", optional: false },
-      { name: "order_status", optional: false, control_type: "select", pick_list: "order_status" },
-      { name: "order_number", optional: false, hint: "This must be an integer" },
-      { name: "created", optional: false, hint: "(YYYY-MM-DD)" },
-      { name: "sku", label: "SKU",optional: false },
-      { name: "name", optional: false,label:"Product Name" },
-      { name: "price", optional: false },
-      { name: "quantity", optional: false , hint: "This must be a number without decimal places. Example - 1.00 will not work."},
+      { name: 'email', optional: false },
+      { name: 'order_status', 
+        optional: false, 
+        control_type: "select", 
+        pick_list: "order_status" },
+      { name: 'order_number', optional: false, hint: "Must be an integer" },
+      { name: 'created', optional: false, hint: "(YYYY-MM-DD)" },
+      { name: 'sku', label: "SKU", optional: false },
+      { name: 'name', optional: false,label:"Product Name" },
+      { name: 'price', optional: false },
+      { name: 'quantity', optional: false , hint: "This must be a number without decimal places. Example - 1.00 will not work."},
     ]
   end,
 
   execute: lambda do |_connection, input|
-    post("https://app.kizen.com/api/commerce/orders").
-          payload(
-            'order_status': input['order_status'],
-            'order_number': input['order_number'],
-            'created': input['created'],
-            'client': {'email': input['email']},
-            'upload':true,
-            'line_items': [
-              {'price': input['price'], 
-                'sku': input['sku'], 
-                'name': input['name'],
-                'quantity': input['quantity']}
-            ]
-          )
+    post('https://app.kizen.com/api/commerce/orders')
+      .payload(
+        'order_status': input['order_status'],
+        'order_number': input['order_number'],
+        'created': input['created'],
+        'client': { 'email': input['email'] },
+         'upload': true,
+         'line_items': [
+           { 'price': input['price'],
+             'sku': input['sku'], 
+             'name': input['name'],
+             'quantity': input['quantity'] }
+         ]
+      )
   end,
 
   output_fields: lambda do
@@ -1169,7 +1172,7 @@ create_order: { #This is new
       { name: 'cart' },
       { name: 'client' }
     ]
-  end,
+  end
 }
 },
 
