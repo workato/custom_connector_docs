@@ -1367,18 +1367,18 @@
 
       output_fields: lambda do
         [
-            { name: "id"},
-            { name: "assigned_to"},
-            { name: "client"},  #This is an array that needs to be split up. How can I do this? #Need workato's help on this one. 
-            { name: "company"},
-            { name: "deal"},
-            { name: "scheduled"}
+            { name: 'id' },
+            { name: 'assigned_to' },
+            { name: 'client' },# This is an array that needs to be split up.
+            { name: 'company' },# Need workato's help on this one. 
+            { name: 'deal' },
+            { name: 'scheduled' }
         ]
-      end,
+      end
 
     },
 
-updated_contact: {  #This is new
+updated_contact: {# This is new
 
   input_fields: ->() {
   },
@@ -1386,12 +1386,13 @@ updated_contact: {  #This is new
   poll: ->(connection, input, last_updated_since) {
     updated_since = last_updated_since || input['since'] || Time.now
 
-    contacts = get("https://app.kizen.com/api/client-field-revision")
+    contacts = get('https://app.kizen.com/api/client-field-revision')
                .params(
-                 order_by: 'updated_at', 
+                 order_by: 'updated_at',
                  order_type: 'asc', 
-                 per_page: 2, 
-                 updated_since: updated_since.to_time.utc.iso8601)
+                 per_page: 2,
+                 updated_since: updated_since.to_time.utc.iso8601
+               )
     contacts = contacts['results']
 
     next_updated_since = contacts.last['updated_at'] unless contacts.blank?
@@ -1427,7 +1428,8 @@ updated_contact: {  #This is new
     ]
   end
 },
-new_logged_activity: {  # I'm having trouble parsing the output on this
+    
+new_logged_activity: {# I'm having trouble parsing the output on this
   title: 'New Logged Activity', # Will need help from Workato
   subtitle: 'New Logged Activity in Kizen',
   description: lambda do
@@ -1445,8 +1447,8 @@ new_logged_activity: {  # I'm having trouble parsing the output on this
       }
     ]
   end,
-    # The output is an array that needs to be split up. How can I do this?
-    # Need workato's help on this one
+  # The output is an array that needs to be split up. How can I do this?
+  # Need workato's help on this one
   poll: lambda do |_connection, input, page|
     page_size = 50
     activity_id = input['activities']
