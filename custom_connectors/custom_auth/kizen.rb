@@ -1319,16 +1319,16 @@
           { name: "id"},
           {name: "client"},  
         ]
-      end,
+      end
 
     },
-    new_scheduled_activity: { # I'm having trouble parsing the output on this one. Will need a little help from Workato, parsing an array in the output
+    new_scheduled_activity: { # I'm having trouble parsing the output
       title: 'New Scheduled Activity',
       subtitle: 'New Scheduled Activity in Kizen',
       description: lambda do
-        "New <span class='provider'>scheduled activity</span> in <span class='provider'>Kizen</span>"
+        "New <span class='provider'>scheduled activity in Kizen</span>"
       end,
-      
+
       input_fields: lambda do
         [
           { name: 'activities',
@@ -1336,7 +1336,7 @@
             control_type: 'select',
             pick_list: 'activities',
             optional: false,
-          },
+          }
         ]
       end,
 
@@ -1348,8 +1348,7 @@
                    .params(order_by: 'created',
                           order_type: 'asc',
                           page: page,
-                          per_page: page_size
-                   )
+                          per_page: page_size)
 
         puts response
         records = response&.[]('results') || []
@@ -1367,12 +1366,12 @@
 
       output_fields: lambda do
         [
-            { name: 'id' },
-            { name: 'assigned_to' },
-            { name: 'client' },# This is an array that needs to be split up.
-            { name: 'company' },# Need workato's help on this one. 
-            { name: 'deal' },
-            { name: 'scheduled' }
+          { name: 'id' },
+          { name: 'assigned_to' },
+          { name: 'client' }, # This is an array that needs to be split up.
+          { name: 'company' }, # Need workato's help on this one.
+          { name: 'deal' },
+          { name: 'scheduled' }
         ]
       end
 
@@ -1428,7 +1427,7 @@ updated_contact: {# This is new
     ]
   end
 },
-    
+
 new_logged_activity: {# I'm having trouble parsing the output on this
   title: 'New Logged Activity', # Will need help from Workato
   subtitle: 'New Logged Activity in Kizen',
