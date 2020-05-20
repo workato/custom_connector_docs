@@ -1295,12 +1295,12 @@
       poll: lambda do |_connection, _input, page|
         page_size = 50
         page ||= 1
-        response = get("https://app.kizen.com/api/commerce/orders").
-                  params(order_by: 'created', 
-                         order_type: 'asc', 
-                         page: page,
-                         per_page: page_size 
-                        )
+        response = get("https://app.kizen.com/api/commerce/orders")
+                   .params(order_by: 'created', 
+                     order_type: 'asc', 
+                     page: page,
+                     per_page: page_size 
+                   )
         records = response&.[]('results') || []
         page = records.size >= page_size ? page + 1 : 1 
         {
@@ -1315,13 +1315,13 @@
       end,
       
       output_fields: lambda do
-          [
-          { name: "id"},
-          {name: "client"},  
+        [
+          { name: "id" },
+          { name: "client" },  
         ]
       end
-
     },
+
     new_scheduled_activity: { # I'm having trouble parsing the output
       title: 'New Scheduled Activity',
       subtitle: 'New Scheduled Activity in Kizen',
@@ -1335,8 +1335,7 @@
             label: 'Activities',
             control_type: 'select',
             pick_list: 'activities',
-            optional: false,
-          }
+            optional: false}
         ]
       end,
 
