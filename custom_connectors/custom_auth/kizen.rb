@@ -1130,25 +1130,24 @@
           properties: object_definitions["deal_fields_trigger_output"] }
       end
     },
-    create_order: {     #This is new
-      title: 'Create order',
-      
-      
-    input_fields: lambda do
-        [
-          { name: "email", optional: false },
-          { name: "order_status", optional: false, control_type: "select", pick_list: "order_status" },
-          { name: "order_number", optional: false, hint: "This must be an integer" },
-          { name: "created", optional: false, hint: "(YYYY-MM-DD)" },
-          { name: "sku", label: "SKU",optional: false },
-          { name: "name", optional: false,label:"Product Name" },
-          { name: "price", optional: false },
-          { name: "quantity", optional: false , hint: "This must be a number without decimal places. Example - 1.00 will not work."},
-        ]
-      end,
+create_order: { #This is new
+  title: 'Create order',
 
-      execute: lambda do |_connection, input|
-        post("https://app.kizen.com/api/commerce/orders").
+  input_fields: lambda do
+    [
+      { name: "email", optional: false },
+      { name: "order_status", optional: false, control_type: "select", pick_list: "order_status" },
+      { name: "order_number", optional: false, hint: "This must be an integer" },
+      { name: "created", optional: false, hint: "(YYYY-MM-DD)" },
+      { name: "sku", label: "SKU",optional: false },
+      { name: "name", optional: false,label:"Product Name" },
+      { name: "price", optional: false },
+      { name: "quantity", optional: false , hint: "This must be a number without decimal places. Example - 1.00 will not work."},
+    ]
+  end,
+
+  execute: lambda do |_connection, input|
+    post("https://app.kizen.com/api/commerce/orders").
           payload(
             'order_status': input['order_status'],
             'order_number': input['order_number'],
@@ -1159,21 +1158,20 @@
               {'price': input['price'], 
                 'sku': input['sku'], 
                 'name': input['name'],
-                'quantity': input['quantity']
-              }
+                'quantity': input['quantity']}
             ]
-            )
-      end,
-    
-    output_fields: lambda do
-          [
-          { name: "id"},
-            { name: "cart"},
-            { name: "client"}
-        ]
-      end,
-      }
-  },
+          )
+  end,
+
+  output_fields: lambda do
+    [
+      { name: 'id' },
+      { name: 'cart' },
+      { name: 'client' }
+    ]
+  end,
+}
+},
 
   triggers: {
     new_object: {
@@ -1297,9 +1295,9 @@
         page ||= 1
         response = get("https://app.kizen.com/api/commerce/orders")
                    .params(order_by: 'created', 
-                     order_type: 'asc', 
+                     order_type: 'asc',
                      page: page,
-                     per_page: page_size 
+                     per_page: page_size
                    )
         records = response&.[]('results') || []
         page = records.size >= page_size ? page + 1 : 1 
@@ -1335,7 +1333,7 @@
             label: 'Activities',
             control_type: 'select',
             pick_list: 'activities',
-            optional: false}
+            optional: false }
         ]
       end,
 
