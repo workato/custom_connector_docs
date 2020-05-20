@@ -1391,11 +1391,12 @@ updated_contact: {  #This is new
   poll: ->(connection, input, last_updated_since) {
     updated_since = last_updated_since || input['since'] || Time.now
 
-    contacts = get("https://app.kizen.com/api/client-field-revision").
-      params(order_by: 'updated_at', 
-        order_type: 'asc', 
-        per_page: 2, 
-        updated_since: updated_since.to_time.utc.iso8601)
+    contacts = get("https://app.kizen.com/api/client-field-revision")
+               .params(
+                 order_by: 'updated_at', 
+                 order_type: 'asc', 
+                 per_page: 2, 
+                 updated_since: updated_since.to_time.utc.iso8601)
     contacts = contacts['results']
 
     next_updated_since = contacts.last['updated_at'] unless contacts.blank?
@@ -1431,66 +1432,64 @@ updated_contact: {  #This is new
     ]
   end
 },
-      new_logged_activity: {  # I'm having trouble parsing the output on this
-        title: 'New Logged Activity', # Will need a little help from Workato, parsing an array in the output.
-        subtitle: 'New Logged Activity in Kizen',
-        description: lambda do
-          "New <span class='provider'>logged activity in Kizen"
-        end,
-        
-        input_fields: lambda do
-        [
-          {
-            name: 'activities',
-            label: 'Activities',
-            control_type: 'select',
-            pick_list: 'activities',
-            optional: false
-          },
-        ]
-        end,
-      # The output is an array that needs to be split up. How can I do this?
-      # Need workato's help on this one
-        
-        poll: lambda do |_connection, input, page|
-          page_size = 50
-          activity_id = input['activities']
-          puts activity_id
-          page ||= 1
-          response = get("https://app.kizen.com/api/logged-activity?activity_type_id=#{activity_id}").
-            params(
-              order_by: 'created',
-              order_type: 'asc',
-              page: page,
-              per_page: page_size
-            )
-          puts response
-          records = response&.[]('results') || []
-          page = records.size >= page_size ? page + 1 : page
-          {
-            events: records,
-            next_page: page,
-            can_poll_more: records.size >= page_size
-          }
-        end,
+new_logged_activity: {  # I'm having trouble parsing the output on this
+  title: 'New Logged Activity', # Will need help from Workato
+  subtitle: 'New Logged Activity in Kizen',
+  description: lambda do
+    "New <span class='provider'>logged activity in Kizen"
+  end,
 
-        dedup: lambda do |deal|
-          deal['id']
-        end,
-
-
-        output_fields: lambda do
-          [
-            { name: 'id' },
-            { name: 'activity_type' },
-            { name: 'client' },
-            { name: 'company' },
-            { name: 'deal' },
-            { name: 'employee' },
-            { name: 'created' }
-          ]
-        end
+  input_fields: lambda do
+    [
+      {
+        name: 'activities',
+        label: 'Activities',
+        control_type: 'select',
+        pick_list: 'activities',
+        optional: false
       }
+    ]
+  end,
+    # The output is an array that needs to be split up. How can I do this?
+    # Need workato's help on this one
+  poll: lambda do |_connection, input, page|
+    page_size = 50
+    activity_id = input['activities']
+    puts activity_id
+    page ||= 1
+    response = get("https://app.kizen.com/api/logged-activity?activity_type_id=#{activity_id}")
+               .params(
+                 order_by: 'created',
+                 order_type: 'asc',
+                 page: page,
+                 per_page: page_size
+               )
+    puts response
+    records = response&.[]('results') || []
+    page = records.size >= page_size ? page + 1 : page
+    {
+      events: records,
+      next_page: page,
+      can_poll_more: records.size >= page_size
+    }
+  end,
+
+  dedup: lambda do |deal|
+    deal['id']
+  end,
+
+  output_fields: lambda do
+    [
+      { name: 'id' },
+      { name: 'activity_type' },
+      { name: 'client' },
+      { name: 'company' },
+      { name: 'deal' },
+      { name: 'employee' },
+      { name: 'created' }
+    ]
+  end
+}
 },
 
   pick_lists: {
