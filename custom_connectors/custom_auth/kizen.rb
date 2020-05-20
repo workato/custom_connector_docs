@@ -1432,38 +1432,41 @@ output_fields: lambda do
           {
             name: "new_value"
           },
-          
         ]
-      end
-    },
-      new_logged_activity: {  #I'm having trouble parsing the output on this one. Will need a little help from Workato, parsing an array in the output. 
-      title: 'New Logged Activity',
-      subtitle: 'New Logged Activity in Kizen',
-      description: lambda do
-        "New <span class='provider'>logged activity</span> in <span class='provider'>Kizen</span>"
-      end,
-      
+  end
+},
+      new_logged_activity: {  #I'm having trouble parsing the output on this one. 
+        title: 'New Logged Activity', #Will need a little help from Workato, parsing an array in the output. 
+        subtitle: 'New Logged Activity in Kizen',
+        description: lambda do
+          "New <span class='provider'>logged activity in Kizen"
+        end,
+
       input_fields: lambda do
         [
-          { name: 'activities',label: 'Activities', control_type: 'select', pick_list: 'activities', optional: false, toggle_hint: 'Select from list',
-          toggle_field:{
-            name: 'activities_id', label: 'Activities id', type: :string, control_type: "text", optional:false, toggle_hint: "Use Activities ID"}
+          { 
+            name: 'activities',
+            label: 'Activities',
+            control_type: 'select',
+            pick_list: 'activities',
+            optional: false
           },
         ]
       end,
-#The output is an array that needs to be split up. How can I do this? 
-#Need workato's help on this one
+      #The output is an array that needs to be split up. How can I do this?  
+      #Need workato's help on this one 
       poll: lambda do |_connection, input, page|
         page_size = 50
         activity_id = input['activities']
         puts activity_id
         page ||= 1
         response = get("https://app.kizen.com/api/logged-activity?activity_type_id=#{activity_id}").
-                  params(order_by: 'created',
-                         order_type: 'asc',
-                         page: page,
-                         per_page: page_size
-                  )
+          params(
+            order_by: 'created',
+            order_type: 'asc',
+            page: page,
+            per_page: page_size
+          )
         puts response
         records = response&.[]('results') || []
         page = records.size >= page_size ? page + 1 : page
@@ -1529,15 +1532,16 @@ output_fields: lambda do
       end
     end,
     
-    activities: ->(_connection) {
+    activities: lambda do |_connection|
       url = 'https://app.kizen.com/api/activity-type?fields=id,name,created'
       get(url).pluck('name', 'id')
-    },
+    end,
     
-    lead_sources: ->(_connection) {
+    lead_sources: lambda do |_connection|
       url = 'https://app.kizen.com/api/lead-source-custom-source-type'
       get(url)['results'].pluck('name', 'id')
-    },
+    end,
+    
     
     order_status: lambda do |_connection|
       [
