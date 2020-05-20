@@ -1322,10 +1322,7 @@
       end,
 
     },
-   
-    
-    
-        new_scheduled_activity: {  #I'm having trouble parsing the output on this one. Will need a little help from Workato, parsing an array in the output
+    new_scheduled_activity: { # I'm having trouble parsing the output on this one. Will need a little help from Workato, parsing an array in the output
       title: 'New Scheduled Activity',
       subtitle: 'New Scheduled Activity in Kizen',
       description: lambda do
@@ -1334,28 +1331,26 @@
       
       input_fields: lambda do
         [
-          { name: 'activities',label: 'Activities', control_type: 'select', pick_list: 'activities', optional: false, toggle_hint: 'Select from list',
-          toggle_field:{
-            name: 'activities_id', label: 'Activities id', type: :string, control_type: "text", optional:false, toggle_hint: "Use Activities ID"}
+          { name: 'activities',
+            label: 'Activities',
+            control_type: 'select',
+            pick_list: 'activities',
+            optional: false,
           },
         ]
       end,
 
-    
-    
       poll: lambda do |_connection, input, page|
         page_size = 50
         activity_id = input['activities']
-        puts (activity_id)
         page ||= 1
-        response = get("https://app.kizen.com/api/scheduled-activity?activity_type=#{activity_id}").
-                  params(order_by: 'created', 
-                         order_type: 'asc', 
-                         page: page,
-                         per_page: page_size 
-                        )
-        
-        
+        response = get("https://app.kizen.com/api/scheduled-activity?activity_type=#{activity_id}")
+                   .params(order_by: 'created',
+                          order_type: 'asc',
+                          page: page,
+                          per_page: page_size
+                   )
+
         puts response
         records = response&.[]('results') || []
         page = records.size >= page_size ? page + 1 : page
@@ -1365,14 +1360,14 @@
           can_poll_more: records.size >= page_size
         }
       end,
-      
+
       dedup: lambda do |deal|
         deal['id']
       end,
-      
+
       output_fields: lambda do
-          [
-          { name: "id"},
+        [
+            { name: "id"},
             { name: "assigned_to"},
             { name: "client"},  #This is an array that needs to be split up. How can I do this? #Need workato's help on this one. 
             { name: "company"},
