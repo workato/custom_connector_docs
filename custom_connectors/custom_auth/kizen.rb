@@ -861,291 +861,282 @@
           .dig('results', 0)
       end
     },
-    log_interaction: {    #This is new
+    log_interaction: { # This is new
       title: 'Log an interaction',
       subtitle: 'Log an interaction',
       description: lambda do
         "Log <span class='provider'>an interaction</span> in <span class='provider'>Kizen</span>"
       end,
-      
-          input_fields: lambda do
+      input_fields: lambda do
         [
-          { name: "client_id",Label: "Contact ID", optional: false},
-          { name: "business_id",Label: "Business ID", optional: false},
-          { name: "name",Label: "Interaction Name", optional: false},
-          { name: "property_label1",Label: "Property Label 1", optional: true},
-          { name: "property_label2",Label: "Property Label 2", optional: true},
-          { name: "property_input1",Label: "Property Input 1", optional: true},
-          { name: "property_input2",Label: "Property Input 2", optional: true},
+          { name: 'client_id', Label: 'Contact ID', optional: false },
+          { name: 'business_id', Label: 'Business ID', optional: false },
+          { name: 'name', Label: 'Interaction Name', optional: false },
+          { name: 'property_label1', Label: 'Property Label 1', optional: true },
+          { name: 'property_label2', Label: 'Property Label 2', optional: true },
+          { name: 'property_input1', Label: 'Property Input 1', optional: true },
+          { name: 'property_input2', Label: 'Property Input 2', optional: true },
         ]
-            
       end,
-      
       execute: lambda do |_connection, input|
-      post("https://app.kizen.com/api/interaction").
-          payload(
-            "business_id": input["business_id"],
-            "client_id": input["client_id"],
-            "name": input["name"],
-            "properties": {
+        post('https://app.kizen.com/api/interaction')
+             .payload(
+               'business_id': input['business_id'],
+               'client_id': input['client_id'],
+               'name': input['name'],
+               'properties': {
                  "#{input["property_label1"]}"=> input["property_input1"],    
                  "#{input["property_label2"]}"=> input["property_input2"]}                  
-            )
+             )
       end, 
- 
-
-    output_fields: lambda do
-          [
-          { name: "id"}
-          ]
-      end,
-      
-    },
-
-    add_custom_lead_source: {    #This is new
-      title: 'Add Custom Lead Source to a Contact',
-      subtitle: 'Add Custom Lead Source to a Contact',
-      description: lambda do
-        "Add <span class='provider'>Custom Lead Source</span> to a <span class='provider'>Contact</span>"
-      end,
-      
-          input_fields: lambda do
+      output_fields: lambda do
         [
-          { name: "client_id",Label: "Contact ID", optional: false},
-          { name: "source", Label: "Custom Lead Source", control_type: 'select',pick_list: 'lead_sources', hint: "To add Custom Lead Sources, navigate inside a                   contact record and add a custom source",optional: false},
-          { name: "campaign",Label: "Campaign Name", optional: true},
-          { name: "medium",Label: "Medium", optional: true},
-          { name: "term",Label: "Term", optional: true},
-          { name: "content",Label: "Content", optional: true}
+          { name: 'id'}
         ]
-            
       end,
-
-      execute: lambda do |_connection, input|
-      post("https://app.kizen.com/api/lead-source-custom-source").
-          payload(
-            "client": input["client_id"],
-            "source": input["source"],
-            "campaign": input["campaign"],
-            "medium": input["medium"],  
-            "term": input["term"],  
-            "content": input["content"],  
-            )
-      end, 
- 
-
-    output_fields: lambda do
-          [
-          { name: "id"},
-          { name: "client", Label: "Contact ID"}
-          ]
-      end,
-      
     },
 
-      log_activity: {     #This is new
-      title: 'Log an Activity',
-      subtitle: 'Log an Activity',
-      description: lambda do
-        "Log <span class='provider'>an activity</span> in <span class='provider'>Kizen</span>"
-      end,
+  add_custom_lead_source: { # This is new here
+    title: 'Add Custom Lead Source to a Contact',
+    subtitle: 'Add Custom Lead Source to a Contact',
+    description: lambda do
+      "Add <span class='provider'>Custom Lead Source</span> to a <span class='provider'>Contact</span>"
+    end,
+
+    input_fields: lambda do
+      [
+        { name: 'client_id', Label: 'Contact ID', optional: false },
+        { name: 'source', 
+          Label: 'Custom Lead Source', 
+          control_type: 'select',
+          pick_list: 'lead_sources',
+          hint: 'To add Custom Lead Sources, navigate inside a contact record and add a custom source',
+          optional: false},
+        { name: 'campaign', Label: 'Campaign Name', optional: true },
+        { name: 'medium', Label: 'Medium', optional: true },
+        { name: 'term', Label: 'Term', optional: true },
+        { name: 'content', Label: 'Content', optional: true }
+      ]
+    end,
+    execute: lambda do |_connection, input|
+      post('https://app.kizen.com/api/lead-source-custom-source')
+           .payload(
+             'client': input['client_id'],
+             'source': input['source'],
+             'campaign': input['campaign'],
+             'medium': input['medium'],  
+             'term': input['term'],  
+             'content': input['content'],  
+           )
+    end, 
+
+    output_fields: lambda do
+      [
+        { name: 'id' },
+        { name: 'client', Label: 'Contact ID' }
+      ]
+    end,
+  },
+log_activity: { # This is new
+  title: 'Log an Activity',
+  subtitle: 'Log an Activity',
+  description: lambda do
+    "Log <span class='provider'>an activity</span> in <span class='provider'>Kizen</span>"
+  end,
+
+  input_fields: lambda do |object_definitions|
+    object_definitions['log_activity_input']
+  end,
       
-      input_fields: lambda do |object_definitions|
-        object_definitions['log_activity_input']
-      end,
-      
-      execute: lambda do |_connection, input|
-      format_payload = call('format_payload', input)
-      payload = format_payload.map do |key, value|
-        if key.include?('custom_fields')
-          custom_fields = value&.map do |k, v|
-            { k.split('~').last =>
+  execute: lambda do |_connection, input|
+    format_payload = call('format_payload', input)
+    payload = format_payload.map do |key, value|
+      if key.include?('custom_fields')
+        custom_fields = value&.map do |k, v|
+          { k.split('~').last =>
               {
                 'field_id' => k.split('~').first,
                 'value' => v
               } }
+        end&.inject(:merge)
+        { 'custom_fields' => custom_fields }
+      else
+        { key => value }
+      end
+    end.inject(:merge)
+    result = post('/api/logged-activity', payload)
+      
+    formatted_response =
+      result.map do |key, value|
+        if key.include?('custom_fields')
+          custom_fields = value.values&.map do |object|
+            { object['field_id'] => object['value'] }
           end&.inject(:merge)
           { 'custom_fields' => custom_fields }
         else
           { key => value }
         end
-      end.inject(:merge)
-      result = post('/api/logged-activity', payload)
-      
-      formatted_response =
-        result.map do |key, value|
-          if key.include?('custom_fields')
-            custom_fields = value.values&.map do |object|
-              { object['field_id'] => object['value'] }
-            end&.inject(:merge)
-
-            { 'custom_fields' => custom_fields }
-          else
-            { key => value }
-          end
-        end&.inject(:merge)
-      call('format_response', formatted_response.compact)
-      end,
+      end&.inject(:merge)
+    call('format_response', formatted_response.compact)
+  end,
     
-      output_fields: lambda do
-          [
-          { name: "id"}
-        ]
-      end,
-    },
-      find_contact_by_email: {             #This is new
-      title: 'Find contact by email',
-      subtitle: 'Find a contact in Kizen by email',
-      description: lambda do
-        "Find a contact <span class='provider'>contact</span> in <span class='provider'>Kizen by email</span>"
-      end,
+  output_fields: lambda do
+    [
+      { name: "id"}
+    ]
+  end,
+},
+find_contact_by_email: { # This is new
+  title: 'Find contact by email',
+  subtitle: 'Find a contact in Kizen by email',
+  description: lambda do
+    "Find a contact <span class='provider'>contact</span> in <span class='provider'>Kizen by email</span>"
+  end,
+
+  input_fields: lambda do 
+    [
+      {
+        name: 'email',
+        label: 'Contact Email',
+        optional: false
+      }
+    ]
+  end,
       
-      input_fields: lambda do 
-       [
-          {
-            name: 'email',
-            label: 'Contact Email',
-            optional: false
-          }
-        ]
-      end,
+  execute: lambda do |connection, input|
+    results = get("https://app.kizen.com/api/client?email=#{input["email"]}")
+    records = results["results"]
+    puts records
+    {
+      events: records
+    }
+  end,
+
+  output_fields: lambda do |object_definitions|
+    { name: "events", type: "array", of: "object",
+      properties: object_definitions["contact_fields_trigger_output"] }
+  end
+},
+find_contact_by_id: { # This is new
+  title: 'Find contact by ID',
+  subtitle: 'Find a contact in Kizen by ID',
+  description: lambda do
+    "Find a contact <span class='provider'>contact</span> in <span class='provider'>Kizen by ID</span>"
+  end,
       
-      execute: lambda do |connection, input|
-        results = get("https://app.kizen.com/api/client?email=#{input["email"]}")
-        records = results["results"]
-        puts records
-        {
-          events: records
-        }
-      end,
+  input_fields: lambda do 
+    [
+      {
+        name: 'id',
+        label: 'Contact ID',
+        optional: false
+      }
+    ]
+  end,
+      
+  execute: lambda do |connection, input|
+    result = get('https://app.kizen.com/api/client/#{input["id"]}')
+
+    formatted_response =
+      result.map do |key, value|
+        if key.include?('custom_fields')
+          custom_fields = value.values&.map do |object|
+            { object['field_id'] => object['value'] }
+          end&.inject(:merge)
+          { 'custom_fields' => custom_fields }
+        else
+          { key => value }
+        end
+      end&.inject(:merge)
+    call('format_response', formatted_response.compact)
+  end,
     
-      output_fields: lambda do |object_definitions|
-        { name: "events", type: "array", of: "object",
-          properties: object_definitions["contact_fields_trigger_output"] }
-      end
-    },
-
-      find_contact_by_id: {             #This is new
-      title: 'Find contact by ID',
-      subtitle: 'Find a contact in Kizen by ID',
-      description: lambda do
-        "Find a contact <span class='provider'>contact</span> in <span class='provider'>Kizen by ID</span>"
-      end,
+  output_fields: lambda do |object_definitions|
+    object_definitions['contact_fields_output']
+  end
+},
+find_company_by_name: { # This is new
+  title: 'Find company by name',
+  subtitle: 'Find a company in Kizen by name',
+  description: lambda do
+    "Find a company <span class='provider'>contact</span> in Kizen"
+  end,
       
-      input_fields: lambda do 
-       [
-          {
-            name: 'id',
-            label: 'Contact ID',
-            optional: false
-          }
-        ]
-      end,
+  input_fields: lambda do 
+    [
+      {
+        name: 'name',
+        label: 'Company Name',
+        optional: false
+      }
+    ]
+  end,
       
-      execute: lambda do |connection, input|
-        result = get("https://app.kizen.com/api/client/#{input["id"]}")
-
-        formatted_response =
-        result.map do |key, value|
-          if key.include?('custom_fields')
-            custom_fields = value.values&.map do |object|
-              { object['field_id'] => object['value'] }
-            end&.inject(:merge)
-
-            { 'custom_fields' => custom_fields }
-          else
-            { key => value }
-          end
-        end&.inject(:merge)
-      call('format_response', formatted_response.compact)
-      end,
+  execute: lambda do |connection, input|
+    results = get("https://app.kizen.com/api/company?search=#{input["name"]}")
+    records = results["results"]
+    puts records
+    {
+      events: records
+    }
+  end,
     
-      output_fields: lambda do |object_definitions|
-        object_definitions['contact_fields_output']
-      end
-    
-    },
+  output_fields: lambda do |object_definitions|
+    { name: "events", type: "array", of: "object",
+      properties: object_definitions["company_fields_trigger_output"] }
+  end
+},
 
+find_deal_by_name: { # This is new
+  title: 'Find deal by name',
+  subtitle: 'Find a deal in Kizen by name',
+  description: lambda do
+    "Find a deal <span class='provider'>contact</span> in <span class='provider'>Kizen by name</span>"
+  end,
+      
+  input_fields: lambda do 
+    [
+      {
+        name: 'name',
+        label: 'Deal Name',
+        optional: false
+      }
+    ]
+  end,
+      
+  execute: lambda do |connection, input|
+    results = get("https://app.kizen.com/api/deal?search=#{input["name"]}")
+    records = results["results"]
+    puts records
+    {
+      events: records
+    }
+  end,
 
-      find_company_by_name: {             #This is new
-      title: 'Find company by name',
-      subtitle: 'Find a company in Kizen by name',
-      description: lambda do
-        "Find a company <span class='provider'>contact</span> in <span class='provider'>Kizen by name</span>"
-      end,
-      
-      input_fields: lambda do 
-       [
-          {
-            name: 'name',
-            label: 'Company Name',
-            optional: false
-          }
-        ]
-      end,
-      
-      execute: lambda do |connection, input|
-        results = get("https://app.kizen.com/api/company?search=#{input["name"]}")
-        records = results["results"]
-        puts records
-        {
-          events: records
-        }
-      end,
-    
-      output_fields: lambda do |object_definitions|
-        { name: "events", type: "array", of: "object",
-          properties: object_definitions["company_fields_trigger_output"] }
-      end
-    },
+  output_fields: lambda do |object_definitions|
+    { name: 'events', type: 'array', of: 'object',
+      properties: object_definitions['deal_fields_trigger_output'] }
+  end
+},
 
-      find_deal_by_name: {            #This is new
-      title: 'Find deal by name',
-      subtitle: 'Find a deal in Kizen by name',
-      description: lambda do
-        "Find a deal <span class='provider'>contact</span> in <span class='provider'>Kizen by name</span>"
-      end,
-      
-      input_fields: lambda do 
-       [
-          {
-            name: 'name',
-            label: 'Deal Name',
-            optional: false
-          }
-        ]
-      end,
-      
-      execute: lambda do |connection, input|
-        results = get("https://app.kizen.com/api/deal?search=#{input["name"]}")
-        records = results["results"]
-        puts records
-        {
-          events: records
-        }
-      end,
-    
-      output_fields: lambda do |object_definitions|
-        { name: "events", type: "array", of: "object",
-          properties: object_definitions["deal_fields_trigger_output"] }
-      end
-    },
-create_order: { #This is new
+create_order: { # This is new
   title: 'Create order',
 
   input_fields: lambda do
     [
       { name: 'email', optional: false },
-      { name: 'order_status', 
+      { name: 'order_status',
         optional: false, 
-        control_type: "select", 
+        control_type: "select",
         pick_list: "order_status" },
-      { name: 'order_number', optional: false, hint: "Must be an integer" },
-      { name: 'created', optional: false, hint: "(YYYY-MM-DD)" },
+      { name: 'order_number', optional: false, hint: 'Must be an integer' },
+      { name: 'created', optional: false, hint: '(YYYY-MM-DD)' },
       { name: 'sku', label: "SKU", optional: false },
-      { name: 'name', optional: false,label:"Product Name" },
+      { name: 'name', optional: false, label: 'Product Name' },
       { name: 'price', optional: false },
-      { name: 'quantity', optional: false , hint: "This must be a number without decimal places. Example - 1.00 will not work."},
+      { name: 'quantity', 
+        optional: false, 
+        hint: 'This must be a number without decimal places. Example - 1.00 will not work.' }
     ]
   end,
 
@@ -1159,7 +1150,7 @@ create_order: { #This is new
          'upload': true,
          'line_items': [
            { 'price': input['price'],
-             'sku': input['sku'], 
+             'sku': input['sku'],
              'name': input['name'],
              'quantity': input['quantity'] }
          ]
@@ -1296,7 +1287,7 @@ create_order: { #This is new
       poll: lambda do |_connection, _input, page|
         page_size = 50
         page ||= 1
-        response = get("https://app.kizen.com/api/commerce/orders")
+        response = get('https://app.kizen.com/api/commerce/orders')
                    .params(order_by: 'created', 
                      order_type: 'asc',
                      page: page,
@@ -1317,8 +1308,8 @@ create_order: { #This is new
       
       output_fields: lambda do
         [
-          { name: "id" },
-          { name: "client" },  
+          { name: 'id' },
+          { name: 'client' },  
         ]
       end
     },
