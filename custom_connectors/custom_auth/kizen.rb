@@ -1451,23 +1451,19 @@ output_fields: lambda do
           },
         ]
       end,
-
-    #This is an array that needs to be split up. How can I do this? #Need workato's help on this one
-    
+#The output is an array that needs to be split up. How can I do this? 
+#Need workato's help on this one
       poll: lambda do |_connection, input, page|
         page_size = 50
         activity_id = input['activities']
-        puts (activity_id)
+        puts activity_id
         page ||= 1
         response = get("https://app.kizen.com/api/logged-activity?activity_type_id=#{activity_id}").
-                  params(order_by: 'created', # Because we can only query by updated_since in this API.
-                         order_type: 'asc', # We expect events in ascending order.
-                         #activity_type: input['activities'],
+                  params(order_by: 'created',
+                         order_type: 'asc',
                          page: page,
-                         per_page: page_size # Small page size to help with testing
-                        )
-        
-        
+                         per_page: page_size
+                  )
         puts response
         records = response&.[]('results') || []
         page = records.size >= page_size ? page + 1 : page
@@ -1481,16 +1477,16 @@ output_fields: lambda do
       dedup: lambda do |deal|
         deal['id']
       end,
-      
+
       output_fields: lambda do
         [
-            { name: 'id' },
-            { name: 'activity_type' },
-            { name: 'client' },
-            { name: 'company' },
-            { name: 'deal' },
-            { name: 'employee' },
-            { name: 'created' }
+          { name: 'id' },
+          { name: 'activity_type' },
+          { name: 'client' },
+          { name: 'company' },
+          { name: 'deal' },
+          { name: 'employee' },
+          { name: 'created' }
         ]
       end
     }
@@ -1543,12 +1539,12 @@ output_fields: lambda do
       get(url)['results'].pluck('name', 'id')
     },
     
-    order_status: lambda do |connection|
+    order_status: lambda do |_connection|
       [
         # Display name, value
         ['paid', 'paid']
       ]
-        end,
+    end,
 
     kizen_objects: lambda do
       [
