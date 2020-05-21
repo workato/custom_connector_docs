@@ -55,7 +55,7 @@
       end
       input
     end,
-    
+
     format_payload: lambda do |payload|
       if payload.is_a?(Array)
         payload.map do |array_value|
@@ -71,7 +71,7 @@
         end.inject(:merge)
       end
     end,
-    
+
     format_schema: lambda do |schema|
       if schema.is_a?(Array)
         schema.map do |array_value|
@@ -88,7 +88,7 @@
         end.inject(:merge)
       end
     end,
-    
+
     replace_special_characters: lambda do |input|
       input.gsub(/[-<>!@#$%^&*()+={}:;'"`~,.?|]/,
                  '-' => '__hyp__',
@@ -119,7 +119,7 @@
                  ':' => '__colon__',
                  '\"' => '__quote__')
     end,
-    
+
     inject_special_characters: lambda do |input|
       input.gsub(
         /(__hyp__|__lt__|__gt__|__excl__|__at__|__hashtag__|__dollar__|\__percent__|__pwr__|__amper__|__star__|__lbracket__|__rbracket__|__plus__|__eq__|__rcrbrack__|__lcrbrack__|__semicol__|__apost__|__bckquot__|__tilde__|__comma__|__period__|__qmark__|__pipe__|__colon__|__quote__|__slash__|__bslash__)/,
