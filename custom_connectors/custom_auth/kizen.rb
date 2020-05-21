@@ -900,7 +900,7 @@
     title: 'Add Custom Lead Source to a Contact',
     subtitle: 'Add Custom Lead Source to a Contact',
     description: lambda do
-      "Add <span class='provider'>Custom Lead Source</span> to a <span class='provider'>Contact</span>"
+      "Add <span class='provider'>Custom Lead Source to a Contact"
     end,
 
     input_fields: lambda do
@@ -935,19 +935,18 @@
         { name: 'id' },
         { name: 'client', Label: 'Contact ID' }
       ]
-    end,
+    end
   },
 log_activity: { # This is new
   title: 'Log an Activity',
   subtitle: 'Log an Activity',
   description: lambda do
-    "Log <span class='provider'>an activity</span> in <span class='provider'>Kizen</span>"
+    "Log <span class='provider'>an activity in Kizen"
   end,
 
   input_fields: lambda do |object_definitions|
     object_definitions['log_activity_input']
   end,
-      
   execute: lambda do |_connection, input|
     format_payload = call('format_payload', input)
     payload = format_payload.map do |key, value|
@@ -965,7 +964,6 @@ log_activity: { # This is new
       end
     end.inject(:merge)
     result = post('/api/logged-activity', payload)
-      
     formatted_response =
       result.map do |key, value|
         if key.include?('custom_fields')
@@ -979,21 +977,21 @@ log_activity: { # This is new
       end&.inject(:merge)
     call('format_response', formatted_response.compact)
   end,
-    
+
   output_fields: lambda do
     [
-      { name: "id"}
+      { name: 'id' }
     ]
-  end,
+  end
 },
 find_contact_by_email: { # This is new
   title: 'Find contact by email',
   subtitle: 'Find a contact in Kizen by email',
   description: lambda do
-    "Find a contact <span class='provider'>contact</span> in <span class='provider'>Kizen by email</span>"
+    "Find a contact <span class='provider'>contact in Kizen by email</span>"
   end,
 
-  input_fields: lambda do 
+  input_fields: lambda do
     [
       {
         name: 'email',
@@ -1021,10 +1019,10 @@ find_contact_by_id: { # This is new
   title: 'Find contact by ID',
   subtitle: 'Find a contact in Kizen by ID',
   description: lambda do
-    "Find a contact <span class='provider'>contact</span> in <span class='provider'>Kizen by ID</span>"
+    "Find a contact <span class='provider'>contact in Kizen by ID </span>"
   end,
-      
-  input_fields: lambda do 
+
+  input_fields: lambda do
     [
       {
         name: 'id',
