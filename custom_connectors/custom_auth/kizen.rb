@@ -910,8 +910,9 @@
           Label: 'Custom Lead Source', 
           control_type: 'select',
           pick_list: 'lead_sources',
-          hint: 'To add Custom Lead Sources, navigate inside a contact record and add a custom source',
-          optional: false},
+          hint: 'To add Custom Lead Sources, 
+          navigate inside a contact record and add a custom source',
+          optional: false },
         { name: 'campaign', Label: 'Campaign Name', optional: true },
         { name: 'medium', Label: 'Medium', optional: true },
         { name: 'term', Label: 'Term', optional: true },
@@ -924,11 +925,11 @@
              'client': input['client_id'],
              'source': input['source'],
              'campaign': input['campaign'],
-             'medium': input['medium'],  
-             'term': input['term'],  
-             'content': input['content'],  
+             'medium': input['medium'],
+             'term': input['term'],
+             'content': input['content'] 
            )
-    end, 
+    end,
 
     output_fields: lambda do
       [
@@ -1125,8 +1126,8 @@ create_order: { # This is new
       { name: 'email', optional: false },
       { name: 'order_status',
         optional: false, 
-        control_type: "select",
-        pick_list: "order_status" },
+        control_type: 'select',
+        pick_list: 'order_status' },
       { name: 'order_number', optional: false, hint: 'Must be an integer' },
       { name: 'created', optional: false, hint: '(YYYY-MM-DD)' },
       { name: 'sku', label: 'SKU', optional: false },
@@ -1307,7 +1308,7 @@ create_order: { # This is new
       output_fields: lambda do
         [
           { name: 'id' },
-          { name: 'client' }  
+          { name: 'client' }
         ]
       end
     },
