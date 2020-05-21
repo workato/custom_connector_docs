@@ -280,7 +280,7 @@
               label: field['name'], type: field['type'] }
           end
         standard_fields = [
-          { name: 'id',  label: 'Contact id' },
+          { name: 'id', label: 'Contact id' },
           { name: 'first_name' },
           { name: 'last_name' },
           { name: 'email' },
@@ -295,7 +295,7 @@
         call('format_schema', standard_fields)
       end
     },
-    
+
     deal_fields_trigger_output: {
       fields: lambda do |_|
         custom_fields = get('/api/deal-custom-field')&.
@@ -306,8 +306,8 @@
         standard_fields = [
           { name: 'id', type: 'integer', control_type: 'number',
             label: 'Deal ID' },
-          { name: 'name',label: 'Deal Name' },
-          { name: 'amount',type: 'float' },
+          { name: 'name', label: 'Deal Name' },
+          { name: 'amount', type: 'float' },
           { name: 'owner' },
           { name: 'stage' },
           { name: 'pipeline' },
@@ -317,7 +317,7 @@
         call('format_schema', standard_fields)
       end
     },
-    
+
     object_input: {
       fields: lambda do |_connection, config_fields|
         case config_fields['object']
@@ -779,7 +779,7 @@
       help: lambda do |_, objects|
         "Create #{objects['object']&.downcase || 'object'} in Kizen."
       end,
-      
+
       config_fields: [
         {
           name: 'object',
@@ -865,17 +865,17 @@
       title: 'Log an interaction',
       subtitle: 'Log an interaction',
       description: lambda do
-        "Log <span class='provider'>an interaction</span> in <span class='provider'>Kizen</span>"
+        "Log <span class='provider'>an interaction in Kizen"
       end,
       input_fields: lambda do
         [
           { name: 'client_id', Label: 'Contact ID', optional: false },
           { name: 'business_id', Label: 'Business ID', optional: false },
           { name: 'name', Label: 'Interaction Name', optional: false },
-          { name: 'property_label1', Label: 'Property Label 1', optional: true },
-          { name: 'property_label2', Label: 'Property Label 2', optional: true },
-          { name: 'property_input1', Label: 'Property Input 1', optional: true },
-          { name: 'property_input2', Label: 'Property Input 2', optional: true },
+          { name: 'property_label1', Label: 'Property Label1', optional: true },
+          { name: 'property_label2', Label: 'Property Label2', optional: true },
+          { name: 'property_input1', Label: 'Property Input1', optional: true },
+          { name: 'property_input2', Label: 'Property Input 2', optional: true }
         ]
       end,
       execute: lambda do |_connection, input|
@@ -885,8 +885,9 @@
                'client_id': input['client_id'],
                'name': input['name'],
                'properties': {
-                 "#{input["property_label1"]}"=> input["property_input1"],    
-                 "#{input["property_label2"]}"=> input["property_input2"]}                  
+                 "#{input['property_label1']}"=> input['property_input1'],
+                 "#{input['property_label2']}"=> input['property_input2']
+               }                
              )
       end, 
       output_fields: lambda do
@@ -910,7 +911,7 @@
           Label: 'Custom Lead Source', 
           control_type: 'select',
           pick_list: 'lead_sources',
-          hint: 'To add Custom Lead Sources, 
+          hint: 'To add Custom Lead Sources,
           navigate inside a contact record and add a custom source',
           optional: false },
         { name: 'campaign', Label: 'Campaign Name', optional: true },
@@ -927,7 +928,7 @@
              'campaign': input['campaign'],
              'medium': input['medium'],
              'term': input['term'],
-             'content': input['content'] 
+             'content': input['content']
            )
     end,
 
