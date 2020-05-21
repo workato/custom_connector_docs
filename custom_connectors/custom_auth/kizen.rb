@@ -152,8 +152,7 @@
         '__quote__' => '"'
       )
     end,
-    
-    
+
     format_response: lambda do |payload|
       if payload.is_a?(Array)
         payload.map do |array_value|
@@ -204,7 +203,6 @@
 
   object_definitions: {
 
-      
     log_activity_input: {
       fields: lambda do |_|
         custom_fields = get('/api/activity-type')&.
@@ -214,17 +212,18 @@
           end
         standard_fields = [
           { name: 'client', label: 'Contact ID', optional: false },
-          { name: 'activity_type_id',label: 'Activity', control_type: 'select', pick_list: 'activities', optional: false, toggle_hint: 'Select from list',
-          toggle_field:{
-            name: 'activity_id', label: 'Activity id', type: :string, control_type: "text", optional:false, toggle_hint: "Use Activity ID"}
-           },
+          { name: 'activity_type_id',
+            label: 'Activity',
+            control_type: 'select',
+            pick_list: 'activities',
+            optional: false },
           { name: 'custom_fields',
             type: 'object', properties: custom_fields }
         ]
         call('format_schema', standard_fields)
       end
     },
-    
+
     contact_fields_output: {
       fields: lambda do |_|
         custom_fields = get('/api/client-field')&.
@@ -249,8 +248,7 @@
         call('format_schema', standard_fields)
       end
     },
-    
-    
+
     company_fields_trigger_output: {
       fields: lambda do |_|
         custom_fields = get('/api/company-field')&.
@@ -261,7 +259,7 @@
         standard_fields = [
           { name: 'id', type: 'integer', control_type: 'number',
             label: 'Company id' },
-          { name: 'name',label: 'Company Name' },
+          { name: 'name', label: 'Company Name' },
           { name: 'business_phone' },
           { name: 'email' },
           { name: 'mobile_phone' },
@@ -271,7 +269,7 @@
         call('format_schema', standard_fields)
       end
     },
-    
+
     contact_fields_trigger_output: {
       fields: lambda do |_|
         custom_fields = get('/api/client-field')&.
@@ -885,9 +883,9 @@
                'client_id': input['client_id'],
                'name': input['name'],
                'properties': {
-                 "#{input['property_label1']}"=> input['property_input1'],
-                 "#{input['property_label2']}"=> input['property_input2']
-               }                
+                 "#{input['property_label1']}" => input['property_input1'],
+                 "#{input['property_label2']}" => input['property_input2']
+               }
              )
       end, 
       output_fields: lambda do
