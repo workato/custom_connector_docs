@@ -1002,10 +1002,10 @@ find_contact_by_email: { # This is new
       }
     ]
   end,
-      
-  execute: lambda do |connection, input|
-    results = get("https://app.kizen.com/api/client?email=#{input["email"]}")
-    records = results["results"]
+
+  execute: lambda do |_connection, input|
+    results = get("https://app.kizen.com/api/client?email=#{input['email']}")
+    records = results['results']
     puts records
     {
       events: records
@@ -1091,10 +1091,10 @@ find_deal_by_name: { # This is new
   title: 'Find deal by name',
   subtitle: 'Find a deal in Kizen by name',
   description: lambda do
-    "Find a deal <span class='provider'>contact</span> in <span class='provider'>Kizen by name</span>"
+    "Find a deal <span class='provider'>by name</span>"
   end,
-      
-  input_fields: lambda do 
+
+  input_fields: lambda do
     [
       {
         name: 'name',
@@ -1131,12 +1131,12 @@ create_order: { # This is new
         pick_list: "order_status" },
       { name: 'order_number', optional: false, hint: 'Must be an integer' },
       { name: 'created', optional: false, hint: '(YYYY-MM-DD)' },
-      { name: 'sku', label: "SKU", optional: false },
+      { name: 'sku', label: 'SKU', optional: false },
       { name: 'name', optional: false, label: 'Product Name' },
       { name: 'price', optional: false },
-      { name: 'quantity', 
-        optional: false, 
-        hint: 'This must be a number without decimal places. Example - 1.00 will not work.' }
+      { name: 'quantity',
+        optional: false,
+        hint: 'This must be a number without decimal places, 1.00 will not work.' }
     ]
   end,
 
@@ -1288,7 +1288,7 @@ create_order: { # This is new
         page_size = 50
         page ||= 1
         response = get('https://app.kizen.com/api/commerce/orders')
-                   .params(order_by: 'created', 
+                   .params(order_by: 'created',
                      order_type: 'asc',
                      page: page,
                      per_page: page_size
@@ -1309,7 +1309,7 @@ create_order: { # This is new
       output_fields: lambda do
         [
           { name: 'id' },
-          { name: 'client' },  
+          { name: 'client' }  
         ]
       end
     },
