@@ -1013,8 +1013,8 @@ find_contact_by_email: { # This is new
   end,
 
   output_fields: lambda do |object_definitions|
-    { name: "events", type: "array", of: "object",
-      properties: object_definitions["contact_fields_trigger_output"] }
+    { name: 'events', type: 'array', of: 'object',
+      properties: object_definitions['contact_fields_trigger_output'] }
   end
 },
 find_contact_by_id: { # This is new
@@ -1033,9 +1033,9 @@ find_contact_by_id: { # This is new
       }
     ]
   end,
-      
-  execute: lambda do |connection, input|
-    result = get('https://app.kizen.com/api/client/#{input["id"]}')
+
+  execute: lambda do |_connection, input|
+    result = get("https://app.kizen.com/api/client/#{input['id']}")
 
     formatted_response =
       result.map do |key, value|
@@ -1050,7 +1050,7 @@ find_contact_by_id: { # This is new
       end&.inject(:merge)
     call('format_response', formatted_response.compact)
   end,
-    
+
   output_fields: lambda do |object_definitions|
     object_definitions['contact_fields_output']
   end
@@ -1061,8 +1061,8 @@ find_company_by_name: { # This is new
   description: lambda do
     "Find a company <span class='provider'>contact</span> in Kizen"
   end,
-      
-  input_fields: lambda do 
+
+  input_fields: lambda do
     [
       {
         name: 'name',
@@ -1071,19 +1071,19 @@ find_company_by_name: { # This is new
       }
     ]
   end,
-      
-  execute: lambda do |connection, input|
-    results = get("https://app.kizen.com/api/company?search=#{input["name"]}")
-    records = results["results"]
+
+  execute: lambda do |_connection, input|
+    results = get("https://app.kizen.com/api/company?search=#{input['name']}")
+    records = results['results']
     puts records
     {
       events: records
     }
   end,
-    
+
   output_fields: lambda do |object_definitions|
-    { name: "events", type: "array", of: "object",
-      properties: object_definitions["company_fields_trigger_output"] }
+    { name: 'events', type: 'array', of: 'object',
+      properties: object_definitions['company_fields_trigger_output'] }
   end
 },
 
@@ -1136,7 +1136,7 @@ create_order: { # This is new
       { name: 'price', optional: false },
       { name: 'quantity',
         optional: false,
-        hint: 'This must be a number without decimal places, 1.00 will not work.' }
+        hint: 'Must be a number without decimal places, 1.00 will not work' }
     ]
   end,
 
