@@ -137,22 +137,6 @@
       )
     end,
 
-    format_response: lambda do |payload|
-      if payload.is_a?(Array)
-        payload.map do |array_value|
-          call('format_response', array_value)
-        end
-      elsif payload.is_a?(Hash)
-        payload.map do |key, value|
-          key = call('replace_special_characters', key)
-          if value.is_a?(Array) || value.is_a?(Hash)
-            value = call('format_response', value)
-          end
-          { key => value }
-        end.inject(:merge)
-      end
-    end,
-
     format_output: lambda do |result|
       if result['custom_fields'].present?
         result['custom_fields'] = result['custom_fields']
