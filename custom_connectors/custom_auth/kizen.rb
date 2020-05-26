@@ -56,22 +56,6 @@
       input
     end,
 
-    format_payload: lambda do |payload|
-      if payload.is_a?(Array)
-        payload.map do |array_value|
-          call('format_payload', array_value)
-        end
-      elsif payload.is_a?(Hash)
-        payload.map do |key, value|
-          key = call('inject_special_characters', key)
-          if value.is_a?(Array) || value.is_a?(Hash)
-            value = call('format_payload', value)
-          end
-          { key => value }
-        end.inject(:merge)
-      end
-    end,
-
     format_schema: lambda do |schema|
       if schema.is_a?(Array)
         schema.map do |array_value|
@@ -948,8 +932,8 @@ log_activity: { # This is new
     object_definitions['log_activity_input']
   end,
   execute: lambda do |_connection, input|
-    format_payload = call('format_payload', input)
-    payload = format_payload.map do |key, value|
+    format_input = call('format_input', input)
+    payload = format_input.map do |key, value|
       if key.include?('custom_fields')
         custom_fields = value&.map do |k, v|
           { k.split('~').last =>
@@ -975,7 +959,7 @@ log_activity: { # This is new
           { key => value }
         end
       end&.inject(:merge)
-    call('format_response', formatted_response.compact)
+    call('format_output', formatted_response.compact)
   end,
 
   output_fields: lambda do
@@ -1004,7 +988,6 @@ find_contact_by_email: { # This is new
   execute: lambda do |_connection, input|
     results = get("https://app.kizen.com/api/client?email=#{input['email']}")
     records = results['results']
-    puts records
     {
       events: records
     }
@@ -1046,7 +1029,7 @@ find_contact_by_id: { # This is new
           { key => value }
         end
       end&.inject(:merge)
-    call('format_response', formatted_response.compact)
+    call('fformat_output', formatted_response.compact)
   end,
 
   output_fields: lambda do |object_definitions|
@@ -1073,7 +1056,6 @@ find_company_by_name: { # This is new
   execute: lambda do |_connection, input|
     results = get("https://app.kizen.com/api/company?search=#{input['name']}")
     records = results['results']
-    puts records
     {
       events: records
     }
@@ -1105,7 +1087,6 @@ find_deal_by_name: { # This is new
   execute: lambda do |connection, input|
     results = get("https://app.kizen.com/api/deal?search=#{input["name"]}")
     records = results["results"]
-    puts records
     {
       events: records
     }
@@ -1339,7 +1320,6 @@ create_order: { # This is new
                           page: page,
                           per_page: page_size)
 
-        puts response
         records = response&.[]('results') || []
         page = records.size >= page_size ? page + 1 : page
         {
@@ -1440,7 +1420,6 @@ new_logged_activity: {# I'm having trouble parsing the output on this
   poll: lambda do |_connection, input, page|
     page_size = 50
     activity_id = input['activities']
-    puts activity_id
     page ||= 1
     response = get("https://app.kizen.com/api/logged-activity?activity_type_id=#{activity_id}")
                .params(
@@ -1449,7 +1428,6 @@ new_logged_activity: {# I'm having trouble parsing the output on this
                  page: page,
                  per_page: page_size
                )
-    puts response
     records = response&.[]('results') || []
     page = records.size >= page_size ? page + 1 : page
     {
