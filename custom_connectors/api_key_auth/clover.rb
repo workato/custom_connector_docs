@@ -193,7 +193,7 @@
           {
             name: 'path',
             hint: 'Base URI is <b>' \
-            "https://#{connection['environment']}" \
+            "https://#{connection['environment']}.clover.com/v3/" \
             '</b> - path will be appended to this URI. Use absolute URI to ' \
             'override this base URI.',
             optional: false
