@@ -1815,7 +1815,11 @@
         elsif input['dataTypeName'].present? || input['export_report_raw'] == 'false'
           headers = call('retrieve_csv_headers', input)
           rows = headers&.map do |field|
-            { name: field }
+            if field.include?('Ids')
+              { name: field.gsub('.', '_'), label: "#{field.gsub('.', '_').gsub('Ids', '').labelize} IDs", type: 'array' }
+            else
+              { name: field.gsub('.', '_'), label: field.gsub('.', '_').labelize }
+            end
           end
           [{
             name: 'lines',
@@ -1956,6 +1960,33 @@
             hint: 'Allowed values are: true and false.'
           } }
       ]
+    end,
+
+    ### TRIGGERS ###
+    user_trigger_output: lambda do |input|
+      data_fields = input['output'].present? ? parse_json(input['output']) : []
+      [
+        { name: 'email', control_type: 'email' },
+        { name: 'userId' },
+        { name: 'createdAt', type: 'date_time', control_type: 'date_time' },
+        { name: 'emailListIds', type: 'array' },
+        { name: 'profileUpdatedAt', type: 'date_time', control_type: 'date_time' },
+        { name: 'signupDate', type: 'date_time', control_type: 'date_time' },
+        { name: 'signupSource' },
+        { name: 'subscribedMessageTypeIds', type: 'array' },
+        { name: 'unsubscribedChannelIds', type: 'array' },
+        { name: 'unsubscribedMessageTypeIds', type: 'array' }
+      ].concat(data_fields)
+    end,
+    parse_csv_output: lambda do |input|
+      result = input.gsub(/[\r\n]+/, '___').split('___')
+      rows = result.pop(result.length - 1).map do |items|
+        items.split(',')
+      end
+      headers = result[0]&.split(',')
+      rows.map do |items|
+        headers.zip(items).map { |a, b| { a => b } }.inject(:merge)
+      end
     end
   },
 
@@ -2317,8 +2348,10 @@
         [
           {
             name: 'output',
+            label: 'Data fields',
             control_type: 'schema-designer',
             sample_data_type: 'json_http',
+            hint: '<b>Please provide your custom data fields to include it as part of the output datapills.</b>',
             extends_schema: true,
             schema_neutral: true,
             sticky: true
@@ -2588,6 +2621,13 @@
           end,
           { name: 'userEmail', label: 'Email address', optional: false, control_type: 'email' }
         ].compact
+      end
+    },
+
+    ### TRIGGERS ###
+    user_trigger_output: {
+      fields: lambda do |_connection, config_fields|
+        call('user_trigger_output', config_fields)
       end
     }
   },
@@ -3221,17 +3261,9 @@
         if input['export_report_raw'] == 'true' || input['object_name'] == 'user_events'
           { data: response }
         else
-          result = response.gsub(/[\r\n]+/, '___').split('___')
-          hash = {}
-          rows = result.pop(result.length - 1).map do |items|
-            items.split(',')
-          end
-          headers = result[0]&.split(',')
-          parsed_csv = rows.map do |items|
-            headers.zip(items) { |a, b| hash[a] = b }
-            hash
-          end
-          { lines: parsed_csv }
+          parsed_csv = call('parse_csv_output', response)
+          formatted_parsed_csv = call('format_api_output_field_names', parsed_csv)
+          { lines: formatted_parsed_csv }
         end
       end,
       output_fields: lambda do |object_definitions|
@@ -3462,6 +3494,63 @@
 
       output_fields: lambda do |object_definitions|
         object_definitions['parse_custom_output']
+      end
+    },
+    new_updated_user: {
+      title: 'New/updated user',
+      description: "New or updated <span class='provider'>user" \
+        "</span> in <span class='provider'>Iterable</span>",
+      help: lambda do |_input, _pick_lists|
+        { body: 'Checks for created/updated users every 5 minutes.' }
+      end,
+      input_fields: lambda do |object_definitions|
+        [
+          {
+            name: 'since',
+            label: 'When first started, this recipe should pick up events from',
+            hint: 'When you start recipe for the first time, it picks up ' \
+              'trigger events from this specified date and time. Leave ' \
+              'empty to get events created one hour ago',
+            sticky: true,
+            optional: true,
+            type: 'date_time'
+          }
+        ].concat(object_definitions['custom_output_schema']).compact
+      end,
+
+      poll: lambda do |_connection, input, last_updated_since|
+        since = last_updated_since || ((input['since'] || 1.hour.ago)&.
+                  to_time&.utc&.strftime('%Y-%m-%d %H:%M:%S'))
+        response = get('/api/export/data.json',
+                       dataTypeName: 'user',
+                       startDateTime: since).response_format_raw.
+                   after_error_response(/.*/) do |_code, body, _header, message|
+                     error("#{message}: #{body}")
+                   end
+        parsed_json = response&.to_s&.split("\n")&.map { |items| parse_json(items) }
+        users = call('format_api_output_field_names', parsed_json)
+        next_updated_since = users.last['profileUpdatedAt']&.to_time&.utc&.strftime('%Y-%m-%d %H:%M:%S') unless users.blank?
+
+        {
+          events: users,
+          next_poll: next_updated_since,
+          can_poll_more: false
+        }
+      end,
+
+      dedup: lambda do |users|
+        "#{users['email']}@#{users['profileUpdatedAt']}"
+      end,
+      output_fields: lambda do |object_definitions|
+        object_definitions['user_trigger_output']
+      end,
+      sample_output: lambda do |_connection, _input|
+        response = get('/api/export/data.csv',
+                       dataTypeName: 'user',
+                       range: 'Today').
+                   response_format_raw
+        parsed_csv = call('parse_csv_output', response)
+        call('format_api_output_field_names', parsed_csv).first
       end
     }
   },
