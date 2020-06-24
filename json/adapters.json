@@ -228,8 +228,20 @@
         }
     },
     {
-        "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/facebook_connector.rb",
+        "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/eventgeek_connector.rb",
         "id": "20",
+        "image": "images/eventgeek.png",
+        "link": "https://www.workato.com/custom_adapters/21552?token=a043b75b",
+        "name": "EventGeek",
+        "properties": {
+            "api_type": "REST",
+            "auth_type": "API Key",
+            "category": "Productivity"
+        }
+    },
+    {
+        "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/facebook_connector.rb",
+        "id": "21",
         "image": "images/facebook.png",
         "link": "https://www.workato.com/custom_adapters/3124?token=46113cde",
         "name": "Facebook (Custom)",
@@ -241,7 +253,7 @@
     },
     {
         "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/formassembly.rb",
-        "id": "21",
+        "id": "22",
         "image": "images/formassembly.png",
         "link": "https://www.workato.com/custom_adapters/4725?token=7fd69209",
         "name": "FormAssembly",
@@ -253,7 +265,7 @@
     },
     {
         "github_link": "https://raw.githubusercontent.com/workato/custom_connector_docs/master/custom_connectors/oauth2/gsuite_admin_connector",
-        "id": "22",
+        "id": "23",
         "image": "images/gadmin.png",
         "link": "https://www.workato.com/custom_adapters/11321?token=b5e74307",
         "name": "G Suite Admin",
@@ -265,7 +277,7 @@
     },
     {
         "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/google_analytics_connector.rb",
-        "id": "23",
+        "id": "24",
         "image": "images/googleanalytics.png",
         "link": "https://www.workato.com/custom_adapters/1270?token=8d23a89c",
         "name": "Google Analytics",
@@ -277,7 +289,7 @@
     },
     {
         "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/google_calendar_connector.rb",
-        "id": "24",
+        "id": "25",
         "image": "images/googlecalendar.jpg",
         "link": "https://www.workato.com/custom_adapters/3906?token=c9d70069",
         "name": "Google Calendar (Custom)",
@@ -289,7 +301,7 @@
     },
     {
         "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/basic_auth/gravityforms.rb",
-        "id": "25",
+        "id": "26",
         "image": "images/gravityforms.png",
         "link": "https://www.workato.com/custom_adapters/12868?token=1780c6af",
         "name": "Gravity Forms",
@@ -301,7 +313,7 @@
     },
     {
         "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/greenhouse_connector.rb",
-        "id": "26",
+        "id": "27",
         "image": "images/greenhouse.png",
         "link": "https://www.workato.com/custom_adapters/3585?token=07700d22",
         "name": "Greenhouse",
@@ -313,7 +325,7 @@
     },
     {
         "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/harvest_connector.rb",
-        "id": "27",
+        "id": "28",
         "image": "images/harvest.png",
         "link": "https://www.workato.com/custom_adapters/3081?token=711c08ab",
         "name": "Harvest",
@@ -325,7 +337,7 @@
     },
     {
         "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/intercom_connector.rb",
-        "id": "28",
+        "id": "29",
         "image": "images/intercom.png",
         "link": "https://www.workato.com/custom_adapters/3831?token=b839c286",
         "name": "Intercom (Custom)",
@@ -337,7 +349,7 @@
     },
     {
         "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/iterable.rb",
-        "id": "29",
+        "id": "30",
         "image": "images/iterable.png",
         "link": "https://www.workato.com/custom_adapters/17527?token=986f939d",
         "name": "Iterable",
@@ -349,7 +361,7 @@
     },
     {
         "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/linenotify.rb",
-        "id": "30",
+        "id": "31",
         "image": "images/linenotify.png",
         "link": "https://www.workato.com/custom_adapters/4724?token=efd2f801",
         "name": "Line Notify",
@@ -361,7 +373,7 @@
     },
     {
         "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/mandrill_connector.rb",
-        "id": "31",
+        "id": "32",
         "image": "images/mandrill.png",
         "link": "https://www.workato.com/custom_adapters/1986?token=d77f685b",
         "name": "Mandrill",
@@ -373,7 +385,7 @@
     },
     {
         "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/microsoftadvertising.rb",
-        "id": "32",
+        "id": "33",
         "image": "images/microsoftadvertising.png",
         "link": "https://www.workato.com/custom_adapters/12842?token=1ad2d381",
         "name": "Microsoft Advertising",
@@ -385,7 +397,7 @@
     },
     {
         "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/dynamicsCRM",
-        "id": "33",
+        "id": "34",
         "image": "images/dynamicscrm.png",
         "link": "https://www.workato.com/custom_adapters/5081?token=5d9259df",
         "name": "Microsoft Dynamics Finance and Operations",
@@ -397,7 +409,7 @@
     },
     {
         "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/microsoft_office_365.rb",
-        "id": "34",
+        "id": "35",
         "image": "images/microsoftoffice365.png",
         "link": "https://www.workato.com/custom_adapters/1284?token=d6601d81",
         "name": "Microsoft Office 365",
@@ -409,7 +421,7 @@
     },
     {
         "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/namely_connector.rb",
-        "id": "35",
+        "id": "36",
         "image": "images/namely.png",
         "link": "https://www.workato.com/custom_adapters/4458?token=5e7e36c8",
         "name": "Namely (Custom)",
@@ -421,7 +433,7 @@
     },
     {
         "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/nationbuilder_connector.rb",
-        "id": "36",
+        "id": "37",
         "image": "images/nationbuilder.png",
         "link": "https://www.workato.com/custom_adapters/2403?token=68332176",
         "name": "NationBuilder (Custom)",
@@ -433,7 +445,7 @@
     },
     {
         "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/basic_auth/nokiasps.rb",
-        "id": "37",
+        "id": "38",
         "image": "images/nokiasps.png",
         "link": "https://www.workato.com/custom_adapters/5272?token=398c2716",
         "name": "Nokia SPS",
@@ -445,7 +457,7 @@
     },
     {
         "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/ops_genie_connector.rb",
-        "id": "38",
+        "id": "39",
         "image": "images/opsgenie.png",
         "link": "https://www.workato.com/custom_adapters/3583?token=848432f5",
         "name": "OpsGenie",
@@ -457,7 +469,7 @@
     },
     {
         "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/outreach_connector.rb",
-        "id": "39",
+        "id": "40",
         "image": "images/outreach_logo.png",
         "link": "https://www.workato.com/custom_adapters/19276?token=481c1d2f",
         "name": "Outreach",
@@ -469,7 +481,7 @@
     },
     {
         "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/none/password_generator.rb",
-        "id": "40",
+        "id": "41",
         "image": "images/passwordgenerator.png",
         "link": "https://www.workato.com/custom_adapters/4494?token=d3ba17d2",
         "name": "Password Generator",
@@ -481,7 +493,7 @@
     },
     {
         "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/custom_auth/paypal_connector.rb",
-        "id": "41",
+        "id": "42",
         "image": "images/paypal.png",
         "link": "https://www.workato.com/custom_adapters/3085?token=e65f1a72",
         "name": "PayPal",
@@ -493,7 +505,7 @@
     },
     {
         "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/none/rssfeedreader.rb",
-        "id": "42",
+        "id": "43",
         "image": "images/rssfeedreader.png",
         "link": "https://www.workato.com/custom_adapters/6161?token=4c15096d",
         "name": "RSS Feed Reader 2.0",
@@ -505,7 +517,7 @@
     },
     {
         "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/rightsignature_connector.rb",
-        "id": "43",
+        "id": "44",
         "image": "images/rightsignature.png",
         "link": "https://www.workato.com/custom_adapters/2073?token=59e8a05d",
         "name": "RightSignature",
@@ -517,7 +529,7 @@
     },
     {
         "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/custom_auth/sage_intacct_connector.rb",
-        "id": "44",
+        "id": "45",
         "image": "images/sageintacct.jpg",
         "link": "https://www.workato.com/custom_adapters/3119?token=4dd71bfd",
         "name": "Sage Intacct (Custom)",
@@ -529,7 +541,7 @@
     },
     {
         "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/custom_auth/salesforcesoap.rb",
-        "id": "45",
+        "id": "46",
         "image": "images/salesforcesoap.png",
         "link": "https://www.workato.com/custom_adapters/10920?token=e9e92c57",
         "name": "Salesforce (Custom)",
@@ -541,7 +553,7 @@
     },
     {
         "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/basic_auth/salesforceiq_connector.rb",
-        "id": "46",
+        "id": "47",
         "image": "images/salesforceiq.png",
         "link": "https://www.workato.com/custom_adapters/1747?token=457560e5",
         "name": "SalesforceIQ",
@@ -553,7 +565,7 @@
     },
     {
         "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/segment.rb",
-        "id": "47",
+        "id": "48",
         "image": "images/segment.png",
         "link": "https://www.workato.com/custom_adapters/12559?token=b06385a1",
         "name": "Segment",
@@ -565,7 +577,7 @@
     },
     {
         "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/digest_auth/shopware_connector.rb",
-        "id": "48",
+        "id": "49",
         "image": "images/shopware.png",
         "link": "https://www.workato.com/custom_adapters/1324?token=bdb1c519",
         "name": "Shopware",
@@ -577,7 +589,7 @@
     },
     {
         "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/spotify_connector.rb",
-        "id": "49",
+        "id": "50",
         "image": "images/spotify.png",
         "link": "https://www.workato.com/custom_adapters/1326?token=6f014f44",
         "name": "Spotify",
@@ -589,7 +601,7 @@
     },
     {
         "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/none/statuspage.rb",
-        "id": "50",
+        "id": "51",
         "image": "images/statuspage.png",
         "link": "https://www.workato.com/custom_adapters/5131?token=6d2e0480",
         "name": "Status Page",
@@ -601,7 +613,7 @@
     },
     {
         "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/basic_auth/transdirect.rb",
-        "id": "51",
+        "id": "52",
         "image": "images/transdirect.png",
         "link": "https://www.workato.com/custom_adapters/1329?token=d180f84e",
         "name": "Transdirect",
@@ -613,7 +625,7 @@
     },
     {
         "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/basic_auth/transmit_sms_connector.rb",
-        "id": "52",
+        "id": "53",
         "image": "images/transmitsms.png",
         "link": "https://www.workato.com/custom_adapters/3411?token=5bbe6a6e",
         "name": "TransmitSMS",
@@ -625,7 +637,7 @@
     },
     {
         "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/typeform_connector.rb",
-        "id": "53",
+        "id": "54",
         "image": "images/typeform.png",
         "link": "https://www.workato.com/custom_adapters/3083?token=9b8dd4d0",
         "name": "Typeform",
@@ -637,7 +649,7 @@
     },
     {
         "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/api_key_auth/workflowmax.rb",
-        "id": "54",
+        "id": "55",
         "image": "images/workflowmax.png",
         "link": "https://www.workato.com/custom_adapters/5846?token=7912edf9",
         "name": "WorkflowMax",
@@ -649,7 +661,7 @@
     },
     {
         "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/custom_auth/yarooms_connector.rb",
-        "id": "55",
+        "id": "56",
         "image": "images/yarooms.png",
         "link": "https://www.workato.com/custom_adapters/3939?token=894eeb95",
         "name": "Yarooms",
@@ -661,7 +673,7 @@
     },
     {
         "github_link": "https://github.com/workato/custom_connector_docs/blob/master/custom_connectors/oauth2/zohomail.rb",
-        "id": "56",
+        "id": "57",
         "image": "images/zohomail.png",
         "link": "https://www.workato.com/custom_adapters/14872?token=848b7fd6",
         "name": "Zoho Mail",
