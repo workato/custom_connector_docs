@@ -1262,10 +1262,10 @@
 
         more_pages = (response['pagination']['current_page'] < response['pagination']['total_pages'])
         closure = if more_pages
-                    { created_at: updated_at,
+                    { updated_at: updated_at,
                       page: (payload['page'] + 1) }
                   else
-                    { created_at: input['updated_at']['max'],
+                    { updated_at: input['updated_at']['max'],
                       page: 1 }
                   end
 
