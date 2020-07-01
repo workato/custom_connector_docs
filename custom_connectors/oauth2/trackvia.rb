@@ -11,14 +11,14 @@
         },
         {
           name: 'client_id',
-          control_type: 'test',
+          control_type: 'text',
           label: 'TrackVia App Client ID',
           hint: 'Enter the Client ID of your own OAuth app registered on TrackVia',
           optional: 'false'
         },
         {
           name: 'client_secret',
-          control_type: 'test',
+          control_type: 'text',
           label: 'TrackVia App Client secret',
           hint: 'Enter the Client secret of your own OAuth app registered on TrackVia',
           optional: 'false'
@@ -234,9 +234,9 @@
     pick_lists: {
       apps: ->(_connection) { get('apps').pluck('name', 'name') },
 
-      document_fields: lambda do |_connection, view_id:|
-        document_fields = Array.wrap(get("views/#{view_id}")&.[]('structure')).select { |field| field['type'] == "document" }.pluck('name', 'name')
-        document_fields.map { |key, value| [key, value.gsub(' ', '%20')] }
+      file_fields: lambda do |_connection, view_id:|
+        file_fields = Array.wrap(get("views/#{view_id}")&.[]('structure')).select { |field| %w(image document).include?(field['type']) }.pluck('name', 'name')
+        file_fields.map { |key, value| [key, value.gsub(' ', '%20')] }
       end,
 
       mime_types: lambda do |_connection|
@@ -324,7 +324,7 @@
 
       get_file_from_record: {
         description: "Get <span class='provider'>file</span> from a record in <span class='provider'>TrackVia</span>",
-        help: "Retreive a file from a record's document field in TrackVia",
+        help: "Retreive a file from a record's document or image field in TrackVia",
 
         input_fields: lambda do
           [
@@ -369,29 +369,37 @@
               name: 'field_name',
               type: 'string',
               control_type: 'select',
-              pick_list: 'document_fields',
+              pick_list: 'file_fields',
               pick_list_params: { view_id: 'view_id' },
               optional: false,
-              hint: 'Select the required document field.'
+              hint: 'Select the required file field.'
             }
           ]
         end,
 
         execute: lambda do |_connection, input|
-          {
-            "content": get("views/#{input['view_id']}/records/#{input['id']}/files/#{input['field_name']}").
-                         headers("Content-Type": 'text/plain').response_format_raw
-          }
+          get("views/#{input['view_id']}/records/#{input['id']}/files/#{input['field_name']}")
+            .response_format_raw
+            .after_response do |_code, body, headers|
+              {
+                file_name: headers['content_disposition'].scan(/"(.*?)"/)[0][0],
+                content: body
+              }
+            end
         end,
 
         output_fields: lambda do
           [
+            { name: 'file_name' },
             { name: 'content' }
           ]
         end,
 
         sample_output: lambda do
-          { "content": 'test' }
+          [
+            { file_name: 'file.txt' },
+            { content: 'Hello World.' }
+          ]
         end
       },
       # POST requests
@@ -483,7 +491,7 @@
 
       upload_file_to_record: {
         description: "Upload <span class='provider'>file</span> to a record in <span class='provider'>TrackVia</span>",
-        help: "Upload a file to a record's document field in TrackVia. A maximum of 20mb can be uploaded.",
+        help: "Upload a file to a record's document or image field in TrackVia. A maximum of 20mb can be uploaded.",
 
         config_fields: [
           {
@@ -516,7 +524,7 @@
           {
             name: 'field_name',
             control_type: 'select',
-            pick_list: 'document_fields',
+            pick_list: 'file_fields',
             pick_list_params: { view_id: 'view_id' },
             optional: false,
             hint: 'Select the field to which document needs to be uploaded.'
@@ -823,7 +831,7 @@
             end
             e_o_s.each_with_object({}) do |k, hash|
               hash[k[:name]] = record[k[:label]]
-            end.compact.merge('id' => record['id'])
+            end.compact.merge('id' => record['id'], 'dedup_modifiedDate' => record['Updated'])
           end
         end,
 
@@ -838,7 +846,7 @@
         end,
 
         dedup: lambda do |record|
-          record['id']
+          "#{record['id']}@#{record['dedup_modifiedDate']}"
         end,
 
         output_fields: ->(object_definitions) { object_definitions['list_record'] },
