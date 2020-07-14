@@ -345,7 +345,27 @@
       }
     end,
 
+    format_date_fields: lambda do |input|
+      input&.map do |field|
+        date = field['value'].to_time
+        { '@xsi:type' => 'tns:oaDate',
+          'hour' => [{ '@xsi:type' => 'xsd:string',
+                       'content!' => date.strftime('%k') }],
+          'minute' => [{ '@xsi:type' => 'xsd:string',
+                         'content!' => date.strftime('%M') }],
+          'month' => [{ '@xsi:type' => 'xsd:string',
+                        'content!' => date.strftime('%m') }],
+          'second' => [{ '@xsi:type' => 'xsd:string',
+                         'content!' => date.strftime('%S') }],
+          'day' => [{ '@xsi:type' => 'xsd:string',
+                      'content!' => date.strftime('%d') }],
+          'year' => [{ '@xsi:type' => 'xsd:string',
+                       'content!' => date.strftime('%Y') }] }
+      end
+    end,
+
     get_read_payload: lambda do |input|
+      date_filters = input['object_fields'].delete('date_filters')
       {
         'soap:Header': [{}],
         'soap:Body': [{
@@ -363,10 +383,13 @@
                 'type': [{ '@xsi:type': 'xsd:string', 'content!': input['object'] }],
                 'objects': if input['object_fields'].present?
                              [{
-                               '@soapenc:arrayType': 'tns:oaBase[1]',
+                               '@soapenc:arrayType':
+                               "tns:oaBase[#{(date_filters&.size || 0) + 1}]",
                                'Item': [call('construct_hash_payload',
                                              "tns:oa#{input['object']}",
-                                             input['object_fields'])]
+                                             input['object_fields'])]&.
+                                        concat(call('format_date_fields',
+                                                    date_filters))
                              }]
                            else
                              []
@@ -667,6 +690,16 @@
         {
           'name' => 'filter',
           'value' => input.delete('filter')
+        },
+        {
+          'name' => 'filter',
+          'value' => input.dig('date_filters')&.
+            pluck('operator')&.join(',')
+        },
+        {
+          'name' => 'field',
+          'value' => input.dig('date_filters')&.
+            pluck('field')&.join(',')
         },
         {
           'name' => 'with_project_only',
@@ -973,8 +1006,10 @@
               hint: 'Allowed values are: all, equal to, not equal to'
             }
           },
-          { name: 'limit', optional: false, sticky: true,
-            hint: 'The number of records returned. e.g.100' },
+          { name: 'limit', label: 'Maximum records',
+            optional: false, sticky: true,
+            hint: 'The maximum number of records returned in response. ' \
+            'e.g. 100. Range between 1 and 1000.' },
           { name: 'offset', sticky: true,
             hint: 'The offset of the first record to return' },
           {
@@ -1039,9 +1074,56 @@
               control_type: 'text',
               optional: true,
               toggle_hint: 'User Custom Values',
-              hint: 'multiple values separated by '\
+              hint: 'Multiple values separated by '\
                 'comma e.g. open-envelopes,approved-envelopes'
             }
+          },
+          {
+            name: 'date_filters', type: 'array', of: 'object',
+            sticky: true, list_mode: 'static',
+            item_label: 'Date Filter',
+            add_field_label: 'Add date filter',
+            properties: [
+              { name: 'field', type: 'string',
+                control_type: 'select',
+                optional: false,
+                pick_list: call('get_object_schema', connection, config_fields).
+                  map { |field| [field[:name].labelize, field[:name]] },
+                hint: 'Select the date field, e.g. Created. Otherwise search ' \
+                'throws error.',
+                toggle_hint: 'Select from list',
+                toggle_field: {
+                  name: 'field',
+                  label: 'Field',
+                  type: 'string',
+                  control_type: 'text',
+                  optional: false,
+                  toggle_hint: 'Use Custom Values',
+                  hint: 'Provide record date field to filter, e.g. <b>created.</b>'
+                } },
+              { name: 'operator', type: 'string',
+                control_type: 'select',
+                optional: false,
+                pick_list: [
+                  ['Newer than', 'newer-than'],
+                  ['Older than', 'older-than'],
+                  ['Equal to', 'date-equal-to'],
+                  ['Not equal to', 'date-not-equal-to']
+                ],
+                hint: 'Select the operator.',
+                toggle_hint: 'Select from list',
+                toggle_field: {
+                  name: 'operator',
+                  label: 'Operator',
+                  type: 'string',
+                  control_type: 'text',
+                  optional: false,
+                  toggle_hint: 'Use Custom Values',
+                  hint: 'Allowed values: <b>newer-than, older-than, ' \
+                  'date-equal-to, date-not-equal-to</b>.'
+                } },
+              { name: 'value', type: 'date_time', optional: false }
+            ]
           },
           {
             name: 'with_project_only', control_type: :select,
@@ -1199,6 +1281,8 @@
         "#{search_object_list[:object]&.pluralize || 'objects'}</span> " \
         'in <span class="provider">OpenAir</span>'
       end,
+      help: 'Search will fetch maximum of 1000 records. Use <b>Date filters</b>' \
+      ' to fetch records based on date fields.',
 
       config_fields: [
         {
@@ -1228,7 +1312,7 @@
         if response&.dig('item', 0, 'errors', 0, '@nil') == 'true' ||
            response&.dig('ReadResult', 0, 'errors', 0, '@nil') == 'true'
           { records: call('format_xml_response_to_json',
-                          response.dig('ReadResult', 0, 'objects', 0, 'item')) }
+                          response.dig('ReadResult', 0, 'objects', 0, 'item')) || [] }
         else
           error = response.dig('item', 0, 'errors', 0, 'item', 0) ||
                   response.dig('ReadResult', 0, 'errors', 0, 'item', 0)
