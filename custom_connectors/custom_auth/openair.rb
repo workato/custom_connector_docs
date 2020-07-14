@@ -205,7 +205,8 @@
         dig(0, 'complexContent', 0, 'extension', 0, 'sequence', 0, 'element')
 
       object.map do |fields|
-        next if fields['@type'] == 'tns1:ArrayOfoaBase'
+        next if fields['@type'] == 'tns1:ArrayOfoaBase' ||
+                fields['@name'] == 'deleted'
         { name: fields['@name'] }
       end&.compact
     end,
@@ -979,6 +980,7 @@
           {
             name: 'deleted', control_type: :select,
             pick_list: 'boolean_list',
+            hint: 'Returns deleted records.',
             toggle_hint: 'Select a value',
             toggle_field: {
               name: 'deleted',
@@ -993,6 +995,8 @@
           {
             name: 'include_flags', control_type: :select,
             pick_list: 'boolean_list',
+            hint: 'Returns account or user switches, by default those are ' \
+            'not populated.',
             toggle_hint: 'Select a value',
             toggle_field: {
               name: 'include_flags',
@@ -1007,6 +1011,8 @@
           {
             name: 'include_nondeleted', control_type: :select,
             pick_list: 'boolean_list',
+            hint: 'Returns all records, deleted and nondeleted. It works in ' \
+            'conjunction with the "deleted" attribute.',
             toggle_hint: 'Select a value',
             toggle_field: {
               name: 'include_nondeleted',
@@ -1041,6 +1047,7 @@
             name: 'with_project_only', control_type: :select,
             pick_list: 'boolean_list',
             toggle_hint: 'Select a value',
+            hint: 'Returns customers which have associated project records.',
             toggle_field: {
               name: 'with_project_only',
               label: 'With project only',
