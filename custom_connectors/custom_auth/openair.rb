@@ -1793,18 +1793,20 @@
                               '@xmlns:types' => 'http://namespaces.soaplite.com/perl/encodedTypes',
                               '@xmlns:xsd' => 'http://www.w3.org/2001/XMLSchema',
                               '@xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance')&.
-          dig('Envelope', 0, 'Body', 0, 'readResponse', 0, 'Array', 0)
+          dig('Envelope', 0, 'Body', 0, 'readResponse', 0, 'Array', 0) || []
 
         records = call('format_xml_response_to_json',
                        response.dig('ReadResult', 0, 'objects', 0, 'item'))
 
-        has_more = records.present? ? (records.size >= limit) : false
-        offset = has_more ? offset + limit : 0
-        created_after = records&.dig(-1, 'created') || created_after if !has_more
-        closure = { 'created_after': created_after, 'offset': offset }
+        closure = if (has_more = records.size >= limit)
+                    { 'created_after': created_after, 'offset': offset + limit }
+                  else
+                    created_after = records&.dig(-1, 'created') || created_after
+                    { 'created_after': created_after, 'offset': 0 }
+                  end
 
         {
-          events: records || [],
+          events: records,
           next_poll: closure,
           can_poll_more: has_more
         }
@@ -1872,19 +1874,21 @@
                               '@xmlns:types' => 'http://namespaces.soaplite.com/perl/encodedTypes',
                               '@xmlns:xsd' => 'http://www.w3.org/2001/XMLSchema',
                               '@xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance')&.
-          dig('Envelope', 0, 'Body', 0, 'readResponse', 0, 'Array', 0)
+          dig('Envelope', 0, 'Body', 0, 'readResponse', 0, 'Array', 0) || []
 
         records = call('format_xml_response_to_json',
                        response.dig('ReadResult', 0, 'objects', 0, 'item'))
 
         sorted_records = records&.sort_by { |obj| obj['updated'] || obj[:updated] }
-        has_more = records.present? ? (sorted_records.size >= limit) : false
-        updated_after = sorted_records&.dig(-1, 'updated') || updated_after if !has_more
-        offset = has_more ? offset + limit : 0
-        closure = { 'updated_after': updated_after, 'offset': offset }
+        closure = if (has_more = sorted_records.size >= limit)
+                    { 'updated_after': updated_after, 'offset': offset + limit }
+                  else
+                    updated_after = sorted_records&.dig(-1, 'updated') || updated_after
+                    { 'updated_after': updated_after, 'offset': 0 }
+                  end
 
         {
-          events: sorted_records || [],
+          events: sorted_records,
           next_poll: closure,
           can_poll_more: has_more
         }
