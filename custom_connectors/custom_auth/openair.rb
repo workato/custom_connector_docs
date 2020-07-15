@@ -275,7 +275,7 @@
       ]
     end,
 
-    get_trigger_payload: lambda do |input, trigger_name|
+    get_trigger_payload: lambda do |input, trigger_name, offset, limit|
       {
         'soap:Header': [{}],
         'soap:Body': [{
@@ -293,7 +293,8 @@
                     {
                       '@type' => 'tns:Attribute',
                       'name' => [{ '@xsi:type' => 'xsd:string', 'content!' => 'limit' }],
-                      'value' => [{ '@xsi:type' => 'xsd:string', 'content!' => '10' }]
+                      'value' => [{ '@xsi:type' => 'xsd:string',
+                                    'content!' => "#{offset},#{limit}" }]
                     },
                     {
                       '@type' => 'tns:Attribute',
@@ -1778,11 +1779,12 @@
         created_after = closure['created_after'] ||
                         (input['since'] || 1.hour.ago).to_time.
                         in_time_zone('America/New_York').iso8601
-        limit = 100
+        limit = 500
+        offset = closure['offset'] || 0
 
         payload = call('get_trigger_payload',
                        input.merge('filter_date':
-              created_after.to_time.in_time_zone('America/New_York')), 'created')
+                       created_after.to_time), 'created', offset, limit)
         response = post('/soap').headers('Content-Type': 'text/xml').payload(payload).
                    format_xml('soap:Envelope',
                               '@xmlns:soap' => 'http://schemas.xmlsoap.org/soap/envelope/',
@@ -1797,16 +1799,12 @@
                        response.dig('ReadResult', 0, 'objects', 0, 'item'))
 
         has_more = records.present? ? (records.size >= limit) : false
-        # Time.now could miss some records. So, we are using last record's time.
-        created_after = if records.present?
-                          records.last['created'].to_time.iso8601
-                        else
-                          now.to_time.in_time_zone('America/New_York').iso8601
-                        end
-        closure = { 'created_after': created_after }
+        offset = has_more ? offset + limit : 0
+        created_after = records&.dig(-1, 'created') || created_after if !has_more
+        closure = { 'created_after': created_after, 'offset': offset }
 
         {
-          events: records.presence || [],
+          events: records || [],
           next_poll: closure,
           can_poll_more: has_more
         }
@@ -1860,11 +1858,12 @@
         updated_after = closure['updated_after'] ||
                         (input['since'] || 1.hour.ago).to_time.
                         in_time_zone('America/New_York').iso8601
-        limit = 100
+        limit = 500
+        offset = closure['offset'] || 0
 
         payload = call('get_trigger_payload',
                        input.merge('filter_date': updated_after.to_time),
-                       'updated')
+                       'updated', offset, limit)
         response = post('/soap').headers('Content-Type': 'text/xml').payload(payload).
                    format_xml('soap:Envelope',
                               '@xmlns:soap' => 'http://schemas.xmlsoap.org/soap/envelope/',
@@ -1878,19 +1877,14 @@
         records = call('format_xml_response_to_json',
                        response.dig('ReadResult', 0, 'objects', 0, 'item'))
 
-        if records.present?
-          records = records.sort_by { |obj| obj['updated'] || obj[:updated] }
-          updated_after = if records.present?
-                            records.last['updated'].to_time.iso8601
-                          else
-                            now.to_time.in_time_zone('America/New_York').iso8601
-                          end
-        end
-        has_more = records.present? ? (records.size >= limit) : false
-        closure = { 'updated_after': updated_after }
+        sorted_records = records&.sort_by { |obj| obj['updated'] || obj[:updated] }
+        has_more = records.present? ? (sorted_records.size >= limit) : false
+        updated_after = sorted_records&.dig(-1, 'updated') || updated_after if !has_more
+        offset = has_more ? offset + limit : 0
+        closure = { 'updated_after': updated_after, 'offset': offset }
 
         {
-          events: records.presence || [],
+          events: sorted_records || [],
           next_poll: closure,
           can_poll_more: has_more
         }
