@@ -381,7 +381,7 @@
                                    "tns:Attribute[#{input['attributes'].length}]",
                                    'tns:Attribute', input['attributes']),
                 'type': [{ '@xsi:type': 'xsd:string', 'content!': input['object'] }],
-                'objects': if input['object_fields'].present?
+                'objects': if input['object_fields'].present? || date_filters.present?
                              [{
                                '@soapenc:arrayType':
                                "tns:oaBase[#{(date_filters&.size || 0) + 1}]",
