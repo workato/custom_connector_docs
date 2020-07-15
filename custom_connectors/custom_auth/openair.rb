@@ -347,21 +347,21 @@
 
     format_date_fields: lambda do |input|
       input&.map do |field|
-        date = field['value'].to_time
+        date = field['value']
         { '@xsi:type' => 'tns:oaDate',
           'hour' => [{ '@xsi:type' => 'xsd:string',
                        'content!' => date.strftime('%k') }],
           'minute' => [{ '@xsi:type' => 'xsd:string',
                          'content!' => date.strftime('%M') }],
-          'month' => [{ '@xsi:type' => 'xsd:string',
-                        'content!' => date.strftime('%m') }],
           'second' => [{ '@xsi:type' => 'xsd:string',
                          'content!' => date.strftime('%S') }],
+          'month' => [{ '@xsi:type' => 'xsd:string',
+                        'content!' => date.strftime('%m') }],
           'day' => [{ '@xsi:type' => 'xsd:string',
                       'content!' => date.strftime('%d') }],
           'year' => [{ '@xsi:type' => 'xsd:string',
                        'content!' => date.strftime('%Y') }] }
-      end
+      end || []
     end,
 
     get_read_payload: lambda do |input|
@@ -995,6 +995,11 @@
               %w[Not\ equal\ to not\ equal\ to]
             ],
             optional: false,
+            hint: 'All: Returns all available records. <br>' \
+            'Equal to: Returns records that have fields that are equal to' \
+            ' the field value(s) passed in. Calculated fields are not supported. <br>' \
+            'Not equal to: Returns records that have fields that are not equal to ' \
+            'the field value(s) passed in. Calculated fields are not supported.',
             toggle_hint: 'Select method',
             toggle_field: {
               name: 'method',
@@ -1003,13 +1008,19 @@
               control_type: 'text',
               optional: false,
               toggle_hint: 'Use custom value',
-              hint: 'Allowed values are: all, equal to, not equal to'
+              hint: 'Allowed values are: <b>all, equal to, not equal to</b>.' \
+              'all: Returns all available records. <br>' \
+              'equal to: Returns records that have fields that are equal to' \
+              ' the field value(s) passed in. Calculated fields are not supported. <br>' \
+              'not equal to: Returns records that have fields that are not equal to ' \
+              'the field value(s) passed in. Calculated fields are not supported.'
             }
           },
           { name: 'limit', label: 'Maximum records',
             optional: false, sticky: true,
-            hint: 'The maximum number of records returned in response. ' \
-            'e.g. 100. Range between 1 and 1000.' },
+            default: 100,
+            hint: 'Restricts the number of records returned. ' \
+            'e.g. 100. Default is value 100. It accepts between 1 and 1000.' },
           { name: 'offset', sticky: true,
             hint: 'The offset of the first record to return' },
           {
@@ -1081,8 +1092,9 @@
           {
             name: 'date_filters', type: 'array', of: 'object',
             sticky: true, list_mode: 'static',
-            item_label: 'Date Filter',
+            item_label: 'Date Filters',
             add_field_label: 'Add date filter',
+            hint: 'Provide date filters conditions.',
             properties: [
               { name: 'field', type: 'string',
                 control_type: 'select',
@@ -1122,7 +1134,8 @@
                   hint: 'Allowed values: <b>newer-than, older-than, ' \
                   'date-equal-to, date-not-equal-to</b>.'
                 } },
-              { name: 'value', type: 'date_time', optional: false }
+              { name: 'value', type: 'date_time', optional: false,
+                hint: 'Accepted  date format: e.g. <b>2020-05-05 06:32:53</b>' }
             ]
           },
           {
@@ -1281,8 +1294,10 @@
         "#{search_object_list[:object]&.pluralize || 'objects'}</span> " \
         'in <span class="provider">OpenAir</span>'
       end,
-      help: 'Search will fetch maximum of 1000 records. Use <b>Date filters</b>' \
-      ' to fetch records based on date fields.',
+      help: 'Search action returns records that match search criteria, search will' \
+      ' fetch maximum of 1000 records. Use <b>Date filters</b>' \
+      ' to fetch records based on date fields. when you specify <b>Method - Equal to or ' \
+      'Not equal to</b> and <b>Date filters</b>, the AND operation is applied.',
 
       config_fields: [
         {
