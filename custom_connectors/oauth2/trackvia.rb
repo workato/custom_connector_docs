@@ -382,7 +382,7 @@
             .response_format_raw
             .after_response do |_code, body, headers|
               {
-                file_name: headers['content_disposition'].scan(/"(.*?)"/)[0][0],
+                file_name: headers['content_disposition'].split("=").last.gsub("\"", ""),
                 content: body
               }
             end
