@@ -3,11 +3,18 @@
     connection: {
       fields: [
         {
-          name: 'custom_domain',
+          name: 'domain',
           control_type: 'subdomain',
-          label: 'TrackVia subdomain',
+          label: 'TrackVia Subdomain',
           hint: 'Enter your TrackVia subdomain. e.g. customdomain.trackvia.com. By default, <b>go.trackvia.com</b> will be used.',
-          optional: 'true'
+          default: 'go.trackvia.com'
+        },
+        {
+          name: 'account',
+          control_type: 'number',
+          label: 'Account ID',
+          hint: 'Specify the account to connect to',
+          optional: true
         },
         {
           name: 'client_id',
@@ -29,19 +36,18 @@
         type: 'oauth2',
 
         authorization_url: lambda { |connection|
-          "https://#{connection['custom_domain'].presence || 'go.trackvia.com'}/oauth/authorize?response_type=code"
+          "https://#{connection['domain']}/oauth/authorize?response_type=code"
         },
 
-        acquire: lambda do |connection, auth_code, redirect_uri|
-          url = "https://#{connection['custom_domain'].presence || 'go.trackvia.com'}"
-          response = post("#{url}/oauth/token").payload(
+        acquire: lambda { |connection, auth_code, redirect_uri|
+          response = post("#{connection['domain']}/oauth/token").payload(
             redirect_uri: redirect_uri,
             grant_type: 'authorization_code',
             code: auth_code,
             client_id: connection['client_id'],
             client_secret: connection['client_secret']
           ).request_format_www_form_urlencoded
-          user_key = get("#{url}/3scale/openapiapps").params(access_token: response['access_token']).dig(0, 'userKey')
+          user_key = get("#{connection['domain']}/3scale/openapiapps").params(access_token: response['access_token']).dig(0, 'userKey')
           [
             response,
             nil,
@@ -49,35 +55,32 @@
               user_key: user_key
             }
           ]
-        end,
+        },
 
-        refresh: lambda do |connection, refresh_token|
-          url = "https://#{connection['custom_domain'].presence || 'go.trackvia.com'}"
-          response = post("#{url}/oauth/token").payload(
+        refresh: lambda { |connection, refresh_token|
+          response = post("#{connection['domain']}/oauth/token").payload(
             client_id: connection['client_id'],
             client_secret: connection['client_secret'],
             grant_type: 'refresh_token',
             refresh_token: refresh_token
           ).request_format_www_form_urlencoded
-        end,
+      },
 
         refresh_on: [401, 403],
 
         apply: lambda { |connection, access_token|
-          params(access_token: access_token, user_key: connection['user_key'])
+          params(user_key: connection['user_key'])
+          headers('Authorization': "Bearer #{access_token}")
+          connection['account'].presence? headers('account-id': connection['account'])
         }
       },
 
-      base_uri: lambda do |connection|
-        if connection['custom_domain']
-          "https://#{connection['custom_domain']}/openapi/"
-        else
-          "https://go.trackvia.com/openapi/"
-        end
-      end
+      base_uri: lambda { |connection|
+        "https://#{connection['domain']}/openapi/"
+      }
     },
 
-    test: ->(_connection) { get('views') },
+    test: lambda { |_connection| get('views') },
 
     methods: {
       get_all_output_fields: lambda do |input|
@@ -382,7 +385,7 @@
             .response_format_raw
             .after_response do |_code, body, headers|
               {
-                file_name: headers['content_disposition'].scan(/"(.*?)"/)[0][0],
+                file_name: headers['content_disposition'].split("=").last.gsub("\"", ""),
                 content: body
               }
             end
