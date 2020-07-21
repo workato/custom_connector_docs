@@ -10,6 +10,13 @@
           optional: 'true'
         },
         {
+          name: 'account',
+          control_type: 'number',
+          label: 'Account ID',
+          hint: 'Specify the account to connect to',
+          optional: true
+        },
+        {
           name: 'client_id',
           control_type: 'text',
           label: 'TrackVia App Client ID',
@@ -64,20 +71,18 @@
         refresh_on: [401, 403],
 
         apply: lambda { |connection, access_token|
-          params(access_token: access_token, user_key: connection['user_key'])
+          params(user_key: connection['user_key'])
+          headers('Authorization': "Bearer #{access_token}")
+          connection['account'].presence? headers('account-id': connection['account'])
         }
       },
 
       base_uri: lambda do |connection|
-        if connection['custom_domain']
-          "https://#{connection['custom_domain']}/openapi/"
-        else
-          "https://go.trackvia.com/openapi/"
-        end
+        "https://#{connection['custom_domain'].presence || 'go.trackvia.com'}/openapi/"
       end
     },
 
-    test: ->(_connection) { get('views') },
+    test: lambda { |_connection| get('views') },
 
     methods: {
       get_all_output_fields: lambda do |input|
