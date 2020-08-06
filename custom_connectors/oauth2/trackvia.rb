@@ -73,7 +73,7 @@
         apply: lambda { |connection, access_token|
           params(user_key: connection['user_key'])
           headers('Authorization': "Bearer #{access_token}")
-          connection['account'].presence? headers('account-id': connection['account'])
+          connection['account'].presence headers('account-id': connection['account'])
         }
       },
 
