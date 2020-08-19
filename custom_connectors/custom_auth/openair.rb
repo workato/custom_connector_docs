@@ -366,7 +366,7 @@
     end,
 
     get_read_payload: lambda do |input|
-      date_filters = input['object_fields'].delete('date_filters')
+      date_filters = input['object_fields']&.delete('date_filters')
       {
         'soap:Header': [{}],
         'soap:Body': [{
@@ -1924,18 +1924,35 @@
     end,
 
     search_object_list: lambda do |_connection|
-      [
-        %w[Project Project],
-        %w[Project\ Task Projecttask],
-        %w[User User],
-        %w[Customer Customer],
-        %w[Envelope Envelope],
-        %w[Invoice Invoice],
-        %w[Timesheet Timesheet],
-        %w[Time\ Type Timetype],
-        %w[Cost\ Type Costtype],
-        %w[Currency Currency]
-      ]
+      %w[Actualcost Address Agreement_to_project
+         Agreement Approval Attachment AttributeDescription Attributeset
+         Attribute BookingType Booking BookingByDay Booking_request
+         BudgetAllocation Budget Category_1 Category_2 Category_3 Category_4
+         Category_5 Category Ccrate Company Contact Costcategory Costcenter
+         Costtype Currencyrate Currency CustField Customerpo_to_project
+         Customerpo Customer CustomField Dealcontact Dealschedule Deal
+         Department Entitytag Envelope Error Estimateadjustment Estimateexpense
+         Estimatelabor Estimatemarkup Estimatephase Estimate Event ExpensePolicy
+         ExpensePolicyItem Filterset ForexInput FormPermissionField Fulfillment
+         HierarchyNode Hierarchy History ImportExport Invoice IssueCategory
+         IssueSeverity IssueSource IssueStage IssueStatus Issue Item Jobcode
+         Leave_accrual_rule_to_user Leave_accrual_rule Leave_accrual_transaction
+         LoadedCost Paymentterms Paymenttype Payment Payrolltype PendingBooking
+         Preference Product Projectassign ProjectAssignmentProfile
+         Projectbillingrule Projectbillingtransaction ProjectBudgetGroup
+         ProjectBudgetRule ProjectBudgetTransaction Projectgroup Projectlocation
+         Projectstage Projecttaskassign Projecttask_type Projecttask Project
+         Proposalblock Proposal Purchase_item Purchaseorder Purchaserequest
+         Purchaser RateCardItem Ratecard Reimbursement Repeat Report
+         Request_item Resourceprofile_type Resourceprofile RevenueContainer
+         Revenue_recognition_rule_amount Revenue_recognition_rule
+         Revenue_recognition_transaction RevenueStage Schedulebyday
+         Scheduleexception Schedulerequest_item Schedulerequest SlipProjection
+         Slipstage Slip TagGroupAttribute TagGroup TargetUtilization
+         TaskTimecard Task TaxLocation TaxRate Ticket Timecard Timesheet
+         Timetype Todo Uprate UserWorkschedule User Vendor Viewfilterrule
+         Viewfilter Workspacelink Workspaceuser].
+        map { |object| [object.labelize, object] }
     end,
 
     create_object_list: lambda do |_connection|
