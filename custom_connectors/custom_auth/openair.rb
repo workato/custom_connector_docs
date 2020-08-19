@@ -1171,7 +1171,8 @@
 
         [
           {
-            name: 'records', label: config_fields['object'].pluralize, type: 'array', of: 'object',
+            name: 'records', label: config_fields['object'].pluralize.labelize,
+            type: 'array', of: 'object',
             properties: call('get_object_schema', connection, config_fields).
               sort_by { |obj| obj['name'] || obj[:name] }
           }
@@ -1923,36 +1924,14 @@
       ]
     end,
 
-    search_object_list: lambda do |_connection|
-      %w[Actualcost Address Agreement_to_project
-         Agreement Approval Attachment AttributeDescription Attributeset
-         Attribute BookingType Booking BookingByDay Booking_request
-         BudgetAllocation Budget Category_1 Category_2 Category_3 Category_4
-         Category_5 Category Ccrate Company Contact Costcategory Costcenter
-         Costtype Currencyrate Currency CustField Customerpo_to_project
-         Customerpo Customer CustomField Dealcontact Dealschedule Deal
-         Department Entitytag Envelope Error Estimateadjustment Estimateexpense
-         Estimatelabor Estimatemarkup Estimatephase Estimate Event ExpensePolicy
-         ExpensePolicyItem Filterset ForexInput FormPermissionField Fulfillment
-         HierarchyNode Hierarchy History ImportExport Invoice IssueCategory
-         IssueSeverity IssueSource IssueStage IssueStatus Issue Item Jobcode
-         Leave_accrual_rule_to_user Leave_accrual_rule Leave_accrual_transaction
-         LoadedCost Paymentterms Paymenttype Payment Payrolltype PendingBooking
-         Preference Product Projectassign ProjectAssignmentProfile
-         Projectbillingrule Projectbillingtransaction ProjectBudgetGroup
-         ProjectBudgetRule ProjectBudgetTransaction Projectgroup Projectlocation
-         Projectstage Projecttaskassign Projecttask_type Projecttask Project
-         Proposalblock Proposal Purchase_item Purchaseorder Purchaserequest
-         Purchaser RateCardItem Ratecard Reimbursement Repeat Report
-         Request_item Resourceprofile_type Resourceprofile RevenueContainer
-         Revenue_recognition_rule_amount Revenue_recognition_rule
-         Revenue_recognition_transaction RevenueStage Schedulebyday
-         Scheduleexception Schedulerequest_item Schedulerequest SlipProjection
-         Slipstage Slip TagGroupAttribute TagGroup TargetUtilization
-         TaskTimecard Task TaxLocation TaxRate Ticket Timecard Timesheet
-         Timetype Todo Uprate UserWorkschedule User Vendor Viewfilterrule
-         Viewfilter Workspacelink Workspaceuser].
-        map { |object| [object.labelize, object] }
+    search_object_list: lambda do |connection|
+      schema = get(connection['wsdl_uri']).response_format_xml
+      complex_type = schema.dig('definitions', 0, 'types', 0, 'schema', 0, 'complexType')
+      extra_objects = %w[oaBase oaDate oaFieldAttribute]
+      complex_type.map do |obj|
+        next if !obj['@name'].starts_with?('oa') || extra_objects.include?(obj['@name'])
+        [obj['@name'][2..-1].labelize, obj['@name'][2..-1]]
+      end.compact
     end,
 
     create_object_list: lambda do |_connection|
