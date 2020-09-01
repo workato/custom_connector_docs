@@ -2553,6 +2553,8 @@
               merge('package_uid' => input['uid'])
           when 'field_report_export'
             get("/projects/#{input['project_uid']}/field_reports/export/#{input['uid']}")
+          when 'advanced_rfi'
+            get("/projects/#{input['project_uid']}/rfis2/#{input['uid']}")
           else
             get("/projects/#{input['project_uid']}/#{input['object'].pluralize}/#{input['uid']}")
           end.merge('project_uid' => input['project_uid'])
