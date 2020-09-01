@@ -3045,6 +3045,10 @@
           results.merge('pdf_form_fields' => results['pdf_form_values']&.map { |a| { a['name'].gsub("-", "_") => a['value'] } }&.inject(:merge))
         when 'rfi_status'
           get("/projects/#{project_uid}/rfis/statuses")&.dig('data', 0)&.merge('project_uid' => project_uid)
+        when 'advanced_rfi_status'
+          get("/projects/#{project_uid}/rfis2/statuses")&.dig('data', 0)&.merge('project_uid' => project_uid)
+        when 'advanced_rfi', 'advanced_rfi_search'
+            get("/projects/#{project_uid}/rfis2")&.dig('data', 0)&.merge('project_uid' => project_uid)
         when 'user_invite'
           get("/projects/#{project_uid}/users")&.dig('data', 0)&.merge('project_uid' => project_uid)
         when 'sheet_packet'
