@@ -2946,6 +2946,9 @@
                      elsif input['object'] == 'submittal_item' || input['object'] == 'submittal_package'
                        get("/projects/#{input['project_uid']}/submittals/#{input['object'].split('_').last.pluralize}").
                          params(api_params)
+                     elsif input['object'] == 'advanced_rfi'
+                       get("/projects/#{input['project_uid']}/rfis2").
+                         params(limit: limit, skip: skip, updated_after: updated_after)
                      else
                        get("/projects/#{input['project_uid']}/#{input['object'].pluralize}").
                          params(api_params)
