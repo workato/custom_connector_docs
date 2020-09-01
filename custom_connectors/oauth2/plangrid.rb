@@ -139,21 +139,21 @@
                 hint: 'Only return file groups created after the specified date.' }
             ]
           when 'advanced_rfi'
-          [
-            { name: 'uid', label: 'Advanced RFI ID', optional: false,
-              hint: 'ID can be found at the end of the url.' }
-          ]
+            [
+              { name: 'uid', label: 'Advanced RFI ID', optional: false,
+                hint: 'ID can be found at the end of the url.' }
+            ]
           when 'advanced_rfi_search'
-          [
-            { name: 'status_uids', type: 'text',
-              hint: 'Comma separated string of status UIDs by which to filter the response.' },
-            { name: 'updated_after', label: 'Updated After', type: 'date_time',
-              hint: 'Only retrieve field reports created/updated after specified UTC date and time.' },
-            { name: 'skip', type: 'integer',
-              hint: 'Number of records to skip.' },
-            { name: 'limit', type: 'integer',
-              hint: 'Number of records to retrieve.' }
-          ]
+            [
+              { name: 'status_uids', type: 'text',
+                hint: 'Comma separated string of status UIDs by which to filter the response.' },
+              { name: 'updated_after', label: 'Updated After', type: 'date_time',
+                hint: 'Only retrieve field reports created/updated after specified UTC date and time.' },
+              { name: 'skip', type: 'integer',
+                hint: 'Number of records to skip.' },
+              { name: 'limit', type: 'integer',
+                hint: 'Number of records to retrieve.' }
+            ]
           else
             [{ name: "uid", label: "#{config_fields['object'].labelize} ID", optional: false,
                hint: 'ID can be found at the end of the url.' }]
