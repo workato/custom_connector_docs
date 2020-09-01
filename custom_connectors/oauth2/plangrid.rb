@@ -1,32 +1,58 @@
 {
-    title: 'PlanGrid',
-
-    connection: {
-      authorization: {
-        type: 'oauth2',
-
-        authorization_url: lambda do
-          "https://io.plangrid.com/oauth/authorize?response_type=code&scope=write:projects%20read:profile"
-        end,
-
-        token_url: lambda do
-          "https://io.plangrid.com/oauth/token"
-        end,
-
-        refresh_on: [401, 403],
-
-        apply: lambda do |_connection, access_token|
-          if current_url.include?('https://io.plangrid.com')
-            headers(Authorization: "Bearer #{access_token}",
-                    Accept: 'application/vnd.plangrid+json; version=1')
-          end
-        end
+  title: 'PlanGrid',
+  connection: {
+    fields: [
+      {
+        name: 'client_id',
+        label: 'Client ID',
+        optional: false,
+        hint: 'To create client id, you need to register an application' \
+        ' under Admin Console => Project => Oauth => Create Oauth app'
       },
-
-      base_uri: lambda do |_connection|
-        'https://io.plangrid.com'
+      {
+        name: 'client_secret',
+        label: 'Client secret',
+        control_type: 'password',
+        optional: false,
+        hint: 'To create client id, you need to register an application' \
+        ' under Admin Console => Project => Oauth => Create Oauth app'
+      }
+    ],
+    authorization: {
+      type: 'oauth2',
+      authorization_url: lambda do |connection|
+        'https://io.plangrid.com/oauth/authorize?response_type=' \
+        "code&client_id=#{connection['client_id']}&" \
+        'scope=write:projects%20read:profile'
+      end,
+      acquire: lambda do |connection, auth_code, redirect_uri|
+        response = post('https://io.plangrid.com/oauth/token').
+                   payload(client_id: connection['client_id'],
+                           client_secret: connection['client_secret'],
+                           grant_type: 'authorization_code',
+                           code: auth_code,
+                           redirect_uri: redirect_uri).
+                   request_format_www_form_urlencoded
+        [response, nil, nil]
+      end,
+      refresh_on: [401, 403],
+      refresh: lambda do |_connection, refresh_token|
+        post('https://io.plangrid.com/oauth/token').
+          payload(grant_type: 'refresh_token',
+                  refresh_token: refresh_token).
+          request_format_www_form_urlencoded
+      end,
+      apply: lambda do |_connection, access_token|
+        if current_url.include?('https://io.plangrid.com')
+          headers(Authorization: "Bearer #{access_token}",
+                  Accept: 'application/vnd.plangrid+json; version=1')
+        end
       end
     },
+    base_uri: lambda do |_connection|
+      'https://io.plangrid.com'
+    end
+  },
 
     test: ->(_connection) { get('/me') },
 
