@@ -1943,11 +1943,12 @@
             ]
           when 'advanced_rfi'
             [
+              { name: 'uid', label: 'RFI ID', optional: false },
               { name: 'title', label: 'Title', optional: false,
                 hint: 'The title of your RFI.' },
               { name: 'status_uid', label: 'Status UID', optional: false,
                 hint: 'The UID of the Advanced RFI status. This can be obtained from the "Search Objects" action for Advanced RFI statuses. Note that RFIs can only be created in the "Draft" or "Draft with Manager" status types.' },
-            { name: 'answer_due_date', label: 'Answer Due Date', optional: true,
+              { name: 'answer_due_date', label: 'Answer Due Date', optional: true,
                 hint: 'The due date for the RFI answer, must be in UTC format.' },
               { name: 'question', label: 'Question', optional: true,
                 hint: 'The question for the RFI.' },
