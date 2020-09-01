@@ -1531,6 +1531,65 @@
                 hint: 'Select the file type of the export',
               }
             ]
+          when 'advanced_rfi'
+            [
+              { name: 'title', label: 'Title', optional: false,
+                hint: 'The title of your RFI.' },
+              { name: 'status_uid', label: 'Status UID', optional: false,
+                hint: 'The UID of the Advanced RFI status. This can be obtained from the "Search Objects" action for Advanced RFI statuses. Note that RFIs can only be created in the "Draft" or "Draft with Manager" status types.' },
+            { name: 'answer_due_date', label: 'Answer Due Date', optional: true,
+                hint: 'The due date for the RFI answer, must be in UTC format.' },
+              { name: 'question', label: 'Question', optional: true,
+                hint: 'The question for the RFI.' },
+              { name: 'directions', label: 'Directions', optional: true,
+                hint: 'Instructions to associate with your RFI.' },
+              { name: 'managers', type: 'array', of: 'object',
+                hint: 'An array of objects describing users assigned the role of manager.',
+                optional: 'true',
+                properties: [
+                  { name: 'type', hint: 'Can be `user` or `group`.' },
+                  { name: 'uid', hint: 'ID of either the user or group.' }
+                ]
+              },
+              { name: 'reviewers', type: 'array', of: 'object',
+                hint: 'An array of objects describing users assigned the role of reviewer.',
+                optional: 'true',
+                properties: [
+                  { name: 'type', hint: 'Can be `user` or `group`.' },
+                  { name: 'uid', hint: 'ID of either the user or group.' }
+                ]
+              },
+              { name: 'references_added', type: 'array', of: 'object',
+                hint: 'An array of objects describing the references to associate with this RFI.',
+                optional: 'true',
+                properties: [
+                  { name: 'type', hint: 'Can be `document`, `photo`, or `snapshot`.' },
+                  { name: 'uid', hint: 'ID of the reference to attach.' }
+                ]
+              },
+              { name: 'number', label: 'Number', optional: true,
+                hint: 'The number of the RFI. Cannot be the same as any other RFI in the project.' },
+              { name: 'revision', label: 'Revision Number', optional: true,
+                hint: 'The revision number of the RFI.' },
+              { name: 'submitter', type: 'object',
+                hint: 'An object describing the submitter of the RFI.',
+                optional: 'true',
+                properties: [
+                  { name: 'type', hint: 'Can be `user` or `group`.' },
+                  { name: 'uid', hint: 'ID of either the user or group.' }
+                ]
+              },
+              { name: 'watchers', type: 'array', of: 'object',
+                hint: 'An array of objects describing users assigned the role of watcher.',
+                optional: 'true',
+                properties: [
+                  { name: 'type', hint: 'Can be `user` or `group`.' },
+                  { name: 'uid', hint: 'ID of either the user or group.' }
+                ]
+              },
+              { name: 'sub_number', label: 'Sub Number', optional: true,
+                hint: 'An optional secondary revision number of the RFI.' }
+            ]
           else
             []
           end.concat(
