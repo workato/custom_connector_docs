@@ -2845,6 +2845,9 @@
                      elsif input['object'] == 'field_report'
                        get("/projects/#{input['project_uid']}/#{input['object'].pluralize}").
                          params(limit: limit, skip: skip, updated_after: updated_after)
+                     elsif input['object'] == 'advanced_rfi'
+                       get("/projects/#{input['project_uid']}/rfis2").
+                         params(limit: limit, skip: skip, updated_after: updated_after)
                      else
                        get("/projects/#{input['project_uid']}/#{input['object'].pluralize}").
                          params(limit: limit, skip: skip, updated_after: updated_after)
