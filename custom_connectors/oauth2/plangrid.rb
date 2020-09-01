@@ -3189,14 +3189,32 @@
 
     pick_lists: {
       create_object_list: lambda do |_connection|
-        [["Project", "project"], ["Sheet packet", "sheet_packet"], ["Task list", "issue_list"], ["Task", "issue"], ["RFI", "rfi"],
-         ["Sheet version", "sheet_upload"], ["Invite user", "user_invite"], ['Field report export', 'field_report_export'],
-         ['Submittal item', 'submittal_item'], ['Submittal package', 'submittal_package']]
+        [
+          ['Project', 'project'],
+          ['Field Report Export', 'field_reports/export'],
+          ['Invite User', 'user_invite'],
+          ['RFI', 'rfi'],
+          ['Advanced RFI', 'advanced_rfi'],
+          ['Task List', 'issue_list'],
+          ['Task', 'issue'],
+          ['Sheet Packet', 'sheet_packet'],
+          ['Sheet Version', 'sheet_upload'],
+          ['Submittal Item', 'submittals/item'],
+          ['Submittal Package', 'submittals/package']
+        ]
       end,
 
       update_object_list: lambda do |_connection|
-        [["Project", "project"], ["Task List", "issue_list"], ["Task", "issue"], ["RFI", "rfi"],
-         ["Photo metadata", "photo"], ['Submittal item', 'submittal_item'], ['Submittal package', 'submittal_package']]
+        [
+          ['Project', 'project'],
+          ['Photo', 'photo'],
+          ['RFI', 'rfi'],
+          ['Advanced RFI', 'advanced_rfi'],
+          ['Task List', 'issue_list'],
+          ['Task', 'issue'],
+          ['Submittal Package', 'submittals/package'],
+          ['Submittal Item', 'submittals/item']
+        ]
       end,
 
       upload_object_list: lambda do |_connection|
@@ -3205,29 +3223,74 @@
       end,
 
       get_objects: lambda do |_connection|
-        [["Project", "project"], ["RFI", "rfi"], ["Task", "issue"], ["User", "user"], ["Snapshot", "snapshot"], ["Sheet", "sheet"], ["Sheet Packet", "sheet_packet"],
-         ["Photo", "photo"], ["Document", "attachment"], ["Task_list", "issue_list"], ['Field report export', 'field_report_export'], ['Submittal package', 'submittal_package'],
-         ['Submittal package history', 'submittal_history'], ['Submittal package file group', 'submittal_file_group'],
-         ['Submittal package review status', 'submittal_review_status']]
+        [
+          ['Project', 'project'],
+          ['Document', 'attachment'],
+          ['Field Report Export', 'field_reports/export'],
+          ['Photo', 'photo'],
+          ['RFI', 'rfi'],
+          ['Advanced RFI', 'advanced_rfi'],
+          ['Sheet', 'sheet'],
+          ['Sheet Packet', 'sheet_packet'],
+          ['Snapshot', 'snapshot'],
+          ['Submittal Package', 'submittals/package'],
+          ['Submittal Item', 'submittals/item'],
+          ['Submittal Package File Group', 'submittals_file_group'],
+          ['Submittal Package Review Status', 'submittals_review_status'],
+          ['Task', 'issue'],
+          ['Task List', 'issue_list'],
+          ['User', 'user']
+        ]
       end,
 
       search_objects: lambda do |_connection|
-        [["RFI status", "rfi_status"], ["Role", "role"], ["Field Report", "field_report"], ['Field report template', 'field_report_template'],
-         ['Submittal item', 'submittal_item']]
+        [
+          ['Field Report', 'field_report'],
+          ['Field Report Template', 'field_report_template'],
+          ['RFI Status', 'rfi_status'],
+          ['Advanced RFI Status', 'advanced_rfi_status'],
+          ['Advanced RFI', 'advanced_rfi_search'],
+          ['Role', 'role']
+        ]
       end,
 
       download_object_list: lambda do |_connection|
-        [['Document', 'attachment'], ['Field report export', 'field_report_export'], ['Sheet packet', 'sheet_packet']]
+        [
+          ['Document', 'attachment'],
+          ['Field Report Export', 'field_reports/export'],
+          ['Sheet Packet', 'sheets/packet']
+        ]
       end,
 
       object_list: lambda do |_connection|
-        [["Project", "project"], ["Sheet", "sheet"], ["Document", "attachment"], ["Task", "issue"], ["RFI", "rfi"],
-         ["Annotation", "annotation"], ["Photo", "photo"], ["Snapshot", "snapshot"], ["Field Report", "field_report"]]
+        [
+          ['Project', 'project'],
+          ['Annotation', 'annotation'],
+          ['Document', 'attachment'],
+          ['Field Report', 'field_report'],
+          ['Photo', 'photo'],
+          ['RFI', 'rfi'],
+          ['Advanced RFI', 'advanced_rfi'],
+          ['Sheet', 'sheet'],
+          ['Snapshot', 'snapshot'],
+          ['Task', 'issue']
+        ]
       end,
 
       object_list_new: lambda do |_connection|
-        [["Project", "project"], ["Task", "issue"], ["RFI", "rfi"], ["Sheet", "sheet"], ["Field Report", "field_report"], ["Document", "attachment"], ["Annotation", "annotation"],
-         ['Field report template', 'field_report_template'], ['Submittal package', 'submittal_package'], ['Submittal item', 'submittal_item']]
+        [
+          ['Project', 'project'],
+          ['Annotation', 'annotation'],
+          ['Document', 'attachment'],
+          ['Field Report', 'field_report'],
+          ['Field Report Template', 'field_report_template'],
+          ['RFI', 'rfi'],
+          ['Advanced RFI', 'advanced_rfi'],
+          ['Sheet', 'sheet'],
+          ['Submittal Package', 'submittals/package'],
+          ['Submittal Item', 'submittals/item'],
+          ['Task', 'issue']
+        ]
       end,
 
       project_list: lambda do |_connection|
