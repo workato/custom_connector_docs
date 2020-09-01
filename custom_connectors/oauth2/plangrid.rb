@@ -60,7 +60,7 @@
       get_input_schema: {
         fields: lambda do |_connection, config_fields|
           case config_fields['object']
-          when 'rfi_status'
+          when 'rfi_status', 'advanced_rfi_status'
             [
               { name: 'limit', type: 'integer', control_type: 'integer',
                 hint: 'Number of RFI statuses to retrieve. Maximum value of 50.' },
@@ -138,6 +138,22 @@
               { name: 'created_after', type: 'date_time',
                 hint: 'Only return file groups created after the specified date.' }
             ]
+          when 'advanced_rfi'
+          [
+            { name: 'uid', label: 'Advanced RFI ID', optional: false,
+              hint: 'ID can be found at the end of the url.' }
+          ]
+          when 'advanced_rfi_search'
+          [
+            { name: 'status_uids', type: 'text',
+              hint: 'Comma separated string of status UIDs by which to filter the response.' },
+            { name: 'updated_after', label: 'Updated After', type: 'date_time',
+              hint: 'Only retrieve field reports created/updated after specified UTC date and time.' },
+            { name: 'skip', type: 'integer',
+              hint: 'Number of records to skip.' },
+            { name: 'limit', type: 'integer',
+              hint: 'Number of records to retrieve.' }
+          ]
           else
             [{ name: "uid", label: "#{config_fields['object'].labelize} ID", optional: false,
                hint: 'ID can be found at the end of the url.' }]
