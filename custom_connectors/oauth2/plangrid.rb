@@ -1943,7 +1943,6 @@
             ]
           when 'advanced_rfi'
             [
-              { name: 'uid', label: 'RFI ID', optional: false },
               { name: 'title', label: 'Title', optional: false,
                 hint: 'The title of your RFI.' },
               { name: 'status_uid', label: 'Status UID', optional: false,
