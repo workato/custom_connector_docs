@@ -2619,6 +2619,12 @@
           case input['object']
           when 'rfi_status'
             { data: get("/projects/#{input['project_uid']}/rfis/statuses", params)['data'] }
+        when 'advanced_rfi_status'
+          response = get("/projects/#{input['project_uid']}/rfis2/statuses", params)
+          { data: response['data'], total_count: response['total_count'], next_page_url: response['next_page_url'] }
+        when 'advanced_rfi_search'
+          response = get("/projects/#{input['project_uid']}/rfis2", params)
+          { data: response['data'], total_count: response['total_count'], next_page_url: response['next_page_url'] }
           when 'field_report'
             results = get("/projects/#{input['project_uid']}/#{input['object'].pluralize}", params)['data']
             results.map do |field_report|
