@@ -695,6 +695,13 @@
               { name: 'color' },
               { name: "project_uid", label: "Project ID" }
             ]
+          when 'advanced_rfi_status'
+            [
+              { name: 'uid', label: 'RFI status ID' },
+              { name: 'label' },
+              { name: 'bucket' },
+              { name: "project_uid", label: "Project ID" }
+            ]
           when 'user', 'user_invite'
             [
               { name: 'uid', label: 'User ID' },
@@ -1097,8 +1104,106 @@
               { name: 'total_count', type: 'integer', control_type: 'integer' },
               { name: 'next_page_url' }
             ]
+          when 'advanced_rfi', 'advanced_rfi_search'
+            [
+              { label: "Answer due date", name: "answer_due_date", type: "date" },
+              { label: "Answered at", name: "answered_at", type: "date_time" },
+              { label: "Answered directly at", name: "answered_directly_at", type: "date_time" },
+              { label: "Answered directly by", name: "answered_directly_by" },
+              {
+                name: "ball_in_court",
+                type: "array",
+                of: "object",
+                label: "Ball in court",
+                properties: [
+                  { label: "Type", name: "type" },
+                  { label: "Uid", name: "uid" },
+                  { label: "URL", name: "url" }
+                ]
+              },
+              { label: "Created at", type: "date_time", name: "created_at" },
+              {
+                label: "Created by",
+                type: "object",
+                name: "created_by",
+                properties: [
+                  {
+                    label: "Type",
+                    name: "type"
+                  },
+                  {
+                    label: "Uid",
+                    name: "uid"
+                  },
+                  {
+                    label: "URL",
+                    name: "url"
+                  }
+                ],
+              },
+              { label: "Directions", name: "directions" },
+              { label: "Distributed at", name: "distributed_at", type: "date_time" },
+              { label: "Distributed by", name: "distributed_by" },
+              { label: "Is returned", type: "boolean", name: "is_returned" },
+              {
+                name: "managers",
+                type: "array",
+                of: "object",
+                label: "Managers",
+                properties: [
+                  { label: "Type", name: "type" },
+                  { label: "Uid", name: "uid" },
+                  { label: "URL", name: "url" }
+                ]
+              },
+              { label: "Number", type: "number", name: "number" },
+              { label: "Project uid", name: "project_uid" },
+              { label: "Question", name: "question" },
+              { label: "Revision", type: "number", name: "revision" },
+              { label: "Sent for review at", name: "sent_for_review_at", type: "date_time" },
+              { label: "Sent for review by", name: "sent_for_review_by" },
+              {
+                label: "Status",
+                type: "object",
+                name: "status",
+                properties: [
+                  { label: "Bucket", name: "bucket" },
+                  { label: "Label", name: "label" },
+                  { label: "Uid", name: "uid" }
+                ],
+              },
+              { label: "Status uid", name: "status_uid" },
+              { label: "Sub number", name: "sub_number" },
+              { label: "Submitted at", type: "date_time", name: "submitted_at" },
+              {
+                label: "Submitter",
+                type: "object",
+                name: "submitter",
+                properties: [
+                  { label: "Type", name: "type" },
+                  { label: "Uid", name: "uid" },
+                  { label: "URL", name: "url" }
+                ],
+              },
+              { label: "Title", name: "title" },
+              { label: "Uid", name: "uid" },
+              { label: "Updated at", type: "date_time", name: "updated_at" },
+              {
+                label: "Updated by",
+                type: "object",
+                name: "updated_by",
+                properties: [
+                  { label: "Type", name: "type" },
+                  { label: "Uid", name: "uid" },
+                  { label: "URL", name: "url" }
+                ],
+              },
+              { label: "User created at", type: "date_time", name: "user_created_at" },
+              { label: "Voided at", name: "voided_at" },
+              { label: "Voided by", name: "voided_by" }
+            ]
+            end
           end
-        end
       },
 
       create_input_schema: {
