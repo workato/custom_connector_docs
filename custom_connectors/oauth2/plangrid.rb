@@ -2453,6 +2453,11 @@
               after_error_response(/.*/) do |_code, body, _header, message|
                 error("#{message}: #{body}")
               end
+          elsif input['object'] == 'advanced_rfi'
+            patch("/projects/#{input['project_uid']}/rfis2/#{input['uid']}").payload(payload).
+              after_error_response(/.*/) do |_code, body, _header, message|
+                error("#{message}: #{body}")
+              end
           elsif input['object'] == 'submittal_package' || input['object'] == 'submittal_item'
             response = patch("/projects/#{input['project_uid']}/submittals/#{input['object'].split('_').last.pluralize}/#{input['uid']}").payload(payload.except('uid')).
                          after_error_response(/.*/) do |_code, body, _header, message|
