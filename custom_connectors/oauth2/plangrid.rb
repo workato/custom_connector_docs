@@ -2388,6 +2388,11 @@
               { "value" => uid }
             end.inject(:merge)
             response
+          when 'advanced_rfi'
+            post("/projects/#{input['project_uid']}/rfis2").payload(payload).
+              after_error_response(/.*/) do |_code, body, _header, message|
+                error("#{message}: #{body}")
+              end
           when 'field_report_export'
             post("/projects/#{input['project_uid']}/field_reports/export").payload(payload).
               after_error_response(/.*/) do |_code, body, _header, message|
