@@ -327,7 +327,6 @@
                 { records: Array.wrap(call(:format_output, response, e_o_s.dig(0, 'properties'))) }
             }
         },
-
         get_file_from_record: {
             description: "Get <span class='provider'>file</span> from a record in <span class='provider'>TrackVia</span>",
             help: "Retreive a file from a record's document or image field in TrackVia",
