@@ -1976,6 +1976,45 @@
             input['fields'] == 'all') && input['action_type'] == 'output'
           { name: 'timeZoneInferred', label: 'Inferred timezone' }
         end,
+        if input['fields']&.include?('company') || input['fields'] == 'all'
+          { name: 'company', sticky: true,hint: 'The name of the company the prospect ' \
+            'works at. If associated with an account, this is the name of the account.'}
+        end,
+        if input['fields']&.include?('companyFollowers') || input['fields'] == 'all'
+          { name: 'companyFollowers', type: 'integer', control_type: 'integer',
+            hint: 'The prospect’s company Followers.' }
+        end,
+        if input['fields']&.include?('companyFoundedAt') || input['fields'] == 'all'
+          { name: 'companyFoundedAt', type: 'date_time', control_type: 'date_time',
+            render_input: 'date_time_conversion', parse_output: 'date_time_conversion',
+            hint: 'Year in which was the prospect’s company founded.' }
+        end,
+        if input['fields']&.include?('companyIndustry') || input['fields'] == 'all'
+          { name: 'companyIndustry', hint: 'Industry in which the prospect’s company operates.	.' }
+        end,
+        if input['fields']&.include?('companyLinkedIn') || input['fields'] == 'all'
+          { name: 'companyLinkedIn', label: 'Company LinkedIn',
+            hint: 'The prospect’s company LinkedIn.' }
+        end,
+        if input['fields']&.include?('companyLinkedInEmployees') || input['fields'] == 'all'
+          { name: 'companyLinkedInEmployees', label: 'Company LinkedIn employees',
+            type: 'integer', control_type: 'integer',
+            hint: 'The prospect’s company LinkedIn Employees.' }
+        end,
+        if input['fields']&.include?('companyLocality') || input['fields'] == 'all'
+          { name: 'companyLocality', hint: 'The locality of prospect’s company.' }
+        end,
+        if input['fields']&.include?('companyNatural') || input['fields'] == 'all'
+          { name: 'companyNatural', label: 'Company natural name',
+            hint: 'The natural name of the company the prospect works at. (e.g. Acme).' }
+        end,
+        if input['fields']&.include?('companySize') || input['fields'] == 'all'
+          { name: 'companySize', type: 'integer',
+            control_type: 'integer', hint: 'The size of prospect’s company.' }
+        end,
+        if input['fields']&.include?('companyType') || input['fields'] == 'all'
+          { name: 'companyType', hint: 'The type of prospect’s company.' }
+        end,
         if input['fields']&.include?('personalNote1') || input['fields'] == 'all'
           { name: 'personalNote1', label: 'Personal note 1' }
         end,
@@ -5366,7 +5405,7 @@
                                hash[key] = val&.split(',')
                              elsif %w[dueAt addedAt autoskipAt].include?(key)
                                hash[key] = val.to_time.utc
-                             elsif %w[foundedAt availableAt].include?(key)
+                             elsif %w[foundedAt companyFoundedAt availableAt].include?(key)
                                hash[key] = val.utc.strftime('%Y-%m-%dT%H:%M:%SZ')
                              else
                                hash[key] = val
@@ -5435,7 +5474,7 @@
               hash[key] = val&.split(',')
             elsif %w[dueAt addedAt].include?(key)
               hash[key] = val.to_time.utc
-            elsif key == 'foundedAt'
+            elsif %w[foundedAt companyFoundedAt].include?(key)
               hash[key] = val.utc.strftime('%Y-%m-%dT%H:%M:%SZ')
             else
               hash[key] = val
@@ -6197,21 +6236,23 @@
              engagedScore eventName externalId externalOwner externalSource facebookUrl firstName
              gender githubUrl githubUsername googlePlusUrl graduationDate homePhones jobStartDate
              lastName linkedInConnections linkedInId linkedInSlug linkedInUrl middleName mobilePhones
-             name nickname occupation openCount optedOut optedOutAt otherPhones personalNote1
-             personalNote2 preferredContact quoraUrl region replyCount school score smsOptStatus
-             smsOptedAt smsOptedOut source specialties stackOverflowId stackOverflowUrl tags timeZone
-             timeZoneIana timeZoneInferred title touchedAt twitterUrl twitterUsername updatedAt
-             voipPhones websiteUrl1 websiteUrl2 websiteUrl3 workPhones custom1 custom2 custom3 custom4
-             custom5 custom6 custom7 custom8 custom9 custom10 custom11 custom12 custom13 custom14
-             custom15 custom16 custom17 custom18 custom19 custom20 custom21 custom22 custom23 custom24
-             custom25 custom26 custom27 custom28 custom29 custom30 custom31 custom32 custom33 custom34
-             custom35 custom36 custom37 custom38 custom39 custom40 custom41 custom42 custom43 custom44
-             custom45 custom46 custom47 custom48 custom49 custom50 custom51 custom52 custom53 custom54
-             custom55 custom56 custom57 custom58 custom59 custom60 custom61 custom62 custom63 custom64
-             custom65 custom66 custom67 custom68 custom69 custom70 custom71 custom72 custom73 custom74
-             custom75 custom76 custom77 custom78 custom79 custom80 custom81 custom82 custom83 custom84
-             custom85 custom86 custom87 custom88 custom89 custom90 custom91 custom92 custom93 custom94
-             custom95 custom96 custom97 custom98 custom99 custom100].map { |val| [val.labelize, val] },
+             name nickname occupation openCount optedOut optedOutAt otherPhones company companyFollowers
+             companyFoundedAt companyIndustry companyLinkedIn companyLinkedInEmployees companyLocality
+             companyNatural companySize companyType personalNote1 personalNote2 preferredContact
+             quoraUrl region replyCount school score smsOptStatus smsOptedAt smsOptedOut source
+             specialties stackOverflowId stackOverflowUrl tags timeZone timeZoneIana timeZoneInferred
+             title touchedAt twitterUrl twitterUsername updatedAt voipPhones websiteUrl1 websiteUrl2
+             websiteUrl3 workPhones custom1 custom2 custom3 custom4 custom5 custom6 custom7 custom8
+             custom9 custom10 custom11 custom12 custom13 custom14 custom15 custom16 custom17 custom18
+             custom19 custom20 custom21 custom22 custom23 custom24 custom25 custom26 custom27 custom28
+             custom29 custom30 custom31 custom32 custom33 custom34 custom35 custom36 custom37 custom38
+             custom39 custom40 custom41 custom42 custom43 custom44 custom45 custom46 custom47 custom48
+             custom49 custom50 custom51 custom52 custom53 custom54 custom55 custom56 custom57 custom58
+             custom59 custom60 custom61 custom62 custom63 custom64 custom65 custom66 custom67 custom68
+             custom69 custom70 custom71 custom72 custom73 custom74 custom75 custom76 custom77 custom78
+             custom79 custom80 custom81 custom82 custom83 custom84 custom85 custom86 custom87 custom88
+             custom89 custom90 custom91 custom92 custom93 custom94 custom95 custom96 custom97 custom98
+             custom99 custom100].map { |val| [val.labelize, val] },
         'sequence' =>
           %w[automationPercentage bounceCount clickCount createdAt deliverCount description
              durationInDays enabled enabledAt failureCount finishOnReply lastUsedAt locked lockedAt
