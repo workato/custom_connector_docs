@@ -61,12 +61,7 @@
         fields: lambda do |_connection, config_fields|
           case config_fields['object']
           when 'rfi_status', 'advanced_rfi_status'
-            [
-              { name: 'limit', type: 'integer', control_type: 'integer',
-                hint: 'Number of RFI statuses to retrieve. Maximum value of 50.' },
-              { name: 'skip', type: 'integer', control_type: 'integer',
-                hint: 'Number of RFI statuses to skip in the set of results.' }
-            ]
+            []
           when 'field_report'
             [
               { name: 'report_date_min', type: 'date',
@@ -154,8 +149,18 @@
               { name: 'limit', type: 'integer',
                 hint: 'Number of records to retrieve.' }
             ]
+          when 'advanced_rfi_answer'
+            [
+              { name: 'rfi_uid', label: 'RFI UID', type: 'string', optional: false },
+              { name: 'updated_after', label: 'Updated After', type: 'date_time',
+                hint: 'Only retrieve advanced RFI answers created/updated after specified UTC date and time.' },
+              { name: 'skip', type: 'integer',
+                hint: 'Number of records to skip.' },
+              { name: 'limit', type: 'integer',
+                hint: 'Number of records to retrieve.' }
+            ]
           else
-            [{ name: "uid", label: "#{config_fields['object'].labelize} ID", optional: false,
+            [{ name: 'uid', label: "RFI ID", optional: false,
                hint: 'ID can be found at the end of the url.' }]
           end
         end
@@ -693,19 +698,18 @@
               { name: 'uid', label: 'RFI status ID' },
               { name: 'label' },
               { name: 'color' },
-              { name: "project_uid", label: "Project ID" }
+              { name: 'project_uid', label: 'Project ID' }
             ]
           when 'advanced_rfi_status'
             [
               { name: 'uid', label: 'RFI status ID' },
               { name: 'label' },
-              { name: 'bucket' },
-              { name: "project_uid", label: "Project ID" }
+              { name: 'bucket' }
             ]
           when 'user', 'user_invite'
             [
               { name: 'uid', label: 'User ID' },
-              { name: "project_uid", label: "Project ID" },
+              { name: 'project_uid', label: 'Project ID' },
               { name: 'email' },
               { name: 'first_name', label: 'First Name' },
               { name: 'last_name', label: 'Last Name' },
@@ -721,7 +725,7 @@
           when 'sheet'
             [
               { name: 'uid', label: 'Sheet ID' },
-              { name: "project_uid", label: "Project ID" },
+              { name: 'project_uid', label: 'Project ID' },
               { name: 'name' },
               { name: 'version_name', label: 'Version Name' },
               { name: 'description' },
@@ -748,7 +752,7 @@
           when 'sheet_packet'
             [
               { name: 'uid', label: 'Sheet Packet ID' },
-              { name: "project_uid", label: "Project ID" },
+              { name: 'project_uid', label: 'Project ID' },
               { name: 'status' },
               { name: 'file_url', label: 'File URL' },
               {
@@ -760,23 +764,23 @@
             ]
           when 'issue_list'
             [
-              { name: "uid", label: "Task List ID" },
-              { name: "project_uid", label: "Project ID" },
-              { name: "name", label: "Name" },
-              { name: "deleted", label: "Deleted", type: "boolean", control_type: 'checkbox' }
+              { name: 'uid', label: 'Task List ID' },
+              { name: 'project_uid', label: 'Project ID' },
+              { name: 'name', label: 'Name' },
+              { name: 'deleted', label: 'Deleted', type: 'boolean', control_type: 'checkbox' }
             ]
           when 'role'
             [
               { name: 'uid', label: 'Role ID' },
               { name: 'label', label: 'Role' },
-              { name: "project_uid", label: "Project ID" }
+              { name: 'project_uid', label: 'Project ID' }
             ]
           when 'sheet_upload'
             [
               { name: 'uid', label: 'Sheet Version Upload ID' },
               { name: 'complete_url', label: 'Upload Completion URL' },
               { name: 'status' },
-              { name: "project_uid", label: "Project ID" },
+              { name: 'project_uid', label: 'Project ID' },
               {
                 name: 'file_upload_requests', label: 'File Upload Requests',
                 type: 'array', of: 'object', properties: [
@@ -789,7 +793,7 @@
           when 'version_upload'
             [
               { name: 'uid', label: 'Sheet Version ID' },
-              { name: "project_uid", label: "Project ID" },
+              { name: 'project_uid', label: 'Project ID' },
               { name: 'status', label: 'Status' }
             ]
           when 'field_report_template'
@@ -806,13 +810,13 @@
               { name: 'template_type' },
               { name: 'status' },
               { name: 'group_permissions', label: 'Group permissions', type: 'array', of: 'object', properties: [
-                { name: 'permissions', type: 'array', of: 'object', properties: [{ name: "value" }] },
+                { name: 'permissions', type: 'array', of: 'object', properties: [{ name: 'value' }] },
                 { name: 'role_key' },
                 { name: 'role_name' },
                 { name: 'role_uid', label: 'Role ID' }
               ] },
               { name: 'user_permissions', label: 'User permissions', type: 'array', of: 'object', properties: [
-                { name: 'permissions', type: 'array', of: 'object', properties: [{ name: "value" }] },
+                { name: 'permissions', type: 'array', of: 'object', properties: [{ name: 'value' }] },
                 { name: 'user_id', label: 'User ID' }
               ] },
               { name: 'created_by', type: 'object', properties: [
@@ -849,7 +853,7 @@
               { name: 'transmission_status' },
               { name: 'is_voided', type: 'boolean' },
               { name: 'items', type: 'object', properties: [
-                { name: 'uids', label: 'Item IDs', type: 'array', of: 'object', properties: [{ name: "value" }] },
+                { name: 'uids', label: 'Item IDs', type: 'array', of: 'object', properties: [{ name: 'value' }] },
                 { name: 'url' },
                 { name: 'total_count', type: 'integer', control_type: 'integer' }
               ] },
@@ -945,7 +949,7 @@
               { name: 'general_contractor_review_due_date', type: 'date_time', label: 'Manager due date' },
               { name: 'reviewers', type: 'array', of: 'object', properties: [
                 { name: 'type' },
-                { name: 'uid', label: "Reviewer ID" },
+                { name: 'uid', label: 'Reviewer ID' },
                 { name: 'url' }
               ] },
               { name: 'managers', type: 'array', of: 'object', properties: [
@@ -1106,104 +1110,214 @@
             ]
           when 'advanced_rfi', 'advanced_rfi_search'
             [
-              { label: "Answer due date", name: "answer_due_date", type: "date" },
-              { label: "Answered at", name: "answered_at", type: "date_time" },
-              { label: "Answered directly at", name: "answered_directly_at", type: "date_time" },
-              { label: "Answered directly by", name: "answered_directly_by" },
-              {
-                name: "ball_in_court",
-                type: "array",
-                of: "object",
-                label: "Ball in court",
+              { label: 'Project ID', name: 'project_uid' },
+              { label: 'RFI ID', name: 'uid' },
+              { name: 'answer' },
+              { label: 'Answer due date', name: 'answer_due_date', type: 'date' },
+              { label: 'Answered at', name: 'answered_at', type: 'date_time' },
+              { label: 'Answered directly at', name: 'answered_directly_at', type: 'date_time' },
+              { label: 'Answered directly by', name: 'answered_directly_by', type: 'object',
                 properties: [
-                  { label: "Type", name: "type" },
-                  { label: "Uid", name: "uid" },
-                  { label: "URL", name: "url" }
+                  { name: 'type' },
+                  { name: 'uid' },
+                  { name: 'url' }
                 ]
               },
-              { label: "Created at", type: "date_time", name: "created_at" },
               {
-                label: "Created by",
-                type: "object",
-                name: "created_by",
+                name: 'ball_in_court',
+                type: 'array',
+                of: 'object',
+                label: 'Ball in court',
+                properties: [
+                  { label: 'Type', name: 'type' },
+                  { label: 'Uid', name: 'uid' },
+                  { label: 'URL', name: 'url' }
+                ]
+              },
+              { label: 'Created at', type: 'date_time', name: 'created_at' },
+              {
+                label: 'Created by',
+                type: 'object',
+                name: 'created_by',
                 properties: [
                   {
-                    label: "Type",
-                    name: "type"
+                    label: 'Type',
+                    name: 'type'
                   },
                   {
-                    label: "Uid",
-                    name: "uid"
+                    label: 'Uid',
+                    name: 'uid'
                   },
                   {
-                    label: "URL",
-                    name: "url"
+                    label: 'URL',
+                    name: 'url'
                   }
                 ],
               },
-              { label: "Directions", name: "directions" },
-              { label: "Distributed at", name: "distributed_at", type: "date_time" },
-              { label: "Distributed by", name: "distributed_by" },
-              { label: "Is returned", type: "boolean", name: "is_returned" },
-              {
-                name: "managers",
-                type: "array",
-                of: "object",
-                label: "Managers",
+              { label: 'Directions', name: 'directions' },
+              { label: 'Distributed at', name: 'distributed_at', type: 'date_time' },
+              { label: 'Distributed by', name: 'distributed_by', type: 'object',
                 properties: [
-                  { label: "Type", name: "type" },
-                  { label: "Uid", name: "uid" },
-                  { label: "URL", name: "url" }
+                  { name: 'type' },
+                  { name: 'uid' },
+                  { name: 'url' }
                 ]
               },
-              { label: "Number", type: "number", name: "number" },
-              { label: "Project uid", name: "project_uid" },
-              { label: "Question", name: "question" },
-              { label: "Revision", type: "number", name: "revision" },
-              { label: "Sent for review at", name: "sent_for_review_at", type: "date_time" },
-              { label: "Sent for review by", name: "sent_for_review_by" },
+              { label: 'Is returned', type: 'boolean', name: 'is_returned' },
               {
-                label: "Status",
-                type: "object",
-                name: "status",
+                name: 'managers',
+                type: 'array',
+                of: 'object',
+                label: 'Managers',
                 properties: [
-                  { label: "Bucket", name: "bucket" },
-                  { label: "Label", name: "label" },
-                  { label: "Uid", name: "uid" }
+                  { label: 'Type', name: 'type' },
+                  { label: 'Uid', name: 'uid' },
+                  { label: 'URL', name: 'url' }
+                ]
+              },
+              { label: 'Number', type: 'number', name: 'number' },
+              { label: 'Question', name: 'question' },
+              { name: 'reviewers', type: 'array', of: 'object', 
+                properties: [
+                  { name: 'type' },
+                  { name: 'uid' },
+                  { name: 'url' }
+                ]
+              },
+              { label: 'Revision', type: 'number', name: 'revision' },
+              { name: 'references', type: 'array', of: 'object',
+                properties: [
+                  { name: 'created_at', type: 'date_time' },
+                  { name: 'created_by', type: 'object',
+                    properties: [
+                      { name: 'type' },
+                      { name: 'uid' },
+                      { name: 'url' }
+                    ]
+                  },
+                  { name: 'reference_type' },
+                  { name: 'reference_uid' },
+                  { name: 'url' }
+                ]
+              },
+              { label: 'Sent for review at', name: 'sent_for_review_at', type: 'date_time' },
+              { label: 'Sent for review by', name: 'sent_for_review_by', type: 'object',
+                properties: [
+                  { name: 'type' },
+                  { name: 'uid' },
+                  { name: 'url' }
+                ]
+              },
+              {
+                label: 'Status',
+                type: 'object',
+                name: 'status',
+                properties: [
+                  { label: 'Bucket', name: 'bucket' },
+                  { label: 'Label', name: 'label' },
+                  { label: 'Uid', name: 'uid' }
                 ],
               },
-              { label: "Status uid", name: "status_uid" },
-              { label: "Sub number", name: "sub_number" },
-              { label: "Submitted at", type: "date_time", name: "submitted_at" },
+              { label: 'Status ID', name: 'status_uid' },
+              { label: 'Sub number', name: 'sub_number' },
+              { label: 'Submitted at', type: 'date_time', name: 'submitted_at' },
               {
-                label: "Submitter",
-                type: "object",
-                name: "submitter",
+                label: 'Submitter',
+                type: 'object',
+                name: 'submitter',
                 properties: [
-                  { label: "Type", name: "type" },
-                  { label: "Uid", name: "uid" },
-                  { label: "URL", name: "url" }
+                  { label: 'Type', name: 'type' },
+                  { label: 'Uid', name: 'uid' },
+                  { label: 'URL', name: 'url' }
                 ],
               },
-              { label: "Title", name: "title" },
-              { label: "Uid", name: "uid" },
-              { label: "Updated at", type: "date_time", name: "updated_at" },
+              { label: 'Title', name: 'title' },
+              { label: 'Updated at', type: 'date_time', name: 'updated_at' },
               {
-                label: "Updated by",
-                type: "object",
-                name: "updated_by",
+                label: 'Updated by',
+                type: 'object',
+                name: 'updated_by',
                 properties: [
-                  { label: "Type", name: "type" },
-                  { label: "Uid", name: "uid" },
-                  { label: "URL", name: "url" }
+                  { label: 'Type', name: 'type' },
+                  { label: 'Uid', name: 'uid' },
+                  { label: 'URL', name: 'url' }
                 ],
               },
-              { label: "User created at", type: "date_time", name: "user_created_at" },
-              { label: "Voided at", name: "voided_at" },
-              { label: "Voided by", name: "voided_by" }
+              { label: 'User created at', type: 'date_time', name: 'user_created_at' },
+              { label: 'Voided at', name: 'voided_at', type: 'date_time' },
+              { label: 'Voided by', name: 'voided_by', type: 'object',
+                properties: [
+                  { name: 'type' },
+                  { name: 'uid' },
+                  { name: 'url' }
+                ] 
+              },
+              { name: 'watchers', type: 'array', of: 'object',
+                properties: [
+                  { name: 'type' },
+                  { name: 'uid' },
+                  { name: 'url' }
+                ]
+              }
             ]
-            end
+          when 'advanced_rfi_answer'
+            [
+              { label: 'Answer ID', type: 'string', name: 'uid' },
+              { label: 'Created at', type: 'date_time', name: 'created_at' },
+              {
+                label: 'Created by',
+                type: 'object',
+                name: 'created_by',
+                properties: [
+                  {
+                    label: 'Type',
+                    name: 'type'
+                  },
+                  {
+                    label: 'Uid',
+                    name: 'uid'
+                  },
+                  {
+                    label: 'URL',
+                    name: 'url'
+                  }
+                ],
+              },
+              { label: 'Is draft?', type: 'boolean', name: 'is_draft' },
+              { label: 'Number of references on create', type: 'number', name: 'num_references_on_create' },
+              { name: 'references', type: 'array', of: 'object',
+                properties: [
+                  { name: 'created_at', type: 'date_time' },
+                  { name: 'created_by', type: 'object',
+                    properties: [
+                      { name: 'type' },
+                      { name: 'uid' },
+                      { name: 'url' }
+                    ]
+                  },
+                  { name: 'reference_type' },
+                  { name: 'reference_uid' },
+                  { name: 'url' }
+                ]
+              },
+              { label: 'RFI ID', type: 'string', name: 'rfi_uid' },
+              { label: 'Source', type: 'string', name: 'source' },
+              { label: 'Text', type: 'string', name: 'text' },
+              { label: 'Updated at', type: 'date_time', name: 'updated_at' },
+              {
+                label: 'Updated by',
+                type: 'object',
+                name: 'updated_by',
+                properties: [
+                  { label: 'Type', name: 'type' },
+                  { label: 'Uid', name: 'uid' },
+                  { label: 'URL', name: 'url' }
+                ],
+              },
+              { label: 'User created at', type: 'date_time', name: 'user_created_at' },
+            ]
           end
+        end
       },
 
       create_input_schema: {
@@ -1537,7 +1651,7 @@
                 hint: 'The title of your RFI.' },
               { name: 'status_uid', label: 'Status UID', optional: false,
                 hint: 'The UID of the Advanced RFI status. This can be obtained from the "Search Objects" action for Advanced RFI statuses. Note that RFIs can only be created in the "Draft" or "Draft with Manager" status types.' },
-            { name: 'answer_due_date', label: 'Answer Due Date', optional: true,
+            { name: 'answer_due_date', label: 'Answer Due Date', type: 'date', optional: true,
                 hint: 'The due date for the RFI answer, must be in UTC format.' },
               { name: 'question', label: 'Question', optional: true,
                 hint: 'The question for the RFI.' },
@@ -1545,7 +1659,7 @@
                 hint: 'Instructions to associate with your RFI.' },
               { name: 'managers', type: 'array', of: 'object',
                 hint: 'An array of objects describing users assigned the role of manager.',
-                optional: 'true',
+                optional: true,
                 properties: [
                   { name: 'type', hint: 'Can be `user` or `group`.' },
                   { name: 'uid', hint: 'ID of either the user or group.' }
@@ -1553,7 +1667,7 @@
               },
               { name: 'reviewers', type: 'array', of: 'object',
                 hint: 'An array of objects describing users assigned the role of reviewer.',
-                optional: 'true',
+                optional: true,
                 properties: [
                   { name: 'type', hint: 'Can be `user` or `group`.' },
                   { name: 'uid', hint: 'ID of either the user or group.' }
@@ -1561,7 +1675,7 @@
               },
               { name: 'references_added', type: 'array', of: 'object',
                 hint: 'An array of objects describing the references to associate with this RFI.',
-                optional: 'true',
+                optional: true,
                 properties: [
                   { name: 'type', hint: 'Can be `document`, `photo`, or `snapshot`.' },
                   { name: 'uid', hint: 'ID of the reference to attach.' }
@@ -1573,7 +1687,7 @@
                 hint: 'The revision number of the RFI.' },
               { name: 'submitter', type: 'object',
                 hint: 'An object describing the submitter of the RFI.',
-                optional: 'true',
+                optional: true,
                 properties: [
                   { name: 'type', hint: 'Can be `user` or `group`.' },
                   { name: 'uid', hint: 'ID of either the user or group.' }
@@ -1581,7 +1695,7 @@
               },
               { name: 'watchers', type: 'array', of: 'object',
                 hint: 'An array of objects describing users assigned the role of watcher.',
-                optional: 'true',
+                optional: true,
                 properties: [
                   { name: 'type', hint: 'Can be `user` or `group`.' },
                   { name: 'uid', hint: 'ID of either the user or group.' }
@@ -1589,6 +1703,28 @@
               },
               { name: 'sub_number', label: 'Sub Number', optional: true,
                 hint: 'An optional secondary revision number of the RFI.' }
+            ]
+          when 'advanced_rfi_answer'
+            [
+              { label: 'Advanced RFI ID', type: 'string', name: 'rfi_uid', optional: false },
+              { label: 'Is draft', type: 'boolean', name: 'is_draft', optional: true },
+              { name: 'references_added', type: 'array', of: 'object',
+                hint: 'An array of objects describing the references to associate with this RFI.',
+                optional: true,
+                properties: [
+                  { name: 'type', hint: 'Can be `document`, `photo`, or `snapshot`.' },
+                  { name: 'uid', hint: 'ID of the reference to attach.' }
+                ]
+              },
+              { name: 'references_removed', type: 'array', of: 'object',
+                hint: 'An array of objects describing the references to remove from this RFI.',
+                optional: true,
+                properties: [
+                  { name: 'type', hint: 'Can be `document`, `photo`, or `snapshot`.' },
+                  { name: 'uid', hint: 'ID of the reference to remove.' }
+                ]
+              },
+              { label: 'Text', type: 'string', name: 'text', optional: false }
             ]
           else
             []
@@ -1943,11 +2079,11 @@
             ]
           when 'advanced_rfi'
             [
-              { name: 'title', label: 'Title', optional: false,
+              { name: 'title', label: 'Title',
                 hint: 'The title of your RFI.' },
-              { name: 'status_uid', label: 'Status UID', optional: false,
+              { name: 'status_uid', label: 'Status UID',
                 hint: 'The UID of the Advanced RFI status. This can be obtained from the "Search Objects" action for Advanced RFI statuses. Note that RFIs can only be created in the "Draft" or "Draft with Manager" status types.' },
-              { name: 'answer_due_date', label: 'Answer Due Date', optional: true,
+              { name: 'answer_due_date', label: 'Answer Due Date', type: 'date', optional: true,
                 hint: 'The due date for the RFI answer, must be in UTC format.' },
               { name: 'question', label: 'Question', optional: true,
                 hint: 'The question for the RFI.' },
@@ -1955,7 +2091,7 @@
                 hint: 'Instructions to associate with your RFI.' },
               { name: 'managers', type: 'array', of: 'object',
                 hint: 'An array of objects describing users assigned the role of manager.',
-                optional: 'true',
+                optional: true,
                 properties: [
                   { name: 'type', hint: 'Can be `user` or `group`.' },
                   { name: 'uid', hint: 'ID of either the user or group.' }
@@ -1963,7 +2099,7 @@
               },
               { name: 'reviewers', type: 'array', of: 'object',
                 hint: 'An array of objects describing users assigned the role of reviewer.',
-                optional: 'true',
+                optional: true,
                 properties: [
                   { name: 'type', hint: 'Can be `user` or `group`.' },
                   { name: 'uid', hint: 'ID of either the user or group.' }
@@ -1971,7 +2107,7 @@
               },
               { name: 'references_added', type: 'array', of: 'object',
                 hint: 'An array of objects describing the references to associate with this RFI.',
-                optional: 'true',
+                optional: true,
                 properties: [
                   { name: 'type', hint: 'Can be `document`, `photo`, or `snapshot`.' },
                   { name: 'uid', hint: 'ID of the reference to attach.' }
@@ -1979,7 +2115,7 @@
               },
               { name: 'references_removed', type: 'array', of: 'object',
                 hint: 'An array of objects describing the references to remove from this RFI.',
-                optional: 'true',
+                optional: true,
                 properties: [
                   { name: 'type', hint: 'Can be `document`, `photo`, or `snapshot`.' },
                   { name: 'uid', hint: 'ID of the reference to remove.' }
@@ -1991,7 +2127,7 @@
                 hint: 'The revision number of the RFI.' },
               { name: 'submitter', type: 'object',
                 hint: 'An object describing the submitter of the RFI.',
-                optional: 'true',
+                optional: true,
                 properties: [
                   { name: 'type', hint: 'Can be `user` or `group`.' },
                   { name: 'uid', hint: 'ID of either the user or group.' }
@@ -1999,7 +2135,7 @@
               },
               { name: 'watchers', type: 'array', of: 'object',
                 hint: 'An array of objects describing users assigned the role of watcher.',
-                optional: 'true',
+                optional: true,
                 properties: [
                   { name: 'type', hint: 'Can be `user` or `group`.' },
                   { name: 'uid', hint: 'ID of either the user or group.' }
@@ -2007,6 +2143,28 @@
               },
               { name: 'sub_number', label: 'Sub Number', optional: true,
                 hint: 'An optional secondary revision number of the RFI.' }
+            ]
+          when 'advanced_rfi_answer'
+            [
+              { label: 'Advanced RFI ID', type: 'string', name: 'rfi_uid', optional: false },
+              { label: 'Is draft?', type: 'boolean', name: 'is_draft', optional: true },
+              { name: 'references_added', type: 'array', of: 'object',
+                hint: 'An array of objects describing the references to associate with this RFI.',
+                optional: true,
+                properties: [
+                  { name: 'type', hint: 'Can be `document`, `photo`, or `snapshot`.' },
+                  { name: 'uid', hint: 'ID of the reference to attach.' }
+                ]
+              },
+              { name: 'references_removed', type: 'array', of: 'object',
+                hint: 'An array of objects describing the references to remove from this RFI.',
+                optional: true,
+                properties: [
+                  { name: 'type', hint: 'Can be `document`, `photo`, or `snapshot`.' },
+                  { name: 'uid', hint: 'ID of the reference to remove.' }
+                ]
+              },
+              { label: 'Text', type: 'string', name: 'text', optional: false }
             ]
           else
             []
@@ -2032,7 +2190,11 @@
               }
             ]
           ).concat(
-            if config_fields['object'] != 'project'
+            if config_fields['object'] == 'advanced_rfi'
+              [{ name: 'uid', label: 'Advanced RFI ID', optional: false }]
+            elsif config_fields['object'] == 'advanced_rfi_answer'
+              [{ name: 'answer_uid', label: 'Answer ID', optional: false }]
+            elsif config_fields['object'] != 'project'
               [{ name: "uid", label: "#{config_fields['object'].labelize} ID", optional: false }]
             else
               []
@@ -2393,6 +2555,11 @@
               after_error_response(/.*/) do |_code, body, _header, message|
                 error("#{message}: #{body}")
               end
+          when 'advanced_rfi_answer'
+            post("/projects/#{input['project_uid']}/rfis2/#{input['rfi_uid']}/answers").payload(payload.except('rfi_uid')).
+            after_error_response(/.*/) do |_code, body, _header, message|
+              error("#{message}: #{body}")
+            end
           when 'field_report_export'
             post("/projects/#{input['project_uid']}/field_reports/export").payload(payload).
               after_error_response(/.*/) do |_code, body, _header, message|
@@ -2455,6 +2622,12 @@
               end
           elsif input['object'] == 'advanced_rfi'
             patch("/projects/#{input['project_uid']}/rfis2/#{input['uid']}").payload(payload).
+              after_error_response(/.*/) do |_code, body, _header, message|
+                error("#{message}: #{body}")
+              end
+          elsif input['object'] == 'advanced_rfi_answer'
+            patch("/projects/#{input['project_uid']}/rfis2/#{input['rfi_uid']}/answers/#{input['answer_uid']}").
+              payload(payload.except('rfi_uid', 'answer_uid')).
               after_error_response(/.*/) do |_code, body, _header, message|
                 error("#{message}: #{body}")
               end
@@ -2555,6 +2728,9 @@
             get("/projects/#{input['project_uid']}/field_reports/export/#{input['uid']}")
           when 'advanced_rfi'
             get("/projects/#{input['project_uid']}/rfis2/#{input['uid']}")
+          when 'advanced_rfi_answer'
+            get("/projects/#{input['project_uid']}/rfis2/#{input['rfi_uid']}/answers")
+              &.dig('data',0)
           else
             get("/projects/#{input['project_uid']}/#{input['object'].pluralize}/#{input['uid']}")
           end.merge('project_uid' => input['project_uid'])
@@ -2655,9 +2831,12 @@
 
         output_fields: lambda do |object_definitions|
           [
+            { name: 'project_uid', label: 'Project ID'},
             {
               name: 'data', type: 'array', of: 'object', properties: object_definitions['get_output_schema']
-            }
+            },
+            { name: 'total_count', type: 'number' },
+            { name: 'next_page_url' }
           ]
         end,
 
@@ -3049,6 +3228,9 @@
           get("/projects/#{project_uid}/rfis2/statuses")&.dig('data', 0)&.merge('project_uid' => project_uid)
         when 'advanced_rfi', 'advanced_rfi_search'
             get("/projects/#{project_uid}/rfis2")&.dig('data', 0)&.merge('project_uid' => project_uid)
+        when 'advanced_rfi_answer'
+          rfi_uid = get("/projects/#{project_uid}/rfis2")&.dig('data', 0).dig('uid')
+          get("/projects/#{project_uid}/rfis2/#{rfi_uid}/answers")&.dig('data', 0)&.merge('project_uid' => project_uid)
         when 'user_invite'
           get("/projects/#{project_uid}/users")&.dig('data', 0)&.merge('project_uid' => project_uid)
         when 'sheet_packet'
@@ -3195,6 +3377,7 @@
           ['Invite User', 'user_invite'],
           ['RFI', 'rfi'],
           ['Advanced RFI', 'advanced_rfi'],
+          ['Advanced RFI Answer', 'advanced_rfi_answer'],
           ['Task List', 'issue_list'],
           ['Task', 'issue'],
           ['Sheet Packet', 'sheet_packet'],
@@ -3210,6 +3393,7 @@
           ['Photo', 'photo'],
           ['RFI', 'rfi'],
           ['Advanced RFI', 'advanced_rfi'],
+          ['Advanced RFI Answer', 'advanced_rfi_answer'],
           ['Task List', 'issue_list'],
           ['Task', 'issue'],
           ['Submittal Package', 'submittals/package'],
@@ -3230,6 +3414,7 @@
           ['Photo', 'photo'],
           ['RFI', 'rfi'],
           ['Advanced RFI', 'advanced_rfi'],
+          ['Advanced RFI Answer', 'advanced_rfi_answer'],
           ['Sheet', 'sheet'],
           ['Sheet Packet', 'sheet_packet'],
           ['Snapshot', 'snapshot'],
