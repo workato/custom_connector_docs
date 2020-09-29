@@ -1910,7 +1910,7 @@
   },
 
   pick_lists: {
-    trigger_object_list: lambda do |_connection|
+    trigger_object_list: lambda do |connection|
       schema = get(connection['wsdl_uri']).response_format_xml
       complex_type = schema.dig('definitions', 0, 'types', 0, 'schema', 0, 'complexType')
       extra_objects = %w[oaBase oaDate oaFieldAttribute]
@@ -1930,7 +1930,7 @@
       end.compact
     end,
 
-    create_object_list: lambda do |_connection|
+    create_object_list: lambda do |connection|
       schema = get(connection['wsdl_uri']).response_format_xml
       complex_type = schema.dig('definitions', 0, 'types', 0, 'schema', 0, 'complexType')
       extra_objects = %w[oaBase oaDate oaFieldAttribute]
@@ -1940,7 +1940,7 @@
       end.compact
     end,
 
-    update_object_list: lambda do |_connection|
+    update_object_list: lambda do |connection|
       schema = get(connection['wsdl_uri']).response_format_xml
       complex_type = schema.dig('definitions', 0, 'types', 0, 'schema', 0, 'complexType')
       extra_objects = %w[oaBase oaDate oaFieldAttribute]
@@ -1950,7 +1950,7 @@
       end.compact
     end,
 
-    delete_object_list: lambda do |_connection|
+    delete_object_list: lambda do |connection|
       schema = get(connection['wsdl_uri']).response_format_xml
       complex_type = schema.dig('definitions', 0, 'types', 0, 'schema', 0, 'complexType')
       extra_objects = %w[oaBase oaDate oaFieldAttribute oaCosttype]
@@ -1960,7 +1960,7 @@
       end.compact
     end,
 
-    upsert_object_list: lambda do |_connection|
+    upsert_object_list: lambda do |connection|
       schema = get(connection['wsdl_uri']).response_format_xml
       complex_type = schema.dig('definitions', 0, 'types', 0, 'schema', 0, 'complexType')
       extra_objects = %w[oaBase oaDate oaFieldAttribute]
