@@ -1797,7 +1797,7 @@
           dig('Envelope', 0, 'Body', 0, 'readResponse', 0, 'Array', 0) || []
 
         records = call('format_xml_response_to_json',
-                       response.dig('ReadResult', 0, 'objects', 0, 'item'))
+                       response.dig('ReadResult', 0, 'objects', 0, 'item')) || []
 
         closure = if (has_more = records.size >= limit)
                     { 'created_after': created_after, 'offset': offset + limit }
@@ -1878,7 +1878,7 @@
           dig('Envelope', 0, 'Body', 0, 'readResponse', 0, 'Array', 0) || []
 
         records = call('format_xml_response_to_json',
-                       response.dig('ReadResult', 0, 'objects', 0, 'item'))
+                       response.dig('ReadResult', 0, 'objects', 0, 'item')) || []
 
         sorted_records = records&.sort_by { |obj| obj['updated'] || obj[:updated] }
         closure = if (has_more = sorted_records.size >= limit)
@@ -1911,17 +1911,13 @@
 
   pick_lists: {
     trigger_object_list: lambda do |_connection|
-      [
-        %w[Project Project],
-        %w[Project\ Task Projecttask],
-        %w[User User],
-        %w[Customer Customer],
-        %w[Envelope Envelope],
-        %w[Invoice Invoice],
-        %w[Timesheet Timesheet],
-        %w[Time\ Type Timetype],
-        %w[Cost\ Type Costtype]
-      ]
+      schema = get(connection['wsdl_uri']).response_format_xml
+      complex_type = schema.dig('definitions', 0, 'types', 0, 'schema', 0, 'complexType')
+      extra_objects = %w[oaBase oaDate oaFieldAttribute]
+      complex_type.map do |obj|
+        next if !obj['@name'].starts_with?('oa') || extra_objects.include?(obj['@name'])
+        [obj['@name'][2..-1].labelize, obj['@name'][2..-1]]
+      end.compact
     end,
 
     search_object_list: lambda do |connection|
@@ -1935,58 +1931,43 @@
     end,
 
     create_object_list: lambda do |_connection|
-      [
-        %w[Project Project],
-        %w[Project\ Task Projecttask],
-        %w[User User],
-        %w[Customer Customer],
-        %w[Envelope Envelope],
-        %w[Invoice Invoice],
-        %w[Timesheet Timesheet],
-        %w[Time\ Type Timetype],
-        %w[Cost\ Type Costtype]
-      ]
+      schema = get(connection['wsdl_uri']).response_format_xml
+      complex_type = schema.dig('definitions', 0, 'types', 0, 'schema', 0, 'complexType')
+      extra_objects = %w[oaBase oaDate oaFieldAttribute]
+      complex_type.map do |obj|
+        next if !obj['@name'].starts_with?('oa') || extra_objects.include?(obj['@name'])
+        [obj['@name'][2..-1].labelize, obj['@name'][2..-1]]
+      end.compact
     end,
 
     update_object_list: lambda do |_connection|
-      [
-        %w[Project Project],
-        %w[Project\ Task Projecttask],
-        %w[User User],
-        %w[Customer Customer],
-        %w[Envelope Envelope],
-        %w[Invoice Invoice],
-        %w[Timesheet Timesheet],
-        %w[Time\ Type Timetype],
-        %w[Cost\ Type Costtype]
-      ]
+      schema = get(connection['wsdl_uri']).response_format_xml
+      complex_type = schema.dig('definitions', 0, 'types', 0, 'schema', 0, 'complexType')
+      extra_objects = %w[oaBase oaDate oaFieldAttribute]
+      complex_type.map do |obj|
+        next if !obj['@name'].starts_with?('oa') || extra_objects.include?(obj['@name'])
+        [obj['@name'][2..-1].labelize, obj['@name'][2..-1]]
+      end.compact
     end,
 
     delete_object_list: lambda do |_connection|
-      [
-        %w[Project Project],
-        %w[Project\ Task Projecttask],
-        %w[User User],
-        %w[Customer Customer],
-        %w[Envelope Envelope],
-        %w[Invoice Invoice],
-        %w[Timesheet Timesheet],
-        %w[Time\ Type Timetype]
-      ]
+      schema = get(connection['wsdl_uri']).response_format_xml
+      complex_type = schema.dig('definitions', 0, 'types', 0, 'schema', 0, 'complexType')
+      extra_objects = %w[oaBase oaDate oaFieldAttribute oaCosttype]
+      complex_type.map do |obj|
+        next if !obj['@name'].starts_with?('oa') || extra_objects.include?(obj['@name'])
+        [obj['@name'][2..-1].labelize, obj['@name'][2..-1]]
+      end.compact
     end,
 
     upsert_object_list: lambda do |_connection|
-      [
-        %w[Project Project],
-        %w[Project\ Task Projecttask],
-        %w[User User],
-        %w[Customer Customer],
-        %w[Envelope Envelope],
-        %w[Invoice Invoice],
-        %w[Timesheet Timesheet],
-        %w[Time\ Type Timetype],
-        %w[Cost\ Type Costtype]
-      ]
+      schema = get(connection['wsdl_uri']).response_format_xml
+      complex_type = schema.dig('definitions', 0, 'types', 0, 'schema', 0, 'complexType')
+      extra_objects = %w[oaBase oaDate oaFieldAttribute]
+      complex_type.map do |obj|
+        next if !obj['@name'].starts_with?('oa') || extra_objects.include?(obj['@name'])
+        [obj['@name'][2..-1].labelize, obj['@name'][2..-1]]
+      end.compact
     end,
 
     approval_object_list: lambda do |_connection|
