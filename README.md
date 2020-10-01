@@ -4,17 +4,17 @@
 
 Welcome to the Workato Developer Program website. Here you will find the documentation you need to build application adapters using our SDK.
 
-Alternatively, Workato offers a [HTTP Connector](http://bit.ly/WorkatoHTTPConnector) where you can create your own app connectors without having to code.
+Alternatively, Workato offers an [HTTP Connector](http://bit.ly/WorkatoHTTPConnector) where you can create your own app connectors without having to code.
 
 ## Recipe
 
 A Workato recipe is a set of predefined instructions to be executed. It is made up of a trigger and one or more actions.
 
-It execute a variety of tasks to all the applications supported by the Workato platform.
+It executes a variety of tasks to all the applications supported by the Workato platform.
 
 ## Trigger
 
-Defines an event that triggers the execution of a Workato recipe
+Defines an event that triggers the execution of a Workato recipe.
 
 ## Action
 
@@ -32,7 +32,7 @@ There are 4 types of actions:
   - Example: Add line items in QuickBooks for each opportunity item in Salesforce
 4. **Stop**
   - Allows users to terminate a run of the recipe (a job). This is useful if you wish to stop performing any actions if a certain condition is met.
-  - Optionally, you can define an error for this action. What this does is let you generate exceptions in certain scenarios. These jobs that stops with errors will show up in job history as errors
+  - Optionally, you can define an error for this action. What this does is let you generate exceptions in certain scenarios. Jobs that stop with errors will show up in job history as errors.
 
 ## Adapter
 
@@ -129,7 +129,7 @@ connection: {
 
 In this example, Close.io API expects an API Key generated in the individual User’s account. It should be used as a username with a blank password in the standard basic authentication format.
 
-So, to adjust the connections portion of the code to suit this behaviour, simply request for an API instead of username + password.
+So, to adjust the connections portion of the code to suit this behaviour, simply request for an API key instead of username + password.
 
 In the credentials section, pass the api_key into `user()` and an empty string (“”) to `password()`
 
@@ -284,7 +284,7 @@ Note:
 - SDK makes a POST request to token endpoint. Will not currently work for APIs expecting a different type of request.
 - Ensure that your implementation of OAuth 2.0 is compliant with the specifications stated in the RFC document. Else, your custom adapter might not start.
   - For example, [Issuing an Access Token - Successful Response](https://tools.ietf.org/html/rfc6749#section-5.1) states that Workato will be expecting a response with the following required parameters: `access_token`, `token_type` and `expires_in`. Returning the access token with a key of `accessToken` in a JSON response will result in an unsuccessful Workato request to your `token_url`.
-  - Usually this will not be a problem because most OAuth libraries out there will do most of the heavily-lifting for you, such as returning response in the right format etc. It is good to be aware of this!
+  - Usually this will not be a problem because most OAuth libraries out there will do most of the heavily-lifting for you, such as returning responses in the right format etc. It is good to be aware of this!
 
 ### Custom Authentication
 
@@ -376,6 +376,7 @@ REST verb methods
 - post(url, input)
 - put(url, input)
 - patch(url, input)
+- delete(url, input)
 
 Note:
 
@@ -413,7 +414,7 @@ Records (tickets, leads, items etc.) are called events in a poll. A poll trigger
 
 There are two types of trigger. The classic trigger type is used by default if `type` is not specified. The other type is called the "paging_desc" trigger, which can be used only for endpoints that provide events sorted in descending order. This trigger type has an auto-paging mechanism that lets you build a simple and efficient trigger. (described in detail below)
 
-A ruby hash is returned in each poll. This hash should contain a few keys. The array of events, or data, should be passed into the `events` key. At the same time, a cursor is saved in `next_page`/`next_poll` (depending on the trigger type). This cursor provides information about where the current poll stopped, and used in the next poll. A classic type trigger has an additional key `can_poll_more`, which can be defined to conditionally fire immediate polls for multi-page results.
+A ruby hash is returned in each poll. This hash should contain a few keys. The array of events, or data, should be passed into the `events` key. At the same time, a cursor is saved in `next_page`/`next_poll` (depending on the trigger type). This cursor provides information about where the current poll stopped and gets used in the next poll. A classic type trigger has an additional key `can_poll_more`, which can be defined to conditionally fire immediate polls for multi-page results.
 
 ### Classic Trigger
 No need to define any type to use the classic trigger. This type is usually used for APIs that only return responses sorted in ascending order.
@@ -495,7 +496,7 @@ In a classic type trigger, the expected output contains `events`, `next_poll` an
 
 `events` expects an array of individual results to be processed through the recipe as individual events.
 
-`next_poll` is a cursor that will be passed on to the successive poll (third argument of `poll` block.
+`next_poll` is a cursor that will be passed on to the successive poll (third argument of `poll` block).
 
 **Important**:
 This trigger type does not have automatic-immediate polling. Immediate polling is determined by `can_poll_more`, which is a boolean value for whether an immediate poll should be made.
@@ -535,7 +536,7 @@ dedup: lambda do |ticket|
   ticket["id"] + "@" + ticket["`updated_at"]
 end
 ```
-With this, 2 occurence of a record with the same "ID" but with different "updated_at" values will be recorded as separate events.
+With this, 2 occurences of a record with the same "ID" but with different "updated_at" values will be recorded as separate events.
 
 ### Descending Trigger
 ```ruby
@@ -584,11 +585,11 @@ new_alert: {
 ```
 
 #### type
-`type: :paging_desc` - This type should be used only if results are in descending order. A `paging_desc` trigger works by assuming a descending order and continuously poll for all unique records. If the API is unable to return records in descending order, ignore this key to use the classic trigger.
+`type: :paging_desc` - This type should be used only if results are in descending order. A `paging_desc` trigger works by assuming a descending order and continuously polling for all unique records. If the API is unable to return records in descending order, ignore this key to use the classic trigger.
 
-A record of all event IDs (defined in `document_id` ) is recorded for each recipe. Each recipe will "remember" all event IDs that is processed through a trigger.
+A record of all event IDs (defined in `document_id`) is recorded for each recipe. Each recipe will "remember" all event IDs that is processed through a trigger.
 
-Based on assumption of order, the trigger can stop the polling cycle once a similar event IDs is observed. This is because further polls will return events "before" and would have already been processed by the trigger. At this point, the trigger stops polling and wait for the new poll cycle for new events. The Workato trigger framework handles deduplication in the background.
+Based on assumption of order, the trigger can stop the polling cycle once a similar event ID is observed. This is because further polls will return events "before" and would have already been processed by the trigger. At this point, the trigger stops polling and wait for the new poll cycle for new events. The Workato trigger framework handles deduplication in the background.
 
 #### poll
 Poll block is where you define how events are obtained. Typically, a GET request is used to retrieve a list of records to be processed as trigger events.
