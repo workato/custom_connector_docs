@@ -1018,11 +1018,11 @@
             }
           },
           { name: 'limit', label: 'Maximum records',
+            type: 'integer', default: 100,
             optional: false, sticky: true,
-            default: 100,
             hint: 'Restricts the number of records returned. ' \
             'e.g. 100. Default is value 100. It accepts between 1 and 1000.' },
-          { name: 'offset', sticky: true,
+          { name: 'offset', sticky: true, type: 'integer',
             hint: 'The offset of the first record to return' },
           {
             name: 'deleted', control_type: :select,
@@ -1905,6 +1905,80 @@
 
       sample_output: lambda do |_connection, input|
         call('sample_output', input, 'read_result')
+      end
+    },
+
+    schedule_trigger_batch: {
+      title: 'Schedule trigger in batch',
+      subtitle: 'Retrieve a list of records on specified schedule.',
+      description: lambda do |_connection, trigger_object_list|
+        "Scheduled <span class='provider'>" \
+        "#{trigger_object_list[:object] || 'object'}</span> search in " \
+        "<span class='provider'>OpenAir</span>"
+      end,
+
+      config_fields: [
+        {
+          name: 'object',
+          optional: false,
+          control_type: 'select',
+          pick_list: :trigger_object_list,
+          hint: 'Select the object from list.'
+        }
+      ],
+
+      input_fields: lambda do |object_definitions|
+        object_definitions['read_object_input'].ignored('limit', 'offset').
+          concat([{ name: 'limit', label: 'Batch size', default: 100,
+                    type: 'integer', render_input: 'integer_conversion',
+                    hint: 'Maximum number of records per trigger event. ' \
+                    'Minimum is 1, maximum is 1000, default is 100' }])
+      end,
+
+      poll: lambda do |_connection, input, closure|
+        closure ||= {}
+        limit = input['limit']&.to_i || 100
+        offset = closure['offset'] || 0
+        input['offset'] = offset
+        formatted_input = call('format_search_input', input)
+        payload = call('get_read_payload', formatted_input)
+        response = post('/soap').headers('Content-Type': 'text/xml').payload(payload).
+                   format_xml('soap:Envelope',
+                              '@xmlns:soap' => 'http://schemas.xmlsoap.org/soap/envelope/',
+                              '@xmlns:soapenc' => 'http://schemas.xmlsoap.org/soap/encoding/',
+                              '@xmlns:tns' => 'http://namespaces.soaplite.com/perl',
+                              '@xmlns:types' => 'http://namespaces.soaplite.com/perl/encodedTypes',
+                              '@xmlns:xsd' => 'http://www.w3.org/2001/XMLSchema',
+                              '@xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance')&.
+          dig('Envelope', 0, 'Body', 0, 'readResponse', 0, 'Array', 0)
+
+        records = call('format_xml_response_to_json',
+                       response.dig('ReadResult', 0, 'objects', 0, 'item')) || []
+
+        closure = if (has_more = records.size >= limit)
+                    { 'offset': offset + limit }
+                  else
+                    { 'offset': 0 }
+                  end
+        batch = records.present? ? [{ batch_id: now.to_i, records: records }] : []
+
+        {
+          events: batch,
+          next_poll: closure,
+          can_poll_more: has_more
+        }
+      end,
+
+      dedup: lambda do |record|
+        record['batch_id']
+      end,
+
+      output_fields: lambda do |object_definitions|
+        [{ name: 'batch_id' }].concat(object_definitions['read_object_output'])
+      end,
+
+      sample_output: lambda do |_connection, input|
+        { batch_id: '12345' }.merge(call('sample_output', input, 'read_result'))
       end
     }
   },
