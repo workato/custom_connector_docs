@@ -125,7 +125,7 @@
           ShipDate: '2020-04-10',
           ShipFreight: '123.45',
           SubTotal: '3358',
-          TableUrl: 'https://semantik.us.ephesoft.io/assets/samples/webhookTestInvoiceTable.json'
+          TableUrl: 'https://semantik.us.ephesoft.io/assets/samples/webhookTestInvoiceTable.json',
           TaxAmount: '335.80',
           TaxId: '012-34-56789',
           TaxRate: '10',
