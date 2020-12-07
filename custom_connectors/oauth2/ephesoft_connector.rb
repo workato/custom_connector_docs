@@ -60,8 +60,7 @@
           { # Tokens hash
             access_token: response["access_token"],
             refresh_token: response["refresh_token"]
-          },
-          { instance_id: nil } # Optional. Will be merged into connection hash
+          }
         ]
       end,
 
@@ -79,9 +78,53 @@
   },
   triggers: {
     new_message: {
-      title: 'When a Semantik invoice has completed review',
-      description: 'Triggers a flow using data from a completed Semantik invoice.',
+      title: 'New complete Semantik invoice',
+      description: 'Triggers when a Semantik invoice is completed',
       webhook_subscribe: lambda do |webhook_url, connection, input, recipe_id|
+        payload = {
+          "AmountDue": "$AmountDue",
+          "CustomerId": "$CustomerId",
+          "DocumentId": "$DocumentId",
+          "DueDate": "$DueDate",
+          "InvoiceDate": "$InvoiceDate",
+          "InvoiceNumber": "$InvoiceNumber",
+          "OrderDate": "$OrderDate",
+          "PdfUrl": "$PdfUrl",
+          "PONumber": "$PONumber",
+          "ShipDate": "$ShipDate",
+          "ShipFreight": "$ShipFreight",
+          "SubTotal": "$SubTotal",
+          "TableUrl": "$TableUrl",
+          "TaxAmount": "$TaxAmount",
+          "TaxId": "$TaxId",
+          "TaxRate": "$TaxRate",
+          "TenantId": "$TenantId",
+          "Terms": "$Terms",
+          "TotalAmount": "$TotalAmount",
+          "Vendor": {
+            "VendorAddress": {
+              "VendorStreetAddress": "$Vendor:StreetAddress",
+              "VendorPOBox": "$Vendor:POBox",
+              "VendorLocality": "$Vendor:Locality",
+              "VendorRegion": "$Vendor:Region",
+              "VendorPostalCode": "$Vendor:PostalCode",
+              "VedorCountry": "$Vendor:Country"
+            },
+            "VendorCustom1": "$Vendor:Custom1",
+            "VendorCustom2": "$Vendor:Custom2",
+            "VendorCustom3": "$Vendor:Custom3",
+            "VendorCustom4": "$Vendor:Custom4",
+            "VendorCustom5": "$Vendor:Custom5",
+            "VendorCustomerID": "$Vendor:CustomerID",
+            "VendorIBAN": "$Vendor:IBAN",
+            "VendorID": "$Vendor:VendorID",
+            "VendorMatched": "$Vendor:Matched",
+            "VendorName": "$Vendor:Name",
+            "VendorStatus": "$Vendor:Status",
+            "VendorSWIFT": "$Vendor:SWIFT",
+            "VendorTelephone": "$Vendor:Telephone"
+          }
+        }
         post("https://api.us.ephesoft.io/v1/settings/integrations/configurations",
           integrationName: "Workato Recipe #{recipe_id}",
           integrationType: "webhook",
@@ -89,7 +132,7 @@
           settings: {
             targetUrl: webhook_url,
             encoding: "application/json",
-            payload: "{\n     \"AmountDue\": \"$AmountDue\",\n     \"CustomerId\": \"$CustomerId\",\n     \"DocumentId\": \"$DocumentId\",\n     \"DueDate\": \"$DueDate\",\n     \"InvoiceDate\": \"$InvoiceDate\",\n     \"InvoiceNumber\": \"$InvoiceNumber\",\n     \"OrderDate\": \"$OrderDate\",\n     \"PdfUrl\": \"$PdfUrl\",\n     \"PONumber\": \"$PONumber\",\n     \"ShipDate\": \"$ShipDate\",\n     \"ShipFreight\": \"$ShipFreight\",\n     \"SubTotal\": \"$SubTotal\",\n     \"TableUrl\": \"$TableUrl\",\n     \"TaxAmount\": \"$TaxAmount\",\n     \"TaxId\": \"$TaxId\",\n     \"TaxRate\": \"$TaxRate\",\n     \"TenantId\": \"$TenantId\",\n     \"Terms\": \"$Terms\",\n     \"TotalAmount\": \"$TotalAmount\",\n     \"Vendor\": {\n       \"VendorID\": \"$Vendor:VendorID\",\n       \"VendorName\": \"$Vendor:Name\",\n       \"VendorAddress\": {\n         \"VendorStreetAddress\": \"$Vendor:StreetAddress\",\n         \"VendorPOBox\": \"$Vendor:POBox\",\n         \"VendorLocality\": \"$Vendor:Locality\",\n         \"VendorRegion\": \"$Vendor:Region\",\n         \"VendorPostalCode\": \"$Vendor:PostalCode\",\n         \"VendorCountry\": \"$Vendor:Country\"\n       },\n       \"VendorTelephone\": \"$Vendor:Telephone\",\n       \"VendorCustomerID\": \"$Vendor:CustomerID\",\n       \"VendorStatus\": \"$Vendor:Status\",\n       \"VendorSWIFT\": \"$Vendor:SWIFT\",\n       \"VendorIBAN\": \"$Vendor:IBAN\",\n       \"VendorCustom1\": \"$Vendor:Custom1\",\n       \"VendorCustom2\": \"$Vendor:Custom2\",\n       \"VendorCustom3\": \"$Vendor:Custom3\",\n       \"VendorCustom4\": \"$Vendor:Custom4\",\n       \"VendorCustom5\": \"$Vendor:Custom5\",\n       \"VendorMatched\": \"$Vendor:Matched\"\n     }\n}"
+            payload: payload.to_json.to_s
           }
         )
       end,
@@ -166,25 +209,25 @@
     webhook_output: {
       fields: lambda do
         [
-          { name: "AmountDue"},
-          { name: "CustomerId"},
-          { name: "DocumentId" },
-          { name: "DueDate"},
-          { name: "InvoiceDate"},
-          { name: "InvoiceNumber"},
-          { name: "OrderDate"},
-          { name: "PdfUrl"},
-          { name: "PONumber"},
-          { name: "ShipDate"},
-          { name: "ShipFreight"},
-          { name: "SubTotal"},
-          { name: "TableUrl"},
-          { name: "TaxAmount"},
-          { name: "TaxId"},
-          { name: "TaxRate"},
-          { name: "TenantId"},
-          { name: "Terms"},
-          { name: "TotalAmount"},
+          { name: "AmountDue", type: "string"},
+          { name: "CustomerId", type: "string"},
+          { name: "DocumentId", type: "string"},
+          { name: "DueDate", type: "string"},
+          { name: "InvoiceDate", type: "string"},
+          { name: "InvoiceNumber", type: "string"},
+          { name: "OrderDate", type: "string"},
+          { name: "PdfUrl", type: "string"},
+          { name: "PONumber", type: "string"},
+          { name: "ShipDate", type: "string"},
+          { name: "ShipFreight", type: "string"},
+          { name: "SubTotal", type: "string"},
+          { name: "TableUrl", type: "string"},
+          { name: "TaxAmount", type: "string"},
+          { name: "TaxId", type: "string"},
+          { name: "TaxRate", type: "string"},
+          { name: "TenantId", type: "string"},
+          { name: "Terms", type: "string"},
+          { name: "TotalAmount", type: "string"},
           {
             name: "Vendor",
             type: :object,
@@ -193,27 +236,27 @@
                 name: "VendorAddress",
                 type: :object,
                 properties: [
-                  { name: "VendorStreetAddress"},
-                  { name: "VendorPOBox"},
-                  { name: "VendorLocality"},
-                  { name: "VendorRegion"},
-                  { name: "VendorPostalCode" },
-                  { name: "VendorCountry"}
+                  { name: "VendorStreetAddress", type: "string"},
+                  { name: "VendorPOBox", type: "string"},
+                  { name: "VendorLocality", type: "string"},
+                  { name: "VendorRegion", type: "string"},
+                  { name: "VendorPostalCode", type: "string"},
+                  { name: "VendorCountry", type: "string"}
                 ]
               },
-              { name: "VendorCustom1"},
-              { name: "VendorCustom2"},
-              { name: "VendorCustom3"},
-              { name: "VendorCustom4"},
-              { name: "VendorCustom5"},
-              { name: "VendorIBAN"},
-              { name: "VendorCustomerID"},
-              { name: "VendorID"},
-              { name: "VendorMatched"},
-              { name: "VendorName"},
-              { name: "VendorStatus"},
-              { name: "VendorSWIFT"},
-              { name: "VendorTelephone"}
+              { name: "VendorCustom1", type: "string"},
+              { name: "VendorCustom2", type: "string"},
+              { name: "VendorCustom3", type: "string"},
+              { name: "VendorCustom4", type: "string"},
+              { name: "VendorCustom5", type: "string"},
+              { name: "VendorIBAN", type: "string"},
+              { name: "VendorCustomerID", type: "string"},
+              { name: "VendorID", type: "string"},
+              { name: "VendorMatched", type: "string"},
+              { name: "VendorName", type: "string"},
+              { name: "VendorStatus", type: "string"},
+              { name: "VendorSWIFT", type: "string"},
+              { name: "VendorTelephone", type: "string"}
             ]
           }
         ]
