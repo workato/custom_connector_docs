@@ -210,7 +210,6 @@
       fields: lambda do
         [
           { name: "AmountDue", type: "string"},
-          { name: "CustomerId", type: "string"},
           { name: "DocumentId", type: "string"},
           { name: "DueDate", type: "string"},
           { name: "FileName", type: "string"},
