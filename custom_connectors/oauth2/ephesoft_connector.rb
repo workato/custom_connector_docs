@@ -83,9 +83,9 @@
       webhook_subscribe: lambda do |webhook_url, connection, input, recipe_id|
         payload = {
           "AmountDue": "$AmountDue",
-          "CustomerId": "$CustomerId",
           "DocumentId": "$DocumentId",
           "DueDate": "$DueDate",
+          "FileName": "$FileName",
           "InvoiceDate": "$InvoiceDate",
           "InvoiceNumber": "$InvoiceNumber",
           "OrderDate": "$OrderDate",
@@ -157,9 +157,9 @@
       sample_output: lambda do ||
         {
           AmountDue: '3693.80',
-          CustomerId: '123',
           DocumentId: '00000000-0000-0000-0000-000000000000',
           DueDate: '2020-04-15',
+          FileName: 'Kord-Invoice9291873611.pdf',
           InvoiceDate: '2020-03-29',
           InvoiceNumber: '9291873611',
           OrderDate: '2020-03-29',
@@ -213,6 +213,7 @@
           { name: "CustomerId", type: "string"},
           { name: "DocumentId", type: "string"},
           { name: "DueDate", type: "string"},
+          { name: "FileName", type: "string"},
           { name: "InvoiceDate", type: "string"},
           { name: "InvoiceNumber", type: "string"},
           { name: "OrderDate", type: "string"},
