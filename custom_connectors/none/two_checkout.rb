@@ -1,5 +1,5 @@
 {
-  title: 'Twocheckout',
+  title: '2checkout',
 
   connection: {
     fields: [],
@@ -607,7 +607,7 @@
           render_input: 'boolean_conversion',
           parse_ouput: 'boolean_conversion' },
         { name: 'source' },
-        { name: 'content', properties: [
+        { name: 'content', type: 'object', properties: [
           { name: 'language' },
           { name: 'currency' },
           { name: 'terms', type: 'integer', control_type: 'integer' },
@@ -988,21 +988,17 @@
       end,
 
       webhook_notification: lambda do |_input, payload, _e_i_s, _e_o_s, _headers|
-        if payload['HASH'].present? && payload['MESSAGE_ID'].present?
-          payload&.each do |key, value|
-            if value.is_a?(Array)
-              payload[key] =
-                value&.map do |val|
-                  { 'value' => val } if val.is_a?(String)
-                end
-            else
-              value
-            end
+        payload&.each do |key, value|
+          if value.is_a?(Array)
+            payload[key] =
+              value&.map do |val|
+                { 'value' => val } if val.is_a?(String)
+              end
+          else
+            value
           end
-          payload
-        else
-          {}
         end
+        payload
       end,
 
       dedup: lambda do |_event|
@@ -1034,11 +1030,7 @@
       end,
 
       webhook_notification: lambda do |_input, payload, _e_i_s, _e_o_s, _headers|
-        if payload['HASH'].present? && payload['DATE_UPDATED'].present?
-          payload
-        else
-          {}
-        end
+        payload || {}
       end,
 
       dedup: lambda do |_event|
