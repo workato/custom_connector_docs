@@ -1,5 +1,5 @@
 {
-  title: 'Twocheckout',
+  title: '2checkout',
 
   connection: {
     fields: [],
@@ -607,7 +607,7 @@
           render_input: 'boolean_conversion',
           parse_ouput: 'boolean_conversion' },
         { name: 'source' },
-        { name: 'content', properties: [
+        { name: 'content', type: 'object', properties: [
           { name: 'language' },
           { name: 'currency' },
           { name: 'terms', type: 'integer', control_type: 'integer' },
@@ -999,18 +999,32 @@
               value
             end
           end
-          payload
         else
           {}
         end
       end,
 
-      dedup: lambda do |_event|
-        Time.now.utc
+      dedup: lambda do |event|
+        "#{event['HASH']}#{event['MESSAGE_ID']}"
       end,
 
       output_fields: lambda do |object_definitions|
         object_definitions['ipn_trigger_output_schema']
+      end,
+
+      sample_output: lambda do
+        {
+          GIFT_ORDER: 0,
+          SALEDATE: '2020-12-14T13:17:09.000000-08:00',
+          PAYMENTDATE: '2020-12-14T13:17:14.000000-08:00',
+          REFNO: 139_669_255,
+          ORDERNO: 189,
+          ORDERSTATUS: 'COMPLETE',
+          PAYMETHOD: 'Visa/MasterCard',
+          PAYMETHOD_CODE: 'CCVISAMC',
+          FIRSTNAME: 'John',
+          LASTNAME: 'Joseph'
+        }
       end
     },
     lcn_webhook: {
@@ -1041,12 +1055,28 @@
         end
       end,
 
-      dedup: lambda do |_event|
-        Time.now.utc
+      dedup: lambda do |event|
+        "#{event['HASH']}#{event['DATE_UPDATED']}"
       end,
 
       output_fields: lambda do |object_definitions|
         object_definitions['lcn_trigger_output_schema']
+      end,
+
+      sample_output: lambda do
+        {
+          FIRST_NAME: 'John',
+          LAST_NAME: 'Joseph',
+          COMPANY: 'Workato',
+          EMAIL: 'john.joseph@example.com',
+          PHONE: '987654321',
+          COUNTRY: 'United States of America',
+          STATE: 'Texas',
+          CITY: 'Houston',
+          ZIP: '770_32',
+          ADDRESS: '123',
+          LICENSE_CODE: 'WMQSFOS6V9'
+        }
       end
     },
     ins_webhook: {
@@ -1155,6 +1185,22 @@
 
       output_fields: lambda do |object_definitions|
         object_definitions['ins_trigger_output_schema']
+      end,
+
+      sample_output: lambda do
+        {
+          sale_id: 250_647_843_257,
+          sale_date_placed: '2020-12-14T13:17:09.000000-08:00',
+          recurring: 1,
+          payment_type: 'credit card',
+          list_currency: 'USD',
+          fraud_status: 'wait',
+          order_ref: 139_669_255,
+          order_no: 0,
+          vendor_id: 'WWWWORKA',
+          invoice_id: '250647843256',
+          invoice_status: 'approved'
+        }
       end
     }
   },
