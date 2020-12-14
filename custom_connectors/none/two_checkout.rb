@@ -988,25 +988,43 @@
       end,
 
       webhook_notification: lambda do |_input, payload, _e_i_s, _e_o_s, _headers|
-        payload&.each do |key, value|
-          if value.is_a?(Array)
-            payload[key] =
-              value&.map do |val|
-                { 'value' => val } if val.is_a?(String)
-              end
-          else
-            value
+        if payload['HASH'].present? && payload['MESSAGE_ID'].present?
+          payload&.each do |key, value|
+            if value.is_a?(Array)
+              payload[key] =
+                value&.map do |val|
+                  { 'value' => val } if val.is_a?(String)
+                end
+            else
+              value
+            end
           end
+        else
+          {}
         end
-        payload
       end,
 
-      dedup: lambda do |_event|
-        Time.now.utc
+      dedup: lambda do |event|
+        "#{event['HASH']}#{event['MESSAGE_ID']}"
       end,
 
       output_fields: lambda do |object_definitions|
         object_definitions['ipn_trigger_output_schema']
+      end,
+
+      sample_output: lambda do
+        {
+          GIFT_ORDER: 0,
+          SALEDATE: '2020-12-14T13:17:09.000000-08:00',
+          PAYMENTDATE: '2020-12-14T13:17:14.000000-08:00',
+          REFNO: 139_669_255,
+          ORDERNO: 189,
+          ORDERSTATUS: 'COMPLETE',
+          PAYMETHOD: 'Visa/MasterCard',
+          PAYMETHOD_CODE: 'CCVISAMC',
+          FIRSTNAME: 'John',
+          LASTNAME: 'Joseph'
+        }
       end
     },
     lcn_webhook: {
@@ -1030,15 +1048,35 @@
       end,
 
       webhook_notification: lambda do |_input, payload, _e_i_s, _e_o_s, _headers|
-        payload || {}
+        if payload['HASH'].present? && payload['DATE_UPDATED'].present?
+          payload
+        else
+          {}
+        end
       end,
 
-      dedup: lambda do |_event|
-        Time.now.utc
+      dedup: lambda do |event|
+        "#{event['HASH']}#{event['DATE_UPDATED']}"
       end,
 
       output_fields: lambda do |object_definitions|
         object_definitions['lcn_trigger_output_schema']
+      end,
+
+      sample_output: lambda do
+        {
+          FIRST_NAME: 'John',
+          LAST_NAME: 'Joseph',
+          COMPANY: 'Workato',
+          EMAIL: 'john.joseph@example.com',
+          PHONE: '987654321',
+          COUNTRY: 'United States of America',
+          STATE: 'Texas',
+          CITY: 'Houston',
+          ZIP: '770_32',
+          ADDRESS: '123',
+          LICENSE_CODE: 'WMQSFOS6V9'
+        }
       end
     },
     ins_webhook: {
@@ -1147,6 +1185,22 @@
 
       output_fields: lambda do |object_definitions|
         object_definitions['ins_trigger_output_schema']
+      end,
+
+      sample_output: lambda do
+        {
+          sale_id: 250_647_843_257,
+          sale_date_placed: '2020-12-14T13:17:09.000000-08:00',
+          recurring: 1,
+          payment_type: 'credit card',
+          list_currency: 'USD',
+          fraud_status: 'wait',
+          order_ref: 139_669_255,
+          order_no: 0,
+          vendor_id: 'WWWWORKA',
+          invoice_id: '250647843256',
+          invoice_status: 'approved'
+        }
       end
     }
   },
