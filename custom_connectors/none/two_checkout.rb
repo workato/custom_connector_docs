@@ -1142,6 +1142,26 @@
                                elsif ['additional_information_email_translations', 'additional_thankyou_page_translations',
                                       'billing_countries', 'options', 'deprecated_products', 'group_options'].include?(key)
                                  value.map { |val| { key => val } } # to format array of strings into array of hashes
+                               elsif ['content', 'links'].include?(key)
+                                 if key == 'links'
+                                   value.values
+                                 elsif value['line_items'].present?
+                                   value['line_items'] = value.dig('line_items')&.
+                                     map do |_item_key, item_value|
+                                       if item_value['price_options'].present?
+                                         item_value['price_options'] = item_value['price_options'].
+                                           map do |_option_key, option_value|
+                                             if option_value['group_options'].present?
+                                               option_value['group_options'] = option_value['group_options'].values.
+                                                 map { |item| { value: item } }
+                                             end
+                                             option_value
+                                           end
+                                       end
+                                       item_value
+                                     end
+                                   value
+                                 end
                                else
                                  value.each do |key1, value1|
                                    value[key1] = if value1.is_a?(Array)
