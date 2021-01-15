@@ -622,7 +622,7 @@
                       {name: 'subscription_reference', type: 'string', control_type: 'string'},
                       {name: 'proration_date', type: 'date_time', control_type: 'date_time'},
                       {name: 'next_contract_renewal_period', type: 'integer', control_type: 'integer'},
-                      {name: 'amendments_scenario', type: 'string', control_type: 'string'},
+                      {name: 'amendment_scenario', type: 'string', control_type: 'string'},
                       {name: 'merchant_deal_auto_renewal', type: 'boolean', control_type: 'checkbox', render_input: 'boolean_conversion', parse_ouput: 'boolean_conversion'},
                       {name: 'client_deal_auto_renewal', type: 'boolean', control_type: 'checkbox', render_input: 'boolean_conversion', parse_ouput: 'boolean_conversion'},
                       { name: 'discounted_price',
