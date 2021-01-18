@@ -1163,10 +1163,10 @@
                                      if item_value['price_options'].present?
                                        item_value['price_options'] = item_value['price_options'].
                                          map do |_option_key, option_value|
-                                         if option_value['group_options'].present?
-                                           option_value['group_options'] = option_value['group_options'].values.
-                                             map { |item| { value: item } }
-                                         end
+                                           if option_value['group_options'].present?
+                                             option_value['group_options'] = option_value['group_options'].values.
+                                               map { |item| { value: item } }
+                                           end
                                          option_value
                                        end
                                      end
