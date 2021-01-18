@@ -769,8 +769,8 @@
             { name: 'additional_thankyou_page' },
             { name: 'additional_thankyou_page_translations',
               type: 'array', of: 'object', properties: [
-              { name: 'value' }
-            ] }
+                { name: 'value' }
+              ] }
           ] }
         ] },
         { name: 'generates_subscription',
