@@ -764,8 +764,8 @@
             { name: 'additional_information_by_email' },
             { name: 'additional_information_email_translations',
               type: 'array', of: 'object', properties: [
-              { name: 'value' }
-            ] },
+                { name: 'value' }
+              ] },
             { name: 'additional_thankyou_page' },
             { name: 'additional_thankyou_page_translations',
               type: 'array', of: 'object', properties: [
@@ -1203,7 +1203,7 @@
             (0...(payload['item_count'].to_i)).to_a.each do |index|
               items << payload.select { |key, _val| key.match?(/^item_.*_#{index + 1}+$/) }&.
                 each_with_object({}) do |(key, value), hash|
-                hash[key.gsub("_#{index + 1}", '')] = value
+                  hash[key.gsub("_#{index + 1}", '')] = value
               end
             end
             payload.reject { |key, _val| key.match?(/^item_.*_[0-9]+$/) }&.merge({ 'items' => items })
