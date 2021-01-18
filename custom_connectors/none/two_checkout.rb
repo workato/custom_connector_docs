@@ -1204,7 +1204,7 @@
               items << payload.select { |key, _val| key.match?(/^item_.*_#{index + 1}+$/) }&.
                 each_with_object({}) do |(key, value), hash|
                   hash[key.gsub("_#{index + 1}", '')] = value
-              end
+                end
             end
             payload.reject { |key, _val| key.match?(/^item_.*_[0-9]+$/) }&.merge({ 'items' => items })
           end
