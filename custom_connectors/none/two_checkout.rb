@@ -411,6 +411,7 @@
           type: 'integer', control_type: 'integer' },
         { name: 'IS_TRIAL', label: 'Is trial',
           type: 'integer', control_type: 'integer' },
+        { name: 'CONTRACT_EXPIRATION_DATE_TIME', label: 'Contract expiration date time', type: 'date_time', control_type: 'date_time' },
         { name: 'MERCHANT_DEAL_AUTO_RENEWAL', label: 'Merchant deal auto renewal', type: 'boolean', control_type: 'checkbox', render_input: 'boolean_conversion', parse_ouput: 'boolean_conversion' },
         { name: 'CLIENT_DEAL_AUTO_RENEWAL', label: 'Client deal auto renewal', type: 'boolean', control_type: 'checkbox', render_input: 'boolean_conversion', parse_ouput: 'boolean_conversion' },
         { name: 'HASH', label: 'Hash' }
@@ -874,6 +875,19 @@
         ] },
         { name: 'trial_description' },
         { name: 'trial_url' }
+      { name: 'tangible', type: 'boolean', control_type: 'checkbox',
+        render_input: 'boolean_conversion',
+        parse_ouput: 'boolean_conversion' },
+      { name: 'tangible_details', type: 'object', properties: [
+        { name: 'unit_details', type: 'array', of: 'object', properties: [
+          { name: 'type', control_type: 'string' },
+          { name: 'amount', control_type: 'number' },
+        ] },
+        { name: 'fee', type: 'array', of: 'object', properties: [
+          { name: 'currency', control_type: 'string' },
+          { name: 'amount', control_type: 'number' },
+        ] }
+      ] },
       ]
     end,
 
