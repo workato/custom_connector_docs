@@ -874,7 +874,7 @@
           ] }
         ] },
         { name: 'trial_description' },
-        { name: 'trial_url' }
+        { name: 'trial_url' },
       { name: 'tangible', type: 'boolean', control_type: 'checkbox',
         render_input: 'boolean_conversion',
         parse_ouput: 'boolean_conversion' },
