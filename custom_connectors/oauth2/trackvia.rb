@@ -10,6 +10,13 @@
         optional: 'true'
       },
       {
+        name: 'account_id',
+        control_type: :number,
+        label: 'Account ID',
+        hint: 'Specify the account to connect to',
+        optional: true
+      },
+      {
         name: 'client_id',
         control_type: :text,
         label: 'TrackVia App Client ID',
@@ -66,6 +73,7 @@
       apply: lambda { |connection, access_token|
         params(user_key: connection['user_key'])
         headers(Authorization: "Bearer #{access_token}")
+        headers('account-id': connection['account_id']) if connection['account_id'].present?
       }
     },
 
@@ -261,6 +269,69 @@
   },
   actions: {
     # GET requests
+    get_record: {
+      description: "Get <span class='provider'>record</span> in <span class='provider'>TrackVia</span>",
+      help: 'Get a record in TrackVia',
+
+      config_fields: [
+        {
+          name: 'app_name',
+          label: 'Application',
+          control_type: 'select',
+          pick_list: 'apps',
+          optional: false,
+          hint: 'Select a TrackVia application from the list above'
+        },
+        {
+          name: 'view_id',
+          label: 'View',
+          control_type: 'select',
+          pick_list: 'views',
+          pick_list_params: { app_name: 'app_name' },
+          optional: false,
+          hint: 'Select an available view from the list above.',
+          toggle_hint: 'Select from list',
+          toggle_field: {
+            name: 'view_id',
+            label: 'View ID',
+            type: :integer,
+            disable_formula: true,
+            control_type: 'plain_text',
+            toggle_hint: 'Enter custom value',
+            hint: 'Select the required view. ID can be found at the end of URL.'
+          }
+        },
+        {
+          name: 'id',
+          type: 'integer',
+          label: 'ID',
+          control_type: 'number',
+          optional: false,
+          hint: <<-HINT
+                    Internal ID of the record. Select the required record.<br/>
+                    If the URL ends like tables/15/views/341/records/view/51/form/584, then <b>51</b> is the record ID.
+            HINT
+        }
+      ],
+
+      execute: lambda do |_connection, input, e_i_s, e_o_s|
+        response = get("views/#{input['view_id']}/records/#{input['id']}")
+          .after_error_response(/.*/) do |_code, body, _header, message|
+            error("#{message} : #{body}")
+          end&.[]('data')
+        call(:format_output, response, e_o_s)
+      end,
+
+      output_fields: lambda { |object_definitions|
+        object_definitions['list_record']
+      },
+
+      sample_output: lambda { |_connection, input, e_o_s|
+        record = call(:get_fields_sample_output, view_id: input['view_id'])
+        call(:format_output, record, e_o_s)
+      }
+    },
+
     get_all_view_records: {
       description: "Get all <span class='provider'>records</span> from a view in <span class='provider'>TrackVia</span>",
       help: "Fetches records of a specified view in TrackVia. Maximum of 1000 records will be returned.",
