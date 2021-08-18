@@ -91,9 +91,13 @@
   methods: {
     get_all_output_fields: lambda do |input|
       url = input[:view_id].present? ? "views/#{input[:view_id]}" : "users"
+      relationshipForeignKeys = []
       Array.wrap(get(url)&.[]('structure')).reject { |field| field['name'] == "ID" }.map do |field|
         case field['type']
-        when 'number', 'currency', 'percentage', 'autoIncrement', 'relationship'
+        when 'relationship'
+          relationshipForeignKeys.push({ name: "f_#{field['fieldMetaId']}(id)", label: "#{field['name']}(id)", field_name: "#{field['name']}(id)", type: 'number' })
+          { name: "f_#{field['fieldMetaId']}", label: field['name'], field_name: field['name'], type: 'string' }
+        when 'number', 'currency', 'percentage', 'autoIncrement',
           { type: 'number' }
         when 'date'
           { type: 'date' }
@@ -101,8 +105,8 @@
           { type: 'date_time' }
         when 'point'
           { type: 'object', properties: [
-            { name: 'latitude', type: 'number', optional: false },
-            { name: 'longitude', type: 'number', optional: false }
+            { name: 'latitude', type: 'number' },
+            { name: 'longitude', type: 'number' }
           ] }
         when 'checkbox'
           { type: :array, of: :object, properties: [
@@ -111,7 +115,7 @@
         else
           {}
         end.merge(name: "f_#{field['fieldMetaId']}", label: field['name'], field_name: field['name'])
-      end.concat([{ name: 'id' }])
+      end.concat(relationshipForeignKeys).concat([{ name: 'id' }])
     end,
 
     get_output_fields: lambda do |input|
