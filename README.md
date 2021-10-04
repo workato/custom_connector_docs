@@ -665,7 +665,7 @@ In addition to `document_id`, this block is used to define the field that is use
 
 ```ruby
 sort_by: lambda do |event|
-  eent["time"]
+  event["time"]
 end
 ```
 
