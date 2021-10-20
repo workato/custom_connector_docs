@@ -411,6 +411,8 @@
           type: 'integer', control_type: 'integer' },
         { name: 'IS_TRIAL', label: 'Is trial',
           type: 'integer', control_type: 'integer' },
+        { name: 'MERCHANT_DEAL_AUTO_RENEWAL', label: 'Merchant deal auto renewal', type: 'boolean', control_type: 'checkbox', render_input: 'boolean_conversion', parse_ouput: 'boolean_conversion' },
+        { name: 'CLIENT_DEAL_AUTO_RENEWAL', label: 'Client deal auto renewal', type: 'boolean', control_type: 'checkbox', render_input: 'boolean_conversion', parse_ouput: 'boolean_conversion' },
         { name: 'HASH', label: 'Hash' }
       ]
     end,
@@ -588,13 +590,14 @@
       ]
     end,
 
-    proposal_updated_schema: lambda do
+    proposal_schema: lambda do
       [
         { name: 'proposal_id' },
         { name: 'name' },
         { name: 'type' },
         { name: 'version', type: 'integer', control_type: 'integer' },
         { name: 'status' },
+        { name: 'scope' },
         { name: 'status_comment' },
         { name: 'expiration_date',
           type: 'date_time',
@@ -616,11 +619,16 @@
             { name: 'product_code' },
             { name: 'quantity', type: 'integer', control_type: 'integer' },
             { name: 'price', type: 'number', control_type: 'number' },
+            { name: 'subscription_reference', type: 'string', control_type: 'string' },
+            { name: 'proration_date', type: 'date_time', control_type: 'date_time' },
+            { name: 'next_contract_renewal_period', type: 'integer', control_type: 'integer' },
+            { name: 'amendment_scenario', type: 'string', control_type: 'string' },
+            { name: 'merchant_deal_auto_renewal', type: 'boolean', control_type: 'checkbox', render_input: 'boolean_conversion', parse_ouput: 'boolean_conversion' },
+            { name: 'client_deal_auto_renewal', type: 'boolean', control_type: 'checkbox', render_input: 'boolean_conversion', parse_ouput: 'boolean_conversion' },
             { name: 'discounted_price',
               type: 'number',
               control_type: 'number' },
             { name: 'price_type' },
-            { name: 'subscription_reference' },
             { name: 'contract_period',
               type: 'integer', control_type: 'integer' },
             { name: 'immediate_action',
@@ -655,7 +663,6 @@
           { name: 'email', control_type: 'email' },
           { name: 'first_name' },
           { name: 'last_name' },
-          { name: 'vat_code', label: 'VAT code' },
           { name: 'phone', control_type: 'phone' },
           { name: 'country' },
           { name: 'state' },
@@ -668,12 +675,13 @@
           { name: 'email', control_type: 'email' },
           { name: 'first_name' },
           { name: 'last_name' },
-          { name: 'vat_code', label: 'VAT code' },
           { name: 'phone', control_type: 'phone' },
           { name: 'country' },
           { name: 'state' },
           { name: 'city' },
           { name: 'zip' },
+          { name: 'tax_exemption_id', type: 'string', control_type: 'string' },
+          { name: 'vat_code', type: 'string', control_type: 'string' },
           { name: 'address' }
         ] },
         { name: 'tac', type: 'object', properties: [
@@ -932,12 +940,14 @@
           if ['catalogue_product_created', 'catalogue_product_updated'].include?(field)
             call('catalogue_product_schema')
           elsif field == 'proposal_updated'
-            call('proposal_updated_schema')
+            call('proposal_schema')
+          elsif field == 'proposal_created'
+            call('proposal_schema')
           else
             call('ins_event_schema')
           end
         end.flatten)
-        fields = fields - %w[catalogue_product_created catalogue_product_updated proposal_updated]
+        fields = fields - %w[catalogue_product_created catalogue_product_updated proposal_updated proposal_created]
         if fields.length > 0
           items = unless fields.length == 1 && fields[0] == 'order_created'
                     call('recurrence')
@@ -1049,6 +1059,8 @@
 
       webhook_notification: lambda do |_input, payload, _e_i_s, _e_o_s, _headers|
         if payload['HASH'].present? && payload['DATE_UPDATED'].present?
+          payload['CLIENT_DEAL_AUTO_RENEWAL'] = ['true', 1, '1', true].include?(payload['CLIENT_DEAL_AUTO_RENEWAL'])
+          payload['MERCHANT_DEAL_AUTO_RENEWAL'] = ['true', 1, '1', true].include?(payload['MERCHANT_DEAL_AUTO_RENEWAL'])
           payload
         else
           {}
@@ -1115,7 +1127,7 @@
       webhook_notification: lambda do |input, payload, _e_i_s, _e_o_s, _headers|
         if input['field_list']&.split(',')&.include?(payload['message_type']&.downcase)
           if %w[CATALOGUE_PRODUCT_CREATED CATALOGUE_PRODUCT_UPDATED
-                PROPOSAL_UPDATED].include?(payload['message_type'])
+                PROPOSAL_UPDATED PROPOSAL_CREATED].include?(payload['message_type'])
             payload.each do |key, value|
               payload[key] = if value.is_a?(Array)
                                value.map do |obj|
@@ -1148,18 +1160,18 @@
                                  elsif value['line_items'].present?
                                    value['line_items'] = value.dig('line_items')&.
                                      map do |_item_key, item_value|
-                                       if item_value['price_options'].present?
-                                         item_value['price_options'] = item_value['price_options'].
-                                           map do |_option_key, option_value|
-                                             if option_value['group_options'].present?
-                                               option_value['group_options'] = option_value['group_options'].values.
-                                                 map { |item| { value: item } }
-                                             end
-                                             option_value
+                                     if item_value['price_options'].present?
+                                       item_value['price_options'] = item_value['price_options'].
+                                         map do |_option_key, option_value|
+                                           if option_value['group_options'].present?
+                                             option_value['group_options'] = option_value['group_options'].values.
+                                               map { |item| { value: item } }
                                            end
+                                         option_value
                                        end
-                                       item_value
                                      end
+                                     item_value
+                                   end
                                    value
                                  end
                                else
@@ -1190,9 +1202,9 @@
             items = []
             (0...(payload['item_count'].to_i)).to_a.each do |index|
               items << payload.select { |key, _val| key.match?(/^item_.*_#{index + 1}+$/) }&.
-                         each_with_object({}) do |(key, value), hash|
-                           hash[key.gsub("_#{index + 1}", '')] = value
-                         end
+                each_with_object({}) do |(key, value), hash|
+                  hash[key.gsub("_#{index + 1}", '')] = value
+                end
             end
             payload.reject { |key, _val| key.match?(/^item_.*_[0-9]+$/) }&.merge({ 'items' => items })
           end
@@ -1240,7 +1252,8 @@
         ['Recurring restarted', 'recurring_restarted'],
         ['Catalogue product created', 'catalogue_product_created'],
         ['Catalogue product update', 'catalogue_product_updated'],
-        ['Proposal updated', 'proposal_updated']
+        ['Proposal updated', 'proposal_updated'],
+        ['Proposal created', 'proposal_created']
       ]
     end
   }
