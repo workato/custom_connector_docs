@@ -15,7 +15,7 @@
       type: 'basic_auth',
       
       # Toggl API expect the token to be sent as user name and the string 'api_token' as the password
-      # curl -u "{your api_token}:api_token" "https://www.toggl.com/api/v8/me"
+      # curl -u "{your api_token}:api_token" "https://api.track.toggl.com/api/v8/me"
       credentials: ->(connection) {
         user(connection['api_token'])
         password('api_token')
@@ -24,7 +24,7 @@
   },
   
   test: ->(connection) {
-    get("https://www.toggl.com/api/v8/me")
+    get("https://api.track.toggl.com/api/v8/me")
   },
 
   object_definitions: {
@@ -58,7 +58,7 @@
         start_time = input['date'].to_time.beginning_of_day.utc.iso8601
         end_time = (input['date'].to_time + 1.days).beginning_of_day.utc.iso8601
         
-        entries = get("https://www.toggl.com/api/v8/time_entries").
+        entries = get("https://api.track.toggl.com/api/v8/time_entries").
                   params(start_date: start_time,
                          end_date: end_time)
         
@@ -81,7 +81,7 @@
       },
 
       execute: ->(connection, input) {
-        project = get("https://www.toggl.com/api/v8/projects/#{input['id']}")['data']
+        project = get("https://api.track.toggl.com/api/v8/projects/#{input['id']}")['data']
         {
           'project_name': project['name'],
           'client_id': project['cid']
@@ -104,7 +104,7 @@
 
       execute: ->(connection, input) {
         {
-          'name': get("https://www.toggl.com/api/v8/clients/#{input['id']}")['data']['name']
+          'name': get("https://api.track.toggl.com/api/v8/clients/#{input['id']}")['data']['name']
         }
       },
 
@@ -128,9 +128,9 @@
         start_time = input['date'].to_time.beginning_of_day.utc.iso8601
         end_time = (input['date'].to_time + 1.days).beginning_of_day.utc.iso8601
         
-        user = input['user'] == 'me' ? get("https://www.toggl.com/api/v8/me")['data']['fullname'] : input['user']
+        user = input['user'] == 'me' ? get("https://api.track.toggl.com/api/v8/me")['data']['fullname'] : input['user']
         
-        report = get("https://toggl.com/reports/api/v2/summary").
+        report = get("https://api.track.toggl.com/reports/api/v2/summary").
                  params(since: start_time,
                         until: end_time,
                         user_agent: user,
