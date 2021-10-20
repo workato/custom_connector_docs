@@ -150,7 +150,7 @@ connection: {
     type: "basic_auth",
 
     # Toggl API expect the token to be sent as user name and the string 'api_token' as the password
-    # curl -u "{your api_token}:api_token" "https://www.toggl.com/api/v8/me"
+    # curl -u "{your api_token}:api_token" "https://api.track.toggl.com/api/v8/me"
     credentials: lambda do |connection|
       user(connection["api_token"])
       password("api_token")
