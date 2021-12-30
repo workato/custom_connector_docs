@@ -10,7 +10,7 @@ Alternatively, Workato offers a [HTTP Connector](http://bit.ly/WorkatoHTTPConnec
 
 A Workato recipe is a set of predefined instructions to be executed. It is made up of a trigger and one or more actions.
 
-It execute a variety of tasks to all the applications supported by the Workato platform.
+It executes a variety of tasks to all the applications supported by the Workato platform.
 
 ## Trigger
 
@@ -36,7 +36,7 @@ There are 4 types of actions:
 
 ## Adapter
 
-An Adapter is a connector to an application. Each Adapter has one or more trigger and actions. When an action or trigger is executed, it performs it's respective function with the account instance connected to that application.
+An Adapter is a connector to an application. Each Adapter has one or more triggers and actions. When an action or trigger is executed, it performs its respective function with the account instance connected to that application.
 
 # Connector SDK
 
@@ -129,7 +129,7 @@ connection: {
 
 In this example, Close.io API expects an API Key generated in the individual User’s account. It should be used as a username with a blank password in the standard basic authentication format.
 
-So, to adjust the connections portion of the code to suit this behaviour, simply request for an API instead of username + password.
+So, to adjust the connections portion of the code to suit this behavior, simply request for an API instead of username + password.
 
 In the credentials section, pass the api_key into `user()` and an empty string (“”) to `password()`
 
@@ -284,7 +284,7 @@ Note:
 - SDK makes a POST request to token endpoint. Will not currently work for APIs expecting a different type of request.
 - Ensure that your implementation of OAuth 2.0 is compliant with the specifications stated in the RFC document. Else, your custom adapter might not start.
   - For example, [Issuing an Access Token - Successful Response](https://tools.ietf.org/html/rfc6749#section-5.1) states that Workato will be expecting a response with the following required parameters: `access_token`, `token_type` and `expires_in`. Returning the access token with a key of `accessToken` in a JSON response will result in an unsuccessful Workato request to your `token_url`.
-  - Usually this will not be a problem because most OAuth libraries out there will do most of the heavily-lifting for you, such as returning response in the right format etc. It is good to be aware of this!
+  - Usually this will not be a problem because most OAuth libraries out there will do most of the heavy-lifting for you, such as returning responses in the right format etc. It is good to be aware of this!
 
 ### Custom Authentication
 
@@ -322,7 +322,7 @@ actions: {
 }
 ```
 
-A very simple action looks like this. A get request to the Close.io leads endpoint. In this case, the particular lead’s details is appended in the endpoint.
+A very simple action looks like this. A get request to the Close.io leads endpoint. In this case, the particular lead’s details are appended in the endpoint.
 
 ### Parameter / Payload
 
@@ -388,9 +388,9 @@ group_by | [Group arrays into sets](http://apidock.com/rails/Enumerable/group_by
 headers | Add headers to a request<br>`.headers(Authorization: "Bearer HTB674HJK1")`
 params | Add parameter to a request<br>`.params(api_key: "HTB674HJK1")`
 payload | Add payload to a request<br>`.payload(id: "345")`
-ignored | Ignore a comma-separate list of fields<br>`object_definition["user"].ignored("id", "created_at")`
-only | White list a comma-separate  of fields<br>`object_definition["user"].only("id", "name")`
-required | Make a comma-separate list of fields required<br>`object_definition["user"].required("id", "created_at")`
+ignored | Ignore a comma-separated list of fields<br>`object_definition["user"].ignored("id", "created_at")`
+only | White list a comma-separated  of fields<br>`object_definition["user"].only("id", "name")`
+required | Make a comma-separated list of fields required<br>`object_definition["user"].required("id", "created_at")`
 inject | [Combine elements in an array using an operation](http://apidock.com/ruby/Enumerable/inject)
 iso8601 | Convert a date/date-time variable to ISO8601 format
 map | Returns a new array after invoking block on each element
@@ -411,7 +411,7 @@ while | [while loop statement](https://www.tutorialspoint.com/ruby/ruby_loops.ht
 
 Records (tickets, leads, items etc.) are called events in a poll. A poll trigger constantly executes a poll block for new events at fixed time intervals. This time interval depends on a user's subscription (5 or 10 minutes). At the same time, it is also able to support pagination. This is useful to prevent request timeouts when making requests with large response results. A trigger can execute immediate consecutive polls to retrieve events from successive pages.
 
-There are two types of trigger. The classic trigger type is used by default if `type` is not specified. The other type is called the "paging_desc" trigger, which can be used only for endpoints that provide events sorted in descending order. This trigger type has an auto-paging mechanism that lets you build a simple and efficient trigger. (described in detail below)
+There are two types of triggers. The classic trigger type is used by default if `type` is not specified. The other type is called the "paging_desc" trigger, which can be used only for endpoints that provide events sorted in descending order. This trigger type has an auto-paging mechanism that lets you build a simple and efficient trigger. (described in detail below)
 
 A ruby hash is returned in each poll. This hash should contain a few keys. The array of events, or data, should be passed into the `events` key. At the same time, a cursor is saved in `next_page`/`next_poll` (depending on the trigger type). This cursor provides information about where the current poll stopped, and used in the next poll. A classic type trigger has an additional key `can_poll_more`, which can be defined to conditionally fire immediate polls for multi-page results.
 
@@ -515,7 +515,7 @@ Example JSON response:
 ]
 ```
 
-When a get request receives this JSON response, it looks up the array for the last record (latest record) and passes it as the cursor for the next poll. It also checks the response array size. If it is equal to the size limit, it is likely that there are more records matching this request in consequtive pages. Hence the expression given to `can_poll_more` evaluates to true and invokes an immediate successive poll. This loop continues until response array size is smaller than page limit.
+When a get request receives this JSON response, it looks up the array for the last record (latest record) and passes it as the cursor for the next poll. It also checks the response array size. If it is equal to the size limit, it is likely that there are more records matching this request in consecutive pages. Hence the expression given to `can_poll_more` evaluates to true and invokes an immediate successive poll. This loop continues until response array size is smaller than page limit.
 
 At the end of the loop. The last (latest) created date is passed as `next_poll`. This value will be used in the next poll cycle to pick up new records.
 
@@ -529,7 +529,7 @@ dedup: lambda do |ticket|
   ticket["id"]
 end
 ```
-In some instances, a record needs to be proccessed as separate events. A typical scenario is updated records. To do this, append updated timestamp field to the dedup expression like so.
+In some instances, a record needs to be processed as separate events. A typical scenario is updated records. To do this, append the updated timestamp field to the dedup expression like so.
 ```ruby
 dedup: lambda do |ticket|
   ticket["id"] + "@" + ticket["`updated_at"]
@@ -586,9 +586,9 @@ new_alert: {
 #### type
 `type: :paging_desc` - This type should be used only if results are in descending order. A `paging_desc` trigger works by assuming a descending order and continuously poll for all unique records. If the API is unable to return records in descending order, ignore this key to use the classic trigger.
 
-A record of all event IDs (defined in `document_id` ) is recorded for each recipe. Each recipe will "remember" all event IDs that is processed through a trigger.
+A record of all event IDs (defined in `document_id` ) is recorded for each recipe. Each recipe will "remember" all event IDs that are processed through a trigger.
 
-Based on assumption of order, the trigger can stop the polling cycle once a similar event IDs is observed. This is because further polls will return events "before" and would have already been processed by the trigger. At this point, the trigger stops polling and wait for the new poll cycle for new events. The Workato trigger framework handles deduplication in the background.
+Based on assumption of order, the trigger can stop the polling cycle once a similar event IDs is observed. This is because further polls will return events "before" and would have already been processed by the trigger. At this point, the trigger stops polling and waits for the new poll cycle for new events. The Workato trigger framework handles deduplication in the background.
 
 #### poll
 Poll block is where you define how events are obtained. Typically, a GET request is used to retrieve a list of records to be processed as trigger events.
@@ -710,11 +710,11 @@ triggers: {
 
 ### webhook_subscribe
 
-This block is called when the recipe is being started to run necessery API calls to subscribe for further webhook notifications. The endpoint that supposed to be register is passed in `webhook_url` parameter with other data that could be useful while registering the webhook.
+This block is called when the recipe is being started to run necessary API calls to subscribe for further webhook notifications. The endpoint that is supposed to be registered is passed in `webhook_url` parameter with other data that could be useful while registering the webhook.
 
 ### webhook_unsubscribe
 
-This block will be called after recipe start to unsubscribe from webhook notifications.
+This block will be called after the recipe starts to unsubscribe from webhook notifications.
 
 ### webhook_notification
 
@@ -821,7 +821,7 @@ end
 ```
 
 ## Pick List
-A pick list is list of choices predefined for a user to select instead of having to input the actual values.
+A pick list is a list of choices predefined for a user to select instead of having to input the actual values.
 It is useful when there is a list of accepted values for a field or when the field requires a value that is not visible. For example, a field that requires User ID will require a pick list that displays the User names and pass the corresponding User's ID to that field.
 
 ### Defining a pick list
@@ -829,7 +829,7 @@ There are 2 ways to define a pick list: dynamically or statically.
 
 Static example:
 
-Pick list is defined as a array of selections. Each selection is an array made up of 2 elements.
+Pick list is defined as an array of selections. Each selection is an array made up of 2 elements.
 
 The first element in the selection array is the value displayed and the second element is the value of that selection.
 ```ruby
@@ -866,7 +866,7 @@ end
 
 ## Configuration Fields
 
-Occassionally, input/output fields depend on user input. For example, the fields for an object depends on the chosen object. Here, we introduce `config_fields`. It is an optional key available in both actions and triggers. It is a special type of input field that can be used to generate other dependent input/output fields. We see this in the merge_document action in Webmerge.
+Occasionally, input/output fields depend on user input. For example, the fields for an object depends on the chosen object. Here, we introduce `config_fields`. It is an optional key available in both actions and triggers. It is a special type of input field that can be used to generate other dependent input/output fields. We see this in the merge_document action in Webmerge.
 
 ```ruby
 action: {
