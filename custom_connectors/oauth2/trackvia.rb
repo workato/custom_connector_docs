@@ -162,7 +162,7 @@
             { name: 'longitude', type: 'number', optional: false }
           ] }
         when 'user'
-          { hint: 'Enter the required user ID. User ID can be foun at the end of URL.' }
+          { hint: 'Enter the required user ID. User ID can be found at the end of URL.' }
         when 'userGroup'
           { hint: 'Enter valid user group ID.' }
         when 'checkbox'
@@ -867,7 +867,85 @@
       sample_output: lambda do |_connection, _input|
         { status: 'success' }
       end
-    }
+    },
+
+    remove_file_from_record: {
+        description: "Remove <span class='provider'>file</span> from a record in <span class='provider'>TrackVia</span>",
+        help: "Remove a file from a record's document or image field in TrackVia.",
+        title: "Remove a file from a record",
+
+        config_fields: [
+          {
+            name: 'app_name',
+            label: 'Application',
+            control_type: 'select',
+            pick_list: 'apps',
+            optional: false,
+            hint: 'Select a TrackVia application.'
+          },
+          {
+            name: 'view_id',
+            label: 'View',
+            control_type: 'select',
+            pick_list: 'views',
+            pick_list_params: { app_name: 'app_name' },
+            optional: false,
+            hint: 'Select an available view.',
+            toggle_hint: 'Select from list',
+            toggle_field: {
+              name: 'view_id',
+              label: 'View ID',
+              type: :integer,
+              disable_formula: true,
+              control_type: 'plain_text',
+              toggle_hint: 'Enter custom value',
+              hint: 'Select the required view. ID can be found at the end of URL.'
+            }
+          },
+          {
+            name: 'field_name',
+            control_type: 'select',
+            pick_list: 'document_fields',
+            pick_list_params: { view_id: 'view_id' },
+            optional: false,
+            hint: 'Select the field to which file needs to be uploaded.'
+          }
+
+        ],
+
+        input_fields: lambda do |_object_definitions|
+          [
+            {
+              name: 'id',
+              label: 'ID',
+              type: 'integer',
+              control_type: 'number',
+              optional: false,
+              hint: <<-HINT
+                        Internal ID of the record. Select the required record.<br/>
+                        If the URL ends like tables/15/views/341/records/view/51/form/584, then <b>51</b> is the record ID.
+                HINT
+            }
+          ]
+        end,
+
+        execute: lambda do |_connection, input, _e_i_s, e_o_s|
+          {
+            'status': delete("views/#{input['view_id']}/records/#{input['id']}/files/#{input['field_name']}").
+            after_error_response(/.*/) do |_code, body, _header, message|
+              error("#{message} : #{body}")
+            end&.presence || 'success'
+          }
+        end,
+
+        output_fields: lambda do |_object_definitions|
+          [{ name: 'status' }]
+        end,
+
+        sample_output: lambda do |_connection, _input|
+          { status: 'success' }
+        end
+      },
   },
 
   triggers: {
