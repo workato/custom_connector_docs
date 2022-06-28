@@ -75,6 +75,11 @@
                                      'array_fields' => array_fields)
                        }
                      end)
+        #regex for date detection TODO: Lazy duplicate conditionals
+        elsif key == 'content!' && value.match?(/^\d{1,2}\/\d{1,2}\/\d{4}$/)
+          value.to_date(format: '%m/%d/%Y')
+        elsif key == 'content!' && value.match?(/^\d{1,2}\/\d{1,2}\/\d{4} /)
+          value.to_time(format: '%m/%d/%Y %H:%M:%S')
         elsif key == 'content!'
           value
         else
