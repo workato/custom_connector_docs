@@ -1,0 +1,157 @@
+{
+  title: "Setmore",
+
+  connection: {
+    fields: [
+      {
+        name: "username",
+        optional: false,
+        label: "Setmore Email ID",
+        hint: "Your Setmore login ID"
+      },
+      {
+        name: "password",
+        optional: false,
+        control_type: "password",
+        label: "Password"
+      }
+    ],
+
+    authorization: {
+      type: "basic_auth",
+
+      credentials: lambda do |connection|
+        payload(username: connection["username"],
+                password: connection["password"])
+      end
+    },
+
+    base_uri: lambda do
+      "https://my.setmore.com"
+    end
+  },
+
+  test: lambda do |_connection|
+    post("/integrationUserAuthentication")
+  end,
+
+  object_definitions: {
+    contact: {
+      fields: lambda do |_connection|
+        [
+          { name: "first_name" },
+          { name: "last_name" },
+          { name: "phone" },
+          { name: "email" }
+        ]
+      end
+    },
+
+    triggerData: {
+      fields: lambda do |_connection|
+        [
+          { name: "first_name" },
+          { name: "last_name" },
+          { name: "mobile_number" },
+          { name: "id", label: "ID" },
+          { name: "login_id", label: "Email" },
+          {
+            name: "address",
+            type: :object,
+            properties: [
+              { name: "zip" },
+              { name: "state" },
+              { name: "line1" },
+              { name: "country" },
+              { name: "city" }
+            ]
+          }
+        ]
+      end
+    }
+  },
+
+  actions: {
+    create_contact: {
+      description: "Create <span class='provider'>contact</span> in " \
+        "<span class='provider'>Setmore</span>",
+
+      input_fields: lambda do |_object_definitions|
+        [
+          {
+            name: "first_name",
+            optional: false
+          },
+          {
+            name: "last_name"
+          },
+          {
+            name: "phone",
+            control_type: :phone
+          },
+          {
+            name: "email",
+            control_type: :email
+          }
+        ]
+      end,
+
+      execute: lambda do |_connection, input|
+        {
+          contacts: post("/contacts/getContact").
+                      payload(contact: {
+                                first_name: input["first_name"],
+                                last_name: input["last_name"],
+                                phone: input["phone"],
+                                email: input["email"]
+                              })
+        }
+      end,
+
+      output_fields: lambda do |object_definitions|
+        {
+          contact: object_definitions["contact"]
+        }
+      end
+    }
+  },
+
+  triggers: {
+    new_contact: {
+      description: "New <span class='provider'>contact</span> in " \
+        "<span class='provider'>Setmore</span>",
+
+      type: "paging_desc",
+
+      webhook_subscribe: lambda do |webhook_url, connection, _input, recipe_id|
+        post("/subscription/workato").
+          payload(id: recipe_id,
+                  webhookUrl: webhook_url,
+                  modelType: "contacts",
+                  userId: connection["username"],
+                  status: "true")
+      end,
+
+      webhook_unsubscribe: lambda do |webhook, connection|
+        delete("/unsubscription/workato",
+               id: webhook["id"],
+               webhookUrl: webhook["webhookUrl"],
+               userId: connection["username"],
+               modelType: "contacts",
+               status: "false")
+      end,
+
+      webhook_notification: lambda do |_input, payload|
+        payload
+      end,
+
+      dedup: lambda do |contact|
+        contact["id"]
+      end,
+
+      output_fields: lambda do |object_definitions|
+        object_definitions["triggerData"]
+      end
+    }
+  }
+}
